@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>Perfil de usuario</title>
+
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}"/>
+
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+
+</head>
+<body>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-lg">
+        <div class="card-header text-center bg-primary text-white">
+          <h3>Perfil de Usuario</h3>
+        </div>
+        <div class="card-body text-center">
+
+          <img th:src="${fotoPerfil}"
+               alt="Foto de perfil"
+               class="rounded-circle img-thumbnail mb-3"
+               style="width: 150px; height: 150px;">
+
+
+          <h4 th:text="${nombre}">Nombre del usuario</h4>
+          <p class="mb-1"><strong>Edad:</strong> <span th:text="${edad}"></span> años</p>
+          <p class="mb-1"><strong>Usuario:</strong> <span th:text="${usuario}"></span></p>
+          <p class="mb-1"><strong>Winrate:</strong> <span th:text="${winrate}"></span></p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
