@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sala de Espera</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .card-custom {
+            border-radius: 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #495057;
+        }
+    </style>
+</head>
+<body class="p-4">
+<div class="d-flex justify-content-center align-items-center">
+    <h2 class="text-primary">Sala de Espera</h2>
+</div>
+
+<div class="container text-center">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a th:href="@{/home}" class="btn btn-primary">Ir al Home</a>
+        <button class="btn btn-outline-danger" >
+            CANCELAR BUSQUEDA DE PARTIDA
+        </button>
+    </div>
+
+    <!-- Esperando a otros jugadores -->
+    <div class="card card-custom p-3 mb-4">
+        <div class="section-title mb-2">Esperando a otros jugadores...(MENSAJE DINAMICO)</div>
+        <div class="d-flex justify-content-around">
+            <div class="badge bg-secondary p-3" th:text="${jugador1}"></div>
+            <div class="badge bg-warning text-dark p-3" th:text="${jugador2}"></div>
+        </div>
+    </div>
+
+    <!-- ¿Estás listo? -->
+    <div class="row mb-4 g-4 justify-content-center">
+        <div class="col-md-4">
+            <button class="btn btn-success w-100 p-3 rounded-4 shadow">
+                ESTOY LISTO! (CAMBIA DE COLOR A VERDE SI ESTA LISTO)
+            </button>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-danger w-100 p-3 rounded-4 shadow">NO ESTOY LISTO! (CAMBIAR DE COLOR A ROJO SI NO LO ESTA)
+            </button>
+        </div>
+    </div>
+
+    <!-- Link de la partida -->
+    <div class="card card-custom p-4 mb-4">
+        <div class="section-title mb-2">Link para la partida</div>
+        <code class="text-break">/partida/jugar_partida/datos_partida</code>
+    </div>
+
+    <!-- Iniciar partida -->
+    <div class="mb-4">
+        <a th:href="@{/iniciarPartida}" class="btn btn-warning btn-lg w-50 rounded-4 shadow">
+            Iniciar Partida
+        </a>
+    </div>
+
+    <!-- Timer -->
+    <div class="card card-custom p-4">
+        <div class="section-title">Timer para iniciar la partida</div>
+        <p class="mb-0 text-muted">La partida comenzara en 5 segundos... (MENSAJE DINAMICO)</p>
+    </div>
+
+</div>
+
+</body>
+</html>
