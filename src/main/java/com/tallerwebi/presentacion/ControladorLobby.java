@@ -16,22 +16,22 @@ public class ControladorLobby {
     }
 
 
-    @RequestMapping("/irRanking")
+    @RequestMapping("/Ranking")
     public ModelAndView Ranking() {
         return new ModelAndView("ranking");    }
 
 
-    @RequestMapping("/irPerfil")
+    @RequestMapping("/Perfil")
     public ModelAndView Perfil() {
         return new ModelAndView("perfil");
     }
 
-    @RequestMapping("/irPartida")
+    @RequestMapping("/Partida")
     public ModelAndView Partida() {
         return new ModelAndView("partida");
     }
 
-    @RequestMapping("/irRecompensas")
+    @RequestMapping("/Recompensas")
     public ModelAndView Recompensa() {
         return new ModelAndView("recompensas");
     }
