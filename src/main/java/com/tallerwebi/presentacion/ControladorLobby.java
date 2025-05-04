@@ -15,7 +15,6 @@ public class ControladorLobby {
 
     }
 
-
     @RequestMapping("/Ranking")
     public ModelAndView Ranking() {
         return new ModelAndView("ranking");    }
