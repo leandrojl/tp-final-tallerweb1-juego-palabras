@@ -15,14 +15,16 @@ import java.util.List;
 public class RegistroController {
 
     private List<Jugador> jugadores = Arrays.asList(
-            new Jugador("pepe123", "pepe@gmail.com", "abc123245"),
+            new Jugador("pepe1235421", "pepe@gmail.com", "abc123245"),
             new Jugador("lucas", "lucas@gmail.com", "12151gdsf"),
             new Jugador("nicolas", "nicolas@gmail.com", "bv2b132v1")
     );
 
     @RequestMapping("/registro")
     public ModelAndView mostrarRegistro() {
-        return new ModelAndView("registro");
+        ModelMap model = new ModelMap();
+        model.addAttribute("jugador", new Jugador());
+        return new ModelAndView("registro",model);
     }
 
     public ModelAndView RedireccionarAVistaLogin() {

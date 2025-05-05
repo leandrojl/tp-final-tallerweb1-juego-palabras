@@ -91,7 +91,7 @@ public class RegistroControllerTest {
    @Test
     public void queAlExistirElNombreDeUsuarioIndicadoSeGenereUnError() throws Exception {
 
-       MvcResult mvcResult = whenRegistroUsuario(usuario,email,password);
+       MvcResult mvcResult = whenRegistroUsuario("pepe1235421",email,password);
 
         thenUsuarioExiste(mvcResult, "El usuario ya existe");
     }

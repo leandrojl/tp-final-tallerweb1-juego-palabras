@@ -1,9 +1,13 @@
 package com.tallerwebi.dominio;
 
 public class Jugador {
-    private final String usuario;
-    private final String email;
-    private final String password;
+    private String usuario;
+    private String email;
+    private String password;
+
+    public Jugador() {
+
+    }
 
     public Jugador(String usuario, String email, String password) {
         this.usuario = usuario;
@@ -12,14 +16,26 @@ public class Jugador {
     }
 
     public String getUsuario() {
-        return usuario;
+        return this.usuario;
     }
 
     public String getEmail() {
-        return email;
+        return this.email;
     }
 
     public String getPassword() {
-        return password;
+        return this.password;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
