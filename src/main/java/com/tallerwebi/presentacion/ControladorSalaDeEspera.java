@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.Jugador;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,4 +28,10 @@ public class ControladorSalaDeEspera {
     }
 
 
+    @RequestMapping("/agregarJugadorALaSalaDeEspera")
+    public ModelAndView agregarJugadorALaSalaDeEspera(Jugador jugador) {
+        ModelMap modelo = new ModelMap();
+        modelo.put("jugador1",jugador.getNombre());
+        return new ModelAndView("sala-de-espera", modelo);
+    }
 }
