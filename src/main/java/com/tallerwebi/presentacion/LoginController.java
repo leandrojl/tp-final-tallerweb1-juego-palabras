@@ -9,7 +9,11 @@ public class LoginController {
 
     @RequestMapping("/vistaLogin")
     public ModelAndView mostrarLogin() {
-        return new ModelAndView("log-in");
+        return new ModelAndView("login");
     }
 
+
+    public ModelAndView redireccionarAVistaRegistro() {
+        return new ModelAndView("registro");
+    }
 }
