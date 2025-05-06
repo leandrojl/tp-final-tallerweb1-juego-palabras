@@ -41,7 +41,8 @@
     </div>
     <div class="d-flex flex-row">
       <p>Ya tienes una cuenta?</p>
-      <a href="/spring/vistaLogin" class="text-decoration-none">Iniciar sesion</a>
+      <a href="/spring/login" class="text-decoration-none">Iniciar sesion</a>
+      <p th:if="${error != null}" class="alert alert-danger" th:text="'Error ' + ${error}">
     </div>
   </form>
 </div>

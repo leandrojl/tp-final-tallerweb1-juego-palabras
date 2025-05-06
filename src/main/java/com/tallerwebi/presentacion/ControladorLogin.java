@@ -23,7 +23,7 @@ public class ControladorLogin {
         this.servicioLogin = servicioLogin;
     }
 
-    @RequestMapping("/login")
+    @RequestMapping("/loginn")
     public ModelAndView irALogin() {
 
         ModelMap modelo = new ModelMap();

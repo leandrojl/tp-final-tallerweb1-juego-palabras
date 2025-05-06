@@ -14,6 +14,7 @@ import java.util.List;
 @Controller
 public class RegistroController {
 
+    //En el futuro mandarlo a un servicio
     private List<Jugador> jugadores = Arrays.asList(
             new Jugador("pepe1235421", "pepe@gmail.com", "abc123245"),
             new Jugador("lucas", "lucas@gmail.com", "12151gdsf"),
@@ -34,6 +35,7 @@ public class RegistroController {
     @PostMapping("/procesarRegistro")
     public ModelAndView registrar(@ModelAttribute Jugador jugador) {
         ModelMap model = new ModelMap();
+        //Crear clase validadora de campos para no tener ifs aca
         if(jugador.getUsuario().isEmpty()){
             model.addAttribute("error", "El usuario no puede estar vacio");
             return new ModelAndView("registro", model);
@@ -50,6 +52,9 @@ public class RegistroController {
             model.addAttribute("error", "El usuario ya existe");
             return new ModelAndView("registro", model);
         }
+
+        //Efectuar el registro una vez validados los campos
+        //Retornar a la vista login cuando ya se realizo el registro
         return new ModelAndView("login");
     }
 
