@@ -1,0 +1,21 @@
+.btn-naranja {
+    background-color: #ff6347;
+    color: white;
+    
+}
+
+.btn-naranja:hover {
+    background-color:none;
+    color: black;
+    border-color: #ff6347;
+}
+
+.contenido {
+    display: grid;
+    place-items: center;
+    margin-top: 40px;
+}
+
+.boton-volver {
+    margin-top: 20px;
+}
