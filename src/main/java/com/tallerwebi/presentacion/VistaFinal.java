@@ -10,8 +10,10 @@ public class VistaFinal {
     @RequestMapping("/vistaFinal")
     public ModelAndView verPantallaFinal() {
         String nombreGanador = "Pepito";
+        String puntos = "500";
         ModelAndView mav = new ModelAndView("vistaFinalJuego");
         mav.addObject("nombre", nombreGanador);
+        mav.addObject("puntos", puntos);
         return mav;
     }
 

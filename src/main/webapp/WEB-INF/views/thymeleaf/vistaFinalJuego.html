@@ -1,19 +1,36 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <!-- custom style -->
+    <link rel="stylesheet" th:href="@{/css/vistaFinal.css}" />
+    <title>Vista final</title>
 </head>
+
 <body>
 
-<div>
-    El ganador es <p th:text="${nombre}"></p>
-</div>
+    <div class="contenido">
+        <div>
+            <p>El ganador es <span th:text="${nombre}"></span> con <span th:text="${puntos}"></span> puntos</p>
+        </div>
 
-<a th:href="@{/loby}">
-    <button>VOLVER AL LOBBY</button>
-</a>
+        <div class="boton-volver">
+            <a th:href="@{/lobby}">
+                <button class="btn btn-naranja">VOLVER AL LOBBY</button>
+            </a>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+        crossorigin="anonymous"></script>
 
 </body>
+
 </html>
