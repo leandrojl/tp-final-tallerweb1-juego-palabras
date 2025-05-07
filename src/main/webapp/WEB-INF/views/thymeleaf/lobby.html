@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lobby</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .btn-orange {
+            background-color: #ff6347;
+            color: white;
+        }
+        .btn-outline {
+            border: 1px solid black;
+            background-color: white;
+            color: black;
+        }
+        .centered {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn-large {
+            width: 500px;
+            height: 150px;
+        }
+        .btn-start {
+            width: 300px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row justify-content-between mt-3">
+        <div class="col-3 d-flex flex-column align-items-start gap-3 ps-5">
+            <a  class="btn btn-outline w-75">SISTEMA DE RECOMPENSAS</a>
+            <a class="btn btn-outline w-75">RANKINGS</a>
+        </div>
+
+        <div class="col-6 text-center">
+            <h5>LOBBY</h5>
+
+        </div>
+
+        <div class="col-3 d-flex justify-content-end pe-5">
+            <a th:href="@{/perfil}" class="btn btn-orange">PERFIL</a>
+        </div>
+    </div>
+
+    <div class="row mt-5 justify-content-center">
+        <div class="col-auto">
+            <div class="btn btn-orange btn-large d-flex align-items-center justify-content-center">
+                EL NOMBRE DEL JUGADOR
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5 justify-content-center">
+        <div class="col-auto">
+            <a th:href="@{/juego(jugadorId=1)}" class="btn btn-orange btn-start">INICIAR PARTIDA</a>
+        </div>
+    </div>
+
+    <a th:href="@{/salaDeEspera}" class="btn btn-orange btn-start">IR A LA SALA DE ESPERA  - TESTEO</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
