@@ -8,11 +8,10 @@ import org.springframework.web.servlet.ModelAndView;
 public class ControladorVistaFinal {
 
     @RequestMapping("/vistaFinal")
-    public ModelAndView verPantallaFinal() {
-        String nombreGanador = "Pepito";
-        String puntos = "500";
+    public ModelAndView verPantallaFinal(String nombre, Integer puntos) {
+
         ModelAndView mav = new ModelAndView("vistaFinalJuego");
-        mav.addObject("nombre", nombreGanador);
+        mav.addObject("nombre", nombre);
         mav.addObject("puntos", puntos);
         return mav;
     }
