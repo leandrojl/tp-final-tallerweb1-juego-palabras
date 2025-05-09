@@ -18,10 +18,15 @@ public class ControladorLobby {
 
         if (jugador != null) {
             model.addAttribute("jugador", jugador);
+        } else {
+            jugador = new Jugador(); // ← Crear nuevo jugador antes de usarlo
+            jugador.setNombre("july3p");
+            model.addAttribute("jugador", jugador);
         }
 
         return new ModelAndView("lobby");
     }
+
 
     @RequestMapping("/Ranking")
     public ModelAndView Ranking() {
