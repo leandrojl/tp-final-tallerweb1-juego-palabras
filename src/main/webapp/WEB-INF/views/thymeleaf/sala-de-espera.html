@@ -48,12 +48,15 @@
     <!-- ¿Estás listo? -->
     <div class="row mb-4 g-4 justify-content-center">
         <div class="col-md-4">
-            <button class="btn btn-success w-100 p-3 rounded-4 shadow">
-                ESTOY LISTO! (CAMBIA DE COLOR A VERDE SI ESTA LISTO)
+            <button id="ready-button-jugador1" class="btn btn-danger w-100 p-3 rounded-4 shadow"
+                    onclick="toggleReady('jugador1', true)">
+                NO ESTOY LISTO!
             </button>
         </div>
         <div class="col-md-4">
-            <button class="btn btn-danger w-100 p-3 rounded-4 shadow">NO ESTOY LISTO! (CAMBIAR DE COLOR A ROJO SI NO LO ESTA)
+            <button id="ready-button-jugador2" class="btn btn-danger w-100 p-3 rounded-4 shadow"
+                    onclick="toggleReady('jugador2', true)">
+                NO ESTOY LISTO!
             </button>
         </div>
     </div>
@@ -78,6 +81,7 @@
     </div>
 
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+<script th:src="@{/js/script.js}"></script>
 </body>
 </html>
