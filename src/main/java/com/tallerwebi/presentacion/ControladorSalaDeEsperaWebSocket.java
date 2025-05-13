@@ -14,6 +14,8 @@ public class ControladorSalaDeEsperaWebSocket {
         return estadoJugador; // Retransmite el estado del jugador a todos los clientes
     }
 
+
+
     public static class EstadoJugador {
         private String jugadorId;
         private boolean estaListo;
