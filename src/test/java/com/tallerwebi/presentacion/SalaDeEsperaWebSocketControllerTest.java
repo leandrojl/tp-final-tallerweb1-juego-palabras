@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.EstadoJugador;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
@@ -32,23 +33,19 @@ public class SalaDeEsperaWebSocketControllerTest {
         thenJugadorListo(resultado);
     }
 
-
-    @Test
-    public void queSiUnJugadorAunNoEstaListoNoSePuedaIniciarUnaPartida(){
-
-    }
-
-    @Test
-    public void siAmbosJugadoresEstanListosSePuedaIniciarUnaPartida() {
-
-    }
-
-
     //adicionales que pienso
 
     @Test
     public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo(){
-
+        ControladorSalaDeEsperaWebSocket controladorSalaDeEsperaWebSocket = new ControladorSalaDeEsperaWebSocket();
+        EstadoJugador jugador1 = new EstadoJugador("jugador1", false);
+        EstadoJugador jugador2 = new EstadoJugador("jugador2", false);
+        jugador1.setEstaListo(true);
+        assertThrows(IllegalArgumentException.class, () -> {
+            controladorSalaDeEsperaWebSocket.actualizarEstadoJugador(jugador2,"jugador1");
+        });
+        assertTrue(jugador1.isEstaListo(), "Jugador1 debería estar listo");
+        assertFalse(jugador2.isEstaListo(), "Jugador2 no debería haber cambiado su estado");
     }
 
 
@@ -57,10 +54,7 @@ public class SalaDeEsperaWebSocketControllerTest {
 
     }
     private EstadoJugador givenJugadorEnSala(String pepe, boolean b) {
-        EstadoJugador estadoJugador = new EstadoJugador();
-        estadoJugador.setJugadorId("pepe");
-        estadoJugador.setEstaListo(true);
-        return estadoJugador;
+        return new EstadoJugador("pepe",true);
     }
 
     private CompletableFuture<EstadoJugador> whenSeleccionarBotonEstoyListo(EstadoJugador estadoJugador) throws InterruptedException, ExecutionException, TimeoutException {
@@ -87,25 +81,6 @@ public class SalaDeEsperaWebSocketControllerTest {
         assertTrue(resultado.isEstaListo());
     }
 
-    public static class EstadoJugador {
-        private String jugadorId;
-        private boolean estaListo;
 
-        public String getJugadorId() {
-            return jugadorId;
-        }
-
-        public void setJugadorId(String jugadorId) {
-            this.jugadorId = jugadorId;
-        }
-
-        public boolean isEstaListo() {
-            return estaListo;
-        }
-
-        public void setEstaListo(boolean estaListo) {
-            this.estaListo = estaListo;
-        }
-    }
 }
 
