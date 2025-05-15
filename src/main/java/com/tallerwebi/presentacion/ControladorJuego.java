@@ -26,6 +26,7 @@ public class ControladorJuego {
         model.addAttribute("definicion", partida.getDefinicionActual());
         model.addAttribute("jugadorId", jugadorId);
         model.addAttribute("rondaActual", partida.getRondaActual());
+        model.addAttribute("palabra", partida.getPalabraActual());
 
         return "juego";
     }

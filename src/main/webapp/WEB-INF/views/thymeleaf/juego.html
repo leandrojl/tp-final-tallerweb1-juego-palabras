@@ -141,6 +141,12 @@
             background-color: #2a003f;
             color: white;
         }
+
+        .oculto {
+            color: transparent;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            cursor: default;
+        }
     </style>
 </head>
 
@@ -169,16 +175,14 @@
 
             <p class="lead mb-4" th:text="${definicion}">Definition goes here</p>
 
+            <div class="palabra-inputs" id="palabraInputs">
+                <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
+                    th:id="'letra-' + ${iterStat.index}">
+
+                </span>
+            </div>
+
             <form th:action="@{/juego}" method="post" class="d-flex flex-column align-items-center">
-                <div class="palabra-inputs">
-                    <input maxlength="1" class="bloque-letra" name="letra1" required />
-                    <input maxlength="1" class="bloque-letra" name="letra2" required />
-                    <input maxlength="1" class="bloque-letra" name="letra3" required />
-                    <input maxlength="1" class="bloque-letra" name="letra4" required />
-                    <input maxlength="1" class="bloque-letra" name="letra5" required />
-                    <input maxlength="1" class="bloque-letra" name="letra6" required />
-                    <input maxlength="1" class="bloque-letra" name="letra7" required />
-                </div>
 
                 <div>
                     <input type="text" id="input-intento" placeholder="Escribí la palabra...">
@@ -301,13 +305,31 @@
             })
 
         })
-
-
-
-
-
-
     </script>
+
+    <script th:inline="javascript">
+        const palabra = /*[[${palabra}]]*/ "default";
+        const letras = palabra.split('');
+
+        function mostrarLetra(index) {
+            if (index >= letras.length) return;
+            const spanLetra = document.getElementById(`letra-${index}`);
+            if (spanLetra) {
+                spanLetra.textContent = letras[index];
+                spanLetra.classList.remove('oculto');
+                spanLetra.classList.add('visible');
+            }
+        }
+
+        let index = 0;
+        const intervalo1 = setInterval(() => {
+            mostrarLetra(index);
+            index++;
+            if (index >= letras.length) clearInterval(intervalo1);
+        }, 15000); // cada 15 segundos
+    </script>
+
+
 </body>
 
 </html>
