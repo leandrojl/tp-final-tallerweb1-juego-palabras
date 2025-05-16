@@ -8,13 +8,9 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.lang.reflect.Type;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ControladorSalaDeEsperaWebSocketTest {
 
@@ -31,10 +27,22 @@ public class ControladorSalaDeEsperaWebSocketTest {
     @Test
     public void queUnJugadorPuedaEstarListo() throws Exception {
         EstadoJugador estadoJugador = givenJugadorEnSala("pepe",true);
-        CompletableFuture<EstadoJugador> completableFuture = whenSeleccionoEstoyListo(estadoJugador);
+        CompletableFuture<EstadoJugador> completableFuture = whenSeleccionarBotonEstoyListo(estadoJugador);
         EstadoJugador resultado = completableFuture.get(5, TimeUnit.SECONDS);
         thenJugadorListo(resultado);
     }
+
+
+    @Test
+    public void queSiUnJugadorAunNoEstaListoNoSePuedaIniciarUnaPartida(){
+
+    }
+
+    @Test
+    public void siAmbosJugadoresEstanListosSePuedaIniciarUnaPartida() {
+
+    }
+
 
     //adicionales que pienso
 
@@ -57,10 +65,13 @@ public class ControladorSalaDeEsperaWebSocketTest {
 
     }
     private EstadoJugador givenJugadorEnSala(String nombre, boolean estaListo) {
-        return new EstadoJugador(nombre,estaListo);
+        EstadoJugador estadoJugador = new EstadoJugador();
+        estadoJugador.setJugadorId(nombre);
+        estadoJugador.setEstaListo(estaListo);
+        return estadoJugador;
     }
 
-    private CompletableFuture<EstadoJugador> whenSeleccionoEstoyListo(EstadoJugador estadoJugador) throws InterruptedException, ExecutionException, TimeoutException {
+    private CompletableFuture<EstadoJugador> whenSeleccionarBotonEstoyListo(EstadoJugador estadoJugador) throws InterruptedException, ExecutionException, TimeoutException {
         CompletableFuture<EstadoJugador> completableFuture = new CompletableFuture<>();
         StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
         StompSession session = stompClient.connect(URL, sessionHandler).get(1, TimeUnit.SECONDS);
@@ -79,20 +90,15 @@ public class ControladorSalaDeEsperaWebSocketTest {
         return completableFuture;
     }
 
-    private static void thenJugadorListo(EstadoJugador resultado) {
+    private void thenJugadorListo(EstadoJugador resultado) {
         assertEquals("pepe", resultado.getJugadorId());
         assertTrue(resultado.isEstaListo());
     }
+
     public static class EstadoJugador {
         private String jugadorId;
         private boolean estaListo;
 
-        public EstadoJugador(String nombre, boolean estaListo) {
-            this.jugadorId = nombre;
-            this.estaListo = estaListo;
-        }
-
-        // Getters y setters
         public String getJugadorId() {
             return jugadorId;
         }
@@ -109,5 +115,5 @@ public class ControladorSalaDeEsperaWebSocketTest {
             this.estaListo = estaListo;
         }
     }
-
 }
+
