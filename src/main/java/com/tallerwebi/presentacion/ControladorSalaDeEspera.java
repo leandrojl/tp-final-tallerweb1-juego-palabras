@@ -24,6 +24,8 @@ public class ControladorSalaDeEspera {
 
         Map<Long, Boolean> jugadores = new HashMap<>();
 
+        List<Long> jugadoresNoListos = new ArrayList<>();
+
         parametros.forEach((clave, valor) -> {
             if (clave.startsWith("jugador_")) {
                 Long jugadorId = Long.parseLong(clave.replace("jugador_", ""));
@@ -31,8 +33,6 @@ public class ControladorSalaDeEspera {
                 jugadores.put(jugadorId, listo);
             }
         });
-
-        List<Long> jugadoresNoListos = new ArrayList<>();
 
         for (Map.Entry<Long, Boolean> entry : jugadores.entrySet()) {
             Long jugadorId = entry.getKey();
@@ -67,7 +67,7 @@ public class ControladorSalaDeEspera {
 
         model.put("jugadores", jugadores);
         // Redirigir o devolver una vista
-        return new ModelAndView("juego", model);
+        return new ModelAndView("redirect:/juego?jugadorId=1"); //hardcodeado por ahora
     }
 
     @RequestMapping("/salaDeEspera")
