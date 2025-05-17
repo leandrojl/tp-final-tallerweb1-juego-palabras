@@ -1,7 +1,9 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.Jugador;
+import com.tallerwebi.dominio.ServicioSalaDeEspera;
 import com.tallerwebi.dominio.Usuario;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -17,58 +19,40 @@ import java.util.Map;
 @Controller
 public class ControladorSalaDeEspera {
 
+    private ServicioSalaDeEspera servicioSalaDeEspera;
+
+    @Autowired
+    public ControladorSalaDeEspera(ServicioSalaDeEspera servicioSalaDeEspera) {
+        this.servicioSalaDeEspera = servicioSalaDeEspera;
+    }
+
+    public ControladorSalaDeEspera() {
+        // Constructor vacío
+    }
+
     @RequestMapping("/iniciarPartida")
     public ModelAndView iniciarPartida(@RequestParam Map<String, String> parametros) {
 
         ModelMap model = new ModelMap();
 
-        Map<Long, Boolean> jugadores = new HashMap<>();
+        Map<Long, Boolean> jugadores = servicioSalaDeEspera.obtenerJugadoresDelFormulario(parametros);
 
-        List<Long> jugadoresNoListos = new ArrayList<>();
-
-        parametros.forEach((clave, valor) -> {
-            if (clave.startsWith("jugador_")) {
-                Long jugadorId = Long.parseLong(clave.replace("jugador_", ""));
-                Boolean listo = Boolean.parseBoolean(valor);
-                jugadores.put(jugadorId, listo);
-            }
-        });
-
-        for (Map.Entry<Long, Boolean> entry : jugadores.entrySet()) {
-            Long jugadorId = entry.getKey();
-            Boolean listo = entry.getValue();
-
-            if (!listo) {
-                jugadoresNoListos.add(jugadorId);
-            }
-        }
+        List<Long> jugadoresNoListos = servicioSalaDeEspera.verificarSiHayJugadoresQueNoEstenListos(jugadores);
 
         if (!jugadoresNoListos.isEmpty()) {
-            List<Usuario> usuarios = new ArrayList<>();
+            List<Usuario> usuarios = servicioSalaDeEspera.crearUsuariosParaQueNoSeRompaLaVistaJuego();
 
-            Usuario usuario1 = new Usuario();
-            Usuario usuario2 = new Usuario();
-
-            usuario1.setNombre("Pepitoxx");
-            usuario2.setNombre("Alfonsoww");
-
-            usuario1.setId(1L);
-            usuario2.setId(2L);
-
-            //agrego los usuarios a la lista
-            usuarios.add(usuario1);
-            usuarios.add(usuario2);
-
-            //agrego la lista de usuarios al modelo
             model.put("usuarios", usuarios);
             model.put("error", "Los siguientes jugadores no están listos: " + jugadoresNoListos);
+
             return new ModelAndView("sala-de-espera", model);
         }
 
         model.put("jugadores", jugadores);
-        // Redirigir o devolver una vista
+
         return new ModelAndView("redirect:/juego?jugadorId=1"); //hardcodeado por ahora
     }
+
 
     @RequestMapping("/salaDeEspera")
     public ModelAndView salaDeEspera() {
@@ -91,7 +75,6 @@ public class ControladorSalaDeEspera {
 
         return new ModelAndView("sala-de-espera", modelo);
     }
-
 
 
     @RequestMapping("/agregarJugadorALaSalaDeEspera")
