@@ -10,7 +10,6 @@ class RondaServicioTest {
     @Test
     void testAvanzarRonda() {
         RondaServicio rondaServicio =  new RondaServicioImpl();
-        rondaServicio.iniciarRonda();
         rondaServicio.avanzarRonda();
         assertEquals(2, rondaServicio.obtenerNumeroRonda());
     }

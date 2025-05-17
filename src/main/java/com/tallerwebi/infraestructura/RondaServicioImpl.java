@@ -1,32 +1,32 @@
 package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.RondaServicio;
+import org.springframework.stereotype.Service;
 
+@Service
 public class RondaServicioImpl implements RondaServicio {
 
     private final int MAX_RONDAS = 5;
-    private int numeroRonda = 1;
-
+    private int rondaActual = 1;
 
     @Override
-    public void iniciarRonda() {
-
+    public int obtenerNumeroRonda() {
+        return rondaActual;
     }
 
     @Override
     public boolean avanzarRonda() {
-        if (numeroRonda < MAX_RONDAS) {
-            numeroRonda++;
+        if (rondaActual < MAX_RONDAS) {
+            rondaActual++;
             return true;
         } else {
             return false;
         }
-
     }
 
     @Override
-    public int obtenerNumeroRonda() {
-        return numeroRonda;
-
+    public void reiniciarRonda() {
+        rondaActual = 1;
     }
 }
+

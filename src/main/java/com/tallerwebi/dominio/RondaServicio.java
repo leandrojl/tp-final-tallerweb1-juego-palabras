@@ -1,7 +1,8 @@
 package com.tallerwebi.dominio;
 
+
 public interface RondaServicio {
-    void iniciarRonda();
-    boolean avanzarRonda();
     int obtenerNumeroRonda();
+    boolean avanzarRonda();
+    void reiniciarRonda();
 }
