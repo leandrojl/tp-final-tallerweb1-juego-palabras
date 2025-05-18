@@ -28,5 +28,7 @@ public class RondaServicioImpl implements RondaServicio {
     public void reiniciarRonda() {
         rondaActual = 1;
     }
+
+
 }
 

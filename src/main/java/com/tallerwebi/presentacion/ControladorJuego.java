@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.Partida;
 import com.tallerwebi.dominio.RondaServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class ControladorJuego {
 
     private final RondaServicio rondaServicio;
+    private Partida partida = new Partida();  // Instancia global para la partida
 
     @Autowired
     public ControladorJuego(RondaServicio rondaServicio) {
@@ -30,17 +32,12 @@ public class ControladorJuego {
 
         model.addAttribute("definicion", partida.getDefinicionActual());
         model.addAttribute("jugadorId", jugadorId);
-        model.addAttribute("rondaActual", partida.getRondaActual());
+        model.addAttribute("rondaActual", rondaServicio.obtenerNumeroRonda());
         model.addAttribute("palabra", partida.getPalabraActual());
-
         return "juego";
     }
 
-    @GetMapping
-    public String mostrarJuego(Model model) {
-        model.addAttribute("rondaActual", rondaServicio.obtenerNumeroRonda());
-        return "juego"; // apunta a juego.html
-    }
+
 
     @PostMapping("/fin-ronda")
     @ResponseBody
