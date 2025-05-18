@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
+
 <head>
-    <meta charset="UTF-8" />
-    <title>Juego - Cambio de Ronda</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}"/>
+    <meta charset="UTF-8">
+    <title>Juego de Adivinar Palabras</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}" />
     <style>
         body {
             background: radial-gradient(circle at top left, #1f005c, #5f0a87, #a4508b);
@@ -14,6 +15,7 @@
             flex-direction: column;
             min-height: 100vh;
         }
+
         main {
             flex: 1;
             display: flex;
@@ -21,18 +23,105 @@
             justify-content: center;
             padding: 20px;
         }
+
         .juego-container {
             text-align: center;
         }
+
+        .ranking-horizontal {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .jugador {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .jugador.correcto {
+            background-color: #00c853 !important;
+            transform: scale(1.1);
+        }
+
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+
+        .palabra-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .bloque-letra {
+            width: 50px;
+            height: 60px;
+            background: #1f1f1f;
+            border: 2px solid #333;
+            border-radius: 8px;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .bloque-letra.correcta {
+            background-color: #00c853 !important;
+            transform: scale(1.2);
+            animation: bounce 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: scale(1.2);
+            }
+
+            50% {
+                transform: scale(0.95);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
         .temporizador {
             position: relative;
             width: 120px;
             height: 120px;
             margin: 0 auto 20px;
         }
+
         .temporizador svg {
             transform: rotate(-90deg);
         }
+
         .temporizador-text {
             position: absolute;
             top: 50%;
@@ -41,19 +130,8 @@
             font-size: 2.5rem;
             font-weight: bold;
         }
-        .ranking-horizontal {
-            background: #222;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            color: #fff;
-        }
-        .jugador {
-            background: #444;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
+     
+       
         footer {
             background: #111;
             color: #ccc;
@@ -61,15 +139,28 @@
             padding: 10px;
             margin-top: auto;
         }
+
+        .modal-content {
+            border-radius: 10px;
+            background-color: #2a003f;
+            color: white;
+        }
+
+        .oculto {
+            color: transparent;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            cursor: default;
+        }
     </style>
 </head>
+
 <body>
-<header class="bg-dark text-white py-3 shadow-sm">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h1 class="h2 mb-0">Learnglish</h1>
-        <a href="/spring/lobby" class="btn btn-danger">Abandonar</a>
-    </div>
-</header>
+ <header class="bg-dark text-white py-3 shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="h2 mb-0">Learnglish</h1>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalAbandonar">Abandonar</button>
+        </div>
+    </header>
 
 <main>
     <section class="juego-container">
@@ -87,15 +178,7 @@
     </section>
 </main>
 
-<div class="ranking-horizontal">
-    <div class="jugador">Jugador1 (100 pts)</div>
-    <div class="jugador">Jugador2 (80 pts)</div>
-    <div class="jugador">Jugador3 (50 pts)</div>
-</div>
 
-<footer>
-    <small>&copy; 2025 Taller Web 1 - Learnglish</small>
-</footer>
 
 <script>
     const tiempoMaximo = 60;
@@ -142,6 +225,184 @@
     // Iniciar temporizador cada segundo
     setInterval(actualizarTemporizador, 1000);
 </script>
+   
+
+    <main>
+
+    <!--
+        <section class="juego-container">
+            <h1 class="display-4 fw-bold mb-2">Guess the Word!</h1>
+            <p class="text-secondary mb-1">Ronda <span th:text="${ronda}">1</span> de 5</p>
+-->
+
+            <div class="temporizador">
+                <svg width="100" height="100">
+                    <circle cx="50" cy="50" r="45" stroke="#333" stroke-width="10" fill="none" />
+                    <circle id="progressCircle" cx="50" cy="50" r="45" stroke="#00f" stroke-width="10" fill="none"
+                        stroke-dasharray="282.6" stroke-dashoffset="0" />
+                </svg>
+                <div id="temporizadorText" class="temporizador-text">60</div>
+            </div>
+
+            <p class="lead mb-4" th:text="${definicion}">Definition goes here</p>
+
+            <div class="palabra-inputs" id="palabraInputs">
+                <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
+                    th:id="'letra-' + ${iterStat.index}">
+
+                </span>
+            </div>
+
+            <form th:action="@{/juego}" method="post" class="d-flex flex-column align-items-center">
+
+                <div>
+                    <input type="text" id="input-intento" placeholder="Escribí la palabra...">
+                </div>
+
+                <input type="hidden" id="jugadorId" name="jugadorId" th:value="${jugadorId}" />
+            </form>
+        </section>
+    </main>
+
+    <div class="ranking-horizontal">
+        <div class="jugador">
+            <div class="avatar" style="background: #f54291;"></div>Guest_1268 (985 pts)
+        </div>
+        <div class="jugador">
+            <div class="avatar" style="background: #42f57b;"></div>Guest_1452 (575 pts)
+        </div>
+        <div class="jugador">
+            <div class="avatar" style="background: #4287f5;"></div>Guest_1708 (250 pts)
+        </div>
+        <div class="jugador">
+            <div class="avatar" style="background: #f542f5;"></div>Guest_1232 (250 pts)
+        </div>
+        <div class="jugador">
+            <div class="avatar" style="background: #9e9e9e;"></div>You (0 pts)
+        </div>
+    </div>
+
+    <footer class="bg-dark text-center py-3 shadow-sm mt-auto">
+        <small>&copy; 2025 Taller Web 1 - Learnglish</small>
+    </footer>
+
+    <div class="modal fade" id="modalAbandonar" tabindex="-1" aria-labelledby="modalAbandonarLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">¿Estás seguro?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Querés abandonar la partida? Vas a perder tu progreso.
+                </div>
+                <div class="modal-footer">
+                    <a href="/spring/lobby" class="btn btn-danger">Sí, abandonar</a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+   <!--
+   <script>
+        let duracion = 60;
+        let tiempo = duracion;
+        let circle = document.getElementById('progressCircle');
+        let total = 2 * Math.PI * 45;
+        circle.style.strokeDasharray = total;
+
+        let temporizadorText = document.getElementById('temporizadorText');
+        temporizadorText.textContent = tiempo;
+
+        const intervalo = setInterval(() => {
+            tiempo--;
+            let offset = total * (1 - tiempo / duracion);
+            circle.style.strokeDashoffset = offset;
+            temporizadorText.textContent = tiempo;
+
+            if (tiempo <= 10) {
+                circle.setAttribute("stroke", "#ff004c");
+            } else if (tiempo <= 30) {
+                circle.setAttribute("stroke", "#ffa500");
+            } else {
+                circle.setAttribute("stroke", "#00f");
+            }
+
+            if (tiempo <= 0) clearInterval(intervalo);
+        }, 1000);
+    </script>
+    -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const input = document.getElementById("input-intento");
+            const jugadorId = document.getElementById("jugadorId").value;
+
+            input.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault(); //evita q se recargue la pagina
+
+
+                    const intento = input.value.trim();
+                    if (intento === "") return;
+
+                    //envia los datos al controlador con fetch
+
+                    fetch('/spring/juego/intentar', {
+                        method: 'Post', headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: `intento=${encodeURIComponent(intento)}&jugadorId=${encodeURIComponent(jugadorId)}`
+                    })
+
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Respuesta del servidor:', data);
+                            // actualizar vista, inputs, etc
+                            if (data.correcto) {
+                                alert("¡Correcto! Avanzás de ronda.");
+                                // Acá podés vaciar el input, mostrar la nueva palabra, etc.
+                            } else {
+                                alert("Incorrecto. Intentá de nuevo.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error al enviar el intento:", error);
+                        });
+
+                    input.value = ""; // Limpia el input;
+                }
+            })
+
+        })
+    </script>
+
+    <script th:inline="javascript">
+        const palabra = /*[[${palabra}]]*/ "default";
+        const letras = palabra.split('');
+
+        function mostrarLetra(index) {
+            if (index >= letras.length) return;
+            const spanLetra = document.getElementById(`letra-${index}`);
+            if (spanLetra) {
+                spanLetra.textContent = letras[index];
+                spanLetra.classList.remove('oculto');
+                spanLetra.classList.add('visible');
+            }
+        }
+
+        let index = 0;
+        const intervalo1 = setInterval(() => {
+            mostrarLetra(index);
+            index++;
+            if (index >= letras.length) clearInterval(intervalo1);
+        }, 15000); // cada 15 segundos
+    </script>
+
 
 </body>
+
 </html>
