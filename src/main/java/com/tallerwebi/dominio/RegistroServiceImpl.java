@@ -18,11 +18,12 @@ public class RegistroServiceImpl implements RegistroService {
     public Usuario registrar(String nombre, String password) {
         Usuario usuario = buscarUsuario(nombre);
         if(usuario != null) {
-            return null;
+            throw new UsuarioExistenteException();
         }
         if(password.length() < 8){
-            return null;
+            throw new PasswordMenorAOchoCaracteresException();
         }
+        //Aca agregaria al usuario a la base de datos
         return new Usuario();
     }
 

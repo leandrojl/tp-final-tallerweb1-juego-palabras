@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RegistroServiceTest {
 
@@ -16,12 +17,6 @@ public class RegistroServiceTest {
         thenRegistroExitoso(usuario);
     }
 
-    @Test
-    public void siLaPasswordTieneMenosDeOchoCaracteresElRegistroFalla(){
-        givenNoExisteUsuario();
-        Usuario usuario = whenRegistroUsuario("pepe123446","contra1");
-        thenRegistroFalla(usuario);
-    }
 
     @Test
     public void queAlBuscarUnUsuarioObtengaLoPropio(){
@@ -33,10 +28,14 @@ public class RegistroServiceTest {
 
     @Test
     public void siAlRegistrarseYaExisteElNombreELRegistroFalla(){
-        Usuario usuario = whenRegistroUsuario("pepe1235421","contra1");
-        thenRegistroFalla(usuario);
+        assertThrows(UsuarioExistenteException.class,() -> whenRegistroUsuario("pepe1235421","contra1ds1f32s"));
     }
 
+    @Test
+    public void siLaPasswordTieneMenosDeOchoCaracteresElRegistroFalla(){
+        givenNoExisteUsuario();
+        assertThrows(PasswordMenorAOchoCaracteresException.class,() -> whenRegistroUsuario("otropepe","contra1"));
+    }
 
 
 

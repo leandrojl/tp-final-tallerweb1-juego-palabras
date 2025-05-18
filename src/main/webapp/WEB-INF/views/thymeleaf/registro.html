@@ -23,14 +23,10 @@
 
 <div class="form-container">
   <h2 class="text-center mb-4">Registro</h2>
-  <form th:action="@{/procesarRegistro}" th:object="${jugador}" method="post">
+  <form th:action="@{/procesarRegistro}" th:object="${usuario}" method="post">
     <div class="mb-3">
       <label for="username" class="form-label">Nombre de usuario</label>
-      <input th:field="*{usuario}" type="text" class="form-control" id="username" placeholder="Tu nombre de usuario" required>
-    </div>
-    <div class="mb-3">
-      <label for="email" class="form-label">Correo electrónico</label>
-      <input th:field="*{email}" type="email" class="form-control" id="email" placeholder="tu@correo.com" required>
+      <input th:field="*{nombre}" type="text" class="form-control" id="username" placeholder="Tu nombre de usuario" required>
     </div>
     <div class="mb-3">
       <label for="password" class="form-label">Contraseña</label>

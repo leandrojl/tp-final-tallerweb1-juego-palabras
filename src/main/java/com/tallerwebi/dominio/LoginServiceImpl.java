@@ -1,8 +1,14 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 
+@Transactional
+@Service
 public class LoginServiceImpl implements LoginService {
     private List<Usuario> usuarios = Arrays.asList(
             new Usuario("pepe1235421", "pepe@gmail.com", "abc123245"),
@@ -13,10 +19,10 @@ public class LoginServiceImpl implements LoginService {
     public Usuario login(String nombre, String password) {
         Usuario usuario = buscarUsuario(nombre);
         if(usuario == null) {
-            return null;
+            throw new DatosLoginIncorrectosException();
         }
         if(!usuario.getPassword().equals(password)) {
-            return null;
+            throw new DatosLoginIncorrectosException();
         }
         return usuario;
     }

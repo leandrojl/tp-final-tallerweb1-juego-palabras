@@ -4,51 +4,89 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>Taller Web I</title>
+    <title>Learnglish</title>
 
-    <!-- Boostrap core css -->
+    <!-- Bootstrap core CSS -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}"/>
 
-    <!-- custom style -->
+    <!-- Custom styles -->
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
 
     <style>
+        body {
+            background-color: #f8f9fa;
+        }
 
+        .login-container {
+            margin-top: 100px;
+        }
 
+        .login-card {
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+            background-color: #ffffff;
+        }
+
+        .form-signin-heading {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .colorgraph {
+            height: 5px;
+            border-top: 0;
+            background: #c4c4c4;
+            margin-bottom: 1rem;
+        }
+
+        .register-link {
+            margin-top: 1rem;
+            display: block;
+            text-align: center;
+        }
     </style>
-
 </head>
 
 <body>
 
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="#">UNLAM</a>
-</nav>
+<main role="main" class="container login-container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="login-card">
+                <form th:action="@{/procesarLogin}" method="POST" th:object="${usuario}">
+                    <h3 class="form-signin-heading">Iniciar sesion</h3>
+                    <hr class="colorgraph"/>
 
-<main role="main" class="container">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Usuario</label>
+                        <input th:field="*{nombre}" id="email" type="text" class="form-control" required/>
+                    </div>
 
-    <div class = "container">
-        <div id="loginbox" style="margin-top:50px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
-            <form action="#" th:action="@{/validar-login}" method="POST" th:object="${datosLogin}">
-                <h3 class="form-signin-heading">Taller Web I</h3>
-                <hr class="colorgraph"><br>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input th:field="*{password}" type="password" id="password" class="form-control" required/>
+                    </div>
 
-                <input th:field="*{email}" id="email" type="email" class="form-control" required/>
-                <input th:field="*{password}" type="password" id="password" class="form-control" required/>
+                    <button id="btn-login" class="btn btn-primary btn-block" type="submit">Login</button>
 
-                <button id="btn-login" class="btn btn-lg btn-primary btn-block" Type="Submit">Login</button>
+                    <p th:if="${error != null}" class="alert alert-danger mt-3" th:text="'Error: ' + ${error}"></p>
+                </form>
 
-                <p th:if="${error != null}" class="alert alert-danger" th:text="'Error ' + ${error}">
-                </p>
-            </form>
-            <a id="ir-a-registrarme" href="nuevo-usuario">Registrarme</a>
+                <a class="register-link" th:href="@{/registro}">¿No tenés cuenta? Registrate</a>
+            </div>
         </div>
     </div>
 </main>
-<!-- /.container -->
 
-<!-- Boostrap core js -->
-<script type="text/javascript" th:src="@{webjars/bootstrap/5.2.0/js/bootstrap.min.js}"></script>
-<script type="text/javascript" th:src="@{js/main.js}"></script>
+<!-- Bootstrap core JS -->
+<script type="text/javascript" th:src="@{/webjars/bootstrap/5.2.0/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/main.js}"></script>
+
 </body>
 </html>

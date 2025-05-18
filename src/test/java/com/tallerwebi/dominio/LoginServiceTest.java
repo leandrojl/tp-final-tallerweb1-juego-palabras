@@ -1,10 +1,11 @@
 package com.tallerwebi.dominio;
 
-import org.hamcrest.Matchers;
+import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LoginServiceTest {
 
@@ -27,15 +28,13 @@ public class LoginServiceTest {
 
     @Test
     public void siElNombreDeUsuarioNoExisteElLoginFalla(){
-        Usuario usuario = whenLogin("random","abc123245");
-        thenLoginFalla(usuario);
+        assertThrows(DatosLoginIncorrectosException.class, ()->whenLogin("random","abc123245"));
     }
 
 
     @Test
     public void siLaPasswordEsIncorrectaElLoginFalla(){
-        Usuario usuario = whenLogin("pepe1235421","passwordIncorrecta");
-        thenLoginFalla(usuario);
+        assertThrows(DatosLoginIncorrectosException.class, ()->whenLogin("pepe1235421","passwordIncorrecta"));
     }
 
 

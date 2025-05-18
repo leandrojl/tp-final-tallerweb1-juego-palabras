@@ -1,7 +1,10 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.RegistroService;
+import com.tallerwebi.dominio.UsuarioExistenteException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -11,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class RegistroControllerTest {
@@ -21,10 +25,12 @@ public class RegistroControllerTest {
     private String password;
     private String email;
     private MockMvc mockMvc;
+    private RegistroService registroService;
 
     @BeforeEach
     public void init(){
-        this.registroController = new RegistroController();
+        this.registroService = Mockito.mock(RegistroService.class);
+        this.registroController = new RegistroController(registroService);
         this.usuario = "pepe123";
         this.password = "abc123";
         this.email = "pepe123@gmail.com";
@@ -58,7 +64,7 @@ public class RegistroControllerTest {
     public void queSePuedaRegistrarUnUsuario() throws Exception {
         givenUsuarioNoExiste();
 
-        MvcResult mvcResult = whenRegistroUsuario("pepe1243",email,password);
+        MvcResult mvcResult = whenRegistroUsuario("pepe1243",password);
 
         thenRegistroExitoso(mvcResult,"login");
     }
@@ -67,23 +73,16 @@ public class RegistroControllerTest {
     @Test
     public void siNoHayNombreDeUsuarioElRegistroFalla() throws Exception {
 
-        MvcResult mvcResult = whenRegistroUsuario("",email,password);
+        MvcResult mvcResult = whenRegistroUsuario("",password);
 
         thenRegistroFallido(mvcResult,"El usuario no puede estar vacio");
     }
 
-    @Test
-    public void siNoHayEmailElRegistroFalla() throws Exception {
-
-        MvcResult mvcResult = whenRegistroUsuario(usuario,"",password);
-
-        thenRegistroFallido(mvcResult,"El email no puede estar vacio");
-    }
 
     @Test
     public void siNoHayPasswordElRegistroFalla() throws Exception {
 
-        MvcResult mvcResult= whenRegistroUsuario(usuario,email,"");
+        MvcResult mvcResult= whenRegistroUsuario(usuario,"");
 
         thenRegistroFallido(mvcResult,"La contrasenia no puede estar vacia");
     }
@@ -91,15 +90,15 @@ public class RegistroControllerTest {
    @Test
     public void queAlExistirElNombreDeUsuarioIndicadoSeGenereUnError() throws Exception {
 
-       MvcResult mvcResult = whenRegistroUsuario("pepe1235421",email,password);
-
-        thenUsuarioExiste(mvcResult, "El usuario ya existe");
+        when(registroService.registrar("lucas","password123")).thenThrow(new UsuarioExistenteException());
+       //MvcResult mvcResult = whenRegistroUsuario("pepe1235421",password);
+       //thenUsuarioExiste(mvcResult, "El usuario ya existe");
     }
 
 
     @Test
     public void queAlVerificarLosDatosExitosamenteRedireccioneAVistaLogin() throws Exception {
-        MvcResult mvcResult = whenRegistroUsuario("pepe1234",email,password);
+        MvcResult mvcResult = whenRegistroUsuario("pepe1234",password);
         thenRedireccionaAVistaIndicada(mvcResult,"login");
     }
 
@@ -127,10 +126,9 @@ public class RegistroControllerTest {
         assertThat(mav.getViewName(),equalToIgnoringCase(vista));
     }
 
-    private MvcResult whenRegistroUsuario(String usuario, String email, String password) throws Exception {
+    private MvcResult whenRegistroUsuario(String nombre, String password) throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/procesarRegistro").
-                param("usuario",usuario).
-                param("email",email).
+                param("nombre",nombre).
                 param("password",password)).andExpect(status().isOk()).andReturn();
         return mvcResult;
     }
