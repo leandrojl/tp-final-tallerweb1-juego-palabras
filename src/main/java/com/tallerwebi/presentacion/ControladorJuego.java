@@ -50,6 +50,30 @@ public class ControladorJuego {
 
         return response;
     }
+
+
+    @PostMapping("/intentar")
+    @ResponseBody
+    public Map<String, Object> procesarIntentoAjax(@RequestParam String intento,
+                                                   @RequestParam String jugadorId) {
+        System.out.println("INTENTO: " + intento + " - jugador: " + jugadorId);
+
+        boolean acierto = intento.equalsIgnoreCase(partida.getPalabraActual());
+
+        if (acierto) {
+            partida.actualizarPuntos(jugadorId, 1);
+        }
+
+        partida.avanzarRonda();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("correcto", acierto);
+        response.put("ronda", partida.getRondaActual());
+        response.put("puntaje", partida.getPuntaje(jugadorId));
+        response.put("partidaTerminada", partida.isPartidaTerminada());
+
+        return response;
+    }
 }
 
 
