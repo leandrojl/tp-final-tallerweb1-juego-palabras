@@ -14,7 +14,6 @@ import static org.hamcrest.Matchers.*;
 public class ControladorSalaDeEsperaTest {
 
 
-
     @Test
     public void cuandoAgregoUnJugadorALaSalaDeEsperaLoRedirijaALaSalaDeEspera() {
 
@@ -23,7 +22,6 @@ public class ControladorSalaDeEsperaTest {
         ModelAndView mavJugador = cuandoAgregoAUnJugadorALaSalaDeEspera(jugador);
 
         entoncesRedirigoAlJugadorALaSalaDeEspera(mavJugador);
-
 
     }
 
