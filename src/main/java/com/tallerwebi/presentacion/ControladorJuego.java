@@ -18,6 +18,21 @@ public class ControladorJuego {
     @Autowired
     public ControladorJuego(RondaServicio rondaServicio) {
         this.rondaServicio = rondaServicio;
+    @GetMapping
+    public String mostrarVistaJuego(Model model, @RequestParam String jugadorId) {
+        // Agregar al jugador si no está
+        partida.agregarJugador(jugadorId);
+
+        // Poner la definición y palabra actual (simulada por ahora)
+        partida.setPalabraActual("example");
+        partida.setDefinicionActual("A sample word for demonstration purposes.");
+
+        model.addAttribute("definicion", partida.getDefinicionActual());
+        model.addAttribute("jugadorId", jugadorId);
+        model.addAttribute("rondaActual", partida.getRondaActual());
+        model.addAttribute("palabra", partida.getPalabraActual());
+
+        return "juego";
     }
 
     @GetMapping
