@@ -1,5 +1,7 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.excepcion.PasswordMenorAOchoCaracteresException;
+import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

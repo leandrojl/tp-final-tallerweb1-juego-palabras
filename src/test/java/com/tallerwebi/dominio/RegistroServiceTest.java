@@ -1,5 +1,7 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.excepcion.PasswordMenorAOchoCaracteresException;
+import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

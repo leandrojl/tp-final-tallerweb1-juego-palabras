@@ -1,7 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.RegistroService;
-import com.tallerwebi.dominio.UsuarioExistenteException;
+import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
