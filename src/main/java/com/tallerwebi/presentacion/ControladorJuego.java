@@ -27,13 +27,23 @@ public class ControladorJuego {
         partida.agregarJugador(jugadorId);
 
         // Poner la definición y palabra actual (simulada por ahora)
-        partida.setPalabraActual("example");
+       /* partida.setPalabraActual("example");
         partida.setDefinicionActual("A sample word for demonstration purposes.");
+        */
 
-        model.addAttribute("definicion", partida.getDefinicionActual());
+        HashMap<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+
+        String palabra = pYD.keySet().iterator().next();
+        String definicion = pYD.get(palabra);
+
+        System.out.println(definicion);
+        System.out.println(palabra);
+
+
+        model.addAttribute("definicion",definicion);
         model.addAttribute("jugadorId", jugadorId);
         model.addAttribute("rondaActual", rondaServicio.obtenerNumeroRonda());
-        model.addAttribute("palabra", partida.getPalabraActual());
+        model.addAttribute("palabra", palabra);
         return "juego";
     }
 
@@ -58,7 +68,11 @@ public class ControladorJuego {
                                                    @RequestParam String jugadorId) {
         System.out.println("INTENTO: " + intento + " - jugador: " + jugadorId);
 
-        boolean acierto = intento.equalsIgnoreCase(partida.getPalabraActual());
+        HashMap<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+
+        String palabra = pYD.keySet().iterator().next();
+
+        boolean acierto = intento.equalsIgnoreCase(palabra);
 
         if (acierto) {
             partida.actualizarPuntos(jugadorId, 1);
