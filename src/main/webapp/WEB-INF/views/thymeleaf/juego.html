@@ -178,6 +178,7 @@
             <div class="palabra-inputs" id="palabraInputs">
                 <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
                     th:id="'letra-' + ${iterStat.index}">
+
                 </span>
             </div>
 
@@ -263,8 +264,6 @@
 
     <script>
 
-        //este script verifica que la palabra sea correcta o no, al presionar la tecla "Enter"
-
         document.addEventListener("DOMContentLoaded", () => {
             const input = document.getElementById("input-intento");
             const jugadorId = document.getElementById("jugadorId").value;
@@ -309,9 +308,6 @@
     </script>
 
     <script th:inline="javascript">
-
-        //este script muestra letras como pistas cada 15 segundos
-        
         const palabra = /*[[${palabra}]]*/ "default";
         const letras = palabra.split('');
 
