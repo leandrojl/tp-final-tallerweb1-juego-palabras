@@ -25,10 +25,6 @@
         }
 
         .juego-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             text-align: center;
         }
 
@@ -117,9 +113,9 @@
 
         .temporizador {
             position: relative;
-            width: 100px;
-            height: 100px;
-            margin-bottom: 30px;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
         }
 
         .temporizador svg {
@@ -131,9 +127,17 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 24px;
+            font-size: 2.5rem;
             font-weight: bold;
-            color: white;
+        }
+
+
+        footer {
+            background: #111;
+            color: #ccc;
+            text-align: center;
+            padding: 10px;
+            margin-top: auto;
         }
 
         .modal-content {
@@ -151,17 +155,17 @@
 </head>
 
 <body>
-    <header class="bg-dark text-white py-3 shadow-sm">
+ <header class="bg-dark text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <h1 class="h2 mb-0">Learnglish</h1>
             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalAbandonar">Abandonar</button>
         </div>
     </header>
 
-    <main>
-        <section class="juego-container">
-            <h1 class="display-4 fw-bold mb-2">Guess the Word!</h1>
-            <p class="text-secondary mb-1">Ronda <span th:text="${ronda}">1</span> de 5</p>
+<main>
+    <section class="juego-container">
+        <h1 class="display-4 fw-bold mb-2">Juego de Rondas</h1>
+        <p class="lead mb-4">Ronda <span id="rondaActual" th:text="${rondaActual}">1</span> de 5</p>
 
 
             <div class="temporizador">
@@ -234,7 +238,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+   <!--
+   <script>
         let duracion = 60;
         let tiempo = duracion;
         let circle = document.getElementById('progressCircle');
@@ -261,8 +266,52 @@
             if (tiempo <= 0) clearInterval(intervalo);
         }, 1000);
     </script>
+    -->
 
     <script>
+        const tiempoMaximo = 60;
+        let tiempoRestante = tiempoMaximo;
+        const temporizadorText = document.getElementById('temporizadorText');
+        const progressCircle = document.getElementById('progressCircle');
+        const rondaSpan = document.getElementById('rondaActual');
+        const circunferencia = 2 * Math.PI * 54; // perímetro círculo (r=54)
+
+        progressCircle.style.strokeDasharray = circunferencia;
+        progressCircle.style.strokeDashoffset = 0;
+
+        function actualizarTemporizador() {
+            if(tiempoRestante <= 0) {
+                finRonda();
+                return;
+            }
+
+            temporizadorText.textContent = tiempoRestante;
+            let offset = circunferencia - (tiempoRestante / tiempoMaximo) * circunferencia;
+            progressCircle.style.strokeDashoffset = offset;
+
+            tiempoRestante--;
+        }
+
+        function finRonda() {
+            fetch('/spring/juego/fin-ronda', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            }).then(response => response.json())
+                .then(data => {
+                    if(data.partidaTerminada){
+                        alert('La partida terminó. Vas al lobby.');
+                        window.location.href = '/spring/lobby';
+                    } else {
+                        rondaSpan.textContent = data.rondaActual;
+                        tiempoRestante = tiempoMaximo;
+                    }
+                }).catch(err => {
+                console.error('Error al finalizar ronda', err);
+            });
+        }
+
+        // Iniciar temporizador cada segundo
+        setInterval(actualizarTemporizador, 1000);
 
         document.addEventListener("DOMContentLoaded", () => {
             const input = document.getElementById("input-intento");
@@ -333,3 +382,11 @@
 </body>
 
 </html>
+
+
+
+<!--
+        <section class="juego-container">
+            <h1 class="display-4 fw-bold mb-2">Guess the Word!</h1>
+            <p class="text-secondary mb-1">Ronda <span th:text="${ronda}">1</span> de 5</p>
+-->

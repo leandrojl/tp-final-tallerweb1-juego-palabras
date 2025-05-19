@@ -18,22 +18,24 @@ public class Partida {
 
     // Métodos para gestionar la partida
     public void agregarJugador(String jugadorId) {
-        if (!jugadores.containsKey(jugadorId)) {
-            jugadores.put(jugadorId, 0); // Inicializamos con 0 puntos
-        }
+        jugadores.putIfAbsent(jugadorId, 0);
     }
 
     public void actualizarPuntos(String jugadorId, int puntos) {
-        if (jugadores.containsKey(jugadorId)) {
-            jugadores.put(jugadorId, jugadores.get(jugadorId) + puntos);
-        }
+        jugadores.put(jugadorId, jugadores.getOrDefault(jugadorId, 0) + puntos);
     }
 
-    public void avanzarRonda() {
+    /**
+     * Avanza la ronda. Si la ronda es menor a 5, incrementa y devuelve true.
+     * Si la ronda ya era 5 o más, marca la partida terminada y devuelve false.
+     */
+    public boolean avanzarRonda() {
         if (rondaActual < 5) {
             rondaActual++;
+            return true; // queda ronda para jugar
         } else {
             partidaTerminada = true;
+            return false; // partida finalizada
         }
     }
 
@@ -55,7 +57,7 @@ public class Partida {
     }
 
     public void setPalabraActual(String palabraActual) {
-        this.palabraActual = "example";
+        this.palabraActual = palabraActual; // asigna el valor recibido, no "example"
     }
 
     public String getDefinicionActual() {
@@ -66,5 +68,8 @@ public class Partida {
         this.definicionActual = definicionActual;
     }
 
-    public Object getPuntaje(String jugadorId) { return jugadores.get(jugadorId); }
+    public Integer getPuntaje(String jugadorId) {
+        return jugadores.get(jugadorId);
+    }
 }
+

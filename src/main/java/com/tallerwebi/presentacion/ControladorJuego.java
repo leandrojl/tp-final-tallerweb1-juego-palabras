@@ -1,6 +1,8 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.Partida;
+import com.tallerwebi.dominio.RondaServicio;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,24 +14,53 @@ import java.util.Map;
 @RequestMapping("/juego")
 public class ControladorJuego {
 
+    private final RondaServicio rondaServicio;
     private Partida partida = new Partida();  // Instancia global para la partida
 
+    @Autowired
+    public ControladorJuego(RondaServicio rondaServicio) {
+        this.rondaServicio = rondaServicio;
+    }
     @GetMapping
     public String mostrarVistaJuego(Model model, @RequestParam String jugadorId) {
         // Agregar al jugador si no está
         partida.agregarJugador(jugadorId);
 
         // Poner la definición y palabra actual (simulada por ahora)
-        partida.setPalabraActual("example");
+       /* partida.setPalabraActual("example");
         partida.setDefinicionActual("A sample word for demonstration purposes.");
+        */
 
-        model.addAttribute("definicion", partida.getDefinicionActual());
+        HashMap<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+
+        String palabra = pYD.keySet().iterator().next();
+        String definicion = pYD.get(palabra);
+
+        System.out.println(definicion);
+        System.out.println(palabra);
+
+
+        model.addAttribute("definicion",definicion);
         model.addAttribute("jugadorId", jugadorId);
-        model.addAttribute("rondaActual", partida.getRondaActual());
-        model.addAttribute("palabra", partida.getPalabraActual());
-
+        model.addAttribute("rondaActual", rondaServicio.obtenerNumeroRonda());
+        model.addAttribute("palabra", palabra);
         return "juego";
     }
+
+
+
+    @PostMapping("/fin-ronda")
+    @ResponseBody
+    public Map<String, Object> finRonda() {
+        boolean haySiguiente = rondaServicio.avanzarRonda();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("rondaActual", rondaServicio.obtenerNumeroRonda());
+        response.put("partidaTerminada", !haySiguiente);
+
+        return response;
+    }
+
 
     @PostMapping("/intentar")
     @ResponseBody
@@ -37,7 +68,11 @@ public class ControladorJuego {
                                                    @RequestParam String jugadorId) {
         System.out.println("INTENTO: " + intento + " - jugador: " + jugadorId);
 
-        boolean acierto = intento.equalsIgnoreCase(partida.getPalabraActual());
+        HashMap<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+
+        String palabra = pYD.keySet().iterator().next();
+
+        boolean acierto = intento.equalsIgnoreCase(palabra);
 
         if (acierto) {
             partida.actualizarPuntos(jugadorId, 1);
@@ -53,13 +88,8 @@ public class ControladorJuego {
 
         return response;
     }
-
-
-
-    @PostMapping("/abandonar")
-    public String abandonarPartida(@RequestParam String jugadorId) {
-        // Lógica para abandonar (puedes remover al jugador si lo deseas)
-        return "redirect:/lobby?jugadorId=" + jugadorId;
-    }
 }
+
+
+
 
