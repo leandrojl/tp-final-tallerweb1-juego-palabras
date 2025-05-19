@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,38 +16,36 @@ import java.util.Map;
 public class ControladorJuego {
 
     private final RondaServicio rondaServicio;
+    private final HttpSession session;
     private Partida partida = new Partida();  // Instancia global para la partida
 
     @Autowired
-    public ControladorJuego(RondaServicio rondaServicio) {
+    public ControladorJuego(RondaServicio rondaServicio, HttpSession session) {
         this.rondaServicio = rondaServicio;
+        this.session = session;
     }
     @GetMapping
     public String mostrarVistaJuego(Model model, @RequestParam String jugadorId) {
-        // Agregar al jugador si no está
+
         partida.agregarJugador(jugadorId);
 
-        // Poner la definición y palabra actual (simulada por ahora)
-       /* partida.setPalabraActual("example");
-        partida.setDefinicionActual("A sample word for demonstration purposes.");
-        */
 
-        HashMap<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+        if (partida.getPalabraActual() == null) {
+            HashMap<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+            String palabra = pYD.keySet().iterator().next();
+            String definicion = pYD.get(palabra);
 
-        String palabra = pYD.keySet().iterator().next();
-        String definicion = pYD.get(palabra);
+            partida.setPalabraActual(palabra);
+            partida.setDefinicionActual(definicion);
+        }
 
-        System.out.println(definicion);
-        System.out.println(palabra);
-
-
-        model.addAttribute("definicion",definicion);
+        model.addAttribute("definicion", partida.getDefinicionActual());
         model.addAttribute("jugadorId", jugadorId);
-        model.addAttribute("rondaActual", rondaServicio.obtenerNumeroRonda());
-        model.addAttribute("palabra", palabra);
+        model.addAttribute("rondaActual", partida.getRondaActual());
+        model.addAttribute("palabra", partida.getPalabraActual()); // para debug, luego ocultar
+
         return "juego";
     }
-
 
 
     @PostMapping("/fin-ronda")
@@ -58,6 +57,18 @@ public class ControladorJuego {
         response.put("rondaActual", rondaServicio.obtenerNumeroRonda());
         response.put("partidaTerminada", !haySiguiente);
 
+        if (haySiguiente) {
+            HashMap<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+            String palabra = pYD.keySet().iterator().next();
+            String definicion = pYD.get(palabra);
+
+            partida.setPalabraActual(palabra);
+            partida.setDefinicionActual(definicion);
+
+            response.put("nuevaDefinicion", definicion);
+            response.put("nuevaPalabra", palabra);
+        }
+
         return response;
     }
 
@@ -66,19 +77,23 @@ public class ControladorJuego {
     @ResponseBody
     public Map<String, Object> procesarIntentoAjax(@RequestParam String intento,
                                                    @RequestParam String jugadorId) {
-        System.out.println("INTENTO: " + intento + " - jugador: " + jugadorId);
-
-        HashMap<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
-
-        String palabra = pYD.keySet().iterator().next();
-
-        boolean acierto = intento.equalsIgnoreCase(palabra);
+        boolean acierto = intento.equalsIgnoreCase(partida.getPalabraActual());
 
         if (acierto) {
             partida.actualizarPuntos(jugadorId, 1);
-        }
 
-        partida.avanzarRonda();
+            if (!partida.isPartidaTerminada()) {
+                partida.avanzarRonda();
+
+                // Nueva palabra y definición para la siguiente ronda
+                HashMap<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+                String palabra = pYD.keySet().iterator().next();
+                String definicion = pYD.get(palabra);
+
+                partida.setPalabraActual(palabra);
+                partida.setDefinicionActual(definicion);
+            }
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("correcto", acierto);
@@ -86,8 +101,28 @@ public class ControladorJuego {
         response.put("puntaje", partida.getPuntaje(jugadorId));
         response.put("partidaTerminada", partida.isPartidaTerminada());
 
+        if (acierto && !partida.isPartidaTerminada()) {
+            response.put("nuevaDefinicion", partida.getDefinicionActual());
+            // En el front reiniciar temporizador, mostrar nueva definición, etc
+        }
+
         return response;
     }
+
+    @GetMapping("/datos")
+    @ResponseBody
+    public Map<String, String> getDatosJuego() {
+        Map<String, String> datos = new HashMap<>();
+        datos.put("palabra", partida.getPalabraActual());
+        datos.put("definicion", partida.getDefinicionActual());
+        return datos;
+    }
+
+
+
+
+
+
 }
 
 

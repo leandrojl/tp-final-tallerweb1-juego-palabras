@@ -168,7 +168,8 @@
         <p class="lead mb-4">Ronda <span id="rondaActual" th:text="${rondaActual}">1</span> de 5</p>
 
 
-            <div class="temporizador">
+
+        <div class="temporizador">
                 <svg width="100" height="100">
                     <circle cx="50" cy="50" r="45" stroke="#333" stroke-width="10" fill="none" />
                     <circle id="progressCircle" cx="50" cy="50" r="45" stroke="#00f" stroke-width="10" fill="none"
@@ -179,7 +180,7 @@
 
             <p class="lead mb-4" th:text="${definicion}">Definition goes here</p>
 
-            <div class="palabra-inputs" id="palabraInputs">
+        <div class="palabra-inputs" id="contenedor-palabra">
                 <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
                     th:id="'letra-' + ${iterStat.index}">
 
@@ -193,7 +194,9 @@
                 </div>
 
                 <input type="hidden" id="jugadorId" name="jugadorId" th:value="${jugadorId}" />
-            </form>
+
+
+        </form>
         </section>
     </main>
 
@@ -268,115 +271,132 @@
     </script>
     -->
 
-    <script>
-        const tiempoMaximo = 60;
-        let tiempoRestante = tiempoMaximo;
-        const temporizadorText = document.getElementById('temporizadorText');
-        const progressCircle = document.getElementById('progressCircle');
-        const rondaSpan = document.getElementById('rondaActual');
-        const circunferencia = 2 * Math.PI * 54; // perímetro círculo (r=54)
+ <script th:inline="javascript">
+     let finRondaEjecutada = false; // 🛑 Previene múltiples ejecuciones
 
-        progressCircle.style.strokeDasharray = circunferencia;
-        progressCircle.style.strokeDashoffset = 0;
+     // === CONFIGURACIÓN INICIAL ===
+     const palabra = /*[[${palabra}]]*/ "default";
+     const letras = palabra.split('');
+     let indexLetra = 0;
 
-        function actualizarTemporizador() {
-            if(tiempoRestante <= 0) {
-                finRonda();
-                return;
-            }
+     const tiempoMaximo = 60;
+     let tiempoRestante = tiempoMaximo;
 
-            temporizadorText.textContent = tiempoRestante;
-            let offset = circunferencia - (tiempoRestante / tiempoMaximo) * circunferencia;
-            progressCircle.style.strokeDashoffset = offset;
+     const temporizadorText = document.getElementById('temporizadorText');
+     const progressCircle = document.getElementById('progressCircle');
+     const circunferencia = 2 * Math.PI * 54;
 
-            tiempoRestante--;
-        }
-
-        function finRonda() {
-            fetch('/spring/juego/fin-ronda', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'}
-            }).then(response => response.json())
-                .then(data => {
-                    if(data.partidaTerminada){
-                        alert('La partida terminó. Vas al lobby.');
-                        window.location.href = '/spring/lobby';
-                    } else {
-                        rondaSpan.textContent = data.rondaActual;
-                        tiempoRestante = tiempoMaximo;
-                    }
-                }).catch(err => {
-                console.error('Error al finalizar ronda', err);
-            });
-        }
-
-        // Iniciar temporizador cada segundo
-        setInterval(actualizarTemporizador, 1000);
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const input = document.getElementById("input-intento");
-            const jugadorId = document.getElementById("jugadorId").value;
-
-            input.addEventListener("keydown", (event) => {
-                if (event.key === "Enter") {
-                    event.preventDefault(); //evita q se recargue la pagina
+     progressCircle.style.strokeDasharray = circunferencia;
+     progressCircle.style.strokeDashoffset = 0;
 
 
-                    const intento = input.value.trim();
-                    if (intento === "") return;
+     // === REVELAR LETRAS ===
+     const intervaloLetras = setInterval(() => {
+         if (indexLetra < letras.length) {
+             const spanLetra = document.getElementById(`letra-${indexLetra}`);
+             if (spanLetra) {
+                 spanLetra.textContent = letras[indexLetra];
+                 spanLetra.classList.remove('oculto');
+                 spanLetra.classList.add('visible');
+             }
+             indexLetra++;
+         } else {
+             clearInterval(intervaloLetras);
+         }
+     }, 15000);
 
-                    //envia los datos al controlador con fetch
 
-                    fetch('/spring/juego/intentar', {
-                        method: 'Post', headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: `intento=${encodeURIComponent(intento)}&jugadorId=${encodeURIComponent(jugadorId)}`
-                    })
+     const intervaloTemporizador = setInterval(() => {
+         if (tiempoRestante <= 0) {
+             clearInterval(intervaloTemporizador);
+             clearInterval(intervaloLetras);
+             finRonda(); // ⏰ fin de ronda por tiempo
+         } else {
+             temporizadorText.textContent = tiempoRestante;
+             let offset = circunferencia - (tiempoRestante / tiempoMaximo) * circunferencia;
+             progressCircle.style.strokeDashoffset = offset;
+             tiempoRestante--;
+         }
+     }, 1000);
 
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('Respuesta del servidor:', data);
-                            // actualizar vista, inputs, etc
-                            if (data.correcto) {
-                                alert("¡Correcto! Avanzás de ronda.");
-                                // Acá podés vaciar el input, mostrar la nueva palabra, etc.
-                            } else {
-                                alert("Incorrecto. Intentá de nuevo.");
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error al enviar el intento:", error);
-                        });
 
-                    input.value = ""; // Limpia el input;
-                }
-            })
+     function finRonda() {
+         if (finRondaEjecutada) return;
+         finRondaEjecutada = true;
 
-        })
-    </script>
+         console.log("finRonda() llamado");
+         alert("finRonda() ejecutado");
 
-    <script th:inline="javascript">
-        const palabra = /*[[${palabra}]]*/ "default";
-        const letras = palabra.split('');
+         clearInterval(intervaloTemporizador);
+         clearInterval(intervaloLetras);
 
-        function mostrarLetra(index) {
-            if (index >= letras.length) return;
-            const spanLetra = document.getElementById(`letra-${index}`);
-            if (spanLetra) {
-                spanLetra.textContent = letras[index];
-                spanLetra.classList.remove('oculto');
-                spanLetra.classList.add('visible');
-            }
-        }
+         fetch('/spring/juego/fin-ronda', {
+             method: 'POST',
+             headers: {'Content-Type': 'application/json'}
+         }).then(response => response.json())
+             .then(data => {
+                 if (data.partidaTerminada) {
+                     alert('¡Se acabó el tiempo! Fin de la partida.');
+                     window.location.href = '/spring/lobby';
+                 } else {
+                     alert("¡Se acabó el tiempo! Nueva ronda.");
+                     const jugadorId = document.getElementById("jugadorId").value;
+                     window.location.href = `/spring/juego?jugadorId=${encodeURIComponent(jugadorId)}`;
+                 }
+             }).catch(err => {
+             console.error('Error al finalizar ronda', err);
+         });
+     }
 
-        let index = 0;
-        const intervalo1 = setInterval(() => {
-            mostrarLetra(index);
-            index++;
-            if (index >= letras.length) clearInterval(intervalo1);
-        }, 15000); // cada 15 segundos
-    </script>
+
+
+     document.addEventListener("DOMContentLoaded", () => {
+         const input = document.getElementById("input-intento");
+         const jugadorId = document.getElementById("jugadorId").value;
+
+         input.addEventListener("keydown", (event) => {
+             if (event.key === "Enter") {
+                 event.preventDefault();
+
+                 const intento = input.value.trim();
+                 if (intento === "") return;
+
+                 fetch('/spring/juego/intentar', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/x-www-form-urlencoded'
+                     },
+                     body: `intento=${encodeURIComponent(intento)}&jugadorId=${encodeURIComponent(jugadorId)}`
+                 })
+                     .then(response => response.json())
+                     .then(data => {
+                         if (data.correcto) {
+                             clearInterval(intervaloTemporizador);
+                             clearInterval(intervaloLetras);
+                             if (data.partidaTerminada) {
+                                 alert("¡Correcto! Terminaste la partida.");
+                                 window.location.href = '/spring/lobby';
+                             } else {
+                                 alert("¡Correcto! Avanzás de ronda.");
+                                 location.reload();
+                             }
+                         } else {
+                             alert("Incorrecto. Intentá de nuevo.");
+                         }
+                     })
+                     .catch(error => {
+                         console.error("Error al enviar el intento:", error);
+                     });
+
+                 input.value = "";
+             }
+         });
+     });
+ </script>
+
+
+
+
 
 
 </body>

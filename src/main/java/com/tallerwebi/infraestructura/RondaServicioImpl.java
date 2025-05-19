@@ -1,5 +1,6 @@
 package com.tallerwebi.infraestructura;
 
+import com.tallerwebi.HelperPalabra;
 import com.tallerwebi.dominio.RondaServicio;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,8 @@ public class RondaServicioImpl implements RondaServicio {
 
     private final int MAX_RONDAS = 5;
     private int rondaActual = 1;
+    private final HelperPalabra helperPalabra = new HelperPalabra();
+
 
     @Override
     public int obtenerNumeroRonda() {
@@ -35,10 +38,12 @@ public class RondaServicioImpl implements RondaServicio {
 
     @Override
     public HashMap<String, String> traerPalabraYDefinicion() {
-        HashMap<String, String> definicion = new HashMap<>();
-        definicion.put("example", "A sample word for demonstration purposes.");
-        return definicion;
+        // Aquí podés pasar el idioma elegido por el usuario, por ahora lo dejamos fijo:
+        String idioma = "Castellano";
+        return new HashMap<>(helperPalabra.getPalabraYDescripcion(idioma));
     }
+
+
 
 }
 

@@ -14,6 +14,9 @@ public class Partida {
         this.jugadores = new HashMap<>();
         this.rondaActual = 1;
         this.partidaTerminada = false;
+
+        // Inicializar palabra y definición en la ronda 1
+        //actualizarPalabraYDefinicion();
     }
 
     // Métodos para gestionar la partida
@@ -28,16 +31,27 @@ public class Partida {
     /**
      * Avanza la ronda. Si la ronda es menor a 5, incrementa y devuelve true.
      * Si la ronda ya era 5 o más, marca la partida terminada y devuelve false.
+     * Además actualiza la palabra y definición actual para la nueva ronda.
      */
     public boolean avanzarRonda() {
         if (rondaActual < 5) {
             rondaActual++;
+            //actualizarPalabraYDefinicion();
             return true; // queda ronda para jugar
         } else {
             partidaTerminada = true;
             return false; // partida finalizada
         }
     }
+
+    /*// Actualiza palabraActual y definicionActual (simulación, cambiar por lógica real)
+    private void actualizarPalabraYDefinicion() {
+        // Esto deberías reemplazarlo con tu lógica real para obtener palabra y definición
+        palabraActual = "Palabra" + rondaActual;
+        definicionActual = "Definición de la palabra " + rondaActual;
+    }
+
+     */
 
     // Getters y setters
     public Map<String, Integer> getJugadores() {
@@ -57,7 +71,7 @@ public class Partida {
     }
 
     public void setPalabraActual(String palabraActual) {
-        this.palabraActual = palabraActual; // asigna el valor recibido, no "example"
+        this.palabraActual = palabraActual;
     }
 
     public String getDefinicionActual() {
@@ -72,4 +86,3 @@ public class Partida {
         return jugadores.get(jugadorId);
     }
 }
-
