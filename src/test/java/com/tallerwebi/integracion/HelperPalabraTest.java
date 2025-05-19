@@ -5,6 +5,7 @@ import com.tallerwebi.HelperPalabra;
 import org.junit.jupiter.api.Test;
 
 
+import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
@@ -20,13 +21,13 @@ public class HelperPalabraTest {
 @Test
     public void obtenerUnMap(){
     HelperPalabra helperPalabra = new HelperPalabra ();
-    Map<String,String> palabra = helperPalabra.getPalabraYDescripcion("Castellano");
+    Map<String, List<String>> palabra = helperPalabra.getPalabraYDescripcion("Castellano");
     assertThat(palabra, notNullValue());
 }
 @Test
     public void obtenerUnMapConUnaPalabra(){
     HelperPalabra helperPalabra = new HelperPalabra ();
-    Map<String,String> palabra = helperPalabra.getPalabraYDescripcion("Castellano");
+    Map<String,List<String>> palabra = helperPalabra.getPalabraYDescripcion("Castellano");
     assertThat(palabra, is(not(emptyMap())));
 }
 @Test
@@ -38,21 +39,21 @@ public class HelperPalabraTest {
 @Test
     public void buscarDescripcionEnHelperDefinicionEnCastellano(){
     HelperPalabra helperPalabra = new HelperPalabra ();
-    String definicion = helperPalabra.getDefinicion("perro", "Castellano");
+    List<String> definicion = helperPalabra.getDefinicion("perro", "Castellano");
     assertNotNull(definicion);
 }
 @Test
 public void buscarDescripcionEnHelperDefinicionEnIngles(){
     HelperPalabra helperPalabra = new HelperPalabra ();
-    String definicion = helperPalabra.getDefinicion("perro", "Ingles");
+    List<String> definicion = helperPalabra.getDefinicion("perro", "Ingles");
     assertNotNull(definicion);
 }
 @Test
 public void ObtenerUnaPalabraEnCastellanoYBuscarlaEnDefiniciones(){
     HelperPalabra helperPalabra = new HelperPalabra ();
-    Map<String,String> palabra = helperPalabra.getPalabraYDescripcion("Castellano");
+    Map<String,List<String>> palabra = helperPalabra.getPalabraYDescripcion("Castellano");
 
-    for (Map.Entry<String, String> entry : palabra.entrySet()) {
+    for (Map.Entry<String, List<String>> entry : palabra.entrySet()) {
         System.out.println(entry.getKey() + " " + entry.getValue());
         assertThat(entry.getKey(), is(notNullValue()));
         assertThat(entry.getValue(), is(notNullValue()));
@@ -61,8 +62,8 @@ public void ObtenerUnaPalabraEnCastellanoYBuscarlaEnDefiniciones(){
 @Test
     public void ObetenerUnaPalabraEnInglesYBuscarlaEnDefiniciones(){
     HelperPalabra helperPalabra = new HelperPalabra ();
-    Map<String,String> palabra = helperPalabra.getPalabraYDescripcion("Ingles");
-    for (Map.Entry<String, String> entry : palabra.entrySet()) {
+    Map<String,List<String>> palabra = helperPalabra.getPalabraYDescripcion("Ingles");
+    for (Map.Entry<String, List<String>> entry : palabra.entrySet()) {
         System.out.println(entry.getKey() + " " + entry.getValue());
         assertThat(entry.getKey(), is(notNullValue()));
         assertThat(entry.getValue(), is(notNullValue()));
