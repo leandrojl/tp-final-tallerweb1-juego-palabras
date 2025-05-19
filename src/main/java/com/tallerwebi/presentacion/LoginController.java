@@ -23,6 +23,8 @@ public class LoginController {
     public ModelAndView mostrarLogin() {
         ModelMap model = new ModelMap();
         model.addAttribute("jugador", new Jugador());
+        model.put("datosLogin", new DatosLogin());
+
         return new ModelAndView("login",model);
     }
 

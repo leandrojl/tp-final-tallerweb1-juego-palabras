@@ -20,6 +20,7 @@ public class Jugador {
         this.nombre = nombre;
     }
 
+
     public String getUsuario() {
         return usuario;
     }
