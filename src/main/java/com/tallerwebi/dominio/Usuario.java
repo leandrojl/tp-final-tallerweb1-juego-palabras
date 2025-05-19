@@ -31,6 +31,12 @@ public class Usuario {
 
     }
 
+    public Usuario(String nombre, String email, String password) {
+        this.nombre = nombre;
+        this.email = email;
+        this.password = password;
+    }
+
     public Long getId() {
         return id;
     }
