@@ -26,9 +26,6 @@ public class ControladorSalaDeEspera {
         this.servicioSalaDeEspera = servicioSalaDeEspera;
     }
 
-    public ControladorSalaDeEspera() {
-        // Constructor vacío
-    }
 
     @RequestMapping("/iniciarPartida")
     public ModelAndView iniciarPartida(@RequestParam Map<String, String> parametros) {
