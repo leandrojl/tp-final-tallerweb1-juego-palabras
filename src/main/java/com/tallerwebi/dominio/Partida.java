@@ -2,21 +2,21 @@ package com.tallerwebi.dominio;
 
 import java.util.HashMap;
 import java.util.Map;
-
 public class Partida {
-    private Map<String, Integer> jugadores; // jugadorId -> puntos
+    private Map<String, Integer> jugadores;
     private int rondaActual;
     private boolean partidaTerminada;
     private String palabraActual;
     private String definicionActual;
 
+    private static final int MAX_RONDAS = 5;
+
     public Partida() {
         this.jugadores = new HashMap<>();
-        this.rondaActual = 1;
+        this.rondaActual = 0;
         this.partidaTerminada = false;
     }
 
-    // Métodos para gestionar la partida
     public void agregarJugador(String jugadorId) {
         jugadores.putIfAbsent(jugadorId, 0);
     }
@@ -26,50 +26,27 @@ public class Partida {
     }
 
     /**
-     * Avanza la ronda. Si la ronda es menor a 5, incrementa y devuelve true.
-     * Si la ronda ya era 5 o más, marca la partida terminada y devuelve false.
+     * Avanza la ronda y actualiza palabra y definición.
+     * @return true si hay siguiente ronda, false si terminó.
      */
-    public boolean avanzarRonda() {
-        if (rondaActual < 5) {
+    public boolean avanzarRonda(String nuevaPalabra, String nuevaDefinicion) {
+        if (rondaActual < MAX_RONDAS) {
             rondaActual++;
-            return true; // queda ronda para jugar
+            this.palabraActual = nuevaPalabra;
+            this.definicionActual = nuevaDefinicion;
+            return true;
         } else {
             partidaTerminada = true;
-            return false; // partida finalizada
+            return false;
         }
     }
 
     // Getters y setters
-    public Map<String, Integer> getJugadores() {
-        return jugadores;
-    }
-
-    public int getRondaActual() {
-        return rondaActual;
-    }
-
-    public boolean isPartidaTerminada() {
-        return partidaTerminada;
-    }
-
-    public String getPalabraActual() {
-        return palabraActual;
-    }
-
-    public void setPalabraActual(String palabraActual) {
-        this.palabraActual = palabraActual; // asigna el valor recibido, no "example"
-    }
-
-    public String getDefinicionActual() {
-        return definicionActual;
-    }
-
-    public void setDefinicionActual(String definicionActual) {
-        this.definicionActual = definicionActual;
-    }
-
-    public Integer getPuntaje(String jugadorId) {
-        return jugadores.get(jugadorId);
-    }
+    public int getRondaActual() { return rondaActual; }
+    public boolean isPartidaTerminada() { return partidaTerminada; }
+    public String getPalabraActual() { return palabraActual; }
+    public String getDefinicionActual() { return definicionActual; }
+    public Integer getPuntaje(String jugadorId) { return jugadores.getOrDefault(jugadorId, 0); }
 }
+
 

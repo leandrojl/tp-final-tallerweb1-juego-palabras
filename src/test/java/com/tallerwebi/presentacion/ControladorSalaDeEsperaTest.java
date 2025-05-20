@@ -15,30 +15,6 @@ public class ControladorSalaDeEsperaTest {
 
 
     @Test
-    public void cuandoJugador1CambiaEstadoAListoDesdeElBotonDeSalaDeEsperaDebeActualizarseElEstadoEnLaSalaDeEspera() {
-    /*
-        //dado que tengo un controlador sala de espera
-        ControladorSalaDeEspera controlador = new ControladorSalaDeEspera();
-        //dado que tengo una sala de espera
-        SalaDeEspera salaDeEspera = new SalaDeEspera();
-
-
-        controlador.setSalaDeEspera(salaDeEspera);
-
-        salaDeEspera.setJugador1(new Usuario("Messi", 1L));
-        salaDeEspera.setJugador2(new Usuario("Ronaldo", 2L));
-
-        // Ejecutar el método del controlador
-
-        controlador.toggleReady(1L, true);
-
-        // Verificar que el estado del jugador 1 se actualizó
-        assertTrue(salaDeEspera.isJugador1Listo());*/
-    }
-
-
-
-    @Test
     public void cuandoAgregoUnJugadorALaSalaDeEsperaLoRedirijaALaSalaDeEspera() {
 
         Jugador jugador = dadoQueTengoUnJugadorConNombre("Messi");
@@ -46,7 +22,6 @@ public class ControladorSalaDeEsperaTest {
         ModelAndView mavJugador = cuandoAgregoAUnJugadorALaSalaDeEspera(jugador);
 
         entoncesRedirigoAlJugadorALaSalaDeEspera(mavJugador);
-
 
     }
 
