@@ -20,8 +20,9 @@ public class ControladorJuego {
     private Partida partida = new Partida();
 
     @Autowired
-    public ControladorJuego(RondaServicio rondaServicio) {
+    public ControladorJuego(RondaServicio rondaServicio, Partida partida) {
         this.rondaServicio = rondaServicio;
+        this.partida = partida;
     }
 
     @GetMapping
