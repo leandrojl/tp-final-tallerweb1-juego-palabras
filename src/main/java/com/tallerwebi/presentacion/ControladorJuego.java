@@ -1,7 +1,8 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.PartidaServicio;
 import com.tallerwebi.dominio.RondaServicio;
-import com.tallerwebi.infraestructura.PartidaServicio;
+import com.tallerwebi.infraestructura.PartidaServicioImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

@@ -1,5 +1,6 @@
 package com.tallerwebi.infraestructura;
 
+import com.tallerwebi.dominio.PartidaServicio;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -8,7 +9,7 @@ import java.util.Map;
 
 @Service
 @Transactional
-public class PartidaServicio implements com.tallerwebi.dominio.PartidaServicio {
+public class PartidaServicioImpl implements PartidaServicio {
     private Map<String, Integer> jugadores;
     private int rondaActual;
     private boolean partidaTerminada;
@@ -17,7 +18,7 @@ public class PartidaServicio implements com.tallerwebi.dominio.PartidaServicio {
 
     private static final int MAX_RONDAS = 5;
 
-    public PartidaServicio() {
+    public PartidaServicioImpl() {
         this.jugadores = new HashMap<>();
         this.rondaActual = 0;
         this.partidaTerminada = false;
@@ -51,10 +52,15 @@ public class PartidaServicio implements com.tallerwebi.dominio.PartidaServicio {
     }
 
     // Getters y setters
+    @Override
     public int getRondaActual() { return rondaActual; }
+    @Override
     public boolean isPartidaTerminada() { return partidaTerminada; }
+    @Override
     public String getPalabraActual() { return palabraActual; }
+    @Override
     public String getDefinicionActual() { return definicionActual; }
+    @Override
     public Integer getPuntaje(String jugadorId) { return jugadores.getOrDefault(jugadorId, 0); }
 }
 
