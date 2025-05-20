@@ -1,7 +1,13 @@
 package com.tallerwebi.infraestructura;
 
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
+
+@Service
+@Transactional
 public class PartidaServicio implements com.tallerwebi.dominio.PartidaServicio {
     private Map<String, Integer> jugadores;
     private int rondaActual;
