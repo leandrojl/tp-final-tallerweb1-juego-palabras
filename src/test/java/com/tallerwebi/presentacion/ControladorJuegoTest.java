@@ -1,6 +1,6 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.Partida;
+import com.tallerwebi.infraestructura.PartidaServicio;
 import com.tallerwebi.dominio.RondaServicio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,13 +16,13 @@ import static org.mockito.Mockito.*;
 public class ControladorJuegoTest {
 
     private RondaServicio rondaServicio;
-    private Partida partidaMock;
+    private PartidaServicio partidaMock;
     private ControladorJuego controladorJuego;
 
     @BeforeEach
     public void init() {
         rondaServicio = mock(RondaServicio.class);
-        partidaMock = mock(Partida.class);
+        partidaMock = mock(PartidaServicio.class);
         controladorJuego = new ControladorJuego(rondaServicio, partidaMock);
     }
 

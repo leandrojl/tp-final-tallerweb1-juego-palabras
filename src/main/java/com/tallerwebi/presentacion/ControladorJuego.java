@@ -1,14 +1,12 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.Partida;
 import com.tallerwebi.dominio.RondaServicio;
+import com.tallerwebi.infraestructura.PartidaServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,10 +15,10 @@ import java.util.Map;
 public class ControladorJuego {
 
     private final RondaServicio rondaServicio;
-    private Partida partida = new Partida();
+    private final PartidaServicio partida;
 
     @Autowired
-    public ControladorJuego(RondaServicio rondaServicio, Partida partida) {
+    public ControladorJuego(RondaServicio rondaServicio, PartidaServicio partida) {
         this.rondaServicio = rondaServicio;
         this.partida = partida;
     }

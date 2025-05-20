@@ -1,8 +1,8 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.infraestructura;
 
 import java.util.HashMap;
 import java.util.Map;
-public class Partida {
+public class PartidaServicio implements com.tallerwebi.dominio.PartidaServicio {
     private Map<String, Integer> jugadores;
     private int rondaActual;
     private boolean partidaTerminada;
@@ -11,16 +11,18 @@ public class Partida {
 
     private static final int MAX_RONDAS = 5;
 
-    public Partida() {
+    public PartidaServicio() {
         this.jugadores = new HashMap<>();
         this.rondaActual = 0;
         this.partidaTerminada = false;
     }
 
+    @Override
     public void agregarJugador(String jugadorId) {
         jugadores.putIfAbsent(jugadorId, 0);
     }
 
+    @Override
     public void actualizarPuntos(String jugadorId, int puntos) {
         jugadores.put(jugadorId, jugadores.getOrDefault(jugadorId, 0) + puntos);
     }
@@ -29,6 +31,7 @@ public class Partida {
      * Avanza la ronda y actualiza palabra y definición.
      * @return true si hay siguiente ronda, false si terminó.
      */
+    @Override
     public boolean avanzarRonda(String nuevaPalabra, String nuevaDefinicion) {
         if (rondaActual < MAX_RONDAS) {
             rondaActual++;
