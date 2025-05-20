@@ -1,23 +1,23 @@
 package com.tallerwebi.presentacion;
 
 public class DatosLogin {
-    private String email;
+    private String nombre;
     private String password;
 
     public DatosLogin() {
     }
 
-    public DatosLogin(String email, String password) {
-        this.email = email;
+    public DatosLogin(String nombre, String password) {
+        this.nombre = nombre;
         this.password = password;
     }
 
-    public String getEmail() {
-        return email;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getPassword() {

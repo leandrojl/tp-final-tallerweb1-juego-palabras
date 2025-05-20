@@ -1,6 +1,10 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.Jugador;
+import com.tallerwebi.dominio.excepcion.PasswordMenorAOchoCaracteresException;
+import com.tallerwebi.dominio.Usuario;
+import com.tallerwebi.dominio.RegistroService;
+import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -8,23 +12,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Controller
 public class RegistroController {
 
+    private RegistroService registroService;
     //En el futuro mandarlo a un servicio
-    private List<Jugador> jugadores = Arrays.asList(
-            new Jugador("pepe1235421", "pepe@gmail.com", "abc123245"),
-            new Jugador("lucas", "lucas@gmail.com", "12151gdsf"),
-            new Jugador("nicolas", "nicolas@gmail.com", "bv2b132v1")
-    );
+
+    @Autowired
+    public RegistroController(RegistroService registroService) {
+        this.registroService = registroService;
+    }
 
     @RequestMapping("/registro")
     public ModelAndView mostrarRegistro() {
         ModelMap model = new ModelMap();
-        model.addAttribute("jugador", new Jugador());
+        model.addAttribute("usuario", new Usuario());
         return new ModelAndView("registro",model);
     }
 
@@ -33,38 +35,27 @@ public class RegistroController {
     }
 
     @PostMapping("/procesarRegistro")
-    public ModelAndView registrar(@ModelAttribute Jugador jugador) {
+    public ModelAndView registrar(@ModelAttribute Usuario usuario) {
         ModelMap model = new ModelMap();
         //Crear clase validadora de campos para no tener ifs aca
-        if(jugador.getUsuario().isEmpty()){
+        if(usuario.getNombre().isEmpty()){
             model.addAttribute("error", "El usuario no puede estar vacio");
             return new ModelAndView("registro", model);
         }
-        if(jugador.getEmail().isEmpty()){
-            model.addAttribute("error", "El email no puede estar vacio");
-            return new ModelAndView("registro", model);
-        }
-        if(jugador.getPassword().isEmpty()){
+        if(usuario.getPassword().isEmpty()){
             model.addAttribute("error", "La contrasenia no puede estar vacia");
             return new ModelAndView("registro", model);
         }
-        if(buscarJugador(jugador.getUsuario()) != null){
+        try{
+            this.registroService.registrar(usuario.getNombre(), usuario.getPassword());
+            return new ModelAndView("login", model);
+        }catch(UsuarioExistenteException u){
             model.addAttribute("error", "El usuario ya existe");
             return new ModelAndView("registro", model);
+        }catch(PasswordMenorAOchoCaracteresException p){
+            model.addAttribute("error", "La contraseña debe contener al menos ocho caracteres");
+            return new ModelAndView("registro", model);
         }
-
-        //Efectuar el registro una vez validados los campos
-        //Retornar a la vista login cuando ya se realizo el registro
-        return new ModelAndView("login");
-    }
-
-    private Jugador buscarJugador(String usuario) {
-        for (Jugador jugador : jugadores) {
-            if (jugador.getUsuario().equals(usuario)) {
-                return jugador;
-            }
-        }
-        return null;
     }
 
 }

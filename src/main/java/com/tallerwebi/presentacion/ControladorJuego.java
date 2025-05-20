@@ -1,11 +1,14 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.Partida;
+import com.tallerwebi.dominio.RondaServicio;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,16 +16,28 @@ import java.util.Map;
 @RequestMapping("/juego")
 public class ControladorJuego {
 
-    private Partida partida = new Partida();  // Instancia global para la partida
+    private final RondaServicio rondaServicio;
+    private Partida partida = new Partida();
+
+    @Autowired
+    public ControladorJuego(RondaServicio rondaServicio) {
+        this.rondaServicio = rondaServicio;
+    }
 
     @GetMapping
     public ModelAndView mostrarVistaJuego(@RequestParam String jugadorId) {
         // Agregar al jugador si no está
         partida.agregarJugador(jugadorId);
 
-        // Poner la definición y palabra actual (simulada por ahora)
-        partida.setPalabraActual("example");
-        partida.setDefinicionActual("A sample word for demonstration purposes.");
+        if (partida.getPalabraActual() == null) {
+            // Cargar palabra y definicion iniciales desde el servicio
+            Map<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+            String palabra = pYD.keySet().iterator().next();
+            String definicion = pYD.get(palabra);
+
+            partida.actualizarPuntos(jugadorId, 0); // Opcional para inicializar puntos
+            partida.avanzarRonda(palabra, definicion); // inicializa la palabra y definición en ronda 1
+        }
 
         ModelAndView mov = new ModelAndView("juego");
 
@@ -40,27 +55,60 @@ public class ControladorJuego {
                                                    @RequestParam String jugadorId) {
 
         boolean acierto = intento.equalsIgnoreCase(partida.getPalabraActual());
+        Map<String, Object> response = new HashMap<>();
 
         if (acierto) {
             partida.actualizarPuntos(jugadorId, 1);
-            partida.avanzarRonda();
+
+            if (!partida.isPartidaTerminada()) {
+                // Obtener nueva palabra y definición para la siguiente ronda
+                Map<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+                String palabra = pYD.keySet().iterator().next();
+                String definicion = pYD.get(palabra);
+
+                boolean haySiguiente = partida.avanzarRonda(palabra, definicion);
+
+                response.put("nuevaDefinicion", definicion);
+                response.put("nuevaPalabra", palabra);
+                response.put("partidaTerminada", !haySiguiente);
+            } else {
+                response.put("partidaTerminada", true);
+            }
+        } else {
+            response.put("partidaTerminada", partida.isPartidaTerminada());
         }
 
-        Map<String, Object> response = new HashMap<>();
         response.put("correcto", acierto);
         response.put("ronda", partida.getRondaActual());
         response.put("puntaje", partida.getPuntaje(jugadorId));
-        response.put("partidaTerminada", partida.isPartidaTerminada());
 
         return response;
     }
 
+    @PostMapping("/fin-ronda")
+    @ResponseBody
+    public Map<String, Object> finRonda() {
+        Map<String, Object> response = new HashMap<>();
 
+        if (partida.isPartidaTerminada()) {
+            response.put("partidaTerminada", true);
+            response.put("rondaActual", partida.getRondaActual());
+            return response;
+        }
 
-    @PostMapping("/abandonar")
-    public String abandonarPartida(@RequestParam String jugadorId) {
-        // Lógica para abandonar (puedes remover al jugador si lo deseas)
-        return "redirect:/lobby?jugadorId=" + jugadorId;
+        Map<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+        String palabra = pYD.keySet().iterator().next();
+        String definicion = pYD.get(palabra);
+
+        boolean haySiguiente = partida.avanzarRonda(palabra, definicion);
+
+        response.put("partidaTerminada", !haySiguiente);
+        response.put("rondaActual", partida.getRondaActual());
+        if (haySiguiente) {
+            response.put("nuevaPalabra", palabra);
+            response.put("nuevaDefinicion", definicion);
+        }
+
+        return response;
     }
 }
-
