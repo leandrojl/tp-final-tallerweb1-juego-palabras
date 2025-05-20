@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.excepcion.NoHayJugadoresEnLaSalaDeEsperaException;
 import com.tallerwebi.dominio.excepcion.UsuarioExistente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,11 @@ public class ServicioSalaDeEsperaImpl implements ServicioSalaDeEspera {
 
 
     @Override
-    public Map<Long, Boolean> obtenerJugadoresDelFormulario(Map<String, String> parametros) {
+    public Map<Long, Boolean> obtenerJugadoresDelFormulario(Map<String, String> parametros)  {
         Map<Long, Boolean> jugadores = new HashMap<>();
+
+
+
         parametros.forEach((clave, valor) -> {
             if (clave.startsWith("jugador_")) {
                 Long jugadorId = Long.parseLong(clave.replace("jugador_", ""));
@@ -25,6 +29,10 @@ public class ServicioSalaDeEsperaImpl implements ServicioSalaDeEspera {
                 jugadores.put(jugadorId, listo);
             }
         });
+
+        if (jugadores.isEmpty()) {
+            throw new NoHayJugadoresEnLaSalaDeEsperaException();
+        }
 
         return jugadores;
     }

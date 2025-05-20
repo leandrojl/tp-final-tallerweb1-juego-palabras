@@ -3,6 +3,7 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.Jugador;
 import com.tallerwebi.dominio.ServicioSalaDeEspera;
 import com.tallerwebi.dominio.Usuario;
+import com.tallerwebi.dominio.excepcion.NoHayJugadoresEnLaSalaDeEsperaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,7 +29,7 @@ public class ControladorSalaDeEspera {
 
 
     @RequestMapping("/iniciarPartida")
-    public ModelAndView iniciarPartida(@RequestParam Map<String, String> parametros) {
+    public ModelAndView iniciarPartida(@RequestParam Map<String, String> parametros)  {
 
         ModelMap model = new ModelMap();
 

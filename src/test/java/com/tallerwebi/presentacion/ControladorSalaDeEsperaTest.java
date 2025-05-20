@@ -1,11 +1,8 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.Jugador;
-import com.tallerwebi.dominio.SalaDeEspera;
-import com.tallerwebi.dominio.ServicioSalaDeEspera;
-import com.tallerwebi.dominio.Usuario;
+import com.tallerwebi.dominio.*;
+import com.tallerwebi.dominio.excepcion.NoHayJugadoresEnLaSalaDeEsperaException;
 import org.junit.jupiter.api.Test;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -15,6 +12,7 @@ import java.util.Map;
 import static net.bytebuddy.matcher.ElementMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
@@ -22,6 +20,7 @@ public class ControladorSalaDeEsperaTest {
 
     ServicioSalaDeEspera servicioSalaDeEspera = mock(ServicioSalaDeEspera.class);
     ControladorSalaDeEspera controlador = new ControladorSalaDeEspera(servicioSalaDeEspera);
+
 
     @Test
     public void deberiaMostrarErrorCuandoLosJugadoresNoEstanListos() {
@@ -37,11 +36,9 @@ public class ControladorSalaDeEsperaTest {
 
         ModelAndView mav = controlador.iniciarPartida(parametros);
 
-
         assertThat(mav.getViewName(), equalTo("sala-de-espera"));
         ModelMap model = mav.getModelMap(); //guardo el modelo que va a la vista desde el controlador
         assertThat(model.get("error"), equalTo("Los siguientes jugadores no están listos: [1, 2]"));
-
 
         verify(servicioSalaDeEspera).obtenerJugadoresDelFormulario(parametros);
         verify(servicioSalaDeEspera).verificarSiHayJugadoresQueNoEstenListos(jugadores);
