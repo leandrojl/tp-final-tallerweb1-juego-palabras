@@ -175,6 +175,7 @@
 
             <p class="lead mb-4" th:text="${definicion}">Definition goes here</p>
 
+            <!--aqui se crean los span contenedores de cada letra de cada palabra nueva -->
             <div class="palabra-inputs" id="palabraInputs">
                 <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
                     th:id="'letra-' + ${iterStat.index}">
@@ -263,7 +264,8 @@
     </script>
 
     <script>
-
+        //esto trae el input intento y cada vez que se le da enter se consume el metodo procesar intento
+        //si acierta le dice q acerto y si no acierta, que vuelva a intentar
         document.addEventListener("DOMContentLoaded", () => {
             const input = document.getElementById("input-intento");
             const jugadorId = document.getElementById("jugadorId").value;
@@ -273,7 +275,7 @@
                     event.preventDefault(); //evita q se recargue la pagina
 
 
-                    const intento = input.value.trim();
+                    const intento = input.value.trim(); //trim elimina espacios en blanco 
                     if (intento === "") return;
 
                     //envia los datos al controlador con fetch
@@ -291,7 +293,7 @@
                             // actualizar vista, inputs, etc
                             if (data.correcto) {
                                 alert("¡Correcto! Avanzás de ronda.");
-                                // Acá podés vaciar el input, mostrar la nueva palabra, etc.
+                                // aca habria q vaciar el input y cargar nueva palabra
                             } else {
                                 alert("Incorrecto. Intentá de nuevo.");
                             }
@@ -300,16 +302,17 @@
                             console.error("Error al enviar el intento:", error);
                         });
 
-                    input.value = ""; // Limpia el input;
+                    input.value = ""; // limpia el input;
                 }
             })
 
         })
     </script>
 
+    <!-- carga la palabra de a 15 segundos dinamicamente -->
     <script th:inline="javascript">
-        const palabra = /*[[${palabra}]]*/ "default";
-        const letras = palabra.split('');
+        const palabra = /*[[${palabra}]]*/ "default";   /*Trae la "palabra" de Java*/
+        const letras = palabra.split('');               /*Divido la palabra en array de letras ['H','O','Y']*/
 
         function mostrarLetra(index) {
             if (index >= letras.length) return;

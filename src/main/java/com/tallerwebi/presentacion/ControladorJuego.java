@@ -4,6 +4,7 @@ import com.tallerwebi.dominio.Partida;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class ControladorJuego {
     private Partida partida = new Partida();  // Instancia global para la partida
 
     @GetMapping
-    public String mostrarVistaJuego(Model model, @RequestParam String jugadorId) {
+    public ModelAndView mostrarVistaJuego(@RequestParam String jugadorId) {
         // Agregar al jugador si no está
         partida.agregarJugador(jugadorId);
 
@@ -23,27 +24,27 @@ public class ControladorJuego {
         partida.setPalabraActual("example");
         partida.setDefinicionActual("A sample word for demonstration purposes.");
 
-        model.addAttribute("definicion", partida.getDefinicionActual());
-        model.addAttribute("jugadorId", jugadorId);
-        model.addAttribute("rondaActual", partida.getRondaActual());
-        model.addAttribute("palabra", partida.getPalabraActual());
+        ModelAndView mov = new ModelAndView("juego");
 
-        return "juego";
+        mov.addObject("definicion", partida.getDefinicionActual());
+        mov.addObject("jugadorId", jugadorId);
+        mov.addObject("rondaActual", partida.getRondaActual());
+        mov.addObject("palabra", partida.getPalabraActual());
+
+        return mov;
     }
 
     @PostMapping("/intentar")
     @ResponseBody
     public Map<String, Object> procesarIntentoAjax(@RequestParam String intento,
                                                    @RequestParam String jugadorId) {
-        System.out.println("INTENTO: " + intento + " - jugador: " + jugadorId);
 
         boolean acierto = intento.equalsIgnoreCase(partida.getPalabraActual());
 
         if (acierto) {
             partida.actualizarPuntos(jugadorId, 1);
+            partida.avanzarRonda();
         }
-
-        partida.avanzarRonda();
 
         Map<String, Object> response = new HashMap<>();
         response.put("correcto", acierto);
