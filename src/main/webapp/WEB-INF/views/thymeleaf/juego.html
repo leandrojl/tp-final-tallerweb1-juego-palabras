@@ -290,7 +290,6 @@
      progressCircle.style.strokeDashoffset = 0;
 
 
-     // === REVELAR LETRAS ===
      const intervaloLetras = setInterval(() => {
          if (indexLetra < letras.length) {
              const spanLetra = document.getElementById(`letra-${indexLetra}`);
@@ -310,7 +309,7 @@
          if (tiempoRestante <= 0) {
              clearInterval(intervaloTemporizador);
              clearInterval(intervaloLetras);
-             finRonda(); // ⏰ fin de ronda por tiempo
+             finRonda();
          } else {
              temporizadorText.textContent = tiempoRestante;
              let offset = circunferencia - (tiempoRestante / tiempoMaximo) * circunferencia;
@@ -320,12 +319,12 @@
      }, 1000);
 
 
+
      function finRonda() {
          if (finRondaEjecutada) return;
          finRondaEjecutada = true;
 
-         console.log("finRonda() llamado");
-         alert("finRonda() ejecutado");
+
 
          clearInterval(intervaloTemporizador);
          clearInterval(intervaloLetras);
@@ -340,8 +339,7 @@
                      window.location.href = '/spring/lobby';
                  } else {
                      alert("¡Se acabó el tiempo! Nueva ronda.");
-                     const jugadorId = document.getElementById("jugadorId").value;
-                     window.location.href = `/spring/juego?jugadorId=${encodeURIComponent(jugadorId)}`;
+                     location.reload(); // recarga para mostrar la nueva palabra y definición
                  }
              }).catch(err => {
              console.error('Error al finalizar ronda', err);
@@ -395,6 +393,39 @@
  </script>
 
 
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+ <script>
+     $(document).ready(function() {
+         // Prevenir submit real
+         $('form').on('submit', function(e) {
+             e.preventDefault();
+
+             const intento = $('#input-intento').val().trim();
+             const jugadorId = $('#jugadorId').val();
+
+             if (intento === "") return;
+
+             $.post('/juego/intentar', { intento, jugadorId }, function(response) {
+                 if (response.correcto) {
+                     alert('¡Correcto!');
+                     $('#input-intento').val('');
+
+                     // Actualizar datos en la UI
+                     $('#rondaActual').text(response.ronda);
+                     $('.lead[th\\:text="${definicion}"]').text(response.nuevaDefinicion || '');
+
+                     // Reiniciar temporizador (a implementar)
+                     // resetTemporizador();
+
+                     // Aquí podrías también actualizar puntaje visible si tienes
+                 } else {
+                     alert('Incorrecto, intenta de nuevo.');
+                 }
+             });
+         });
+     });
+ </script>
 
 
 

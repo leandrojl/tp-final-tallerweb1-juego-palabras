@@ -16,25 +16,9 @@ public class RondaServicioImpl implements RondaServicio {
     private final HelperPalabra helperPalabra = new HelperPalabra();
 
 
-    @Override
-    public int obtenerNumeroRonda() {
-        return rondaActual;
-    }
 
-    @Override
-    public boolean avanzarRonda() {
-        if (rondaActual < MAX_RONDAS) {
-            rondaActual++;
-            return true;
-        } else {
-            return false;
-        }
-    }
 
-    @Override
-    public void reiniciarRonda() {
-        rondaActual = 1;
-    }
+
 
     @Override
     public HashMap<String, String> traerPalabraYDefinicion() {
