@@ -1,16 +1,19 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.RondaServicio;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.mockito.Mockito.mock;
 
 public class ControladorJuegoTest {
 
-
+    RondaServicio rondaSerivicio = mock(RondaServicio.class);
 
     @Test
     public void queSeMuestreLaVistaJuego(){
@@ -37,7 +40,7 @@ public class ControladorJuegoTest {
     }
 
     private ModelAndView mostrarVistaJuego(String idJugador) {
-        ControladorJuego controladorJuego = new ControladorJuego();
+        ControladorJuego controladorJuego = new ControladorJuego(rondaSerivicio);
         ModelAndView mov = controladorJuego.mostrarVistaJuego(idJugador);
         return mov;
     }
@@ -73,7 +76,7 @@ public class ControladorJuegoTest {
     @Test
     public void queSeRecibaElIntentoAlIntentarAcertar(){
         //preparacion
-        ControladorJuego controladorJuego = new ControladorJuego();
+        ControladorJuego controladorJuego = new ControladorJuego(rondaSerivicio);
 
         String intento = "example";
         String idJugador = "1";
