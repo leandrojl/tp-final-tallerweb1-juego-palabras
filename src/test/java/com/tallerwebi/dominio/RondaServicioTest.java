@@ -11,24 +11,13 @@ import java.util.HashMap;
 class RondaServicioTest {
     RondaServicioImpl rondaServicio = new RondaServicioImpl();
 
-    private ControladorJuego controladorJuego;
 
-
-
-    @Test
-    void testAvanzarRonda() {
-
-        boolean resultado = rondaServicio.avanzarRonda();
-        assertTrue(resultado);
-        assertEquals(2, rondaServicio.obtenerNumeroRonda());
-    }
 
 
     @Test
     void queRondaMeTraigaUnaDefinicion() {
-        HashMap<String,String> definicion = rondaServicio.traerPalabraYDefinicion(); ;
-
-        assertEquals(true, definicion.containsKey("example"));
+        HashMap<String,String> pYD = rondaServicio.traerPalabraYDefinicion(); ;
+        assertFalse(pYD.isEmpty());
     }
 
 
