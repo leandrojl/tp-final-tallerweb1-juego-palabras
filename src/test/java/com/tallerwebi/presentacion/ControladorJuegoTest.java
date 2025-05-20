@@ -217,4 +217,30 @@ public class ControladorJuegoTest {
 
     //------------------------Tests de FIN RONDA---------------------------------------//
 
+    @Test
+    public void queFinRondaIndiquePartidaTerminadaSiYaTermino() {
+        when(partidaMock.isPartidaTerminada()).thenReturn(true);
+        when(partidaMock.getRondaActual()).thenReturn(5);
+
+        Map<String, Object> resultado = controladorJuego.finRonda();
+
+        assertThat(resultado.get("partidaTerminada").toString(), equalToIgnoringCase("true"));
+        assertThat(resultado.get("rondaActual").toString(), equalToIgnoringCase("5"));
+    }
+
+    @Test
+    public void queFinRondaAvanceSiNoTermino() {
+        when(partidaMock.isPartidaTerminada()).thenReturn(false);
+        when(rondaServicio.traerPalabraYDefinicion()).thenReturn(getPalabraYDefinicion());
+        when(partidaMock.avanzarRonda("agua", "Sustancia líquida esencial para la vida.")).thenReturn(true);
+        when(partidaMock.getRondaActual()).thenReturn(2);
+
+        Map<String, Object> resultado = controladorJuego.finRonda();
+
+        assertThat(resultado.get("partidaTerminada").toString(), equalToIgnoringCase("false"));
+        assertThat(resultado.get("rondaActual").toString(), equalToIgnoringCase("2"));
+        assertThat(resultado.get("nuevaPalabra").toString(), equalToIgnoringCase("agua"));
+        assertThat(resultado.get("nuevaDefinicion").toString(), equalToIgnoringCase("Sustancia líquida esencial para la vida."));
+    }
+
 }
