@@ -20,8 +20,6 @@ public class ServicioSalaDeEsperaImpl implements ServicioSalaDeEspera {
     public Map<Long, Boolean> obtenerJugadoresDelFormulario(Map<String, String> parametros)  {
         Map<Long, Boolean> jugadores = new HashMap<>();
 
-
-
         parametros.forEach((clave, valor) -> {
             if (clave.startsWith("jugador_")) {
                 Long jugadorId = Long.parseLong(clave.replace("jugador_", ""));

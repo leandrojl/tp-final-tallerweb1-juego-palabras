@@ -63,8 +63,7 @@ public class ServicioSalaDeEsperaTest {
         // dado un mapa de jugadores con todos listos
         Map<Long, Boolean> jugadores = Map.of(
                 1L, true,
-                2L, true,
-                3L, true
+                2L, true
         );
 
         // cuando verifico si los jugadores que no estan listos

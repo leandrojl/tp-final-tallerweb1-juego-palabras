@@ -32,6 +32,7 @@ public class ControladorSalaDeEsperaTest {
         List<Long> jugadoresNoListos = List.of(1L, 2L);
 
         when(servicioSalaDeEspera.obtenerJugadoresDelFormulario(parametros)).thenReturn(jugadores);
+
         when(servicioSalaDeEspera.verificarSiHayJugadoresQueNoEstenListos(jugadores)).thenReturn(jugadoresNoListos);
 
         ModelAndView mav = controlador.iniciarPartida(parametros);
