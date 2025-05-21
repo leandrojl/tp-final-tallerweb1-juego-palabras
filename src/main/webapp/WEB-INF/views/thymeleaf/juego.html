@@ -372,7 +372,7 @@
                              clearInterval(intervaloLetras);
                              if (data.partidaTerminada) {
                                  alert("¡Correcto! Terminaste la partida.");
-                                 window.location.href = '/spring/lobby';
+                                 window.location.href = '/spring/vistaFinalJuego?jugadorId=${jugadorId}&puntaje=${puntaje}';
                              } else {
                                  alert("¡Correcto! Avanzás de ronda.");
                                  location.reload();
