@@ -1,6 +1,7 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.infraestructura.PartidaServicioImpl;
+import com.tallerwebi.dominio.PartidaServicio;
+
 import com.tallerwebi.dominio.RondaServicio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,13 +17,13 @@ import static org.mockito.Mockito.*;
 public class ControladorJuegoTest {
 
     private RondaServicio rondaServicio;
-    private PartidaServicioImpl partidaMock;
+    private PartidaServicio partidaMock;
     private ControladorJuego controladorJuego;
 
     @BeforeEach
     public void init() {
         rondaServicio = mock(RondaServicio.class);
-        partidaMock = mock(PartidaServicioImpl.class);
+        partidaMock = mock(PartidaServicio.class);
         controladorJuego = new ControladorJuego(rondaServicio, partidaMock);
     }
 
@@ -37,11 +38,11 @@ public class ControladorJuegoTest {
         ModelAndView mov = whenObtenerVistaJuego(idUsuario);
 
         //validacion
-        thenSeVeLaPaginaJuego(mov, "juego");
+        thenSeVeLaPaginaJuego(mov);
     }
 
-    private void thenSeVeLaPaginaJuego(ModelAndView mov, String juego) {
-        assertThat(mov.getViewName(), equalToIgnoringCase(juego));
+    private void thenSeVeLaPaginaJuego(ModelAndView mov) {
+        assertThat(mov.getViewName(), equalToIgnoringCase("juego"));
     }
 
     private ModelAndView whenObtenerVistaJuego(String idJugador) {
