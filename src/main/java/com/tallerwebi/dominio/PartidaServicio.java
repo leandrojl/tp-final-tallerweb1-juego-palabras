@@ -1,20 +1,11 @@
 package com.tallerwebi.dominio;
 
+import java.util.*;
+
+
 public interface PartidaServicio {
-    void agregarJugador(String jugadorId);
-
-    void actualizarPuntos(String jugadorId, int puntos);
-
-    boolean avanzarRonda(String nuevaPalabra, String nuevaDefinicion);
-
-    // Getters y setters
-    int getRondaActual();
-
-    boolean isPartidaTerminada();
-
-    String getPalabraActual();
-
-    String getDefinicionActual();
-
-    Integer getPuntaje(String jugadorId);
+    Partida iniciarNuevaPartida(String jugadorId, String nombre);
+    Partida obtenerPartida(String jugadorId);
+    void eliminarPartida(String jugadorId);
 }
+

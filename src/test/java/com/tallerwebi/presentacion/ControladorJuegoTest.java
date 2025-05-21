@@ -1,246 +1,98 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.infraestructura.PartidaServicioImpl;
-import com.tallerwebi.dominio.RondaServicio;
+import com.tallerwebi.dominio.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.ui.ExtendedModelMap;
+import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class ControladorJuegoTest {
 
+    private PuntajeServicio puntajeServicio;
+    private PartidaServicio partidaServicio;
     private RondaServicio rondaServicio;
-    private PartidaServicioImpl partidaMock;
     private ControladorJuego controladorJuego;
 
     @BeforeEach
-    public void init() {
+    public void setUp() {
         rondaServicio = mock(RondaServicio.class);
-        partidaMock = mock(PartidaServicioImpl.class);
-        controladorJuego = new ControladorJuego(rondaServicio, partidaMock);
+        puntajeServicio = new PuntajeServicioImpl();
+        partidaServicio = new PartidaServicioImpl();
+        controladorJuego = new ControladorJuego(rondaServicio, puntajeServicio, partidaServicio);
     }
 
     @Test
     public void queSeMuestreLaVistaJuego() {
-        //preparacion
-        String idUsuario = "1";
-        //simulo la respuesta del servicio ya que es una dependencia
-        when(rondaServicio.traerPalabraYDefinicion()).thenReturn(getPalabraYDefinicion());
-
-        //ejecucion
-        ModelAndView mov = whenObtenerVistaJuego(idUsuario);
-
-        //validacion
-        thenSeVeLaPaginaJuego(mov, "juego");
-    }
-
-    private void thenSeVeLaPaginaJuego(ModelAndView mov, String juego) {
-        assertThat(mov.getViewName(), equalToIgnoringCase(juego));
-    }
-
-    private ModelAndView whenObtenerVistaJuego(String idJugador) {
-        return controladorJuego.mostrarVistaJuego(idJugador);
-    }
-
-    private HashMap<String, String> getPalabraYDefinicion() {
-        HashMap<String, String> palabraYDefinicion = new HashMap<>();
-        palabraYDefinicion.put("agua", "Sustancia líquida esencial para la vida.");
-        return palabraYDefinicion;
+        ModelAndView mov = controladorJuego.mostrarVistaJuego("1");
+        assertThat(mov.getViewName(), equalToIgnoringCase("juego"));
     }
 
     @Test
     public void queSeRecibaElIdJugadorAlCargarElJuego() {
-        //preparacion
         String idJugador = "1";
-        //simulo la respuesta del servicio ya que es una dependencia
-        when(rondaServicio.traerPalabraYDefinicion()).thenReturn(getPalabraYDefinicion());
-
-        //ejecucion
-        ModelAndView mov = whenObtenerVistaJuego(idJugador);
-
-        //validacion
+        ModelAndView mov = controladorJuego.mostrarVistaJuego(idJugador);
+        assertThat(mov.getViewName(), equalToIgnoringCase("juego"));
         assertThat((String) mov.getModel().get("jugadorId"), equalToIgnoringCase(idJugador));
     }
 
-
     @Test
     public void queSeAgregueElJugadorALaPartida() {
-        //preparacion
         String idJugador = "1";
-        //simulo la respuesta del servicio ya que es una dependencia
-        when(rondaServicio.traerPalabraYDefinicion()).thenReturn(getPalabraYDefinicion());
-        //ejecucion
-        ModelAndView mov = whenObtenerVistaJuego(idJugador);
-
-        //validacion - verify comprueba que un metodo de partidaMock fue llamado con ciertos argumentos
-        verify(partidaMock).agregarJugador(idJugador);
+        controladorJuego.mostrarVistaJuego(idJugador);
+        assertEquals("Jugador_1", partidaServicio.obtenerPartida(idJugador).getNombre(idJugador));
     }
 
     @Test
-    public void siLaPalabraActualEsNullSeInvoqueAlServicioParaTraerPalabraYDefinicion() {
-        // preparación
-        String idJugador = "1";
-        when(partidaMock.getPalabraActual()).thenReturn(null).thenReturn("agua");
-        when(partidaMock.getDefinicionActual()).thenReturn("Sustancia líquida esencial para la vida.");
-        when(partidaMock.getRondaActual()).thenReturn(1);
-        when(rondaServicio.traerPalabraYDefinicion()).thenReturn(getPalabraYDefinicion());
-
-        // ejecución
-        ModelAndView mov = whenObtenerVistaJuego(idJugador);
-
-        // validación
-        verify(partidaMock).agregarJugador(idJugador);
-        verify(rondaServicio).traerPalabraYDefinicion();
-        verify(partidaMock).actualizarPuntos(idJugador, 0);
-        verify(partidaMock).avanzarRonda("agua", "Sustancia líquida esencial para la vida.");
-
-        assertThat(mov.getViewName(), equalToIgnoringCase("juego"));
-        assertThat(mov.getModel().get("jugadorId").toString(), equalToIgnoringCase(idJugador));
-        assertThat(mov.getModel().get("definicion").toString(), equalToIgnoringCase("Sustancia líquida esencial para la vida."));
-        assertThat(mov.getModel().get("palabra").toString(), equalToIgnoringCase("agua"));
-        assertThat(mov.getModel().get("rondaActual").toString(), equalToIgnoringCase("1"));
-    }
-
-    @Test
-    public void siYaHayUnaPalabraNoSeLlamaAlServicioNiSeAvanzaRonda() {
-        // preparacion
-        String idJugador = "2";
-        //simulamos que la partida ya está activa con esto y el controlador deberia saltear el if
-        when(partidaMock.getPalabraActual()).thenReturn("fuego");
-        when(partidaMock.getDefinicionActual()).thenReturn("Elemento que quema.");
-        when(partidaMock.getRondaActual()).thenReturn(2);
-
-        ModelAndView mov = whenObtenerVistaJuego(idJugador);
-
-        //validacion
-        //aun cuando hay una palabra se debe agregar el idJugador
-        verify(partidaMock).agregarJugador(idJugador);
-        //verifico que no se avanzo de ronda
-        verify(partidaMock, never()).avanzarRonda(anyString(), anyString());
-        //verifico que no se llamo al servicio
-        verify(rondaServicio, never()).traerPalabraYDefinicion();
-
-        //valido que el mov tenga la info esperada de la partida activa
-        assertThat(mov.getModel().get("palabra").toString(), equalToIgnoringCase("fuego"));
-        assertThat(mov.getModel().get("definicion").toString(), equalToIgnoringCase("Elemento que quema."));
-        assertThat(mov.getModel().get("rondaActual").toString(), equalToIgnoringCase("2"));
-
-    }
-
-
-    //------------------------Tests de PROCESAR INTENTO AJAX---------------------------------------//
-
-    @Test
-    public void queSeRecibaElIntentoCorrectoYSeAvanceRonda() {
-        String idJugador = "1";
+    public void queSeRecibaElIntentoAlIntentarAcertar() {
         String intento = "example";
-
-        // preparo el estado inicial
-        when(partidaMock.getPalabraActual()).thenReturn("example"); // palabra actual correcta
-        when(partidaMock.isPartidaTerminada()).thenReturn(false);   // aún no termina
-        when(rondaServicio.traerPalabraYDefinicion()).thenReturn(getPalabraYDefinicion());
-        when(partidaMock.avanzarRonda(anyString(), anyString())).thenReturn(true);
-        when(partidaMock.getRondaActual()).thenReturn(2);
-        when(partidaMock.getPuntaje(idJugador)).thenReturn(1);
-
-        // ejecuto el metodo
-        Map<String, Object> resultado = controladorJuego.procesarIntentoAjax(intento, idJugador);
-
-        // verifico comportamiento
-        verify(partidaMock).actualizarPuntos(idJugador, 1);
-        verify(partidaMock).avanzarRonda("agua", "Sustancia líquida esencial para la vida.");
-        verify(rondaServicio).traerPalabraYDefinicion();
-
-        // verifico respuesta
-        assertThat(resultado.get("correcto").toString(), equalToIgnoringCase("true"));
-        assertThat(resultado.get("partidaTerminada").toString(), equalToIgnoringCase("false"));
-        assertThat(resultado.get("nuevaPalabra").toString(), equalToIgnoringCase("agua"));
-        assertThat(resultado.get("nuevaDefinicion").toString(), equalToIgnoringCase("Sustancia líquida esencial para la vida."));
-        assertThat(resultado.get("ronda").toString(), equalToIgnoringCase("2"));
-        assertThat(resultado.get("puntaje").toString(), equalToIgnoringCase("1"));
-    }
-
-    @Test
-    public void queSeRecibaElIntentoIncorrectoYNoSeAvanceDeRonda() {
-
-        // Preparacion
         String idJugador = "1";
-        String intento = "other";
+        int tiempoRestante = 50;
 
-        when(partidaMock.getPalabraActual()).thenReturn("example"); // palabra actual correcta
-        when(partidaMock.isPartidaTerminada()).thenReturn(false);   // aún no termina
-        when(partidaMock.getRondaActual()).thenReturn(1);
-        when(partidaMock.getPuntaje(idJugador)).thenReturn(0);
+        partidaServicio.iniciarNuevaPartida(idJugador, "Gian");
+        partidaServicio.obtenerPartida(idJugador).avanzarRonda("example", "Definicion ejemplo");
 
-        // Ejecuto el metodo
-        Map<String, Object> resultado = controladorJuego.procesarIntentoAjax(intento, idJugador);
+        Map<String, Object> resultado = controladorJuego.procesarIntentoAjax(intento, idJugador, tiempoRestante);
 
-        // Verifico comportamiento
-        verify(partidaMock, never()).actualizarPuntos(anyString(), anyInt());
-        verify(partidaMock, never()).avanzarRonda(anyString(), anyString());
-        verify(rondaServicio, never()).traerPalabraYDefinicion();
-
-        assertThat(resultado.get("correcto").toString(), equalToIgnoringCase("false"));
-        assertThat(resultado.get("ronda").toString(), equalToIgnoringCase("1"));
-        assertThat(resultado.get("puntaje").toString(), equalToIgnoringCase("0"));
-
+        assertEquals(true, resultado.get("correcto"));
+        assertEquals(100, resultado.get("puntaje"));
     }
 
     @Test
-    public void queNoSeAvanceSiLaPartidaYaTermino() {
-        // Preparacion
-        String idJugador = "1";
-        String intento = "other";
+    public void queFinaliceLaPartidaAlLlegarALaUltimaRonda() {
+        String jugadorId = "1";
+        partidaServicio.iniciarNuevaPartida(jugadorId, "july3p");
 
-        when(partidaMock.getPalabraActual()).thenReturn("other");
-        when(partidaMock.isPartidaTerminada()).thenReturn(true);
-        when(partidaMock.getPuntaje(idJugador)).thenReturn(20);
-        when(partidaMock.getRondaActual()).thenReturn(5);
+        for (int i = 0; i < 5; i++) {
+            partidaServicio.obtenerPartida(jugadorId).avanzarRonda("palabra" + i, "definición" + i);
+        }
 
-        //ejecutar el metodo
-        Map<String, Object> resultado = controladorJuego.procesarIntentoAjax(intento, idJugador);
-
-        //validacion
-        verify(partidaMock).actualizarPuntos(idJugador, 1);
-        verify(partidaMock, never()).avanzarRonda(anyString(), anyString());
-        verify(rondaServicio, never()).traerPalabraYDefinicion();
-
-        assertThat(resultado.get("partidaTerminada").toString(), equalToIgnoringCase("true"));
-
-    }
-
-    //------------------------Tests de FIN RONDA---------------------------------------//
-
-    @Test
-    public void queFinRondaIndiquePartidaTerminadaSiYaTermino() {
-        when(partidaMock.isPartidaTerminada()).thenReturn(true);
-        when(partidaMock.getRondaActual()).thenReturn(5);
-
-        Map<String, Object> resultado = controladorJuego.finRonda();
-
-        assertThat(resultado.get("partidaTerminada").toString(), equalToIgnoringCase("true"));
-        assertThat(resultado.get("rondaActual").toString(), equalToIgnoringCase("5"));
+        assertTrue(partidaServicio.obtenerPartida(jugadorId).isPartidaTerminada());
     }
 
     @Test
-    public void queFinRondaAvanceSiNoTermino() {
-        when(partidaMock.isPartidaTerminada()).thenReturn(false);
-        when(rondaServicio.traerPalabraYDefinicion()).thenReturn(getPalabraYDefinicion());
-        when(partidaMock.avanzarRonda("agua", "Sustancia líquida esencial para la vida.")).thenReturn(true);
-        when(partidaMock.getRondaActual()).thenReturn(2);
+    public void queSeMuestreVistaFinalConRankingYGanador() {
+        String jugadorId = "1";
+        String nombre = "July3p";
 
-        Map<String, Object> resultado = controladorJuego.finRonda();
+        Jugador jugador = new Jugador(jugadorId, nombre, "july3p@hotmail.com", "pass");
+        partidaServicio.iniciarNuevaPartida(jugadorId, nombre);
+        puntajeServicio.registrarJugador(jugadorId, jugador);
+        puntajeServicio.registrarPuntos(jugadorId, 500);
 
-        assertThat(resultado.get("partidaTerminada").toString(), equalToIgnoringCase("false"));
-        assertThat(resultado.get("rondaActual").toString(), equalToIgnoringCase("2"));
-        assertThat(resultado.get("nuevaPalabra").toString(), equalToIgnoringCase("agua"));
-        assertThat(resultado.get("nuevaDefinicion").toString(), equalToIgnoringCase("Sustancia líquida esencial para la vida."));
+        Model model = new ExtendedModelMap();
+        String viewName = controladorJuego.mostrarVistaFinal(jugadorId, model);
+
+        assertEquals("vistaFinalJuego", viewName);
+        assertNotNull(model.getAttribute("ranking"));
+        assertEquals(nombre, model.getAttribute("ganador"));
+        assertEquals(nombre, model.getAttribute("jugadorActual"));
     }
-
 }
