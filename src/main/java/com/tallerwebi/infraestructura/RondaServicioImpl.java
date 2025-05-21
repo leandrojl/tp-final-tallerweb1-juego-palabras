@@ -16,10 +16,6 @@ public class RondaServicioImpl implements RondaServicio {
     private final HelperPalabra helperPalabra = new HelperPalabra();
 
 
-
-
-
-
     @Override
     public HashMap<String, String> traerPalabraYDefinicion() {
         // Aquí podés pasar el idioma elegido por el usuario, por ahora lo dejamos fijo:

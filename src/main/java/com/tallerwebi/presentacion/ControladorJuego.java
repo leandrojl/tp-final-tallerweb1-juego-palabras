@@ -1,13 +1,13 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.Partida;
+import com.tallerwebi.dominio.PartidaServicio;
 import com.tallerwebi.dominio.RondaServicio;
+import com.tallerwebi.infraestructura.PartidaServicioImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,15 +16,17 @@ import java.util.Map;
 public class ControladorJuego {
 
     private final RondaServicio rondaServicio;
-    private Partida partida = new Partida();
+    private final PartidaServicio partida;
 
     @Autowired
-    public ControladorJuego(RondaServicio rondaServicio) {
+    public ControladorJuego(RondaServicio rondaServicio, PartidaServicio partida) {
         this.rondaServicio = rondaServicio;
+        this.partida = partida;
     }
 
     @GetMapping
-    public String mostrarVistaJuego(Model model, @RequestParam String jugadorId) {
+    public ModelAndView mostrarVistaJuego(@RequestParam String jugadorId) {
+        // Agregar al jugador si no está
         partida.agregarJugador(jugadorId);
 
         if (partida.getPalabraActual() == null) {
@@ -37,18 +39,21 @@ public class ControladorJuego {
             partida.avanzarRonda(palabra, definicion); // inicializa la palabra y definición en ronda 1
         }
 
-        model.addAttribute("definicion", partida.getDefinicionActual());
-        model.addAttribute("jugadorId", jugadorId);
-        model.addAttribute("rondaActual", partida.getRondaActual());
-        model.addAttribute("palabra", partida.getPalabraActual()); // solo para debug
+        ModelAndView mov = new ModelAndView("juego");
 
-        return "juego";
+        mov.addObject("definicion", partida.getDefinicionActual());
+        mov.addObject("jugadorId", jugadorId);
+        mov.addObject("rondaActual", partida.getRondaActual());
+        mov.addObject("palabra", partida.getPalabraActual());
+
+        return mov;
     }
 
     @PostMapping("/intentar")
     @ResponseBody
     public Map<String, Object> procesarIntentoAjax(@RequestParam String intento,
                                                    @RequestParam String jugadorId) {
+
         boolean acierto = intento.equalsIgnoreCase(partida.getPalabraActual());
         Map<String, Object> response = new HashMap<>();
 
@@ -107,9 +112,3 @@ public class ControladorJuego {
         return response;
     }
 }
-
-
-
-
-
-
