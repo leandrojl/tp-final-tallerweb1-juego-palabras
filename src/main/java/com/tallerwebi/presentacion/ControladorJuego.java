@@ -7,11 +7,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -19,32 +17,34 @@ import java.util.stream.Collectors;
 public class ControladorJuego {
 
     private final RondaServicio rondaServicio;
-    private static Partida partida = new Partida();
+    private final PuntajeServicio puntajeServicio;
+    private final PartidaServicio partidaServicio;
 
     @Autowired
-    private PuntajeServicio puntajeServicio;
-
-    @Autowired
-    public ControladorJuego(RondaServicio rondaServicio) {
+    public ControladorJuego(RondaServicio rondaServicio, PuntajeServicio puntajeServicio, PartidaServicio partidaServicio) {
         this.rondaServicio = rondaServicio;
+        this.puntajeServicio = puntajeServicio;
+        this.partidaServicio = partidaServicio;
     }
 
     @GetMapping
     public ModelAndView mostrarVistaJuego(@RequestParam String jugadorId) {
         String nombre = "july3p";
-        partida.agregarJugador(jugadorId, nombre);
-        puntajeServicio.registrarJugador(jugadorId, new Jugador(jugadorId, nombre,"julianomarmaruca@hotmail.com", "pass"));// temporal, desps obtener nombre de la bdd
 
-
+        Partida partidaTemp = partidaServicio.obtenerPartida(jugadorId);
+        if (partidaTemp == null) {
+            partidaTemp = partidaServicio.iniciarNuevaPartida(jugadorId, nombre);
+        }
+        Partida partida = partidaTemp;
+        puntajeServicio.registrarJugador(jugadorId, new Jugador(jugadorId, nombre, "julianomarmaruca@hotmail.com", "pass"));
 
         if (partida.getPalabraActual() == null) {
-            // Cargar palabra y definicion iniciales desde el servicio
             Map<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
             String palabra = pYD.keySet().iterator().next();
             String definicion = pYD.get(palabra);
 
-            puntajeServicio.registrarPuntos(jugadorId, 0);// para inicializar puntos
-            partida.avanzarRonda(palabra, definicion); // inicializa la palabra y definición en ronda 1
+            puntajeServicio.registrarPuntos(jugadorId, 0);
+            partida.avanzarRonda(palabra, definicion);
         }
 
         List<Map<String, Object>> jugadoresView = partida.getJugadorIds().stream()
@@ -56,13 +56,11 @@ public class ControladorJuego {
                 }).collect(Collectors.toList());
 
         ModelAndView mov = new ModelAndView("juego");
-
         mov.addObject("definicion", partida.getDefinicionActual());
         mov.addObject("jugadorId", jugadorId);
         mov.addObject("rondaActual", partida.getRondaActual());
         mov.addObject("palabra", partida.getPalabraActual());
-        mov.addObject("jugadores", jugadoresView);;
-
+        mov.addObject("jugadores", jugadoresView);
 
         return mov;
     }
@@ -71,8 +69,9 @@ public class ControladorJuego {
     @ResponseBody
     public Map<String, Object> procesarIntentoAjax(@RequestParam String intento,
                                                    @RequestParam String jugadorId,
-                                                   @RequestParam  int tiempoRestante) {
+                                                   @RequestParam int tiempoRestante) {
 
+        Partida partida = partidaServicio.obtenerPartida(jugadorId);
         boolean acierto = intento.equalsIgnoreCase(partida.getPalabraActual());
         Map<String, Object> response = new HashMap<>();
 
@@ -81,7 +80,6 @@ public class ControladorJuego {
             puntajeServicio.registrarPuntos(jugadorId, puntos);
 
             if (!partida.isPartidaTerminada()) {
-                // Obtener nueva palabra y definición para la siguiente ronda
                 Map<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
                 String palabra = pYD.keySet().iterator().next();
                 String definicion = pYD.get(palabra);
@@ -116,6 +114,7 @@ public class ControladorJuego {
     @PostMapping("/fin-ronda")
     @ResponseBody
     public Map<String, Object> finRonda(@RequestParam String jugadorId) {
+        Partida partida = partidaServicio.obtenerPartida(jugadorId);
         Map<String, Object> response = new HashMap<>();
 
         if (partida.isPartidaTerminada()) {
@@ -143,16 +142,17 @@ public class ControladorJuego {
 
     @GetMapping("/final")
     public String mostrarVistaFinal(@RequestParam String jugadorId, Model model) {
-        Map<Jugador, Integer> puntajes = puntajeServicio.obtenerTodosLosPuntajes();
+        Partida partida = partidaServicio.obtenerPartida(jugadorId);
 
+        Map<Jugador, Integer> puntajes = puntajeServicio.obtenerTodosLosPuntajes();
         List<Map.Entry<Jugador, Integer>> ranking = puntajes.entrySet()
                 .stream()
                 .sorted(Map.Entry.<Jugador, Integer>comparingByValue().reversed())
                 .collect(Collectors.toList());
 
         String ganador = ranking.get(0).getKey().getNombre();
-
         String jugadorActual = partida.getNombre(jugadorId);
+
         if (jugadorActual == null) {
             jugadorActual = "Jugador_" + jugadorId;
         }
@@ -163,8 +163,4 @@ public class ControladorJuego {
 
         return "vistaFinalJuego";
     }
-
-
-
-
 }

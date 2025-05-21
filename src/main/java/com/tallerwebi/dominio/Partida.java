@@ -1,6 +1,8 @@
 package com.tallerwebi.dominio;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class Partida {
     private Map<String, Integer> puntajes = new HashMap<>();
@@ -13,12 +15,6 @@ public class Partida {
 
     private static final int MAX_RONDAS = 5;
 
-    public Partida() {
-        this.puntajes = new HashMap<>();
-        this.nombres = new HashMap<>();
-        this.rondaActual = 0;
-        this.partidaTerminada = false;
-    }
 
 
     public void agregarJugador(String jugadorId, String nombre) {
@@ -30,11 +26,17 @@ public class Partida {
      * Avanza la ronda y actualiza palabra y definición.
      * @return true si hay siguiente ronda, false si terminó.
      */
+
     public boolean avanzarRonda(String nuevaPalabra, String nuevaDefinicion) {
         if (rondaActual < MAX_RONDAS) {
             rondaActual++;
             this.palabraActual = nuevaPalabra;
             this.definicionActual = nuevaDefinicion;
+
+            if (rondaActual == MAX_RONDAS) {
+                partidaTerminada = true;
+            }
+
             return true;
         } else {
             partidaTerminada = true;
@@ -42,11 +44,15 @@ public class Partida {
         }
     }
 
-    // Getters y setters
-    public int getRondaActual() { return rondaActual; }
     public boolean isPartidaTerminada() { return partidaTerminada; }
+
+
+    public int getRondaActual() { return rondaActual; }
+
     public String getPalabraActual() { return palabraActual; }
+
     public String getDefinicionActual() { return definicionActual; }
+
     public Set<String> getJugadorIds() {
         return nombres.keySet();
     }
@@ -54,7 +60,4 @@ public class Partida {
     public String getNombre(String jugadorId) {
         return nombres.getOrDefault(jugadorId, "Jugador_" + jugadorId);
     }
-
 }
-
-
