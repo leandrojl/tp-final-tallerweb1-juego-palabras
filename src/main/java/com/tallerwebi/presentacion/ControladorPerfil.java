@@ -16,11 +16,12 @@ public class ControladorPerfil {
     modelo.put("usuario", "Juancito123");
     modelo.put("edad", "15");
     modelo.put("winrate", "70%");
-    modelo.put("fotoPerfil","fotoperfil1.png");
+
+    modelo.put("fotoPerfil", "/resources/images/fotoperfil1.png");
 
 
 
-    return new ModelAndView("perfil", modelo);
+        return new ModelAndView("perfil", modelo);
     }
 
 

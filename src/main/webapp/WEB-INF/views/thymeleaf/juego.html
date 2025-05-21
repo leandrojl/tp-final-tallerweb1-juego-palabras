@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Juego de Adivinar Palabras</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}" />
+    <style>
+        body {
+            background: radial-gradient(circle at top left, #1f005c, #5f0a87, #a4508b);
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .juego-container {
+            text-align: center;
+        }
+
+        .ranking-horizontal {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .jugador {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .jugador.correcto {
+            background-color: #00c853 !important;
+            transform: scale(1.1);
+        }
+
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+
+        .palabra-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .bloque-letra {
+            width: 50px;
+            height: 60px;
+            background: #1f1f1f;
+            border: 2px solid #333;
+            border-radius: 8px;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .bloque-letra.correcta {
+            background-color: #00c853 !important;
+            transform: scale(1.2);
+            animation: bounce 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: scale(1.2);
+            }
+
+            50% {
+                transform: scale(0.95);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .temporizador {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+        }
+
+        .temporizador svg {
+            transform: rotate(-90deg);
+        }
+
+        .temporizador-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+
+        footer {
+            background: #111;
+            color: #ccc;
+            text-align: center;
+            padding: 10px;
+            margin-top: auto;
+        }
+
+        .modal-content {
+            border-radius: 10px;
+            background-color: #2a003f;
+            color: white;
+        }
+
+        .oculto {
+            color: transparent;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            cursor: default;
+        }
+    </style>
+</head>
+
+<body>
+ <header class="bg-dark text-white py-3 shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="h2 mb-0">Learnglish</h1>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalAbandonar">Abandonar</button>
+        </div>
+    </header>
+
+<main>
+    <section class="juego-container">
+        <h1 class="display-4 fw-bold mb-2">Juego de Rondas</h1>
+        <p class="lead mb-4">Ronda <span id="rondaActual" th:text="${rondaActual}">1</span> de 5</p>
+
+
+
+        <div class="temporizador">
+                <svg width="100" height="100">
+                    <circle cx="50" cy="50" r="45" stroke="#333" stroke-width="10" fill="none" />
+                    <circle id="progressCircle" cx="50" cy="50" r="45" stroke="#00f" stroke-width="10" fill="none"
+                        stroke-dasharray="282.6" stroke-dashoffset="0" />
+                </svg>
+                <div id="temporizadorText" class="temporizador-text">60</div>
+            </div>
+
+            <p class="lead mb-4" th:text="${definicion}">Definition goes here</p>
+
+        <div class="palabra-inputs" id="contenedor-palabra">
+                <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
+                    th:id="'letra-' + ${iterStat.index}">
+
+                </span>
+            </div>
+
+            <form th:action="@{/juego}" method="post" class="d-flex flex-column align-items-center">
+
+                <div>
+                    <input type="text" id="input-intento" placeholder="Escribí la palabra...">
+                </div>
+
+                <input type="hidden" id="jugadorId" name="jugadorId" th:value="${jugadorId}" />
+
+
+        </form>
+        </section>
+    </main>
+
+    <div class="ranking-horizontal">
+        <div class="jugador">
+            <div class="avatar" style="background: #f54291;"></div>Guest_1268 (985 pts)
+        </div>
+        <div class="jugador">
+            <div class="avatar" style="background: #42f57b;"></div>Guest_1452 (575 pts)
+        </div>
+        <div class="jugador">
+            <div class="avatar" style="background: #4287f5;"></div>Guest_1708 (250 pts)
+        </div>
+        <div class="jugador">
+            <div class="avatar" style="background: #f542f5;"></div>Guest_1232 (250 pts)
+        </div>
+        <div class="jugador">
+            <div class="avatar" style="background: #9e9e9e;"></div>You (0 pts)
+        </div>
+    </div>
+
+    <footer class="bg-dark text-center py-3 shadow-sm mt-auto">
+        <small>&copy; 2025 Taller Web 1 - Learnglish</small>
+    </footer>
+
+    <div class="modal fade" id="modalAbandonar" tabindex="-1" aria-labelledby="modalAbandonarLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">¿Estás seguro?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Querés abandonar la partida? Vas a perder tu progreso.
+                </div>
+                <div class="modal-footer">
+                    <a href="/spring/lobby" class="btn btn-danger">Sí, abandonar</a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+   <!--
+   <script>
+        let duracion = 60;
+        let tiempo = duracion;
+        let circle = document.getElementById('progressCircle');
+        let total = 2 * Math.PI * 45;
+        circle.style.strokeDasharray = total;
+
+        let temporizadorText = document.getElementById('temporizadorText');
+        temporizadorText.textContent = tiempo;
+
+        const intervalo = setInterval(() => {
+            tiempo--;
+            let offset = total * (1 - tiempo / duracion);
+            circle.style.strokeDashoffset = offset;
+            temporizadorText.textContent = tiempo;
+
+            if (tiempo <= 10) {
+                circle.setAttribute("stroke", "#ff004c");
+            } else if (tiempo <= 30) {
+                circle.setAttribute("stroke", "#ffa500");
+            } else {
+                circle.setAttribute("stroke", "#00f");
+            }
+
+            if (tiempo <= 0) clearInterval(intervalo);
+        }, 1000);
+    </script>
+    -->
+
+ <script th:inline="javascript">
+     let finRondaEjecutada = false; // 🛑 Previene múltiples ejecuciones
+
+     // === CONFIGURACIÓN INICIAL ===
+     const palabra = /*[[${palabra}]]*/ "default";
+     const letras = palabra.split('');
+     let indexLetra = 0;
+
+     const tiempoMaximo = 60;
+     let tiempoRestante = tiempoMaximo;
+
+     const temporizadorText = document.getElementById('temporizadorText');
+     const progressCircle = document.getElementById('progressCircle');
+     const circunferencia = 2 * Math.PI * 54;
+
+     progressCircle.style.strokeDasharray = circunferencia;
+     progressCircle.style.strokeDashoffset = 0;
+
+
+     const intervaloLetras = setInterval(() => {
+         if (indexLetra < letras.length) {
+             const spanLetra = document.getElementById(`letra-${indexLetra}`);
+             if (spanLetra) {
+                 spanLetra.textContent = letras[indexLetra];
+                 spanLetra.classList.remove('oculto');
+                 spanLetra.classList.add('visible');
+             }
+             indexLetra++;
+         } else {
+             clearInterval(intervaloLetras);
+         }
+     }, 15000);
+
+
+     const intervaloTemporizador = setInterval(() => {
+         if (tiempoRestante <= 0) {
+             clearInterval(intervaloTemporizador);
+             clearInterval(intervaloLetras);
+             finRonda();
+         } else {
+             temporizadorText.textContent = tiempoRestante;
+             let offset = circunferencia - (tiempoRestante / tiempoMaximo) * circunferencia;
+             progressCircle.style.strokeDashoffset = offset;
+             tiempoRestante--;
+         }
+     }, 1000);
+
+
+     function finRonda() {
+         if (finRondaEjecutada) return;
+         finRondaEjecutada = true;
+
+
+
+         clearInterval(intervaloTemporizador);
+         clearInterval(intervaloLetras);
+
+         fetch('/spring/juego/fin-ronda', {
+             method: 'POST',
+             headers: {'Content-Type': 'application/json'}
+         }).then(response => response.json())
+             .then(data => {
+                 if (data.partidaTerminada) {
+                     alert('¡Se acabó el tiempo! Fin de la partida.');
+                     window.location.href = '/spring/lobby';
+                 } else {
+                     alert("¡Se acabó el tiempo! Nueva ronda.");
+                     location.reload(); // recarga para mostrar la nueva palabra y definición
+                 }
+             }).catch(err => {
+             console.error('Error al finalizar ronda', err);
+         });
+     }
+
+
+
+     document.addEventListener("DOMContentLoaded", () => {
+         const input = document.getElementById("input-intento");
+         const jugadorId = document.getElementById("jugadorId").value;
+
+         input.addEventListener("keydown", (event) => {
+             if (event.key === "Enter") {
+                 event.preventDefault();
+
+                 const intento = input.value.trim();
+                 if (intento === "") return;
+
+                 fetch('/spring/juego/intentar', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/x-www-form-urlencoded'
+                     },
+                     body: `intento=${encodeURIComponent(intento)}&jugadorId=${encodeURIComponent(jugadorId)}`
+                 })
+                     .then(response => response.json())
+                     .then(data => {
+                         if (data.correcto) {
+                             clearInterval(intervaloTemporizador);
+                             clearInterval(intervaloLetras);
+                             if (data.partidaTerminada) {
+                                 alert("¡Correcto! Terminaste la partida.");
+                                 window.location.href = '/spring/lobby';
+                             } else {
+                                 alert("¡Correcto! Avanzás de ronda.");
+                                 location.reload();
+                             }
+                         } else {
+                             alert("Incorrecto. Intentá de nuevo.");
+                         }
+                     })
+                     .catch(error => {
+                         console.error("Error al enviar el intento:", error);
+                     });
+
+                 input.value = "";
+             }
+         });
+     });
+ </script>
+
+
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+ <script>
+     $(document).ready(function() {
+         // Prevenir submit real
+         $('form').on('submit', function(e) {
+             e.preventDefault();
+
+             const intento = $('#input-intento').val().trim();
+             const jugadorId = $('#jugadorId').val();
+
+             if (intento === "") return;
+
+             $.post('/juego/intentar', { intento, jugadorId }, function(response) {
+                 if (response.correcto) {
+                     alert('¡Correcto!');
+                     $('#input-intento').val('');
+
+                     // Actualizar datos en la UI
+                     $('#rondaActual').text(response.ronda);
+                     $('.lead[th\\:text="${definicion}"]').text(response.nuevaDefinicion || '');
+
+                     // Reiniciar temporizador (a implementar)
+                     // resetTemporizador();
+
+                     // Aquí podrías también actualizar puntaje visible si tienes
+                 } else {
+                     alert('Incorrecto, intenta de nuevo.');
+                 }
+             });
+         });
+     });
+ </script>
+
+
+
+
+</body>
+
+</html>
+
+
+
+<!--
+        <section class="juego-container">
+            <h1 class="display-4 fw-bold mb-2">Guess the Word!</h1>
+            <p class="text-secondary mb-1">Ronda <span th:text="${ronda}">1</span> de 5</p>
+-->
