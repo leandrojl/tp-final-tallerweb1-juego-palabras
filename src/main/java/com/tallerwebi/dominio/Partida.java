@@ -1,9 +1,11 @@
 package com.tallerwebi.dominio;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 public class Partida {
-    private Map<String, Integer> jugadores;
+    private Map<String, Integer> puntajes = new HashMap<>();
+    private Map<String, String> nombres = new HashMap<>();
+
     private int rondaActual;
     private boolean partidaTerminada;
     private String palabraActual;
@@ -12,17 +14,16 @@ public class Partida {
     private static final int MAX_RONDAS = 5;
 
     public Partida() {
-        this.jugadores = new HashMap<>();
+        this.puntajes = new HashMap<>();
+        this.nombres = new HashMap<>();
         this.rondaActual = 0;
         this.partidaTerminada = false;
     }
 
-    public void agregarJugador(String jugadorId) {
-        jugadores.putIfAbsent(jugadorId, 0);
-    }
 
-    public void actualizarPuntos(String jugadorId, int puntos) {
-        jugadores.put(jugadorId, jugadores.getOrDefault(jugadorId, 0) + puntos);
+    public void agregarJugador(String jugadorId, String nombre) {
+        puntajes.putIfAbsent(jugadorId, 0);
+        nombres.putIfAbsent(jugadorId, nombre);
     }
 
     /**
@@ -46,7 +47,14 @@ public class Partida {
     public boolean isPartidaTerminada() { return partidaTerminada; }
     public String getPalabraActual() { return palabraActual; }
     public String getDefinicionActual() { return definicionActual; }
-    public Integer getPuntaje(String jugadorId) { return jugadores.getOrDefault(jugadorId, 0); }
+    public Set<String> getJugadorIds() {
+        return nombres.keySet();
+    }
+
+    public String getNombre(String jugadorId) {
+        return nombres.getOrDefault(jugadorId, "Jugador_" + jugadorId);
+    }
+
 }
 
 

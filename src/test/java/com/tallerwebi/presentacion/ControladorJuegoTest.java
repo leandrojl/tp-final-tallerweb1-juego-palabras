@@ -80,7 +80,8 @@ public class ControladorJuegoTest {
 
         String intento = "example";
         String idJugador = "1";
-        Map<String, Object> resultado = controladorJuego.procesarIntentoAjax(intento, idJugador);
+        int tiempoRestante = 45;
+        Map<String, Object> resultado = controladorJuego.procesarIntentoAjax(intento, idJugador, tiempoRestante);
 
         assertThat(resultado.get("correcto").toString(), equalToIgnoringCase("true"));
     }
