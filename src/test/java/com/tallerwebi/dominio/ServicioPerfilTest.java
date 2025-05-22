@@ -1,4 +1,4 @@
-package dominio;
+package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.ServicioPerfil;
 import com.tallerwebi.dominio.ServicioPerfilImpl;
