@@ -1,4 +1,4 @@
-package com.tallerwebi.integracion.config;
+package com.tallerwebi.integracion;
 
 import com.tallerwebi.HelperDefinicion;
 import org.junit.jupiter.api.Test;

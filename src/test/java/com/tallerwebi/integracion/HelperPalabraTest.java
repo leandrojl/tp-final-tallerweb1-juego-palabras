@@ -54,7 +54,7 @@ public void ObtenerUnaPalabraEnCastellanoYBuscarlaEnDefiniciones(){
     Map<String,List<String>> palabra = helperPalabra.getPalabraYDescripcion("Castellano");
 
     for (Map.Entry<String, List<String>> entry : palabra.entrySet()) {
-        System.out.println(entry.getKey() + " " + entry.getValue());
+        
         assertThat(entry.getKey(), is(notNullValue()));
         assertThat(entry.getValue(), is(notNullValue()));
     }
@@ -64,7 +64,6 @@ public void ObtenerUnaPalabraEnCastellanoYBuscarlaEnDefiniciones(){
     HelperPalabra helperPalabra = new HelperPalabra ();
     Map<String,List<String>> palabra = helperPalabra.getPalabraYDescripcion("Ingles");
     for (Map.Entry<String, List<String>> entry : palabra.entrySet()) {
-        System.out.println(entry.getKey() + " " + entry.getValue());
         assertThat(entry.getKey(), is(notNullValue()));
         assertThat(entry.getValue(), is(notNullValue()));
     }

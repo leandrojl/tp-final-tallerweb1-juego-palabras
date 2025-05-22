@@ -17,24 +17,15 @@ public class HelperDefinicion {
         try {
 
             String palabraCodificada = URLEncoder.encode(palabra, "UTF-8");
-
-
-            // Construimos la URL correctamente
             String url = obtenerURL(palabraCodificada, idioma);
-
-            // Creamos el cliente HTTP
             HttpClient client = HttpClient.newHttpClient();
 
-            // Creamos la solicitud
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
                     .build();
 
-            // Enviamos la solicitud y obtenemos la respuesta como string
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            // Parseamos la respuesta JSON
             JSONObject json = new JSONObject(response.body());
             JSONArray resultados = json.getJSONArray("search");
 
@@ -52,7 +43,6 @@ public class HelperDefinicion {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }

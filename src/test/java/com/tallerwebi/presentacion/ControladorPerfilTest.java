@@ -1,6 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.ServicioPerfil;
+import com.tallerwebi.dominio.ServicioPerfilImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -12,7 +13,7 @@ import static org.mockito.Mockito.mock;
 
 public class ControladorPerfilTest {
 
-    ServicioPerfil servicioPerfil = mock(ServicioPerfil.class);
+    ServicioPerfil servicioPerfil = new ServicioPerfilImpl();
 
     @Test
     public void queDevuelvaLaVistaDePerfilDeUsuario(){
