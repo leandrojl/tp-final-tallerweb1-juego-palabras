@@ -21,6 +21,27 @@ public class ControladorSalaDeEsperaTest {
     ServicioSalaDeEspera servicioSalaDeEspera = mock(ServicioSalaDeEspera.class);
     ControladorSalaDeEspera controlador = new ControladorSalaDeEspera(servicioSalaDeEspera);
 
+    @Test
+    public void deberiaMostrarIrALaVistaJuegoCuandoLosJugadoresEstanListos() {
+
+        //dado que tengo los jugadores que vienen del formulario en la sala de espera
+        Map<String, String> parametros = Map.of("jugador_1", "false", "jugador_2", "false");
+
+        Map<Long, Boolean> jugadores = Map.of(1L, true, 2L, true);
+        List<Long> jugadoresNoListos = List.of();
+
+        when(servicioSalaDeEspera.obtenerJugadoresDelFormulario(parametros)).thenReturn(jugadores);
+
+        when(servicioSalaDeEspera.verificarSiHayJugadoresQueNoEstenListos(jugadores)).thenReturn(jugadoresNoListos);
+
+        ModelAndView mav = controlador.iniciarPartida(parametros);
+
+        assertThat(mav.getViewName(), equalTo("redirect:/juego?jugadorId=1"));
+
+        verify(servicioSalaDeEspera).obtenerJugadoresDelFormulario(parametros);
+        verify(servicioSalaDeEspera).verificarSiHayJugadoresQueNoEstenListos(jugadores);
+
+    }
 
     @Test
     public void deberiaMostrarErrorCuandoLosJugadoresNoEstanListos() {
@@ -57,12 +78,6 @@ public class ControladorSalaDeEsperaTest {
 
     }
 
-    @Test
-    public void dadoQueTengoUnaSalaDeEspera(){
-        SalaDeEspera salaDeEspera = new SalaDeEspera();
-
-        assertThat(salaDeEspera, notNullValue());
-    }
 
     @Test
     public void dadoQueTengoUnaSalaDeEsperaConDosJugadores(){
@@ -77,7 +92,6 @@ public class ControladorSalaDeEsperaTest {
         assertThat(salaDeEspera.getJugador1(), equalTo(jugador1));
         assertThat(salaDeEspera.getJugador2(), equalTo(jugador2));
     }
-
 
 
     @Test
@@ -170,6 +184,13 @@ public class ControladorSalaDeEsperaTest {
         salaDeEspera.setJugador2Listo(true);
 
         assertThat(salaDeEspera.estanAmbosListos(), equalTo(false));
+    }
+
+    @Test
+    public void dadoQueTengoUnaSalaDeEspera(){
+        SalaDeEspera salaDeEspera = new SalaDeEspera();
+
+        assertThat(salaDeEspera, notNullValue());
     }
 
     private void dadoQueNoTengoJugadoresEnLaSalaDeEspera() {
