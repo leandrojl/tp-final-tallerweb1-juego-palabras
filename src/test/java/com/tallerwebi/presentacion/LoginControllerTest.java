@@ -90,7 +90,7 @@ public class LoginControllerTest {
     @Test
     public void siLosDatosDeLoginSonCorrectosSeGuardaElUsuarioEnSesion() throws Exception {
         Usuario usuarioLogueado = new Usuario(nombre, "lucas@gmail.com", password);
-        when(loginService.login("lucas", "12151gdsf")).thenReturn(usuarioLogueado);
+        when(loginService.login(nombre, password)).thenReturn(usuarioLogueado);
         MvcResult mvcResult = whenLoguearse(nombre,password);
 
 
