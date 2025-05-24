@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpSession;
+
 @Controller
 public class LoginController {
 
@@ -35,7 +37,7 @@ public class LoginController {
     }
 
     @PostMapping("/procesarLogin")
-    public ModelAndView login(@ModelAttribute Usuario usuario) {
+    public ModelAndView login(@ModelAttribute Usuario usuario, HttpSession session) {
         ModelMap modelMap = new ModelMap();
         if(usuario.getNombre().isEmpty()){
             modelMap.addAttribute("error","El campo de usuario no puede estar vacio");
@@ -48,6 +50,7 @@ public class LoginController {
         try{
             Usuario usuarioLogueado = this.loginService.login(usuario.getNombre(), usuario.getPassword());
             modelMap.addAttribute("Usuario", usuarioLogueado);
+            session.setAttribute("usuario",usuarioLogueado);
             return new ModelAndView("lobby",modelMap);
         }catch(DatosLoginIncorrectosException datosLoginIncorrectos){
             modelMap.addAttribute("error","Datos incorrectos");
