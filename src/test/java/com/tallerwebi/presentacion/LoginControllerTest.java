@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.Usuario;
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
 import com.tallerwebi.dominio.LoginService;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,10 +12,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpSession;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,6 +80,29 @@ public class LoginControllerTest {
 
         thenLoginExitoso(mvcResult,"lobby");
     }
+
+    @Test
+    public void siLosDatosDeLoginSonCorrectosSeGuardaElUsuarioEnSesion() throws Exception {
+        Usuario usuarioLogueado = new Usuario(nombre, "lucas@gmail.com", password);
+        when(loginService.login(nombre, password)).thenReturn(usuarioLogueado);
+        MvcResult mvcResult = whenLoguearse(nombre,password);
+
+
+        HttpSession httpSession = mvcResult.getRequest().getSession(false);
+
+        assertNotNull(httpSession);
+        Usuario usuarioEsperado = (Usuario) httpSession.getAttribute("usuario");
+        assertEquals(nombre,usuarioEsperado.getNombre());
+    }
+
+
+
+
+
+
+
+
+
 
     private void thenLoginExitoso(MvcResult mvcResult, String vista) {
         ModelAndView mav = mvcResult.getModelAndView();
