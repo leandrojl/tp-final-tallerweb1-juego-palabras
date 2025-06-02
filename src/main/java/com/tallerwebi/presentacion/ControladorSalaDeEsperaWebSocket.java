@@ -1,5 +1,8 @@
 package com.tallerwebi.presentacion;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tallerwebi.dominio.MensajeEnviado;
+import com.tallerwebi.dominio.MensajeRecibido;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
@@ -19,6 +22,17 @@ public class ControladorSalaDeEsperaWebSocket {
             throw new IllegalArgumentException("No se puede actualizar el estado del otro jugador");
         }*/
         return estadoJugador; // Retransmite el estado del jugador a todos los clientes
+    }
+
+    @MessageMapping("/chat")
+    @SendTo("/topic/messages")
+    public String getMessages(MensajeRecibido mensajeRecibido) throws Exception {
+
+        MensajeEnviado mensajeEnviado = new MensajeEnviado(mensajeRecibido.getMessage());
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(mensajeEnviado);
+
+        return json;
     }
 
 
