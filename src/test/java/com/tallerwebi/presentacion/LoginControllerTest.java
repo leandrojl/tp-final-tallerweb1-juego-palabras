@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -100,6 +99,8 @@ public class LoginControllerTest {
         Usuario usuarioEsperado = (Usuario) httpSession.getAttribute("usuario");
         assertEquals(nombre,usuarioEsperado.getNombre());
     }
+
+
 
 
 

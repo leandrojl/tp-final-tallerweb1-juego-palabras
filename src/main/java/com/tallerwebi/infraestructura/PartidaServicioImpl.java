@@ -16,7 +16,6 @@ public class Partida {
     private static final int MAX_RONDAS = 5;
 
 
-
     public void agregarJugador(String jugadorId, String nombre) {
         puntajes.putIfAbsent(jugadorId, 0);
         nombres.putIfAbsent(jugadorId, nombre);
