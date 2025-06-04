@@ -48,7 +48,6 @@ public class RegistroController {
         }
         try{
             this.registroService.registrar(usuario.getNombre(), usuario.getPassword());
-            model.addAttribute("mensaje", "Usuario registrado correctamente");
             return new ModelAndView("login", model);
         }catch(UsuarioExistenteException u){
             model.addAttribute("error", "El usuario ya existe");
