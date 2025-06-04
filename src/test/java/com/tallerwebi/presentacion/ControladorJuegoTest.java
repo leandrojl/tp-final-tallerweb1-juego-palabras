@@ -7,6 +7,7 @@ import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,13 +20,15 @@ public class ControladorJuegoTest {
     private PuntajeServicio puntajeServicio;
     private RondaServicio rondaServicio;
     private PartidaServicio partidaMock;
+    private PuntajeServicio puntajeMock;
     private ControladorJuego controladorJuego;
 
     @BeforeEach
     public void setUp() {
         rondaServicio = mock(RondaServicio.class);
         partidaMock = mock(PartidaServicio.class);
-        controladorJuego = new ControladorJuego(rondaServicio, partidaMock);
+        puntajeMock = mock(PuntajeServicio.class);
+        controladorJuego = new ControladorJuego(rondaServicio, puntajeMock, partidaMock);
     }
 
     @Test
@@ -68,7 +71,7 @@ public class ControladorJuegoTest {
     public void queSeAgregueElJugadorALaPartida() {
         String idJugador = "1";
         controladorJuego.mostrarVistaJuego(idJugador);
-        assertEquals("Jugador_1", partidaServicio.obtenerPartida(idJugador).getNombre(idJugador));
+        assertEquals("Jugador_1", partidaMock.obtenerPartida(idJugador).getNombre(idJugador));
     }
 
     @Test
@@ -77,8 +80,8 @@ public class ControladorJuegoTest {
         String idJugador = "1";
         int tiempoRestante = 50;
 
-        partidaServicio.iniciarNuevaPartida(idJugador, "Gian");
-        partidaServicio.obtenerPartida(idJugador).avanzarRonda("example", "Definicion ejemplo");
+        partidaMock.iniciarNuevaPartida(idJugador, "Gian");
+        partidaMock.obtenerPartida(idJugador).avanzarRonda("example", "Definicion ejemplo");
 
         Map<String, Object> resultado = controladorJuego.procesarIntentoAjax(intento, idJugador, tiempoRestante);
 
@@ -89,13 +92,13 @@ public class ControladorJuegoTest {
     @Test
     public void queFinaliceLaPartidaAlLlegarALaUltimaRonda() {
         String jugadorId = "1";
-        partidaServicio.iniciarNuevaPartida(jugadorId, "july3p");
+        partidaMock.iniciarNuevaPartida(jugadorId, "july3p");
 
         for (int i = 0; i < 5; i++) {
-            partidaServicio.obtenerPartida(jugadorId).avanzarRonda("palabra" + i, "definición" + i);
+            partidaMock.obtenerPartida(jugadorId).avanzarRonda("palabra" + i, "definición" + i);
         }
 
-        assertTrue(partidaServicio.obtenerPartida(jugadorId).isPartidaTerminada());
+        assertTrue(partidaMock.obtenerPartida(jugadorId).isPartidaTerminada());
     }
 
     @Test
@@ -104,7 +107,7 @@ public class ControladorJuegoTest {
         String nombre = "July3p";
 
         Jugador jugador = new Jugador(jugadorId, nombre, "july3p@hotmail.com", "pass");
-        partidaServicio.iniciarNuevaPartida(jugadorId, nombre);
+        partidaMock.iniciarNuevaPartida(jugadorId, nombre);
         puntajeServicio.registrarJugador(jugadorId, jugador);
         puntajeServicio.registrarPuntos(jugadorId, 500);
 
