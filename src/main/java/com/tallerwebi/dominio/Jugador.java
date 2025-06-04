@@ -10,8 +10,9 @@ public class Jugador {
 
     }
 
-    public Jugador(String usuario, String email, String password) {
+    public Jugador(String usuario, String nombre, String email, String password) {
         this.usuario = usuario;
+        this.nombre = nombre;
         this.email = email;
         this.password = password;
     }
