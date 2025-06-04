@@ -50,7 +50,7 @@ public class SalaDeEspera {
         }
     }
 
-    // Método para verificar si ambos jugadores están listos
+
     public boolean estanAmbosListos() {
         return jugador1Listo && jugador2Listo;
     }
