@@ -8,6 +8,8 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.io.Serializable;
+
 @Repository("repositorioUsuario")
 public class RepositorioUsuarioImpl implements RepositorioUsuario {
 
@@ -29,14 +31,15 @@ public class RepositorioUsuarioImpl implements RepositorioUsuario {
     }
 
     @Override
-    public void guardar(Usuario usuario) {
-        sessionFactory.getCurrentSession().save(usuario);
+    public Serializable guardar(Usuario usuario) {
+
+        return sessionFactory.getCurrentSession().save(usuario);
     }
 
     @Override
-    public Usuario buscar(String email) {
+    public Usuario buscar(String nombre) {
         return (Usuario) sessionFactory.getCurrentSession().createCriteria(Usuario.class)
-                .add(Restrictions.eq("email", email))
+                .add(Restrictions.eq("nombre", nombre))
                 .uniqueResult();
     }
 
