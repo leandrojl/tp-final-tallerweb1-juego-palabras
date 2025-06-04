@@ -1,4 +1,4 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.infraestructura;
 
 import java.util.HashMap;
 import java.util.Map;

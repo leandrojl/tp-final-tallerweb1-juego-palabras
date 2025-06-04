@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.infraestructura.Partida;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

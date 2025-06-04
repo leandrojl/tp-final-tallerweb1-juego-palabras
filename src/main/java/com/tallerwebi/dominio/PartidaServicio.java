@@ -1,5 +1,7 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.infraestructura.Partida;
+
 import java.util.*;
 
 
