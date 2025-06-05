@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
+import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

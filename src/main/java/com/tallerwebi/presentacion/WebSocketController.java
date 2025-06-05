@@ -1,9 +1,7 @@
 package com.tallerwebi.presentacion;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tallerwebi.dominio.MensajeEnviado;
-import com.tallerwebi.dominio.MensajeRecibido;
+import com.tallerwebi.dominio.model.MensajeEnviado;
+import com.tallerwebi.dominio.model.MensajeRecibido;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;

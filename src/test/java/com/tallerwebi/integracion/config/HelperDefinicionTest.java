@@ -1,6 +1,6 @@
 package com.tallerwebi.integracion.config;
 
-import com.tallerwebi.HelperDefinicion;
+import com.tallerwebi.helpers.HelperDefinicion;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

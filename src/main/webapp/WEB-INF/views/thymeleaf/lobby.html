@@ -104,6 +104,42 @@
             </div>
         </div>
     </div>
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-8">
+                    <div class="card bg-dark text-white shadow">
+                        <div class="card-header text-center">
+                            <h3>Partidas Disponibles</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-dark table-striped text-center">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nombre de la Partida</th>
+                                    <th>Ronda Actual</th>
+                                    <th>Accion</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="partida, iterStat : ${partidas}">
+                                    <td th:text="${iterStat.index + 1}"></td>
+                                    <td th:text="${partida.nombrePartida}"></td>
+                                    <td th:text="${partida.rondaActual}"></td>
+                                    <td>
+                                        <a  class="btn btn-sm btn-orange">
+                                            Unirse
+                                        </a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 </main>
 
 <footer class="bg-dark text-center py-3 shadow-sm mt-auto">

@@ -1,6 +1,6 @@
 package com.tallerwebi.integracion;
 
-import com.tallerwebi.HelperPalabra;
+import com.tallerwebi.helpers.HelperPalabra;
 
 import org.junit.jupiter.api.Test;
 
