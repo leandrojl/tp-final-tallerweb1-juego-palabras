@@ -1,9 +1,6 @@
 package com.tallerwebi.dominio;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Usuario {
@@ -12,10 +9,35 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String email;
+    private String fotoPerfil;
+    private String usuario;
+    private int moneda;
     private String password;
     private String rol;
-    private Boolean activo = false;
 
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public int getMoneda() {
+        return moneda;
+    }
+
+    public void setMoneda(int moneda) {
+        this.moneda = moneda;
+    }
 
     public Long getId() {
         return id;
@@ -41,18 +63,7 @@ public class Usuario {
     public void setRol(String rol) {
         this.rol = rol;
     }
-    public Boolean getActivo() {
-        return activo;
-    }
-    public void setActivo(Boolean activo) {
-        this.activo = activo;
-    }
 
-    public boolean activo() {
-        return activo;
-    }
 
-    public void activar() {
-        activo = true;
-    }
+
 }
