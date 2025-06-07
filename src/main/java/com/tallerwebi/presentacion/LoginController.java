@@ -39,7 +39,7 @@ public class LoginController {
     @PostMapping("/procesarLogin")
     public ModelAndView login(@ModelAttribute Usuario usuario, HttpSession session) {
         ModelMap modelMap = new ModelMap();
-        if(usuario.getNombre().isEmpty()){
+        if(usuario.getUsuario().isEmpty()){
             modelMap.addAttribute("error","El campo de usuario no puede estar vacio");
             return new ModelAndView("login", modelMap);
         }
@@ -48,7 +48,7 @@ public class LoginController {
             return new ModelAndView("login", modelMap);
         }
         try{
-            Usuario usuarioLogueado = this.loginService.login(usuario.getNombre(), usuario.getPassword());
+            Usuario usuarioLogueado = this.loginService.login(usuario.getUsuario(), usuario.getPassword());
             modelMap.addAttribute("Usuario", usuarioLogueado);
             session.setAttribute("usuario",usuarioLogueado);
             return new ModelAndView("lobby",modelMap);

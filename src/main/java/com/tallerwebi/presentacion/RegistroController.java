@@ -38,7 +38,7 @@ public class RegistroController {
     public ModelAndView registrar(@ModelAttribute Usuario usuario) {
         ModelMap model = new ModelMap();
         //Crear clase validadora de campos para no tener ifs aca
-        if(usuario.getNombre().isEmpty()){
+        if(usuario.getUsuario().isEmpty()){
             model.addAttribute("error", "El usuario no puede estar vacio");
             return new ModelAndView("registro", model);
         }
@@ -47,7 +47,7 @@ public class RegistroController {
             return new ModelAndView("registro", model);
         }
         try{
-            this.registroService.registrar(usuario.getNombre(), usuario.getPassword());
+            this.registroService.registrar(usuario.getUsuario(), usuario.getPassword());
             model.addAttribute("mensaje", "Usuario registrado correctamente");
             return new ModelAndView("login", model);
         }catch(UsuarioExistenteException u){

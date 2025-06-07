@@ -1,38 +1,42 @@
 package com.tallerwebi.dominio;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Usuario {
-    //esto marca al atributo como clave primaria
+
     @Id
-    //esto marca al atributo como autoincremental en la bd
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombre;
     private String email;
+    private String fotoPerfil;
+    private String usuario;
+    private int moneda;
     private String password;
+    private String rol;
 
-    public Usuario(String nombre) {
-        this.nombre = nombre;
+    public String getFotoPerfil() {
+        return fotoPerfil;
     }
 
-    public Usuario(String nombre,Long id) {
-        this.nombre = nombre;
-        this.id = id;
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
     }
 
-    public Usuario() {
-
+    public String getUsuario() {
+        return usuario;
     }
 
-    public Usuario(String nombre, String email, String password) {
-        this.nombre = nombre;
-        this.email = email;
-        this.password = password;
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public int getMoneda() {
+        return moneda;
+    }
+
+    public void setMoneda(int moneda) {
+        this.moneda = moneda;
     }
 
     public Long getId() {
@@ -41,8 +45,6 @@ public class Usuario {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
     public String getEmail() {
         return email;
     }
@@ -55,4 +57,13 @@ public class Usuario {
     public void setPassword(String password) {
         this.password = password;
     }
+    public String getRol() {
+        return rol;
+    }
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+
+
+
 }

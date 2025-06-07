@@ -11,11 +11,11 @@ public class HelperPalabra {
 private static final String  rutaArchivoPalabrasEnCastellano = "src/main/resources/palabrasEnCastellano.txt";
 private static final String rutaArchivoPalabrasEnIngles="src/main/resources/palabrasEnIngles.txt";
 
-public Map<String, String> getPalabraYDescripcion(String idioma) {
-            HashMap<String, String> palabraYDescripcion = new HashMap<>();
+public Map<String, List<String>> getPalabraYDescripcion(String idioma) {
+            Map<String, List<String>> palabraYDescripcion = new HashMap<>();
             String palabra = getPalabra(idioma);
-            String descripcion = getDefinicion(palabra, idioma);
-            palabraYDescripcion.put(palabra, descripcion);
+            List<String> definiciones = getDefinicion(palabra, idioma);
+            palabraYDescripcion.put(palabra, definiciones);
             return palabraYDescripcion;
         }
 
@@ -39,7 +39,7 @@ public Map<String, String> getPalabraYDescripcion(String idioma) {
 
 
 
-    public String getDefinicion(String palabra, String idioma) {
+    public List<String> getDefinicion(String palabra, String idioma) {
             HelperDefinicion hd = new HelperDefinicion();
             return  hd.obtenerDescripcionDesdeWikidata(palabra, idioma);
     }
