@@ -13,7 +13,8 @@ import java.io.Serializable;
 @Repository("repositorioUsuario")
 public class RepositorioUsuarioImpl implements RepositorioUsuario {
 
-    private SessionFactory sessionFactory;
+
+    private final SessionFactory sessionFactory;
 
     @Autowired
        public RepositorioUsuarioImpl(SessionFactory sessionFactory){
@@ -21,11 +22,11 @@ public class RepositorioUsuarioImpl implements RepositorioUsuario {
     }
 
     @Override
-    public Usuario buscarUsuario(String email, String password) {
+    public Usuario buscarUsuario(String usuario, String password) {
 
         final Session session = sessionFactory.getCurrentSession();
         return (Usuario) session.createCriteria(Usuario.class)
-                .add(Restrictions.eq("email", email))
+                .add(Restrictions.eq("usuario", usuario))
                 .add(Restrictions.eq("password", password))
                 .uniqueResult();
     }
@@ -37,9 +38,9 @@ public class RepositorioUsuarioImpl implements RepositorioUsuario {
     }
 
     @Override
-    public Usuario buscar(String nombre) {
+    public Usuario buscar(String usuario) {
         return (Usuario) sessionFactory.getCurrentSession().createCriteria(Usuario.class)
-                .add(Restrictions.eq("nombre", nombre))
+                .add(Restrictions.eq("usuario", usuario))
                 .uniqueResult();
     }
 

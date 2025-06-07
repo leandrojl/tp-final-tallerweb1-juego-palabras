@@ -2,10 +2,7 @@ package com.tallerwebi.dominio;
 
 import org.hibernate.annotations.Generated;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -14,6 +11,7 @@ public class Palabra {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String descripcion;
+    @ElementCollection
     private List<String> definicion;
 
     public List<String> getDefinicion() {

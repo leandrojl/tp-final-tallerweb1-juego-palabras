@@ -6,10 +6,12 @@ import com.tallerwebi.dominio.LoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
@@ -19,11 +21,12 @@ import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+@Transactional
+@Rollback
 public class LoginControllerTest {
 
     private LoginController loginController;
-    private String nombre = "lucas";
+    private String usuario = "lucas";
     private String password = "12151gdsf";
     private MockMvc mockMvc;
     private LoginService loginService;
@@ -64,7 +67,7 @@ public class LoginControllerTest {
 
     @Test
     public void siElCampoPasswordEstaVacioFallaElLogin() throws Exception {
-        MvcResult mvcResult = whenLoguearse(nombre,"");
+        MvcResult mvcResult = whenLoguearse(usuario,"");
 
         thenLoginFalla(mvcResult,"El campo de contraseña no puede estar vacio");
     }
@@ -76,23 +79,23 @@ public class LoginControllerTest {
 
     @Test
     public void siLosDatosDeLoginSonCorrectosSeRedireccionaAlLobby() throws Exception {
-        MvcResult mvcResult = whenLoguearse(nombre,password);
+        MvcResult mvcResult = whenLoguearse(usuario,password);
 
         thenLoginExitoso(mvcResult,"lobby");
     }
 
     @Test
     public void siLosDatosDeLoginSonCorrectosSeGuardaElUsuarioEnSesion() throws Exception {
-        Usuario usuarioLogueado = new Usuario(nombre, "lucas@gmail.com", password);
-        when(loginService.login(nombre, password)).thenReturn(usuarioLogueado);
-        MvcResult mvcResult = whenLoguearse(nombre,password);
+        Usuario usuarioLogueado = new Usuario(usuario, "lucas@gmail.com", password);
+        when(loginService.login(usuario, password)).thenReturn(usuarioLogueado);
+        MvcResult mvcResult = whenLoguearse(usuario,password);
 
 
         HttpSession httpSession = mvcResult.getRequest().getSession(false);
 
         assertNotNull(httpSession);
         Usuario usuarioEsperado = (Usuario) httpSession.getAttribute("usuario");
-        assertEquals(nombre,usuarioEsperado.getUsuario());
+        assertEquals(usuario,usuarioEsperado.getUsuario());
     }
 
 

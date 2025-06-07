@@ -5,10 +5,12 @@ import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,14 +18,14 @@ import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+@Transactional
+@Rollback
 public class RegistroControllerTest {
 
     private RegistroController registroController;
     private ModelAndView mav;
-    private String usuario;
-    private String password;
-    private String email;
+    private String usuario = "pepe123";
+    private String password = "abc123";
     private MockMvc mockMvc;
     private RegistroService registroService;
 
@@ -31,9 +33,6 @@ public class RegistroControllerTest {
     public void init(){
         this.registroService = Mockito.mock(RegistroService.class);
         this.registroController = new RegistroController(registroService);
-        this.usuario = "pepe123";
-        this.password = "abc123";
-        this.email = "pepe123@gmail.com";
         this.mockMvc = MockMvcBuilders.standaloneSetup(registroController).build();
     }
 
@@ -91,8 +90,6 @@ public class RegistroControllerTest {
     public void queAlExistirElNombreDeUsuarioIndicadoSeGenereUnError() throws Exception {
 
         when(registroService.registrar("lucas","password123")).thenThrow(new UsuarioExistenteException());
-       //MvcResult mvcResult = whenRegistroUsuario("pepe1235421",password);
-       //thenUsuarioExiste(mvcResult, "El usuario ya existe");
     }
 
 
