@@ -14,7 +14,6 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 public class PartidaServiceTest {
 
     private PartidaService partidaServiceMock;
-    private PartidaService partidaService;
 
     @BeforeEach
     void setUp() {

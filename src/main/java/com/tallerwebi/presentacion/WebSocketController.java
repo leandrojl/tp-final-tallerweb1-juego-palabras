@@ -30,7 +30,6 @@ public class WebSocketController {
     }
 
 
-
     public static class EstadoJugador {
         private String jugadorId;
         private boolean estaListo;

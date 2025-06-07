@@ -16,8 +16,13 @@ import java.util.List;
 @Controller
 public class LobbyController {
 
-    @Autowired
+
     private PartidaService partidaService;
+
+    @Autowired
+    public LobbyController(PartidaService partidaService) {
+        this.partidaService = partidaService;
+    }
 
     @RequestMapping("/lobby")
     public ModelAndView Lobby(HttpSession session, Model model) {

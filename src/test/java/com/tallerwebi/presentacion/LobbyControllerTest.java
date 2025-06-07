@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.PartidaService;
 import com.tallerwebi.dominio.model.Jugador;
 import com.tallerwebi.dominio.model.Partida;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,12 @@ import static org.mockito.Mockito.when;
 
 public class LobbyControllerTest {
 
+    PartidaService partidaServiceMock = mock(PartidaService.class);
+    LobbyController controladorLobby = new LobbyController(partidaServiceMock);
+
     @Test
     public void queSePuedanVerPartidasEnElLobby() {
+
        //dado que tengo un modelo que va a estar en la vista lobby
         Model model = new ExtendedModelMap();
 
@@ -31,8 +36,6 @@ public class LobbyControllerTest {
 
         //dado que tengo una lista de partidas mockeada
         List<Partida> partidasMock = List.of(new Partida(), new Partida(), new Partida());
-
-        LobbyController controladorLobby = new LobbyController();
 
         //cuando agrego las partidas al modelo
         model.addAttribute("partidas", partidasMock);
@@ -58,7 +61,7 @@ public class LobbyControllerTest {
         Jugador jugadorMock = new Jugador();
         jugadorMock.setNombre("july3p");
         when(session.getAttribute("jugador")).thenReturn(jugadorMock);
-        LobbyController controladorLobby = new LobbyController();
+        LobbyController controladorLobby = new LobbyController(partidaServiceMock);
         ModelAndView mav = controladorLobby.Lobby(session, model);
         assertEquals("lobby", mav.getViewName());
         assertTrue(model.containsAttribute("jugador"));
