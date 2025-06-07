@@ -15,6 +15,20 @@ public class Usuario {
     private String password;
     private String rol;
 
+    public Usuario(String usuario, String email, String password) {
+        this.usuario = usuario;
+        this.email = email;
+        this.password = password;
+    }
+
+    public Usuario() {
+
+    }
+
+    public Usuario(String usuario) {
+        this.usuario = usuario;
+    }
+
     public String getFotoPerfil() {
         return fotoPerfil;
     }

@@ -52,8 +52,8 @@ public class ServicioSalaDeEsperaImpl implements ServicioSalaDeEspera {
         Usuario usuario1 = new Usuario();
         Usuario usuario2 = new Usuario();
 
-        usuario1.setNombre("Pepitoxx");
-        usuario2.setNombre("Alfonsoww");
+        usuario1.setUsuario("Pepitoxx");
+        usuario2.setUsuario("Alfonsoww");
 
         usuario1.setId(1L);
         usuario2.setId(2L);

@@ -24,7 +24,8 @@ public class RondaServicioImpl implements RondaServicio {
     public HashMap<String, String> traerPalabraYDefinicion() {
         // Aquí podés pasar el idioma elegido por el usuario, por ahora lo dejamos fijo:
         String idioma = "Castellano";
-        return new HashMap<>(helperPalabra.getPalabraYDescripcion(idioma));
+       // return new HashMap<String,String>(helperPalabra.getPalabraYDescripcion(idioma));
+        return null;
     }
 
 

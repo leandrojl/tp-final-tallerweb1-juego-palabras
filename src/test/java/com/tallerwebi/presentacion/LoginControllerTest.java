@@ -92,7 +92,7 @@ public class LoginControllerTest {
 
         assertNotNull(httpSession);
         Usuario usuarioEsperado = (Usuario) httpSession.getAttribute("usuario");
-        assertEquals(nombre,usuarioEsperado.getNombre());
+        assertEquals(nombre,usuarioEsperado.getUsuario());
     }
 
 
@@ -129,7 +129,7 @@ public class LoginControllerTest {
 
     private MvcResult whenLoguearse(String nombre, String password) throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/procesarLogin")
-                .param("nombre",nombre)
+                .param("usuario",nombre)
                 .param("password",password)).andExpect(status().isOk()).andReturn();
         return mvcResult;
     }

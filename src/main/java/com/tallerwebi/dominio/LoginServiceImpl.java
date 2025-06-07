@@ -30,7 +30,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public Usuario buscarUsuario(String nombre) {
         for (Usuario u : usuarios) {
-            if (u.getNombre().equals(nombre)) {
+            if (u.getUsuario().equals(nombre)) {
                 return u;
             }
         }

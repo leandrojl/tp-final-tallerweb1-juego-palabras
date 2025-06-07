@@ -57,11 +57,11 @@ public class RepositorioUsuarioImplTest {
         when(criteriaMock.uniqueResult()).thenReturn(usuarioEsperado);
         String nombreBuscado = "pepe123";
         Usuario usuarioObtenido = repositorioUsuario.buscar(nombreBuscado);
-        assertEquals(nombreBuscado, usuarioObtenido.getNombre());
+        assertEquals(nombreBuscado, usuarioObtenido.getUsuario());
     }
 
     private void thenUsuarioEncontradoExitosamente(String nombreBuscado, Usuario usuarioEncontrado) {
-        assertEquals(nombreBuscado, usuarioEncontrado.getNombre());
+        assertEquals(nombreBuscado, usuarioEncontrado.getUsuario());
     }
 
     private Usuario whenBuscarUsuario(String nombreBuscado) {

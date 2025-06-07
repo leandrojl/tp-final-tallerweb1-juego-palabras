@@ -128,7 +128,7 @@ public class RegistroControllerTest {
 
     private MvcResult whenRegistroUsuario(String nombre, String password) throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/procesarRegistro").
-                param("nombre",nombre).
+                param("usuario",nombre).
                 param("password",password)).andExpect(status().isOk()).andReturn();
         return mvcResult;
     }

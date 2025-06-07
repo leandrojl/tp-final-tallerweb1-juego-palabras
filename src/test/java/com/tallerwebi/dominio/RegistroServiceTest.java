@@ -46,7 +46,7 @@ public class RegistroServiceTest {
 
 
     private void thenUsuarioEncontrado(Usuario usuario,String nombre) {
-        assertThat(usuario.getNombre(), is(nombre));
+        assertThat(usuario.getUsuario(), is(nombre));
     }
 
     private Usuario whenBuscarUsuario(String nombre) {
