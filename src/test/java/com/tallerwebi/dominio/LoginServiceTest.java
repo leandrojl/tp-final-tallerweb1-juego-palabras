@@ -1,8 +1,10 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
-import com.tallerwebi.infraestructura.RepositorioUsuarioImpl;
+
 import org.junit.jupiter.api.BeforeEach;
+
+import com.tallerwebi.dominio.model.Usuario;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.annotation.Rollback;
@@ -17,11 +19,11 @@ import static org.mockito.Mockito.when;
 public class LoginServiceTest {
 
     private LoginService loginService;
-    private RepositorioUsuario repositorioUsuario;
+    private UsuarioRepository repositorioUsuario;
 
     @BeforeEach
     public void setUp() {
-        this.repositorioUsuario = Mockito.mock(RepositorioUsuario.class);
+        this.repositorioUsuario = Mockito.mock(UsuarioRepository.class);
         this.loginService = new LoginServiceImpl(repositorioUsuario);
     }
 
@@ -61,8 +63,8 @@ public class LoginServiceTest {
         when(repositorioUsuario.buscar("pepe1235421")).thenReturn(esperado);
     }
 
-    private void thenUsuarioEncontrado(Usuario usuarioEncontrado,String usuario) {
-        assertThat(usuarioEncontrado.getUsuario(), is(usuario));
+    private void thenUsuarioEncontrado(Usuario usuarioEncontrado,String nombre) {
+        assertThat(usuarioEncontrado.getNombreUsuario(), is(nombre));
     }
 
     private Usuario whenBuscarUsuario(String usuario) {

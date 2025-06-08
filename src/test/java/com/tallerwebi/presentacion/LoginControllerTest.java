@@ -1,6 +1,6 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.Usuario;
+import com.tallerwebi.dominio.model.Usuario;
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
 import com.tallerwebi.dominio.LoginService;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class LoginControllerTest {
 
     private LoginController loginController;
-    private String usuario = "lucas";
+    private String nombreUsuario = "lucas";
     private String password = "12151gdsf";
     private MockMvc mockMvc;
     private LoginService loginService;
@@ -67,7 +67,7 @@ public class LoginControllerTest {
 
     @Test
     public void siElCampoPasswordEstaVacioFallaElLogin() throws Exception {
-        MvcResult mvcResult = whenLoguearse(usuario,"");
+        MvcResult mvcResult = whenLoguearse(nombreUsuario,"");
 
         thenLoginFalla(mvcResult,"El campo de contraseña no puede estar vacio");
     }
@@ -79,32 +79,24 @@ public class LoginControllerTest {
 
     @Test
     public void siLosDatosDeLoginSonCorrectosSeRedireccionaAlLobby() throws Exception {
-        MvcResult mvcResult = whenLoguearse(usuario,password);
+        MvcResult mvcResult = whenLoguearse(nombreUsuario,password);
 
         thenLoginExitoso(mvcResult,"lobby");
     }
 
     @Test
     public void siLosDatosDeLoginSonCorrectosSeGuardaElUsuarioEnSesion() throws Exception {
-        Usuario usuarioLogueado = new Usuario(usuario, "lucas@gmail.com", password);
-        when(loginService.login(usuario, password)).thenReturn(usuarioLogueado);
-        MvcResult mvcResult = whenLoguearse(usuario,password);
+        Usuario usuarioLogueado = new Usuario(nombreUsuario, "lucas@gmail.com", password);
+        when(loginService.login(nombreUsuario, password)).thenReturn(usuarioLogueado);
+        MvcResult mvcResult = whenLoguearse(nombreUsuario,password);
 
 
         HttpSession httpSession = mvcResult.getRequest().getSession(false);
 
         assertNotNull(httpSession);
         Usuario usuarioEsperado = (Usuario) httpSession.getAttribute("usuario");
-        assertEquals(usuario,usuarioEsperado.getUsuario());
+        assertEquals(nombreUsuario,usuarioEsperado.getNombreUsuario());
     }
-
-
-
-
-
-
-
-
 
 
     private void thenLoginExitoso(MvcResult mvcResult, String vista) {
@@ -130,9 +122,9 @@ public class LoginControllerTest {
         assertThat(mav.getModel().get("error").toString(), equalToIgnoringCase(mensaje));
     }
 
-    private MvcResult whenLoguearse(String nombre, String password) throws Exception {
+    private MvcResult whenLoguearse(String nombreUsuario, String password) throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/procesarLogin")
-                .param("usuario",nombre)
+                .param("usuario",nombreUsuario)
                 .param("password",password)).andExpect(status().isOk()).andReturn();
         return mvcResult;
     }

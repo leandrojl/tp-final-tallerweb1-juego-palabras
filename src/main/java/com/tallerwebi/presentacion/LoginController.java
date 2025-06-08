@@ -1,8 +1,9 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
-import com.tallerwebi.dominio.Usuario;
+import com.tallerwebi.dominio.model.Usuario;
 import com.tallerwebi.dominio.LoginService;
+import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -39,7 +40,7 @@ public class LoginController {
     @PostMapping("/procesarLogin")
     public ModelAndView login(@ModelAttribute Usuario usuario, HttpSession session) {
         ModelMap modelMap = new ModelMap();
-        if(usuario.getUsuario().isEmpty()){
+        if(usuario.getNombreUsuario().isEmpty()){
             modelMap.addAttribute("error","El campo de usuario no puede estar vacio");
             return new ModelAndView("login", modelMap);
         }
@@ -48,7 +49,7 @@ public class LoginController {
             return new ModelAndView("login", modelMap);
         }
         try{
-            Usuario usuarioLogueado = this.loginService.login(usuario.getUsuario(), usuario.getPassword());
+            Usuario usuarioLogueado = this.loginService.login(usuario.getNombreUsuario(), usuario.getPassword());
             modelMap.addAttribute("Usuario", usuarioLogueado);
             session.setAttribute("usuario",usuarioLogueado);
             return new ModelAndView("lobby",modelMap);

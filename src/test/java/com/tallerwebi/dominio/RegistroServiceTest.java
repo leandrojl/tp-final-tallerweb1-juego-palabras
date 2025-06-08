@@ -3,6 +3,7 @@ package com.tallerwebi.dominio;
 import com.tallerwebi.dominio.excepcion.PasswordMenorAOchoCaracteresException;
 import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
 import org.junit.jupiter.api.BeforeEach;
+import com.tallerwebi.dominio.model.Usuario;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.annotation.Rollback;
@@ -16,13 +17,13 @@ import static org.mockito.Mockito.when;
 @Transactional
 @Rollback
 public class RegistroServiceTest {
-    private RepositorioUsuario repositorioUsuario;
+    private UsuarioRepository repositorioUsuario;
     private RegistroService registroService;
     private String nombreUsuario = "pepe123";
 
     @BeforeEach
     public void init(){
-        this.repositorioUsuario = Mockito.mock(RepositorioUsuario.class);
+        this.repositorioUsuario = Mockito.mock(UsuarioRepository.class);
         this.registroService = new RegistroServiceImpl(repositorioUsuario);
     }
 
@@ -61,7 +62,7 @@ public class RegistroServiceTest {
 
 
     private void thenUsuarioEncontrado(Usuario usuario,String nombre) {
-        assertThat(usuario.getUsuario(), is(nombre));
+        assertThat(usuario.getNombreUsuario(), is(nombre));
     }
 
     private Usuario whenBuscarUsuario(String nombre) {

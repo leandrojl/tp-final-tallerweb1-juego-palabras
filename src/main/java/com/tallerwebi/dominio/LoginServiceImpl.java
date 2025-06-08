@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
+import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +12,10 @@ import java.util.List;
 @Transactional
 @Service
 public class LoginServiceImpl implements LoginService {
-    RepositorioUsuario repositorioUsuario;
+    UsuarioRepository repositorioUsuario;
 
     @Autowired
-    public LoginServiceImpl(RepositorioUsuario repositorioUsuario) {
+    public LoginServiceImpl(UsuarioRepository repositorioUsuario) {
         this.repositorioUsuario = repositorioUsuario;
     }
 
@@ -33,6 +34,6 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public Usuario buscarUsuario(String usuario) {
-    return this.repositorioUsuario.buscar(usuario);
+        return this.repositorioUsuario.buscar(usuario);
     }
 }
