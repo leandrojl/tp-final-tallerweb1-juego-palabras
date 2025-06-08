@@ -1,40 +1,62 @@
 package com.tallerwebi.dominio.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.Enum.Tipo_Usuario;
+
+import javax.persistence.*;
 
 @Entity
 public class Usuario {
-    //esto marca al atributo como clave primaria
+
     @Id
-    //esto marca al atributo como autoincremental en la bd
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombre;
     private String email;
+    private String fotoPerfil;
+    private String nombre;
+    private int moneda;
     private String password;
-    private String rol;
-    private Boolean activo = false;
+    private Tipo_Usuario rol;
 
-    public Usuario(String nombre) {
+    public Usuario() {}
+
+
+    public Usuario(String pepe1235421, String mail, String abc123245) {
+        this.email = mail;
+        this.fotoPerfil = pepe1235421;
+        this.nombre = abc123245;
+        this.moneda = 0; // Inicializamos moneda a 0
+        this.password = "defaultPassword"; // Asignar una contraseña por defecto
+        this.rol = Tipo_Usuario.JUGADOR; // Asignar un rol por defecto
+    }
+
+    public Usuario(String messi) {
+        this.nombre = messi;
+        this.email = "";
+    }
+
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
-    public Usuario(String nombre,Long id) {
-        this.nombre = nombre;
-        this.id = id;
+    public int getMoneda() {
+        return moneda;
     }
 
-    public Usuario() {
-
-    }
-
-    public Usuario(String nombre, String email, String password) {
-        this.nombre = nombre;
-        this.email = email;
-        this.password = password;
+    public void setMoneda(int moneda) {
+        this.moneda = moneda;
     }
 
     public Long getId() {
@@ -43,8 +65,6 @@ public class Usuario {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
     public String getEmail() {
         return email;
     }
@@ -57,24 +77,13 @@ public class Usuario {
     public void setPassword(String password) {
         this.password = password;
     }
-    public String getRol() {
+    public Tipo_Usuario getRol() {
         return rol;
     }
-    public void setRol(String rol) {
+    public void setRol(Tipo_Usuario rol) {
         this.rol = rol;
     }
-    public Boolean getActivo() {
-        return activo;
-    }
-    public void setActivo(Boolean activo) {
-        this.activo = activo;
-    }
 
-    public boolean activo() {
-        return activo;
-    }
 
-    public void activar() {
-        activo = true;
-    }
+
 }

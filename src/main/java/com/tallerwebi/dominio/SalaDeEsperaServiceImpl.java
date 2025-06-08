@@ -44,24 +44,6 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         return jugadoresNoListos;
     }
 
-    @Override
-    public List<Usuario> crearUsuariosParaQueNoSeRompaLaVistaJuego() {
-        List<Usuario> usuarios = new ArrayList<>();
 
-        Usuario usuario1 = new Usuario();
-        Usuario usuario2 = new Usuario();
-
-        usuario1.setNombre("Pepitoxx");
-        usuario2.setNombre("Alfonsoww");
-
-        usuario1.setId(1L);
-        usuario2.setId(2L);
-
-        //agrego los usuarios a la lista
-        usuarios.add(usuario1);
-        usuarios.add(usuario2);
-
-        return usuarios;
-    }
 }
 

@@ -1,4 +1,4 @@
-package com.tallerwebi.helpers;
+package com.tallerwebi;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -8,12 +8,14 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HelperDefinicion {
 
-    public static String obtenerDescripcionDesdeWikidata(String palabra, String idioma) {
+    public static List<String> obtenerDescripcionDesdeWikidata(String palabra, String idioma) {
         try {
-            // Codificamos la palabra
+
             String palabraCodificada = URLEncoder.encode(palabra, "UTF-8");
 
 
@@ -37,26 +39,27 @@ public class HelperDefinicion {
             JSONArray resultados = json.getJSONArray("search");
 
             if (resultados.length() > 0) {
+                List<String> descripciones = new ArrayList<>();
                 for (int i = 0; i < resultados.length(); i++) {
                     JSONObject resultado = resultados.getJSONObject(i);
                     if (resultado.has("description") && getCodigoIdioma(idioma).equals(resultado.optString("lang", getCodigoIdioma(idioma)))) {
-                        return resultado.getString("description");
+                        descripciones.add(resultado.getString("description"));
                     }
                 }
-                return null;
+                return descripciones;
             } else {
                 return null;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "Error al consultar Wikidata: " + e.getMessage();
+            return null;
         }
     }
 
     private static String obtenerURL(String palabraCodificada, String idioma) {
         String codigoIdioma = getCodigoIdioma(idioma);
-     return   "https://www.wikidata.org/w/api.php?action=wbsearchentities"
+        return   "https://www.wikidata.org/w/api.php?action=wbsearchentities"
                 + "&search=" + palabraCodificada
                 + "&language="+codigoIdioma
                 + "&format=json"

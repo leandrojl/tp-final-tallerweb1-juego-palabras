@@ -37,14 +37,6 @@ public class SalaDeEsperaController {
 
         List<Long> jugadoresNoListos = servicioSalaDeEspera.verificarSiHayJugadoresQueNoEstenListos(jugadores);
 
-        if (!jugadoresNoListos.isEmpty()) {
-            List<Usuario> usuarios = servicioSalaDeEspera.crearUsuariosParaQueNoSeRompaLaVistaJuego();
-
-            model.put("usuarios", usuarios);
-            model.put("error", "Los siguientes jugadores no están listos: " + jugadoresNoListos);
-
-            return new ModelAndView("sala-de-espera", model);
-        }
 
         model.put("jugadores", jugadores);
 
