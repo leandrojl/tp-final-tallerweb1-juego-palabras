@@ -1,8 +1,5 @@
-<<<<<<<< HEAD:src/main/java/com/tallerwebi/infraestructura/Partida.java
-package com.tallerwebi.infraestructura;
-========
+
 package com.tallerwebi.dominio.model;
->>>>>>>> origin/mostrar-partidas-disponibles-en-home:src/main/java/com/tallerwebi/dominio/model/Partida.java
 
 import javax.persistence.Id;
 import java.util.HashMap;

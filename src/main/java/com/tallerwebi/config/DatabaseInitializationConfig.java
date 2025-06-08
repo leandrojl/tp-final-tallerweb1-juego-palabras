@@ -11,6 +11,11 @@ import javax.sql.DataSource;
 
 @Configuration
 public class DatabaseInitializationConfig {
+    /*
+
+    Esta clase se utiliza para inicializar
+    la base de datos con un script SQL al iniciar la aplicación.
+
 
     @Autowired
     private DataSource dataSource;
@@ -26,4 +31,6 @@ public class DatabaseInitializationConfig {
 
         return initializer;
     }
+
+     */
 }
