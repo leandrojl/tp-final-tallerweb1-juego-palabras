@@ -2,10 +2,8 @@ package com.tallerwebi.dominio.model;
 
 import com.tallerwebi.dominio.Enum.Estado;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 public class Partida2 {
@@ -17,10 +15,20 @@ public class Partida2 {
     private boolean permiteComodin;
     private int rondasTotales;
     private int minimoJugadores;
+    @Enumerated(EnumType.STRING)
     private Estado estado;
 
     public Partida2(){
 
+    }
+
+    public Partida2(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int minimoJugadores, Estado estado) {
+        this.nombre = nombre;
+        this.idioma = idioma;
+        this.permiteComodin = permiteComodin;
+        this.rondasTotales = rondasTotales;
+        this.minimoJugadores = minimoJugadores;
+        this.estado = estado;
     }
 
     public Long getId() {
@@ -77,5 +85,18 @@ public class Partida2 {
 
     public void setEstado(Estado estado) {
         this.estado = estado;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Partida2 partida2 = (Partida2) o;
+        return permiteComodin == partida2.permiteComodin &&
+                rondasTotales == partida2.rondasTotales &&
+                minimoJugadores == partida2.minimoJugadores &&
+                Objects.equals(nombre, partida2.nombre) &&
+                Objects.equals(idioma, partida2.idioma) &&
+                estado == partida2.estado;
     }
 }

@@ -30,13 +30,5 @@ public class PartidaServiceImpl implements PartidaService {
         partidas.remove(jugadorId);
     }
 
-    @Override
-    public List<Partida> obtenerPartidasDisponibles() {
-        List<Partida> partidas = new ArrayList<>(List.of(
-                new Partida("Partida de prueba"),
-                new Partida("Partida de prueba 2"),
-                new Partida("Partida de prueba 3")
-        ));
-        return partidas;
-    }
+
 }

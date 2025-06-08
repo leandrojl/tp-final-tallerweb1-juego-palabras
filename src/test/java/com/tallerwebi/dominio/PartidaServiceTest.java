@@ -20,23 +20,6 @@ public class PartidaServiceTest {
         partidaServiceMock = mock(PartidaService.class);
     }
 
-    @Test
-    public void testObtenerPartidasDisponiblesConMock() {
 
-        when(partidaServiceMock.obtenerPartidasDisponibles()).thenReturn(List.of(
-                new Partida("Partida de prueba"),
-                new Partida("Partida de prueba 2"),
-                new Partida("Partida de prueba 3")
-        ));
-
-        List<Partida> partidas = partidaServiceMock.obtenerPartidasDisponibles();
-
-        Assertions.assertEquals(3, partidas.size());
-        Assertions.assertEquals("Partida de prueba", partidas.get(0).getNombrePartida());
-        Assertions.assertEquals("Partida de prueba 2", partidas.get(1).getNombrePartida());
-        Assertions.assertEquals("Partida de prueba 3", partidas.get(2).getNombrePartida());
-
-        verify(partidaServiceMock, times(1)).obtenerPartidasDisponibles();
-    }
 
 }

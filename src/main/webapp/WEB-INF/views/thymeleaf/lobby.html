@@ -117,17 +117,25 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Nombre de la Partida</th>
-                                    <th>Ronda Actual</th>
-                                    <th>Accion</th>
+                                    <th>Idioma</th>
+                                    <th>Permite comodin?</th>
+                                    <th>Ronda Totales</th>
+                                    <th>Minimo Jugadores</th>
+                                    <th>Estado</th>
+
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:each="partida, iterStat : ${partidas}">
                                     <td th:text="${iterStat.index + 1}"></td>
-                                    <td th:text="${partida.nombrePartida}"></td>
-                                    <td th:text="${partida.rondaActual}"></td>
+                                    <td th:text="${partida.nombre}"></td>
+                                    <td th:text="${partida.idioma}"></td>
+                                    <td th:text="${partida.permiteComodin}"></td>
+                                    <td th:text="${partida.rondasTotales}"></td>
+                                    <td th:text="${partida.minimoJugadores}"></td>
+                                    <td th:text="${partida.estado}"></td>
                                     <td>
-                                        <a  class="btn btn-sm btn-orange">
+                                        <a class="btn btn-sm btn-orange">
                                             Unirse
                                         </a>
                                     </td>

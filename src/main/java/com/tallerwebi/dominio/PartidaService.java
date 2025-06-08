@@ -10,6 +10,6 @@ public interface PartidaService {
     Partida obtenerPartida(String jugadorId);
     void eliminarPartida(String jugadorId);
 
-    List<Partida> obtenerPartidasDisponibles();
+
 }
 

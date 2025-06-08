@@ -16,7 +16,9 @@ public class Usuario {
     private String nombre;
     private int moneda;
     private String password;
+    @Enumerated(EnumType.STRING)
     private Tipo_Usuario rol;
+
 
     public Usuario() {}
 
