@@ -15,7 +15,7 @@ public class Ronda {
     @ManyToOne
     private Partida2 partida;
     @OneToOne
-    private Palabra palabra;
+    private String palabra;
     private int numeroDeRonda;
     private Estado estado;
     private LocalDateTime fechaHora; //LocalDateTime es una clase que se mapea a datetime con huibernate, con .now() genera el horario actual.
@@ -36,11 +36,11 @@ public class Ronda {
         this.partida = partida;
     }
 
-    public Palabra getPalabra() {
+    public String getPalabra() {
         return palabra;
     }
 
-    public void setPalabra(Palabra palabra) {
+    public void setPalabra(String palabra) {
         this.palabra = palabra;
     }
 
@@ -66,5 +66,8 @@ public class Ronda {
 
     public void setFechaHora(LocalDateTime fechaHora) {
         this.fechaHora = fechaHora;
+    }
+
+    public void setDefinicion(Definicion definicionAleatoria) {
     }
 }

@@ -26,4 +26,6 @@ public interface RondaRepository {
     void eliminar(Ronda ronda);
 
     void actualizar(Ronda ronda);
+
+    Ronda buscarRondaActivaPorPartidaId(Long id);
 }

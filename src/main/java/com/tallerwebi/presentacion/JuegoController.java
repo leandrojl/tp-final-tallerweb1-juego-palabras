@@ -1,72 +1,163 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
-import com.tallerwebi.dominio.model.Jugador;
-import com.tallerwebi.dominio.model.Partida;
+import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.model.*;
+import com.tallerwebi.infraestructura.AciertoRepository;
+import com.tallerwebi.infraestructura.PartidaRepository;
+import com.tallerwebi.infraestructura.UsuarioPartidaRepository;
+import com.tallerwebi.infraestructura.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-/*
+import java.util.Random;
+
 @Controller
 @RequestMapping("/juego")
 public class JuegoController {
 
+    // Servicios
     private final RondaService rondaServicio;
     private final PuntajeService puntajeServicio;
     private final PartidaService partidaServicio;
+    private final UsuarioService usuarioServicio;
+    //private final DefinicionService definicionServicio;
+    private final PalabraService palabraServicio;
+    private final AciertoService aciertoServicio;
+
+    // Repositorios (para consultas específicas si es necesario)
+    private final UsuarioRepository usuarioRepository;
+    private final PartidaRepository partidaRepository;
+    private final RondaRepository rondaRepository;
+    private final PalabraRepository palabraRepository;
+    // private final DefinicionRepository definicionRepository;
+    private final UsuarioPartidaRepository usuarioPartidaRepository;
+    private final AciertoRepository aciertoRepository;
 
     @Autowired
-    public JuegoController(RondaService rondaServicio, PuntajeService puntajeServicio, PartidaService partidaServicio) {
+    public JuegoController(RondaService rondaServicio,
+                           PuntajeService puntajeServicio,
+                           PartidaService partidaServicio,
+                           UsuarioService usuarioServicio,
+                           //DefinicionService definicionServicio,
+                           PalabraService palabraServicio,
+                           AciertoService aciertoServicio,
+                           UsuarioRepository usuarioRepository,
+                           PartidaRepository partidaRepository,
+                           RondaRepository rondaRepository,
+                           PalabraRepository palabraRepository,
+                           //DefinicionRepository definicionRepository,
+                           UsuarioPartidaRepository usuarioPartidaRepository,
+                           AciertoRepository aciertoRepository) {
         this.rondaServicio = rondaServicio;
         this.puntajeServicio = puntajeServicio;
         this.partidaServicio = partidaServicio;
+        this.usuarioServicio = usuarioServicio;
+        //this.definicionServicio = definicionServicio;
+        this.palabraServicio = palabraServicio;
+        this.aciertoServicio = aciertoServicio;
+        this.usuarioRepository = usuarioRepository;
+        this.partidaRepository = partidaRepository;
+        this.rondaRepository = rondaRepository;
+        this.palabraRepository = palabraRepository;
+        // this.definicionRepository = definicionRepository;
+        this.usuarioPartidaRepository = usuarioPartidaRepository;
+        this.aciertoRepository = aciertoRepository;
     }
 
     @GetMapping
-    public ModelAndView mostrarVistaJuego(@RequestParam String jugadorId) {
-        String nombre = "july3p";
+    public ModelAndView mostrarVistaJuego(@RequestParam Long usuarioId,@RequestParam Long partidaId) {
 
-        Partida partidaTemp = partidaServicio.obtenerPartida(jugadorId);
-        if (partidaTemp == null) {
-            partidaTemp = partidaServicio.iniciarNuevaPartida(jugadorId, nombre);
+        // 1. El usuario ya está registrado, solo lo obtenemos
+        Usuario usuario = usuarioRepository.buscarPorId(usuarioId);
+        if (usuario == null) {
+            throw new RuntimeException("Usuario no encontrado");
         }
-        Partida partida = partidaTemp;
-        puntajeServicio.registrarJugador(jugadorId, new Jugador(jugadorId, nombre, "julianomarmaruca@hotmail.com", "pass"));
-
-        if (partida.getPalabraActual() == null) {
-            Map<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
-            String palabra = pYD.keySet().iterator().next();
-            String definicion = pYD.get(palabra);
-
-            puntajeServicio.registrarPuntos(jugadorId, 0);
-            partida.avanzarRonda(palabra, definicion);
+        // 2. La partida ya existe (viene del lobby), solo la obtenemos
+        Partida2 partida = partidaRepository.buscarPorId(partidaId);
+        if (partida == null) {
+            throw new RuntimeException("Partida no encontrada");
         }
 
-        List<Map<String, Object>> jugadoresView = partida.getJugadorIds().stream()
-                .map(id -> {
-                    Map<String, Object> datos = new HashMap<>();
-                    datos.put("nombre", partida.getNombre(id));
-                    datos.put("puntaje", puntajeServicio.obtenerPuntaje(id));
-                    return datos;
-                }).collect(Collectors.toList());
+        // 3. Verificar que el usuario está en esta partida
+        Usuario_Partida usuarioPartida = usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId);
+        if (usuarioPartida == null) {
+            throw new RuntimeException("El usuario no pertenece a esta partida");
+        }
 
-        ModelAndView mov = new ModelAndView("juego");
-        mov.addObject("definicion", partida.getDefinicionActual());
-        mov.addObject("jugadorId", jugadorId);
-        mov.addObject("rondaActual", partida.getRondaActual());
-        mov.addObject("palabra", partida.getPalabraActual());
-        mov.addObject("jugadores", jugadoresView);
+        // 4. Si la partida está "EN_ESPERA", cambiarla a "EN_CURSO" al iniciar
+        if (partida.getEstado() == Estado.EN_ESPERA) {
+            partida.setEstado(Estado.EN_CURSO);
+            partidaRepository.actualizar(partida);
+        }
+
+        // 5. Verificar si necesitamos crear la primera ronda
+        Ronda rondaActual = rondaRepository.buscarRondaActivaPorPartidaId(partida.getId());
+        if (rondaActual == null) {
+            // Obtener palabra con sus definiciones usando tu servicio existente
+            // Asumo que la partida tiene un idioma configurado, si no usar "Mixto" por defecto
+            String idiomaPartida = partida.getIdioma() != null ? partida.getIdioma() : "Mixto";
+            HashMap<String, List<Definicion>> palabraConDefiniciones = palabraServicio.traerPalabraYDefinicion(idiomaPartida);
+
+            // Extraer la palabra y una definición aleatoria
+            String palabraTexto = palabraConDefiniciones.keySet().iterator().next();
+            List<Definicion> definiciones = palabraConDefiniciones.get(palabraTexto);
+            Definicion definicionSeleccionada = definiciones.get(new Random().nextInt(definiciones.size()));
+
+            // Crear nueva ronda
+            rondaActual = new Ronda();
+            rondaActual.setPartida(partida);
+            rondaActual.setPalabra(palabraTexto); // Si tienes este campo
+            rondaActual.setDefinicion(definicionSeleccionada.getDescripcion()); // Si tienes este campo
+            // O si prefieres guardar las entidades completas:
+            // rondaActual.setPalabra(palabraServicio.buscarPorTexto(palabraTexto));
+            // rondaActual.setDefinicion(definicionSeleccionada);
+            rondaActual.setNumeroDeRonda(1); // Primera ronda
+            rondaActual.setEstado(Estado.EN_CURSO);
+
+            rondaActual = rondaRepository.guardar(rondaActual);
+        }
+
+//        String nombre = "july3p";
+//
+//        Partida partidaTemp = partidaServicio.obtenerPartida(jugadorId);
+//        if (partidaTemp == null) {
+//            partidaTemp = partidaServicio.iniciarNuevaPartida(jugadorId, nombre);
+//        }
+//        Partida partida = partidaTemp;
+//        puntajeServicio.registrarJugador(jugadorId, new Jugador(jugadorId, nombre, "julianomarmaruca@hotmail.com", "pass"));
+//
+//        if (partida.getPalabraActual() == null) {
+//            Map<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
+//            String palabra = pYD.keySet().iterator().next();
+//            String definicion = pYD.get(palabra);
+//
+//            puntajeServicio.registrarPuntos(jugadorId, 0);
+//            partida.avanzarRonda(palabra, definicion);
+//        }
+//
+//        List<Map<String, Object>> jugadoresView = partida.getJugadorIds().stream()
+//                .map(id -> {
+//                    Map<String, Object> datos = new HashMap<>();
+//                    datos.put("nombre", partida.getNombre(id));
+//                    datos.put("puntaje", puntajeServicio.obtenerPuntaje(id));
+//                    return datos;
+//                }).collect(Collectors.toList());
+//
+//        ModelAndView mov = new ModelAndView("juego");
+//        mov.addObject("definicion", partida.getDefinicionActual());
+//        mov.addObject("jugadorId", jugadorId);
+//        mov.addObject("rondaActual", partida.getRondaActual());
+//        mov.addObject("palabra", partida.getPalabraActual());
+//        mov.addObject("jugadores", jugadoresView);
 
         return mov;
     }
-
+/*
     @PostMapping("/intentar")
     @ResponseBody
     public Map<String, Object> procesarIntentoAjax(@RequestParam String intento,
@@ -164,6 +255,5 @@ public class JuegoController {
         model.addAttribute("jugadorActual", jugadorActual);
 
         return "vistaFinalJuego";
-    }
+    }*/
 }
-*/

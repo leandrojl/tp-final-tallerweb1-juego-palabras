@@ -1,15 +1,17 @@
 package com.tallerwebi.infraestructura;
 
-/*import com.tallerwebi.dominio.Usuario;
-
 import com.tallerwebi.dominio.model.Usuario;
+
+import java.io.Serializable;
 
 public interface UsuarioRepository {
 
     Usuario buscarUsuario(String email, String password);
-    void guardar(Usuario usuario);
+    Serializable guardar(Usuario usuario);
     Usuario buscar(String email);
     void modificar(Usuario usuario);
+    Usuario buscarPorId(Long id);
 }
 
-*/
+
+

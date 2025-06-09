@@ -1,6 +1,6 @@
 package com.tallerwebi.infraestructura;
-/*
-import com.tallerwebi.dominio.UsuarioRepository;
+
+import com.tallerwebi.infraestructura.UsuarioRepository;
 import com.tallerwebi.dominio.model.Usuario;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -51,4 +51,3 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
 
 }
 
- */

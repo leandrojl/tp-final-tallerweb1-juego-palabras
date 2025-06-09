@@ -2,6 +2,7 @@ package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
 import com.tallerwebi.dominio.model.Usuario;
+import com.tallerwebi.infraestructura.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
