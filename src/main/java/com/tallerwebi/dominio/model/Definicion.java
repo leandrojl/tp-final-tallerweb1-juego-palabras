@@ -13,7 +13,6 @@ public class Definicion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String definicion;
-    private String descripcion;
 
 
     public Definicion() {
@@ -40,9 +39,5 @@ public class Definicion {
 
     public void setDefinicion(String definicion) {
         this.definicion = definicion;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
     }
 }

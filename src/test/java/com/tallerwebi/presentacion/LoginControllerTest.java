@@ -129,7 +129,7 @@ public class LoginControllerTest {
 
     private MvcResult whenLoguearse(String nombreUsuario, String password) throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/procesarLogin")
-                .param("nombre",nombre)
+                .param("nombre",nombreUsuario)
                 .param("password",password))
                 .andExpect(status().isOk())
                 .andReturn();

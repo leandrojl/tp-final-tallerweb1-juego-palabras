@@ -20,7 +20,7 @@ public class PalabraServicioImpl implements PalabraService {
     }
 
     @Override
-    public HashMap<String, List<Definicion>> traerPalabraYDefinicion(String idioma) {
+    public HashMap<Palabra, List<Definicion>> traerPalabraYDefinicion(String idioma) {
         List<Palabra> palabras;
 
         switch (idioma) {
@@ -36,8 +36,8 @@ public class PalabraServicioImpl implements PalabraService {
 
         Palabra seleccionada = palabras.get(new Random().nextInt(palabras.size()));
 
-        HashMap<String, List<Definicion>> resultado = new HashMap<>();
-        resultado.put(seleccionada.getDescripcion(), seleccionada.getDefinicion());
+        HashMap<Palabra, List<Definicion>> resultado = new HashMap<>();
+        resultado.put(seleccionada, seleccionada.getDefinicion());
         return resultado;
     }
 }

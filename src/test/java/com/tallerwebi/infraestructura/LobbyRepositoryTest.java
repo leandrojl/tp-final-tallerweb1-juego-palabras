@@ -39,9 +39,9 @@ public class LobbyRepositoryTest {
         assertEquals(0, partidasIniciales.size());
 
         // Crear y guardar partidas en espera en la base de datos
-        Partida2 partida1 = new Partida2("Partida en espera 1", "Español", true, 5, 2, Estado.EN_ESPERA);
-        Partida2 partida2 = new Partida2("Partida en espera 2", "Inglés", false, 3, 4, Estado.EN_ESPERA);
-        Partida2 partida3 = new Partida2("Partida en espera 3", "Francés", true, 7, 3, Estado.EN_ESPERA);
+        Partida2 partida1 = new Partida2("Partida en espera 1", "Español", true, 5, 2, 6,Estado.EN_ESPERA);
+        Partida2 partida2 = new Partida2("Partida en espera 2", "Inglés", false, 3, 4, 6,Estado.EN_ESPERA);
+        Partida2 partida3 = new Partida2("Partida en espera 3", "Francés", true, 7, 3, 6,Estado.EN_ESPERA);
 
         lobbyRepository.guardar(partida1);
         lobbyRepository.guardar(partida2);
@@ -61,7 +61,7 @@ public class LobbyRepositoryTest {
     @Test
     public void testGuardarPartida() {
 
-        Partida2 nuevaPartida = new Partida2("Partida nueva", "Alemán", false, 4, 1, Estado.EN_ESPERA);
+        Partida2 nuevaPartida = new Partida2("Partida nueva", "Alemán", false, 4, 1, 6,Estado.EN_ESPERA);
 
         lobbyRepository.guardar(nuevaPartida);
 
@@ -75,8 +75,8 @@ public class LobbyRepositoryTest {
     @Test
     public void testEliminarTodasLasPartidas() {
         // Crear y guardar partidas en la base de datos
-        Partida2 partida1 = new Partida2("Partida 1", "Español", true, 5, 2, Estado.EN_ESPERA);
-        Partida2 partida2 = new Partida2("Partida 2", "Inglés", false, 3, 4, Estado.EN_ESPERA);
+        Partida2 partida1 = new Partida2("Partida 1", "Español", true, 5, 2, 6,Estado.EN_ESPERA);
+        Partida2 partida2 = new Partida2("Partida 2", "Inglés", false, 3, 4, 6,Estado.EN_ESPERA);
 
         lobbyRepository.guardar(partida1);
         lobbyRepository.guardar(partida2);

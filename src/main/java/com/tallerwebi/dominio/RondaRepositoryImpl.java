@@ -97,4 +97,9 @@ public class RondaRepositoryImpl implements RondaRepository {
     public void actualizar(Ronda ronda) {
         sessionFactory.getCurrentSession().update(ronda);
     }
+
+    @Override
+    public Ronda buscarRondaActivaPorPartidaId(Long id) {
+        return null;
+    }
 }

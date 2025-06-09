@@ -2,6 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.PalabraNoDisponibleException;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.infraestructura.AciertoRepository;
 import com.tallerwebi.infraestructura.PartidaRepository;
@@ -14,7 +15,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/juego")
@@ -72,39 +75,39 @@ public class JuegoController {
     @GetMapping
     public ModelAndView mostrarVistaJuego(@RequestParam Long usuarioId,@RequestParam Long partidaId) {
 
-        // 1. El usuario ya está registrado, solo lo obtenemos
+        // El usuario ya está registrado, solo lo obtenemos
         Usuario usuario = usuarioRepository.buscarPorId(usuarioId);
         if (usuario == null) {
             throw new RuntimeException("Usuario no encontrado");
         }
-        // 2. La partida ya existe (viene del lobby), solo la obtenemos
+        // La partida ya existe (viene del lobby), solo la obtenemos
         Partida2 partida = partidaRepository.buscarPorId(partidaId);
         if (partida == null) {
             throw new RuntimeException("Partida no encontrada");
         }
 
-        // 3. Verificar que el usuario está en esta partida
-        Usuario_Partida usuarioPartida = usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId);
+        // Verificar que el usuario está en esta partida
+        UsuarioPartida usuarioPartida = usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId);
         if (usuarioPartida == null) {
             throw new RuntimeException("El usuario no pertenece a esta partida");
         }
 
-        // 4. Si la partida está "EN_ESPERA", cambiarla a "EN_CURSO" al iniciar
+        // Si la partida está "EN_ESPERA", cambiarla a "EN_CURSO" al iniciar
         if (partida.getEstado() == Estado.EN_ESPERA) {
             partida.setEstado(Estado.EN_CURSO);
             partidaRepository.actualizar(partida);
         }
 
-        // 5. Verificar si necesitamos crear la primera ronda
+        // Verificar si necesitamos crear la primera ronda
         Ronda rondaActual = rondaRepository.buscarRondaActivaPorPartidaId(partida.getId());
         if (rondaActual == null) {
             // Obtener palabra con sus definiciones usando tu servicio existente
             // Asumo que la partida tiene un idioma configurado, si no usar "Mixto" por defecto
             String idiomaPartida = partida.getIdioma() != null ? partida.getIdioma() : "Mixto";
-            HashMap<String, List<Definicion>> palabraConDefiniciones = palabraServicio.traerPalabraYDefinicion(idiomaPartida);
+            HashMap<Palabra, List<Definicion>> palabraConDefiniciones = palabraServicio.traerPalabraYDefinicion(idiomaPartida);
 
             // Extraer la palabra y una definición aleatoria
-            String palabraTexto = palabraConDefiniciones.keySet().iterator().next();
+            Palabra palabraTexto = palabraConDefiniciones.keySet().iterator().next();
             List<Definicion> definiciones = palabraConDefiniciones.get(palabraTexto);
             Definicion definicionSeleccionada = definiciones.get(new Random().nextInt(definiciones.size()));
 
@@ -112,7 +115,7 @@ public class JuegoController {
             rondaActual = new Ronda();
             rondaActual.setPartida(partida);
             rondaActual.setPalabra(palabraTexto); // Si tienes este campo
-            rondaActual.setDefinicion(definicionSeleccionada.getDescripcion()); // Si tienes este campo
+            rondaActual.setDefinicion(definicionSeleccionada.getDefinicion()); // Si tienes este campo
             // O si prefieres guardar las entidades completas:
             // rondaActual.setPalabra(palabraServicio.buscarPorTexto(palabraTexto));
             // rondaActual.setDefinicion(definicionSeleccionada);
@@ -121,41 +124,46 @@ public class JuegoController {
 
             rondaActual = rondaRepository.guardar(rondaActual);
         }
+        // Obtener todos los participantes de la partida con sus puntajes actuales
+        List<UsuarioPartida> participantes = usuarioPartidaRepository.buscarPorPartidaId(partida.getId());
+        List<Map<String, Object>> jugadoresView = participantes.stream()
+                .map(up -> {
+                    Map<String, Object> datos = new HashMap<>();
+                    datos.put("nombre", up.getUsuario().getNombreUsuario());
+                    datos.put("puntaje", up.getPuntaje());
+                    datos.put("usuarioId", up.getUsuario().getId());
+                    datos.put("esJugadorActual", up.getUsuario().getId().equals(usuarioId));
+                    return datos;
+                }).collect(Collectors.toList());
 
-//        String nombre = "july3p";
-//
-//        Partida partidaTemp = partidaServicio.obtenerPartida(jugadorId);
-//        if (partidaTemp == null) {
-//            partidaTemp = partidaServicio.iniciarNuevaPartida(jugadorId, nombre);
-//        }
-//        Partida partida = partidaTemp;
-//        puntajeServicio.registrarJugador(jugadorId, new Jugador(jugadorId, nombre, "julianomarmaruca@hotmail.com", "pass"));
-//
-//        if (partida.getPalabraActual() == null) {
-//            Map<String, String> pYD = rondaServicio.traerPalabraYDefinicion();
-//            String palabra = pYD.keySet().iterator().next();
-//            String definicion = pYD.get(palabra);
-//
-//            puntajeServicio.registrarPuntos(jugadorId, 0);
-//            partida.avanzarRonda(palabra, definicion);
-//        }
-//
-//        List<Map<String, Object>> jugadoresView = partida.getJugadorIds().stream()
-//                .map(id -> {
-//                    Map<String, Object> datos = new HashMap<>();
-//                    datos.put("nombre", partida.getNombre(id));
-//                    datos.put("puntaje", puntajeServicio.obtenerPuntaje(id));
-//                    return datos;
-//                }).collect(Collectors.toList());
-//
-//        ModelAndView mov = new ModelAndView("juego");
-//        mov.addObject("definicion", partida.getDefinicionActual());
-//        mov.addObject("jugadorId", jugadorId);
-//        mov.addObject("rondaActual", partida.getRondaActual());
-//        mov.addObject("palabra", partida.getPalabraActual());
-//        mov.addObject("jugadores", jugadoresView);
+        // Preparar la vista del juego
+        ModelAndView mov = new ModelAndView("juego");
+        mov.addObject("definicion", obtenerDefinicionDeRonda(rondaActual));
+        mov.addObject("usuarioId", usuarioId);
+        mov.addObject("partidaId", partida.getId());
+        mov.addObject("rondaActual", rondaActual.getNumeroDeRonda());
+        mov.addObject("palabra", obtenerPalabraDeRonda(rondaActual)); // Solo para debug, no mostrar en la vista real
+        mov.addObject("jugadores", jugadoresView);
+        mov.addObject("estadoPartida", partida.getEstado());
+        mov.addObject("rondaId", rondaActual.getId());
+        mov.addObject("maxRondas", partida.getRondasTotales()); // O el límite de rondas que tengas definido
+        mov.addObject("nombrePartida", partida.getNombre());
 
         return mov;
+    }
+
+    private Palabra obtenerPalabraDeRonda(Ronda rondaActual) {
+        if (rondaActual.getPalabra() != null) {
+            return rondaActual.getPalabra();
+        }
+        throw new PalabraNoDisponibleException();
+    }
+
+    private Object obtenerDefinicionDeRonda(Ronda rondaActual) {
+        if (rondaActual.getDefinicion() != null) {
+            return rondaActual.getDefinicion();
+        }
+        return "Definición no disponible";
     }
 /*
     @PostMapping("/intentar")

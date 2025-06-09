@@ -28,7 +28,7 @@ public class RondaServicioImpl implements RondaService {
 
     public Ronda crearNuevaRonda(Partida2 partida, String idioma) {
         // Usar palabraService para obtener palabra
-        HashMap<String, List<Definicion>> palabraYDef = palabraService.traerPalabraYDefinicion(idioma);
+        HashMap<Palabra, List<Definicion>> palabraYDef = palabraService.traerPalabraYDefinicion(idioma);
 
         // Crear la ronda completa
         Ronda ronda = new Ronda();
@@ -40,18 +40,17 @@ public class RondaServicioImpl implements RondaService {
         return rondaRepository.guardar(ronda);
     }
 
-    private Palabra extraerPalabra(HashMap<String, List<Definicion>> palabraYDef, String idioma) {
+    private Palabra extraerPalabra(HashMap<Palabra, List<Definicion>> palabraYDef, String idioma) {
         // Verificar que el HashMap no esté vacío
         if (palabraYDef == null || palabraYDef.isEmpty()) {
             throw new IllegalArgumentException("No se encontraron palabras para crear la ronda");
         }
 
         // Obtener la primera entrada del HashMap
-        Map.Entry<String, List<Definicion>> entrada = palabraYDef.entrySet().iterator().next();
+        Map.Entry<Palabra, List<Definicion>> entrada = palabraYDef.entrySet().iterator().next();
 
         // Crear y configurar la palabra
-        Palabra palabra = new Palabra();
-        palabra.setDescripcion(entrada.getKey());
+        Palabra palabra = entrada.getKey();
         palabra.setDefinicion(entrada.getValue());
 
         // Asignar el idioma basado en el parámetro

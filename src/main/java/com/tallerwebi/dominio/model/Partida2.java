@@ -15,6 +15,8 @@ public class Partida2 {
     private boolean permiteComodin;
     private int rondasTotales;
     private int minimoJugadores;
+
+    private Integer maximoJugadores;
     @Enumerated(EnumType.STRING)
     private Estado estado;
 
@@ -22,7 +24,7 @@ public class Partida2 {
 
     }
 
-    public Partida2(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int minimoJugadores, Estado estado) {
+    public Partida2(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int minimoJugadores, int maximoJugadores, Estado estado) {
         this.nombre = nombre;
         this.idioma = idioma;
         this.permiteComodin = permiteComodin;
@@ -77,6 +79,14 @@ public class Partida2 {
 
     public void setMinimoJugadores(int minimoJugadores) {
         this.minimoJugadores = minimoJugadores;
+    }
+
+    public Integer getMaximoJugadores() {
+        return maximoJugadores;
+    }
+
+    public void setMaximoJugadores(Integer maximoJugadores) {
+        this.maximoJugadores = maximoJugadores;
     }
 
     public Estado getEstado() {

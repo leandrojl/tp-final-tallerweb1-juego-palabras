@@ -1,9 +1,16 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
+import com.tallerwebi.dominio.excepcion.UsuarioInexistente;
 import com.tallerwebi.dominio.model.Jugador;
+import com.tallerwebi.infraestructura.AciertoRepository;
+import com.tallerwebi.infraestructura.PartidaRepository;
+import com.tallerwebi.infraestructura.UsuarioPartidaRepository;
+import com.tallerwebi.infraestructura.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
@@ -14,28 +21,40 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-/*
+
 public class JuegoControllerTest {
 
-    private PuntajeService puntajeServicio;
-    private PartidaService partidaServicio;
-    private RondaService rondaServicio;
+    @InjectMocks
     private JuegoController controladorJuego;
 
-    @BeforeEach
-    public void setUp() {
-        rondaServicio = mock(RondaService.class);
-        puntajeServicio = new PuntajeServiceImpl();
-        partidaServicio = new PartidaServiceImpl();
-        controladorJuego = new JuegoController(rondaServicio, puntajeServicio, partidaServicio);
-    }
+    @Mock
+    private RondaService rondaServicio;
+    @Mock private PuntajeService puntajeServicio;
+    @Mock private PartidaService partidaServicio;
+    @Mock private UsuarioService usuarioServicio;
+    @Mock private PalabraService palabraServicio;
+    @Mock private AciertoService aciertoServicio;
+
+    @Mock private UsuarioRepository usuarioRepository;
+    @Mock private PartidaRepository partidaRepository;
+    @Mock private RondaRepository rondaRepository;
+    @Mock private PalabraRepository palabraRepository;
+    @Mock private UsuarioPartidaRepository usuarioPartidaRepository;
+    @Mock private AciertoRepository aciertoRepository;
 
     @Test
-    public void queSeMuestreLaVistaJuego() {
-        ModelAndView mov = controladorJuego.mostrarVistaJuego("1");
-        assertThat(mov.getViewName(), equalToIgnoringCase("juego"));
-    }
+    public void mostrarVistaJuego_lanzaException_siUsuarioNoExiste() {
+       Long usuarioId = 1L;
+       Long partidaId = 1L;
 
+       when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(null);
+
+       RuntimeException exception = assertThrows(UsuarioInexistente.class,() -> {
+            controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
+        });
+
+    }
+/*
     @Test
     public void queSeRecibaElIdJugadorAlCargarElJuego() {
         String idJugador = "1";
@@ -95,6 +114,5 @@ public class JuegoControllerTest {
         assertNotNull(model.getAttribute("ranking"));
         assertEquals(nombre, model.getAttribute("ganador"));
         assertEquals(nombre, model.getAttribute("jugadorActual"));
-    }
+    }*/
 }
-*/

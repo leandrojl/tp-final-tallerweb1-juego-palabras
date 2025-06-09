@@ -1,7 +1,12 @@
 package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.Usuario_Partida;
+import com.tallerwebi.dominio.model.UsuarioPartida;
+
+import java.util.List;
 
 public interface UsuarioPartidaRepository {
-    Usuario_Partida buscarPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId);
+    UsuarioPartida buscarPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId);
+
+    List<UsuarioPartida> buscarPorPartidaId(Long id);
 }

@@ -49,5 +49,10 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
         sessionFactory.getCurrentSession().update(usuario);
     }
 
+    @Override
+    public Usuario buscarPorId(Long id) {
+        return null;
+    }
+
 }
 

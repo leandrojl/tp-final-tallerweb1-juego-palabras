@@ -48,7 +48,7 @@ public class PalabraServiceTest {
         when(palabraRepository.buscarPorIdioma("en")).thenReturn(palabrasMock);
 
         // When
-        HashMap<String, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("English");
+        HashMap<Palabra, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("English");
 
         // Then
         verify(palabraRepository).buscarPorIdioma("en");
@@ -67,7 +67,7 @@ public class PalabraServiceTest {
         when(palabraRepository.buscarPorIdioma("es")).thenReturn(palabrasMock);
 
         // When
-        HashMap<String, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("Castellano");
+        HashMap<Palabra, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("Castellano");
 
         // Then
         verify(palabraRepository).buscarPorIdioma("es");
@@ -85,7 +85,7 @@ public class PalabraServiceTest {
         when(palabraRepository.buscarTodas()).thenReturn(palabrasMock);
 
         // When
-        HashMap<String, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("Mixto");
+        HashMap<Palabra, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("Mixto");
 
         // Then
         verify(palabraRepository).buscarTodas();
@@ -102,7 +102,7 @@ public class PalabraServiceTest {
         when(palabraRepository.buscarPorIdioma("en")).thenReturn(palabrasMock);
 
         // When
-        HashMap<String, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("Frances");
+        HashMap<Palabra, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("Frances");
 
         // Then
         verify(palabraRepository).buscarPorIdioma("en");
@@ -134,14 +134,14 @@ public class PalabraServiceTest {
         when(palabraRepository.buscarTodas()).thenReturn(variasPalabras);
 
         // When
-        HashMap<String, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("Mixto");
+        HashMap<Palabra, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("Mixto");
 
         // Then
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
 
         // Verificar que la palabra seleccionada está en la lista original
-        String palabraSeleccionada = resultado.keySet().iterator().next();
+        Palabra palabraSeleccionada = resultado.keySet().iterator().next();
         List<String> palabrasEsperadas = Arrays.asList("Casa", "Perro", "Gato");
         assertTrue(palabrasEsperadas.contains(palabraSeleccionada));
     }
@@ -152,14 +152,14 @@ public class PalabraServiceTest {
         when(palabraRepository.buscarTodas()).thenReturn(palabrasMock);
 
         // When
-        HashMap<String, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("Mixto");
+        HashMap<Palabra, List<Definicion>> resultado = rondaServicio.traerPalabraYDefinicion("Mixto");
 
         // Then
         assertNotNull(resultado);
         assertFalse(resultado.isEmpty());
 
         // Verificar que cada entrada tiene una clave (descripción) y valor (lista de definiciones)
-        for (Map.Entry<String, List<Definicion>> entry : resultado.entrySet()) {
+        for (Map.Entry<Palabra, List<Definicion>> entry : resultado.entrySet()) {
             assertNotNull(entry.getKey());
             assertNotNull(entry.getValue());
             assertFalse(entry.getValue().isEmpty());

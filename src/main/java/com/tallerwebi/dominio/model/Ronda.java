@@ -1,7 +1,6 @@
 package com.tallerwebi.dominio.model;
 
 import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.model.Partida2;
 
 
 import javax.persistence.*;
@@ -15,7 +14,8 @@ public class Ronda {
     @ManyToOne
     private Partida2 partida;
     @OneToOne
-    private String palabra;
+    private Palabra palabra;
+    private String definicion;
     private int numeroDeRonda;
     private Estado estado;
     private LocalDateTime fechaHora; //LocalDateTime es una clase que se mapea a datetime con huibernate, con .now() genera el horario actual.
@@ -36,11 +36,11 @@ public class Ronda {
         this.partida = partida;
     }
 
-    public String getPalabra() {
+    public Palabra getPalabra() {
         return palabra;
     }
 
-    public void setPalabra(String palabra) {
+    public void setPalabra(Palabra palabra) {
         this.palabra = palabra;
     }
 
@@ -68,6 +68,11 @@ public class Ronda {
         this.fechaHora = fechaHora;
     }
 
-    public void setDefinicion(Definicion definicionAleatoria) {
+    public void setDefinicion(String definicionAleatoria) {
+        this.definicion = definicionAleatoria;
+    }
+
+    public String getDefinicion() {
+        return definicion;
     }
 }

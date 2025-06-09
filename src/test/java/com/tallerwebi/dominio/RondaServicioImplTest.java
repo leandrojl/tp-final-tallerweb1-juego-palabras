@@ -30,7 +30,7 @@ class RondaServicioImplTest {
     private RondaServicioImpl rondaServicio;
 
     private Partida2 partida;
-    private HashMap<String, List<Definicion>> palabraYDefiniciones;
+    private HashMap<Palabra, List<Definicion>> palabraYDefiniciones;
     private List<Definicion> definiciones;
     private Ronda rondaEsperada;
 
@@ -57,7 +57,9 @@ class RondaServicioImplTest {
 
         // Configurar HashMap de palabra y definiciones
         palabraYDefiniciones = new HashMap<>();
-        palabraYDefiniciones.put("casa", definiciones);
+        Palabra palabra = new Palabra();
+        palabra.setDescripcion("casa");
+        palabraYDefiniciones.put(palabra, definiciones);
 
         // Configurar ronda esperada
         rondaEsperada = new Ronda();
@@ -188,7 +190,7 @@ class RondaServicioImplTest {
     void deberia_lanzar_excepcion_cuando_palabraYDef_esta_vacio() {
         // Given
         String idioma = "Castellano";
-        HashMap<String, List<Definicion>> hashMapVacio = new HashMap<>();
+        HashMap<Palabra, List<Definicion>> hashMapVacio = new HashMap<>();
         when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(hashMapVacio);
 
         // When & Then
@@ -230,9 +232,13 @@ class RondaServicioImplTest {
     void deberia_manejar_correctamente_multiples_palabras_en_hashmap() {
         // Given
         String idioma = "Castellano";
-        HashMap<String, List<Definicion>> multiplesPalabras = new HashMap<>();
-        multiplesPalabras.put("casa", definiciones);
-        multiplesPalabras.put("perro", new ArrayList<>());
+        HashMap<Palabra, List<Definicion>> multiplesPalabras = new HashMap<>();
+        Palabra palabra1 = new Palabra();
+        Palabra palabra2 = new Palabra();
+        palabra1.setDescripcion("casa");
+        palabra2.setDescripcion("perro");
+        multiplesPalabras.put(palabra1, definiciones);
+        multiplesPalabras.put(palabra2, new ArrayList<>());
 
         when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(multiplesPalabras);
         when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> {
