@@ -1,34 +1,22 @@
 package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.model.Usuario;
+import com.tallerwebi.dominio.model.UsuarioPartida;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Repository
-public class UsuarioPartidaRepositoryImpl implements UsuarioRepository{
+public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository{
+
     @Override
-    public Usuario buscarUsuario(String email, String password) {
+    public UsuarioPartida buscarPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId) {
         return null;
     }
 
     @Override
-    public Serializable guardar(Usuario usuario) {
-        return null;
-    }
-
-    @Override
-    public Usuario buscar(String email) {
-        return null;
-    }
-
-    @Override
-    public void modificar(Usuario usuario) {
-
-    }
-
-    @Override
-    public Usuario buscarPorId(Long id) {
-        return null;
+    public List<UsuarioPartida> buscarPorPartidaId(Long id) {
+        return List.of();
     }
 }
