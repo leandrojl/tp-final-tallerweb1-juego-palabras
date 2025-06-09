@@ -1,32 +1,30 @@
 package com.tallerwebi.dominio.model;
 
-import org.hibernate.annotations.Generated;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
 @Entity
 public class Palabra {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String descripcion;
 
+    private String idioma; // 👈 ESTE FALTABA
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "palabra_id") // Clave foránea en la tabla Definicion
+    @JoinColumn(name = "palabra_id")
     private List<Definicion> definiciones = new ArrayList<>();
 
-    public Palabra() {
+    public Palabra() {}
 
+    public Long getId() {
+        return id;
     }
 
-    public List<Definicion> getDefinicion() {
-        return definiciones;
-    }
-
-    public void setDefinicion(List<Definicion> definiciones) {
-        this.definiciones = definiciones;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getDescripcion() {
@@ -37,10 +35,19 @@ public class Palabra {
         this.descripcion = descripcion;
     }
 
-    public Long getId() {
-        return id;
+    public String getIdioma() {
+        return idioma;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }}
+    public void setIdioma(String idioma) {
+        this.idioma = idioma;
+    }
+
+    public List<Definicion> getDefinicion() {
+        return definiciones;
+    }
+
+    public void setDefinicion(List<Definicion> definiciones) {
+        this.definiciones = definiciones;
+    }
+}

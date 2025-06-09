@@ -39,7 +39,7 @@ public class HelperPalabra {
 
 
     public List<String> getDefinicion(String palabra, String idioma) {
-        com.tallerwebi.HelperDefinicion hd = new com.tallerwebi.HelperDefinicion();
-        return  hd.obtenerDescripcionDesdeWikidata(palabra, idioma);
+        com.tallerwebi.helpers.HelperDefinicion hd = new com.tallerwebi.helpers.HelperDefinicion();
+        return  HelperDefinicion.obtenerDescripcionDesdeWikidata(palabra, idioma);
     }
 }

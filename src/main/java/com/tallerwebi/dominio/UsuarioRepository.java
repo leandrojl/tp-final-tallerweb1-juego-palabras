@@ -1,4 +1,4 @@
-package com.tallerwebi.infraestructura;
+/*package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.Usuario;
 
@@ -11,4 +11,6 @@ public interface UsuarioRepository {
     Usuario buscar(String email);
     void modificar(Usuario usuario);
 }
+
+ */
 

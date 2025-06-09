@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.excepcion.NoHayJugadoresEnLaSalaDeEsperaException;
 import com.tallerwebi.dominio.model.Usuario;
 
 import java.util.List;

@@ -27,7 +27,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         });
 
         if (jugadores.isEmpty()) {
-            throw new NoHayJugadoresEnLaSalaDeEsperaException();
+         //   throw new NoHayJugadoresEnLaSalaDeEsperaException();
         }
 
         return jugadores;

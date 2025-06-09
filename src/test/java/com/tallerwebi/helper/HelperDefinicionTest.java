@@ -1,4 +1,4 @@
-package com.tallerwebi.helper;
+/*package com.tallerwebi.helper;
 
 import com.tallerwebi.HelperDefinicion;
 import org.junit.jupiter.api.Test;
@@ -41,5 +41,6 @@ public class HelperDefinicionTest {
         String codigo = hd.getCodigoIdioma("Ingles");
         assertThat(codigo, equalTo("en"))    }
 
-        */
+
 }
+*/

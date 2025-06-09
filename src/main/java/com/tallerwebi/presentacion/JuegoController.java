@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+/*
 @Controller
 @RequestMapping("/juego")
 public class JuegoController {
@@ -166,3 +166,4 @@ public class JuegoController {
         return "vistaFinalJuego";
     }
 }
+*/

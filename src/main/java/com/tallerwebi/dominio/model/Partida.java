@@ -1,4 +1,4 @@
-
+/*
 package com.tallerwebi.dominio.model;
 
 import javax.persistence.Id;
@@ -43,6 +43,9 @@ public class Partida {
      * @return true si hay siguiente ronda, false si terminó.
      */
 
+
+
+/*
     public boolean avanzarRonda(String nuevaPalabra, String nuevaDefinicion) {
         if (rondaActual < MAX_RONDAS) {
             rondaActual++;
@@ -83,4 +86,4 @@ public class Partida {
     public String getNombre(String jugadorId) {
         return nombres.getOrDefault(jugadorId, "Jugador_" + jugadorId);
     }
-}
+*/
