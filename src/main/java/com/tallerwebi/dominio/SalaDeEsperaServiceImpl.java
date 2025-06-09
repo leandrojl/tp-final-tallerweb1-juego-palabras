@@ -15,8 +15,9 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
 
     @Override
-    public Map<Long, Boolean> obtenerJugadoresDelFormulario(Map<String, String> parametros) {
+    public Map<Long, Boolean> obtenerJugadoresDelFormulario(Map<String, String> parametros)  {
         Map<Long, Boolean> jugadores = new HashMap<>();
+
         parametros.forEach((clave, valor) -> {
             if (clave.startsWith("jugador_")) {
                 Long jugadorId = Long.parseLong(clave.replace("jugador_", ""));
@@ -24,6 +25,10 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
                 jugadores.put(jugadorId, listo);
             }
         });
+
+        if (jugadores.isEmpty()) {
+         //   throw new NoHayJugadoresEnLaSalaDeEsperaException();
+        }
 
         return jugadores;
     }

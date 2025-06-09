@@ -13,7 +13,14 @@ public class Definicion {
     private String definicion;
 
     public Definicion() {
+
     }
+
+    public Definicion(String def) {
+        this.definicion = def;
+    }
+
+
 
     public Long getId() {
         return id;

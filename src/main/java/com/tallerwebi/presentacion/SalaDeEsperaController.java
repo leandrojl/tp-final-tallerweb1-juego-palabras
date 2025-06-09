@@ -29,7 +29,7 @@ public class SalaDeEsperaController {
     }
 
     @RequestMapping("/iniciarPartida")
-    public ModelAndView iniciarPartida(@RequestParam Map<String, String> parametros) {
+    public ModelAndView iniciarPartida(@RequestParam Map<String, String> parametros)  {
 
         ModelMap model = new ModelMap();
 

@@ -20,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @Transactional
 @Rollback
@@ -30,12 +31,16 @@ public class LoginControllerTest {
     private String password = "12151gdsf";
     private MockMvc mockMvc;
     private LoginService loginService;
+    //private HttpSession session;
+    //private HttpServletRequest httpServletRequest;
 
     @BeforeEach
     public void init(){
         this.loginService = Mockito.mock(LoginService.class);
         this.loginController = new LoginController(loginService);
         this.mockMvc = MockMvcBuilders.standaloneSetup(loginController).build();
+        //this.session = Mockito.mock(HttpSession.class);
+        //this.httpServletRequest = Mockito.mock(HttpServletRequest.class);
     }
 
     @Test
@@ -124,8 +129,10 @@ public class LoginControllerTest {
 
     private MvcResult whenLoguearse(String nombreUsuario, String password) throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/procesarLogin")
-                .param("usuario",nombreUsuario)
-                .param("password",password)).andExpect(status().isOk()).andReturn();
+                .param("nombre",nombre)
+                .param("password",password))
+                .andExpect(status().isOk())
+                .andReturn();
         return mvcResult;
     }
 }

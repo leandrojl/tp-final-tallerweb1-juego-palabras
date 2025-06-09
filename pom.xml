@@ -52,6 +52,8 @@
             <version>${spring.version}</version>
         </dependency>
 
+
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
@@ -89,12 +91,12 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${spring.version}</version>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework</groupId>-->
+<!--            <artifactId>spring-test</artifactId>-->
+<!--            <version>${spring.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -206,14 +208,24 @@
             <version>1.1.2</version> <!-- versión compatible con javax.websocket -->
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+            <version>3.3.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <version>3.3.4</version>
+        </dependency>
 
         <!-- Implementación de referencia de WebSocket: Tyrus -->
-        <dependency>
-            <groupId>org.glassfish.tyrus.bundles</groupId>
-            <artifactId>tyrus-standalone-client</artifactId>
-            <version>1.17</version>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.glassfish.tyrus.bundles</groupId>-->
+<!--            <artifactId>tyrus-standalone-client</artifactId>-->
+<!--            <version>1.17</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
 
 
 

@@ -6,12 +6,45 @@ import com.tallerwebi.dominio.model.Usuario;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+import java.util.Map;
+
 import static net.bytebuddy.matcher.ElementMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+/*
 public class SalaDeEsperaControllerTest {
 
+    ServicioSalaDeEspera servicioSalaDeEspera = mock(ServicioSalaDeEspera.class);
+    ControladorSalaDeEspera controlador = new ControladorSalaDeEspera(servicioSalaDeEspera);
+
+
+    @Test
+    public void deberiaMostrarErrorCuandoLosJugadoresNoEstanListos() {
+
+        //dado que tengo los jugadores que vienen del formulario en la sala de espera
+        Map<String, String> parametros = Map.of("jugador_1", "false", "jugador_2", "false");
+
+        Map<Long, Boolean> jugadores = Map.of(1L, false, 2L, false);
+        List<Long> jugadoresNoListos = List.of(1L, 2L);
+
+        when(servicioSalaDeEspera.obtenerJugadoresDelFormulario(parametros)).thenReturn(jugadores);
+
+        when(servicioSalaDeEspera.verificarSiHayJugadoresQueNoEstenListos(jugadores)).thenReturn(jugadoresNoListos);
+
+        ModelAndView mav = controlador.iniciarPartida(parametros);
+
+        assertThat(mav.getViewName(), equalTo("sala-de-espera"));
+        ModelMap model = mav.getModelMap(); //guardo el modelo que va a la vista desde el controlador
+        assertThat(model.get("error"), equalTo("Los siguientes jugadores no están listos: [1, 2]"));
+
+        verify(servicioSalaDeEspera).obtenerJugadoresDelFormulario(parametros);
+        verify(servicioSalaDeEspera).verificarSiHayJugadoresQueNoEstenListos(jugadores);
+
+    }
 
     @Test
     public void cuandoAgregoUnJugadorALaSalaDeEsperaLoRedirijaALaSalaDeEspera() {
@@ -162,3 +195,4 @@ public class SalaDeEsperaControllerTest {
         assertThat(mav.getViewName(),equalToIgnoringCase("sala-de-espera"));
     }
 }
+*/

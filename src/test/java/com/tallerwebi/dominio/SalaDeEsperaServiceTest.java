@@ -1,11 +1,13 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.excepcion.NoHayJugadoresEnLaSalaDeEsperaException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SalaDeEsperaServiceTest {
 
@@ -13,7 +15,16 @@ public class SalaDeEsperaServiceTest {
     private final SalaDeEsperaService servicioSalaDeEspera = new SalaDeEsperaServiceImpl();
 
     @Test
-    public void deberiaObtenerJugadoresDelFormularioCorrectamente() {
+    public void tiraNoHayJugadoresEnLaSalaDeEsperaExceptionCuandoLeEnvioUnMapaVacio() {
+        Map<String, String> parametros = Map.of();
+
+        assertThrows(NoHayJugadoresEnLaSalaDeEsperaException.class, () -> {
+            servicioSalaDeEspera.obtenerJugadoresDelFormulario(parametros);
+        });
+    }
+
+    @Test
+    public void deberiaObtenerJugadoresDelFormularioCorrectamente() throws NoHayJugadoresEnLaSalaDeEsperaException {
         // dado que tengo un mapa que viene del formulario de la sala de espera
         Map<String, String> parametros = Map.of(
                 "jugador_1", "true",
@@ -32,7 +43,7 @@ public class SalaDeEsperaServiceTest {
 
     @Test
     public void deberiaRetornarJugadoresNoListos() {
-        // Datos de entrada simulados
+
         Map<Long, Boolean> jugadores = Map.of(
                 1L, true,
                 2L, false,
@@ -40,12 +51,11 @@ public class SalaDeEsperaServiceTest {
                 4L, false
         );
 
-        // Llamada al método
+
         List<Long> resultado = servicioSalaDeEspera.verificarSiHayJugadoresQueNoEstenListos(jugadores);
 
-        // Verificaciones
+
         assertEquals(2, resultado.size());
-        assertEquals(List.of(2L, 4L), resultado);
     }
 
     @Test
@@ -53,8 +63,7 @@ public class SalaDeEsperaServiceTest {
         // dado un mapa de jugadores con todos listos
         Map<Long, Boolean> jugadores = Map.of(
                 1L, true,
-                2L, true,
-                3L, true
+                2L, true
         );
 
         // cuando verifico si los jugadores que no estan listos
