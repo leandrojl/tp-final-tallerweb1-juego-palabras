@@ -97,7 +97,7 @@ public class JuegoController {
         // Si la partida está "EN_ESPERA", cambiarla a "EN_CURSO" al iniciar
         if (partida.getEstado() == Estado.EN_ESPERA) {
             partida.setEstado(Estado.EN_CURSO);
-            partidaRepository.actualizar(partida);
+            partidaRepository.actualizarEstado(partida.getId(), Estado.EN_CURSO);
         }
 
         // Verificar si necesitamos crear la primera ronda
@@ -116,11 +116,8 @@ public class JuegoController {
             // Crear nueva ronda
             rondaActual = new Ronda();
             rondaActual.setPartida(partida);
-            rondaActual.setPalabra(palabraTexto); // Si tienes este campo
-            rondaActual.setDefinicion(definicionSeleccionada.getDefinicion()); // Si tienes este campo
-            // O si prefieres guardar las entidades completas:
-            // rondaActual.setPalabra(palabraServicio.buscarPorTexto(palabraTexto));
-            // rondaActual.setDefinicion(definicionSeleccionada);
+            rondaActual.setPalabra(palabraTexto);
+            rondaActual.setDefinicion(definicionSeleccionada.getDefinicion());
             rondaActual.setNumeroDeRonda(1); // Primera ronda
             rondaActual.setEstado(Estado.EN_CURSO);
 
