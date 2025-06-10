@@ -3,6 +3,8 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.excepcion.PalabraNoDisponibleException;
+import com.tallerwebi.dominio.excepcion.PartidaInexistente;
+import com.tallerwebi.dominio.excepcion.UsuarioInexistente;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.infraestructura.AciertoRepository;
 import com.tallerwebi.infraestructura.PartidaRepository;
@@ -73,17 +75,17 @@ public class JuegoController {
     }
 
     @GetMapping
-    public ModelAndView mostrarVistaJuego(@RequestParam Long usuarioId,@RequestParam Long partidaId) {
+    public ModelAndView mostrarVistaJuego(@RequestParam Long usuarioId,@RequestParam Long partidaId) throws UsuarioInexistente, PartidaInexistente {
 
         // El usuario ya está registrado, solo lo obtenemos
         Usuario usuario = usuarioRepository.buscarPorId(usuarioId);
         if (usuario == null) {
-            throw new RuntimeException("Usuario no encontrado");
+            throw new UsuarioInexistente();
         }
         // La partida ya existe (viene del lobby), solo la obtenemos
         Partida2 partida = partidaRepository.buscarPorId(partidaId);
         if (partida == null) {
-            throw new RuntimeException("Partida no encontrada");
+            throw new PartidaInexistente();
         }
 
         // Verificar que el usuario está en esta partida
@@ -142,11 +144,11 @@ public class JuegoController {
         mov.addObject("usuarioId", usuarioId);
         mov.addObject("partidaId", partida.getId());
         mov.addObject("rondaActual", rondaActual.getNumeroDeRonda());
-        mov.addObject("palabra", obtenerPalabraDeRonda(rondaActual)); // Solo para debug, no mostrar en la vista real
+        mov.addObject("palabra", obtenerPalabraDeRonda(rondaActual)); //solo debug
         mov.addObject("jugadores", jugadoresView);
         mov.addObject("estadoPartida", partida.getEstado());
         mov.addObject("rondaId", rondaActual.getId());
-        mov.addObject("maxRondas", partida.getRondasTotales()); // O el límite de rondas que tengas definido
+        mov.addObject("maxRondas", partida.getRondasTotales());
         mov.addObject("nombrePartida", partida.getNombre());
 
         return mov;

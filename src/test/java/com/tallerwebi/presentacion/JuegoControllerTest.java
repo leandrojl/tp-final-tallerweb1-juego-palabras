@@ -1,20 +1,25 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
+import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.PartidaInexistente;
 import com.tallerwebi.dominio.excepcion.UsuarioInexistente;
-import com.tallerwebi.dominio.model.Jugador;
+import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.infraestructura.AciertoRepository;
 import com.tallerwebi.infraestructura.PartidaRepository;
 import com.tallerwebi.infraestructura.UsuarioPartidaRepository;
 import com.tallerwebi.infraestructura.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,46 +34,181 @@ public class JuegoControllerTest {
 
     @Mock
     private RondaService rondaServicio;
-    @Mock private PuntajeService puntajeServicio;
-    @Mock private PartidaService partidaServicio;
-    @Mock private UsuarioService usuarioServicio;
-    @Mock private PalabraService palabraServicio;
-    @Mock private AciertoService aciertoServicio;
+    @Mock
+    private PuntajeService puntajeServicio;
+    @Mock
+    private PartidaService partidaServicio;
+    @Mock
+    private UsuarioService usuarioServicio;
+    @Mock
+    private PalabraService palabraServicio;
+    @Mock
+    private AciertoService aciertoServicio;
 
-    @Mock private UsuarioRepository usuarioRepository;
-    @Mock private PartidaRepository partidaRepository;
-    @Mock private RondaRepository rondaRepository;
-    @Mock private PalabraRepository palabraRepository;
-    @Mock private UsuarioPartidaRepository usuarioPartidaRepository;
-    @Mock private AciertoRepository aciertoRepository;
+    @Mock
+    private UsuarioRepository usuarioRepository;
+    @Mock
+    private PartidaRepository partidaRepository;
+    @Mock
+    private RondaRepository rondaRepository;
+    @Mock
+    private PalabraRepository palabraRepository;
+    @Mock
+    private UsuarioPartidaRepository usuarioPartidaRepository;
+    @Mock
+    private AciertoRepository aciertoRepository;
+    private Usuario usuario;
+    private Partida2 partida;
+    private UsuarioPartida usuarioPartida;
+    private Ronda ronda;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this); // ← Acá se inicializan los mocks
+
+        usuario = new Usuario();
+        usuario.setId(1L);
+        usuario.setNombreUsuario("UsuarioTest");
+
+        partida = new Partida2();
+        partida.setId(1L);
+        partida.setNombre("PartidaTest");
+        partida.setEstado(Estado.EN_CURSO);
+        partida.setRondasTotales(3);
+        partida.setIdioma("Español");
+
+        usuarioPartida = new UsuarioPartida();
+        usuarioPartida.setUsuario(usuario);
+        usuarioPartida.setPartida(partida);
+        usuarioPartida.setPuntaje(100);
+
+        ronda = new Ronda();
+        ronda.setId(10L);
+        ronda.setNumeroDeRonda(1);
+        ronda.setEstado(Estado.EN_CURSO);
+        ronda.setPartida(partida);
+        ronda.setDefinicion("Definición de prueba");
+        ronda.setPalabra(new Palabra());
+    }
+
 
     @Test
     public void mostrarVistaJuego_lanzaException_siUsuarioNoExiste() {
-       Long usuarioId = 1L;
-       Long partidaId = 1L;
+        Long usuarioId = 1L;
+        Long partidaId = 1L;
 
-       when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(null);
+        when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(null);
 
-       RuntimeException exception = assertThrows(UsuarioInexistente.class,() -> {
+        Exception exception = assertThrows(UsuarioInexistente.class, () -> {
             controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
         });
 
     }
-/*
+
     @Test
-    public void queSeRecibaElIdJugadorAlCargarElJuego() {
-        String idJugador = "1";
-        ModelAndView mov = controladorJuego.mostrarVistaJuego(idJugador);
-        assertThat(mov.getViewName(), equalToIgnoringCase("juego"));
-        assertThat((String) mov.getModel().get("jugadorId"), equalToIgnoringCase(idJugador));
+    public void mostrarVistaJuego_lanzaException_siPartidaNoExiste() {
+        Long usuarioId = 1L;
+        Long partidaId = 1L;
+
+        when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(usuario);
+        when(partidaRepository.buscarPorId(partidaId)).thenReturn(null);
+
+        Exception exception = assertThrows(PartidaInexistente.class, () -> {
+            controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
+        });
     }
 
     @Test
-    public void queSeAgregueElJugadorALaPartida() {
-        String idJugador = "1";
-        controladorJuego.mostrarVistaJuego(idJugador);
-        assertEquals("Jugador_1", partidaServicio.obtenerPartida(idJugador).getNombre(idJugador));
+    public void queSeMuestreLaVistaJuego() throws Exception {
+        Long usuarioId = 1L;
+        Long partidaId = 1L;
+
+        when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(usuario);
+        when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
+        when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
+        when(rondaRepository.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
+        when(usuarioPartidaRepository.buscarPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida));
+
+        ModelAndView mov = controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
+
+        assertEquals("juego", mov.getViewName());
     }
+
+
+    @Test
+    public void queSeReciba_IdJugador_y_IdPartida_AlCargarElJuego() throws Exception {
+        Long usuarioId = 1L;
+        Long partidaId = 1L;
+
+        when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(usuario);
+        when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
+        when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
+        when(rondaRepository.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
+        when(usuarioPartidaRepository.buscarPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida));
+
+        ModelAndView mov = controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
+
+
+        assertEquals(usuarioId, mov.getModel().get("usuarioId"));
+        assertEquals(partidaId, mov.getModel().get("partidaId"));
+        assertEquals("Definición de prueba", mov.getModel().get("definicion"));
+    }
+
+    @Test
+    public void queSeAgreguenLosJugadoresAlModelo() throws Exception {
+        Long usuarioId = 1L;
+        Long partidaId = 1L;
+
+        when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(usuario);
+        when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
+        when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
+        when(rondaRepository.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
+
+        Usuario otroUsuario = new Usuario();
+        otroUsuario.setId(2L);
+        otroUsuario.setNombreUsuario("SegundoJugador");
+
+        UsuarioPartida usuarioPartida2 = new UsuarioPartida();
+        usuarioPartida2.setUsuario(otroUsuario);
+        usuarioPartida2.setPartida(partida);
+        usuarioPartida2.setPuntaje(80);
+
+        when(usuarioPartidaRepository.buscarPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida, usuarioPartida2));
+
+        ModelAndView mov = controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
+
+        List<Map<String, Object>> jugadores = (List<Map<String, Object>>) mov.getModel().get("jugadores");
+
+        assertNotNull(jugadores);
+        assertEquals(2, jugadores.size());
+        //jugadores.stream() Convierte la lista jugadores en un Stream, que permite recorrerla y aplicar filtros o búsquedas..
+        // anyMatch(...) Busca si algún elemento del stream cumple la condición que le paso.
+        assertTrue(jugadores.stream().anyMatch(j -> j.get("nombre").equals("UsuarioTest")));
+        assertTrue(jugadores.stream().anyMatch(j -> j.get("nombre").equals("SegundoJugador")));
+    }
+
+    @Test
+    public void queSeAgregueLaPalabraAlModelo() throws Exception {
+
+        Palabra palabrax = new Palabra();
+        palabrax.setDescripcion("palabraEjemplo");
+
+        ronda.setPalabra(palabrax);
+
+
+        when(usuarioRepository.buscarPorId(1L)).thenReturn(usuario);
+        when(partidaRepository.buscarPorId(1L)).thenReturn(partida);
+        when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(1L, 1L)).thenReturn(usuarioPartida);
+        when(rondaRepository.buscarRondaActivaPorPartidaId(1L)).thenReturn(ronda);
+        when(usuarioPartidaRepository.buscarPorPartidaId(1L)).thenReturn(List.of(usuarioPartida));
+
+        ModelAndView mov = controladorJuego.mostrarVistaJuego(1L, 1L);
+
+        assertEquals("palabraEjemplo", ((Palabra) ronda.getPalabra()).getDescripcion());
+    }
+
+/*
+
 
     @Test
     public void queSeRecibaElIntentoAlIntentarAcertar() {
