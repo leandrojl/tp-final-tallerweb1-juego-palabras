@@ -192,6 +192,11 @@ public class JuegoController {
             usuarioPartida.setPuntaje(usuarioPartida.getPuntaje() + puntos);
             usuarioPartidaService.actualizar(usuarioPartida);
 
+            // Registrar el acierto
+            Usuario usuario = usuarioPartida.getUsuario();
+            // Pasarle luego la palabra q acerto String palabraCorrecta = rondaActual.getPalabra().getDescripcion();
+            aciertoServicio.registrarAcierto(usuario, rondaActual);
+
             // Desactivar la ronda actual
             rondaServicio.desactivarRonda(rondaActual);
 
