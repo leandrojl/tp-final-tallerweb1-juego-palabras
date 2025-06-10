@@ -1,5 +1,7 @@
 package com.tallerwebi.integracion.config;
 
+import com.tallerwebi.helpers.HelperPalabra;
+import com.tallerwebi.helpers.IPalabraHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -71,4 +73,9 @@ public class SpringWebTestConfig implements WebMvcConfigurer {
         return viewResolver;
     }
 
+
+    @Bean
+    public IPalabraHelper palabraHelper() {
+        return new HelperPalabra(); // o la implementación concreta que uses
+    }
 }
