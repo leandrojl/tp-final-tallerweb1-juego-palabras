@@ -1,9 +1,7 @@
 package com.tallerwebi.dominio.model;
 
 import com.tallerwebi.dominio.Enum.Estado;
-
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,15 +9,22 @@ public class Ronda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne
+    @JoinColumn(name = "partida_id", nullable = false)
     private Partida2 partida;
-    @OneToOne
+
+    // CAMBIO AQUÍ: De @OneToOne a @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "palabra_id", nullable = false)
     private Palabra palabra;
+
     private String definicion;
     private int numeroDeRonda;
     private Estado estado;
-    private LocalDateTime fechaHora; //LocalDateTime es una clase que se mapea a datetime con huibernate, con .now() genera el horario actual.
+    private LocalDateTime fechaHora;
 
+    // Getters y setters permanecen igual...
     public Long getId() {
         return id;
     }

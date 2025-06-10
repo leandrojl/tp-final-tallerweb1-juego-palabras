@@ -7,7 +7,7 @@ import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Ronda;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -26,19 +26,37 @@ public class RondaServicioImpl implements RondaService {
         this.palabraService = palabraService;
     }
 
+    @Override
     public Ronda crearNuevaRonda(Partida2 partida, String idioma) {
-        // Usar palabraService para obtener palabra
         HashMap<Palabra, List<Definicion>> palabraYDef = palabraService.traerPalabraYDefinicion(idioma);
+        if (palabraYDef == null || palabraYDef.isEmpty()) {
+            throw new IllegalArgumentException("No se encontraron palabras para crear la ronda");
+        }
 
-        // Crear la ronda completa
+        Map.Entry<Palabra, List<Definicion>> entrada = palabraYDef.entrySet().iterator().next();
+        Palabra palabra = entrada.getKey();
+        palabra.setDefinicion(entrada.getValue());
+        palabra.setIdioma(idioma.equalsIgnoreCase("Castellano") ? "es" : "en");
+
         Ronda ronda = new Ronda();
         ronda.setPartida(partida);
-        ronda.setPalabra(extraerPalabra(palabraYDef, idioma)); // Pasar el idioma
+        ronda.setPalabra(palabra);
         ronda.setEstado(Estado.EN_CURSO);
         ronda.setFechaHora(LocalDateTime.now());
 
+        // Asignar el número de ronda correcto
+        Ronda ultimaRonda = rondaRepository.buscarUltimaRondaDePartida(partida);
+        int nuevoNumero = (ultimaRonda == null) ? 1 : ultimaRonda.getNumeroDeRonda() + 1;
+        ronda.setNumeroDeRonda(nuevoNumero);
+
+        // Asignar la definición (ejemplo: la primera definición)
+        if (!entrada.getValue().isEmpty()) {
+            ronda.setDefinicion(entrada.getValue().get(0).getDefinicion());
+        }
+
         return rondaRepository.guardar(ronda);
     }
+
 
     private Palabra extraerPalabra(HashMap<Palabra, List<Definicion>> palabraYDef, String idioma) {
         // Verificar que el HashMap no esté vacío

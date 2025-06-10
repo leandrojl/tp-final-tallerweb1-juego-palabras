@@ -57,8 +57,10 @@ public class PalabraServiceTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertTrue(resultado.containsKey("Casa"));
-        assertEquals(definicionesMock, resultado.get("Casa"));
+
+        // Corregido: usar el objeto Palabra como clave, no el String
+        assertTrue(resultado.containsKey(palabraMock));
+        assertEquals(definicionesMock, resultado.get(palabraMock));
     }
 
     @Test
@@ -76,7 +78,10 @@ public class PalabraServiceTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertTrue(resultado.containsKey("Casa"));
+
+        // Corregido: usar el objeto Palabra como clave
+        assertTrue(resultado.containsKey(palabraMock));
+        assertEquals(definicionesMock, resultado.get(palabraMock));
     }
 
     @Test
@@ -93,7 +98,10 @@ public class PalabraServiceTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertTrue(resultado.containsKey("Casa"));
+
+        // Corregido: usar el objeto Palabra como clave
+        assertTrue(resultado.containsKey(palabraMock));
+        assertEquals(definicionesMock, resultado.get(palabraMock));
     }
 
     @Test
@@ -108,6 +116,9 @@ public class PalabraServiceTest {
         verify(palabraRepository).buscarPorIdioma("en");
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
+
+        // Corregido: usar el objeto Palabra como clave
+        assertTrue(resultado.containsKey(palabraMock));
     }
 
     @Test
@@ -126,11 +137,11 @@ public class PalabraServiceTest {
     @Test
     void traerPalabraYDefinicion_ConVariasPalabras_DeberiaSeleccionarUnaAleatoriamente() {
         // Given
-        List<Palabra> variasPalabras = Arrays.asList(
-                crearPalabra("Casa", "es", definicionesMock),
-                crearPalabra("Perro", "es", definicionesMock),
-                crearPalabra("Gato", "es", definicionesMock)
-        );
+        Palabra palabra1 = crearPalabra("Casa", "es", definicionesMock);
+        Palabra palabra2 = crearPalabra("Perro", "es", definicionesMock);
+        Palabra palabra3 = crearPalabra("Gato", "es", definicionesMock);
+
+        List<Palabra> variasPalabras = Arrays.asList(palabra1, palabra2, palabra3);
         when(palabraRepository.buscarTodas()).thenReturn(variasPalabras);
 
         // When
@@ -142,8 +153,11 @@ public class PalabraServiceTest {
 
         // Verificar que la palabra seleccionada está en la lista original
         Palabra palabraSeleccionada = resultado.keySet().iterator().next();
-        List<String> palabrasEsperadas = Arrays.asList("Casa", "Perro", "Gato");
-        assertTrue(palabrasEsperadas.contains(palabraSeleccionada));
+        assertTrue(variasPalabras.contains(palabraSeleccionada));
+
+        // Verificar que la descripción es una de las esperadas
+        List<String> descripciones = Arrays.asList("Casa", "Perro", "Gato");
+        assertTrue(descripciones.contains(palabraSeleccionada.getDescripcion()));
     }
 
     @Test
@@ -158,11 +172,14 @@ public class PalabraServiceTest {
         assertNotNull(resultado);
         assertFalse(resultado.isEmpty());
 
-        // Verificar que cada entrada tiene una clave (descripción) y valor (lista de definiciones)
+        // Verificar que cada entrada tiene una clave (Palabra) y valor (lista de definiciones)
         for (Map.Entry<Palabra, List<Definicion>> entry : resultado.entrySet()) {
             assertNotNull(entry.getKey());
             assertNotNull(entry.getValue());
             assertFalse(entry.getValue().isEmpty());
+
+            // Verificar que la clave es una instancia de Palabra
+            assertTrue(entry.getKey() instanceof Palabra);
         }
     }
 

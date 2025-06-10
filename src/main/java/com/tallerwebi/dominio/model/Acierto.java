@@ -1,6 +1,9 @@
 package com.tallerwebi.dominio.model;
 
-import javax.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+import jakarta.persistence.*;
 
 @Entity
 public class Acierto {

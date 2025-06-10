@@ -22,9 +22,10 @@ public class RondaRepositoryImpl implements RondaRepository {
 
     @Override
     public Ronda guardar(Ronda ronda) {
-        sessionFactory.getCurrentSession().save(ronda);
+        sessionFactory.getCurrentSession().saveOrUpdate(ronda);
         return ronda;
     }
+
 
     @Override
     public Ronda buscarPorId(Long id) {

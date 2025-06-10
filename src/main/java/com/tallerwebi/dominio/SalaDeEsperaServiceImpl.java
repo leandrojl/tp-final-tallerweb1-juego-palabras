@@ -3,7 +3,7 @@ package com.tallerwebi.dominio;
 import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

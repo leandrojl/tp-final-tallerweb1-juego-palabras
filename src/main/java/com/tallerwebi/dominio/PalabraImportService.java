@@ -1,42 +1,42 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.helpers.HelperPalabra;
-import com.tallerwebi.dominio.PalabraRepository;
 import com.tallerwebi.dominio.model.Palabra;
 import com.tallerwebi.dominio.model.Definicion;
+import com.tallerwebi.helpers.IPalabraHelper;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 @Service
 @Transactional
 public class PalabraImportService {
 
-    private final PalabraRepositoryImpl palabraRepository;
+    private final PalabraRepository palabraRepository;
+    private final IPalabraHelper palabraHelper;
 
-    public PalabraImportService(PalabraRepository palabraRepository) {
-        this.palabraRepository = (PalabraRepositoryImpl) palabraRepository;
+    public PalabraImportService(PalabraRepository palabraRepository, IPalabraHelper palabraHelper) {
+        this.palabraRepository = palabraRepository;
+        this.palabraHelper = palabraHelper;
     }
 
     public void importarPalabraDesdeAPI(String idioma) {
-        HelperPalabra helper = new HelperPalabra();
+        Map<String, List<String>> palabras = palabraHelper.getPalabraYDescripcion(idioma);
+        if (palabras == null) return;
 
-        Map<String, List<String>> palabraYDescripcion = helper.getPalabraYDescripcion(idioma);
-        for (Map.Entry<String, List<String>> entry : palabraYDescripcion.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : palabras.entrySet()) {
             Palabra palabra = new Palabra();
             palabra.setDescripcion(entry.getKey());
             palabra.setIdioma(idioma.equalsIgnoreCase("Castellano") ? "es" : "en");
-
-            List<Definicion> definiciones = new ArrayList<>();
+            List<Definicion> defs = new ArrayList<>();
             for (String def : entry.getValue()) {
-                definiciones.add(new Definicion(def));
+                defs.add(new Definicion(def));
             }
-            palabra.setDefinicion(definiciones);
-
+            palabra.setDefinicion(defs);
             palabraRepository.guardar(palabra);
         }
     }
 }
+

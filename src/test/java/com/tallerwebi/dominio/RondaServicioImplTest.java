@@ -11,9 +11,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,21 +31,15 @@ class RondaServicioImplTest {
     private Partida2 partida;
     private HashMap<Palabra, List<Definicion>> palabraYDefiniciones;
     private List<Definicion> definiciones;
-    private Ronda rondaEsperada;
 
     @BeforeEach
     void setUp() {
-        // Inicializar mocks
         MockitoAnnotations.openMocks(this);
-
-        // Crear la instancia manualmente ya que no usamos @InjectMocks
         rondaServicio = new RondaServicioImpl(rondaRepository, palabraService);
 
-        // Configurar partida mock
         partida = new Partida2();
         partida.setId(1L);
 
-        // Configurar definiciones
         definiciones = new ArrayList<>();
         Definicion def1 = new Definicion();
         def1.setDefinicion("Primera definición");
@@ -55,69 +48,43 @@ class RondaServicioImplTest {
         definiciones.add(def1);
         definiciones.add(def2);
 
-        // Configurar HashMap de palabra y definiciones
         palabraYDefiniciones = new HashMap<>();
         Palabra palabra = new Palabra();
         palabra.setDescripcion("casa");
         palabraYDefiniciones.put(palabra, definiciones);
-
-        // Configurar ronda esperada
-        rondaEsperada = new Ronda();
-        rondaEsperada.setId(1L);
-        rondaEsperada.setPartida(partida);
-        rondaEsperada.setEstado(Estado.EN_CURSO);
     }
 
     @Test
     void deberia_crear_nueva_ronda_exitosamente_con_idioma_castellano() {
-        // Given
         String idioma = "Castellano";
+
         when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(palabraYDefiniciones);
+        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Mock que devuelve la misma ronda que recibe (simulando persistencia)
-        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> {
-            Ronda ronda = invocation.getArgument(0);
-            ronda.setId(1L); // Simular que se asignó un ID
-            return ronda;
-        });
-
-        // When
         Ronda resultado = rondaServicio.crearNuevaRonda(partida, idioma);
 
-        // Then
         assertNotNull(resultado);
         assertEquals(Estado.EN_CURSO, resultado.getEstado());
         assertEquals(partida, resultado.getPartida());
         assertNotNull(resultado.getFechaHora());
-        assertNotNull(resultado.getId());
 
-        // Verificar que se llamaron los métodos correctos
         verify(palabraService, times(1)).traerPalabraYDefinicion(idioma);
         verify(rondaRepository, times(1)).guardar(any(Ronda.class));
     }
 
     @Test
     void deberia_crear_nueva_ronda_exitosamente_con_idioma_ingles() {
-        // Given
         String idioma = "English";
+
         when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(palabraYDefiniciones);
+        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Mock que devuelve la misma ronda que recibe (simulando persistencia)
-        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> {
-            Ronda ronda = invocation.getArgument(0);
-            ronda.setId(1L); // Simular que se asignó un ID
-            return ronda;
-        });
-
-        // When
         Ronda resultado = rondaServicio.crearNuevaRonda(partida, idioma);
 
-        // Then
         assertNotNull(resultado);
         assertEquals(Estado.EN_CURSO, resultado.getEstado());
         assertEquals(partida, resultado.getPartida());
         assertNotNull(resultado.getFechaHora());
-        assertNotNull(resultado.getId());
 
         verify(palabraService, times(1)).traerPalabraYDefinicion(idioma);
         verify(rondaRepository, times(1)).guardar(any(Ronda.class));
@@ -125,21 +92,13 @@ class RondaServicioImplTest {
 
     @Test
     void deberia_configurar_palabra_correctamente_con_idioma_castellano() {
-        // Given
         String idioma = "Castellano";
+
         when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(palabraYDefiniciones);
+        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Capturar la ronda que se guarda para verificar la palabra
-        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> {
-            Ronda ronda = invocation.getArgument(0);
-            ronda.setId(1L);
-            return ronda;
-        });
-
-        // When
         Ronda resultado = rondaServicio.crearNuevaRonda(partida, idioma);
 
-        // Then
         Palabra palabra = resultado.getPalabra();
         assertNotNull(palabra);
         assertEquals("casa", palabra.getDescripcion());
@@ -149,20 +108,13 @@ class RondaServicioImplTest {
 
     @Test
     void deberia_configurar_palabra_correctamente_con_idioma_ingles() {
-        // Given
         String idioma = "English";
+
         when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(palabraYDefiniciones);
+        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> {
-            Ronda ronda = invocation.getArgument(0);
-            ronda.setId(1L);
-            return ronda;
-        });
-
-        // When
         Ronda resultado = rondaServicio.crearNuevaRonda(partida, idioma);
 
-        // Then
         Palabra palabra = resultado.getPalabra();
         assertNotNull(palabra);
         assertEquals("casa", palabra.getDescripcion());
@@ -172,106 +124,83 @@ class RondaServicioImplTest {
 
     @Test
     void deberia_lanzar_excepcion_cuando_palabraYDef_es_null() {
-        // Given
         String idioma = "Castellano";
         when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(null);
 
-        // When & Then
-        IllegalArgumentException excepcion = assertThrows(
-                IllegalArgumentException.class,
-                () -> rondaServicio.crearNuevaRonda(partida, idioma)
-        );
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            rondaServicio.crearNuevaRonda(partida, idioma);
+        });
 
-        assertEquals("No se encontraron palabras para crear la ronda", excepcion.getMessage());
+        assertEquals("No se encontraron palabras para crear la ronda", thrown.getMessage());
         verify(rondaRepository, never()).guardar(any(Ronda.class));
     }
 
     @Test
     void deberia_lanzar_excepcion_cuando_palabraYDef_esta_vacio() {
-        // Given
         String idioma = "Castellano";
-        HashMap<Palabra, List<Definicion>> hashMapVacio = new HashMap<>();
-        when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(hashMapVacio);
+        when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(new HashMap<>());
 
-        // When & Then
-        IllegalArgumentException excepcion = assertThrows(
-                IllegalArgumentException.class,
-                () -> rondaServicio.crearNuevaRonda(partida, idioma)
-        );
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            rondaServicio.crearNuevaRonda(partida, idioma);
+        });
 
-        assertEquals("No se encontraron palabras para crear la ronda", excepcion.getMessage());
+        assertEquals("No se encontraron palabras para crear la ronda", thrown.getMessage());
         verify(rondaRepository, never()).guardar(any(Ronda.class));
     }
 
     @Test
     void deberia_asignar_fecha_y_hora_actual_a_la_ronda() {
-        // Given
         String idioma = "Castellano";
-        LocalDateTime antesDeEjecucion = LocalDateTime.now();
+        LocalDateTime antes = LocalDateTime.now();
+
         when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(palabraYDefiniciones);
+        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> {
-            Ronda ronda = invocation.getArgument(0);
-            ronda.setId(1L);
-            return ronda;
-        });
-
-        // When
         Ronda resultado = rondaServicio.crearNuevaRonda(partida, idioma);
-        LocalDateTime despuesDeEjecucion = LocalDateTime.now();
+        LocalDateTime despues = LocalDateTime.now();
 
-        // Then
         assertNotNull(resultado.getFechaHora());
-        assertTrue(resultado.getFechaHora().isAfter(antesDeEjecucion) ||
-                resultado.getFechaHora().isEqual(antesDeEjecucion));
-        assertTrue(resultado.getFechaHora().isBefore(despuesDeEjecucion) ||
-                resultado.getFechaHora().isEqual(despuesDeEjecucion));
+        assertTrue(!resultado.getFechaHora().isBefore(antes));
+        assertTrue(!resultado.getFechaHora().isAfter(despues));
     }
 
     @Test
     void deberia_manejar_correctamente_multiples_palabras_en_hashmap() {
-        // Given
         String idioma = "Castellano";
-        HashMap<Palabra, List<Definicion>> multiplesPalabras = new HashMap<>();
-        Palabra palabra1 = new Palabra();
-        Palabra palabra2 = new Palabra();
-        palabra1.setDescripcion("casa");
-        palabra2.setDescripcion("perro");
-        multiplesPalabras.put(palabra1, definiciones);
-        multiplesPalabras.put(palabra2, new ArrayList<>());
+        HashMap<Palabra, List<Definicion>> multiples = new HashMap<>();
 
-        when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(multiplesPalabras);
-        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> {
-            Ronda ronda = invocation.getArgument(0);
-            ronda.setId(1L);
-            return ronda;
-        });
+        Palabra p1 = new Palabra();
+        p1.setDescripcion("casa");
+        Palabra p2 = new Palabra();
+        p2.setDescripcion("perro");
 
-        // When
+        multiples.put(p1, definiciones);
+        multiples.put(p2, new ArrayList<>());
+
+        when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(multiples);
+        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         Ronda resultado = rondaServicio.crearNuevaRonda(partida, idioma);
 
-        // Then
         assertNotNull(resultado);
         assertNotNull(resultado.getPalabra());
-        // Debería tomar una de las palabras disponibles
-        assertTrue(multiplesPalabras.containsKey(resultado.getPalabra().getDescripcion()));
+
+        Set<String> descripciones = multiples.keySet().stream()
+                .map(Palabra::getDescripcion)
+                .collect(Collectors.toSet());
+
+        assertTrue(descripciones.contains(resultado.getPalabra().getDescripcion()));
     }
 
     @Test
     void deberia_verificar_que_ronda_tiene_todos_los_campos_requeridos() {
-        // Given
         String idioma = "Castellano";
-        when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(palabraYDefiniciones);
-        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> {
-            Ronda ronda = invocation.getArgument(0);
-            ronda.setId(1L);
-            return ronda;
-        });
 
-        // When
+        when(palabraService.traerPalabraYDefinicion(idioma)).thenReturn(palabraYDefiniciones);
+        when(rondaRepository.guardar(any(Ronda.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         Ronda resultado = rondaServicio.crearNuevaRonda(partida, idioma);
 
-        // Then - Verificar todos los campos obligatorios
         assertNotNull(resultado.getPartida(), "La partida no debe ser null");
         assertNotNull(resultado.getPalabra(), "La palabra no debe ser null");
         assertNotNull(resultado.getEstado(), "El estado no debe ser null");

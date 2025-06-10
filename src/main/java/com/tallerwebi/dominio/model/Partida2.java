@@ -2,7 +2,7 @@ package com.tallerwebi.dominio.model;
 
 import com.tallerwebi.dominio.Enum.Estado;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity

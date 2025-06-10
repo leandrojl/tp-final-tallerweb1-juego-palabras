@@ -3,7 +3,7 @@ package com.tallerwebi.dominio.model;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida2;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 public class UsuarioPartida {

@@ -4,10 +4,12 @@ import com.tallerwebi.dominio.PalabraRepositoryImpl;
 import com.tallerwebi.dominio.model.Palabra;
 import com.tallerwebi.dominio.model.Definicion;
 import com.tallerwebi.integracion.config.HibernateTestConfig;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +19,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringJUnitConfig(HibernateTestConfig.class)
+@SpringJUnitConfig(HibernateTestConfig.class) // Combina @ExtendWith(SpringExtension.class) y @ContextConfiguration
 @Transactional
+@Rollback
 public class PalabraRepositoryImplTest {
 
     @Autowired
@@ -29,17 +32,17 @@ public class PalabraRepositoryImplTest {
     @BeforeEach
     void setUp() {
         palabraRepository = new PalabraRepositoryImpl(sessionFactory);
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery("DELETE FROM Definicion").executeUpdate(); // Primero definiciones por FK
+        session.createQuery("DELETE FROM Palabra").executeUpdate();
     }
 
     @Test
     void guardar_DeberiaGuardarPalabraEnBaseDeDatos() {
-        // Given
         Palabra palabra = crearPalabra("Casa", "es");
 
-        // When
         palabraRepository.guardar(palabra);
 
-        // Then
         List<Palabra> palabras = palabraRepository.buscarTodas();
         assertFalse(palabras.isEmpty());
         assertEquals("Casa", palabras.get(0).getDescripcion());
@@ -48,17 +51,11 @@ public class PalabraRepositoryImplTest {
 
     @Test
     void buscarPorIdioma_ConIdiomaEspanol_DeberiaRetornarSoloPalabrasEnEspanol() {
-        // Given
-        Palabra palabraEs = crearPalabra("Casa", "es");
-        Palabra palabraEn = crearPalabra("House", "en");
+        palabraRepository.guardar(crearPalabra("Casa", "es"));
+        palabraRepository.guardar(crearPalabra("House", "en"));
 
-        palabraRepository.guardar(palabraEs);
-        palabraRepository.guardar(palabraEn);
-
-        // When
         List<Palabra> resultado = palabraRepository.buscarPorIdioma("es");
 
-        // Then
         assertEquals(1, resultado.size());
         assertEquals("Casa", resultado.get(0).getDescripcion());
         assertEquals("es", resultado.get(0).getIdioma());
@@ -66,17 +63,11 @@ public class PalabraRepositoryImplTest {
 
     @Test
     void buscarPorIdioma_ConIdiomaIngles_DeberiaRetornarSoloPalabrasEnIngles() {
-        // Given
-        Palabra palabraEs = crearPalabra("Casa", "es");
-        Palabra palabraEn = crearPalabra("House", "en");
+        palabraRepository.guardar(crearPalabra("Casa", "es"));
+        palabraRepository.guardar(crearPalabra("House", "en"));
 
-        palabraRepository.guardar(palabraEs);
-        palabraRepository.guardar(palabraEn);
-
-        // When
         List<Palabra> resultado = palabraRepository.buscarPorIdioma("en");
 
-        // Then
         assertEquals(1, resultado.size());
         assertEquals("House", resultado.get(0).getDescripcion());
         assertEquals("en", resultado.get(0).getIdioma());
@@ -84,35 +75,23 @@ public class PalabraRepositoryImplTest {
 
     @Test
     void buscarPorIdioma_ConIdiomaInexistente_DeberiaRetornarListaVacia() {
-        // Given
-        Palabra palabra = crearPalabra("Casa", "es");
-        palabraRepository.guardar(palabra);
+        palabraRepository.guardar(crearPalabra("Casa", "es"));
 
-        // When
         List<Palabra> resultado = palabraRepository.buscarPorIdioma("fr");
 
-        // Then
         assertTrue(resultado.isEmpty());
     }
 
     @Test
     void buscarTodas_DeberiaRetornarTodasLasPalabras() {
-        // Given
-        Palabra palabra1 = crearPalabra("Casa", "es");
-        Palabra palabra2 = crearPalabra("House", "en");
-        Palabra palabra3 = crearPalabra("Perro", "es");
+        palabraRepository.guardar(crearPalabra("Casa", "es"));
+        palabraRepository.guardar(crearPalabra("House", "en"));
+        palabraRepository.guardar(crearPalabra("Perro", "es"));
 
-        palabraRepository.guardar(palabra1);
-        palabraRepository.guardar(palabra2);
-        palabraRepository.guardar(palabra3);
-
-        // When
         List<Palabra> resultado = palabraRepository.buscarTodas();
 
-        // Then
         assertEquals(3, resultado.size());
 
-        // Verificar que están todas las palabras
         List<String> descripciones = Arrays.asList("Casa", "House", "Perro");
         for (Palabra palabra : resultado) {
             assertTrue(descripciones.contains(palabra.getDescripcion()));
@@ -121,48 +100,36 @@ public class PalabraRepositoryImplTest {
 
     @Test
     void buscarTodas_SinPalabras_DeberiaRetornarListaVacia() {
-        // When
         List<Palabra> resultado = palabraRepository.buscarTodas();
-
-        // Then
         assertTrue(resultado.isEmpty());
     }
 
     @Test
     void contar_ConVariasPalabras_DeberiaRetornarCantidadCorrecta() {
-        // Given
         palabraRepository.guardar(crearPalabra("Casa", "es"));
         palabraRepository.guardar(crearPalabra("House", "en"));
         palabraRepository.guardar(crearPalabra("Perro", "es"));
 
-        // When
         Long cantidad = palabraRepository.contar();
 
-        // Then
-        assertEquals(Long.valueOf(3), cantidad);
+        assertEquals(3L, cantidad);
     }
 
     @Test
     void contar_SinPalabras_DeberiaRetornarCero() {
-        // When
         Long cantidad = palabraRepository.contar();
-
-        // Then
-        assertEquals(Long.valueOf(0), cantidad);
+        assertEquals(0L, cantidad);
     }
 
     @Test
     void buscarPorIdioma_ConVariasPalabrasDelMismoIdioma_DeberiaRetornarTodas() {
-        // Given
         palabraRepository.guardar(crearPalabra("Casa", "es"));
         palabraRepository.guardar(crearPalabra("Perro", "es"));
         palabraRepository.guardar(crearPalabra("Gato", "es"));
         palabraRepository.guardar(crearPalabra("House", "en"));
 
-        // When
         List<Palabra> resultado = palabraRepository.buscarPorIdioma("es");
 
-        // Then
         assertEquals(3, resultado.size());
         for (Palabra palabra : resultado) {
             assertEquals("es", palabra.getIdioma());
@@ -171,16 +138,13 @@ public class PalabraRepositoryImplTest {
 
     @Test
     void guardar_PalabraConDefiniciones_DeberiaGuardarCorrectamente() {
-        // Given
         Palabra palabra = crearPalabra("Casa", "es");
         Definicion def1 = crearDefinicion("Lugar donde vive una familia");
         Definicion def2 = crearDefinicion("Edificio para habitar");
         palabra.setDefinicion(Arrays.asList(def1, def2));
 
-        // When
         palabraRepository.guardar(palabra);
 
-        // Then
         List<Palabra> palabras = palabraRepository.buscarTodas();
         assertEquals(1, palabras.size());
 

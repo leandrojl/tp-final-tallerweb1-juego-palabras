@@ -6,11 +6,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class HelperPalabra {
+public class HelperPalabra implements IPalabraHelper {
 
-    private static final String  rutaArchivoPalabrasEnCastellano = "src/main/resources/palabrasEnCastellano.txt";
-    private static final String rutaArchivoPalabrasEnIngles="src/main/resources/palabrasEnIngles.txt";
+    private static final String rutaArchivoPalabrasEnCastellano = "src/main/resources/palabrasEnCastellano.txt";
+    private static final String rutaArchivoPalabrasEnIngles = "src/main/resources/palabrasEnIngles.txt";
 
+    @Override
     public Map<String, List<String>> getPalabraYDescripcion(String idioma) {
         Map<String, List<String>> palabraYDescripcion = new HashMap<>();
         String palabra = getPalabra(idioma);
@@ -19,15 +20,17 @@ public class HelperPalabra {
         return palabraYDescripcion;
     }
 
-
+    @Override
     public String getPalabra(String idioma) {
         Random random = new Random();
-        try{
+        try {
             String rutaArchivoPalabras;
-            switch (idioma){
-                case "Castellano": rutaArchivoPalabras = rutaArchivoPalabrasEnCastellano; break;
-
-                default: rutaArchivoPalabras = rutaArchivoPalabrasEnIngles;
+            switch (idioma) {
+                case "Castellano":
+                    rutaArchivoPalabras = rutaArchivoPalabrasEnCastellano;
+                    break;
+                default:
+                    rutaArchivoPalabras = rutaArchivoPalabrasEnIngles;
             }
             List<String> listaDePalabras = Files.readAllLines(Paths.get(rutaArchivoPalabras), StandardCharsets.ISO_8859_1);
             int indice = random.nextInt(listaDePalabras.size());
@@ -37,9 +40,9 @@ public class HelperPalabra {
         }
     }
 
-
+    @Override
     public List<String> getDefinicion(String palabra, String idioma) {
         com.tallerwebi.helpers.HelperDefinicion hd = new com.tallerwebi.helpers.HelperDefinicion();
-        return  HelperDefinicion.obtenerDescripcionDesdeWikidata(palabra, idioma);
+        return HelperDefinicion.obtenerDescripcionDesdeWikidata(palabra, idioma);
     }
 }

@@ -2,7 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.model.Jugador;
-import com.tallerwebi.dominio.model.Partida;
+import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Usuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,7 @@ import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class LobbyControllerTest {
 
         Model model = new ExtendedModelMap();
         HttpSession session = mock(HttpSession.class);
-        List<Partida> partidasMock = List.of(new Partida(), new Partida(), new Partida());
+        List<Partida2> partidasMock = List.of(new Partida2(), new Partida2(), new Partida2());
 
         when(session.getAttribute("usuario")).thenReturn(new Usuario("july3p"));
         model.addAttribute("partidas", partidasMock);

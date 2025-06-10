@@ -1,5 +1,9 @@
 package com.tallerwebi.config;
 
+import com.tallerwebi.dominio.PalabraImportService;
+import com.tallerwebi.dominio.PalabraRepository;
+import com.tallerwebi.helpers.HelperPalabra;
+import com.tallerwebi.helpers.IPalabraHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -8,9 +12,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.thymeleaf.spring5.SpringTemplateEngine;
-import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
-import org.thymeleaf.spring5.view.ThymeleafViewResolver;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
+import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 
 @EnableWebMvc
@@ -71,6 +75,16 @@ public class SpringWebConfig implements WebMvcConfigurer {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
         viewResolver.setTemplateEngine(templateEngine());
         return viewResolver;
+    }
+
+    @Bean
+    public IPalabraHelper palabraHelper() {
+        return new HelperPalabra(); // el helper que hace llamadas reales a la API
+    }
+
+    @Bean
+    public PalabraImportService palabraImportService(PalabraRepository repo, IPalabraHelper helper) {
+        return new PalabraImportService(repo, helper);
     }
 
 }

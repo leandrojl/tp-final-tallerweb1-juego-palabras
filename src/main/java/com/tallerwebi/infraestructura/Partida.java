@@ -1,7 +1,6 @@
 
-package com.tallerwebi.dominio.model;
+package com.tallerwebi.infraestructura;
 
-import javax.persistence.Id;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
