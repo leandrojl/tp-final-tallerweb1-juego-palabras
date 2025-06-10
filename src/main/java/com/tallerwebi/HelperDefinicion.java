@@ -28,7 +28,7 @@ public class HelperDefinicion {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             JSONObject json = new JSONObject(response.body());
             JSONArray resultados = json.getJSONArray("search");
-
+            System.out.printf(String.valueOf(resultados));
             if (resultados.length() > 0) {
                 List<String> descripciones = new ArrayList<>();
                 for (int i = 0; i < resultados.length(); i++) {
