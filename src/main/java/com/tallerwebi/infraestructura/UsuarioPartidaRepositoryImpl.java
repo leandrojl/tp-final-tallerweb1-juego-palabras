@@ -20,13 +20,13 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository{
     }
 
     @Override
-    public void guardar(Partida2 partida) {
-        sessionFactory.getCurrentSession().save(partida);
+    public void guardar(UsuarioPartida usuarioPartida) {
+        sessionFactory.getCurrentSession().save(usuarioPartida);
     }
 
     @Override
-    public void borrar(Partida2 partida) {
-        sessionFactory.getCurrentSession().delete(partida);
+    public void borrar(UsuarioPartida usuarioPartida) {
+        sessionFactory.getCurrentSession().delete(usuarioPartida);
     }
 
     @Override
@@ -41,12 +41,22 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository{
     }
 
     @Override
-    public List<UsuarioPartida> buscarPorPartidaId(Long id) {
+    public List<UsuarioPartida> buscarListaDeUsuariosPartidaPorPartidaId(Long partidaId) {
         final Session session = sessionFactory.getCurrentSession();
         return session.createQuery(
                         "FROM UsuarioPartida up WHERE up.partida.id = :partidaId",
                         UsuarioPartida.class)
-                .setParameter("partidaId", id)
+                .setParameter("partidaId", partidaId)
                 .list();
+    }
+
+    @Override
+    public UsuarioPartida buscarPorUsuarioId(Long usuarioId) {
+        final Session session = sessionFactory.getCurrentSession();
+        return session.createQuery(
+                        "FROM UsuarioPartida up WHERE up.usuarioId.id = :usuarioId",
+                        UsuarioPartida.class)
+                .setParameter("usuarioId", usuarioId)
+                .uniqueResult();
     }
 }

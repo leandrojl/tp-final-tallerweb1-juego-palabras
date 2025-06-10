@@ -100,6 +100,14 @@ public class RondaRepositoryImpl implements RondaRepository {
 
     @Override
     public Ronda buscarRondaActivaPorPartidaId(Long id) {
-        return null;
+        String hql = "FROM Ronda r WHERE r.partida.id = :partidaId AND r.estado = :estado";
+        List<Ronda> resultado = sessionFactory.getCurrentSession()
+                .createQuery(hql, Ronda.class)
+                .setParameter("partidaId", id)
+                .setParameter("estado", Estado.EN_CURSO)
+                .setMaxResults(1)
+                .list();
+        return resultado.isEmpty() ? null : resultado.get(0);
     }
+
 }

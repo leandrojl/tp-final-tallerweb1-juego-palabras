@@ -26,7 +26,16 @@ public class RondaServicioImpl implements RondaService {
         this.palabraService = palabraService;
     }
 
+    @Override
     public Ronda crearNuevaRonda(Partida2 partida, String idioma) {
+        Long cantidadRondasActuales = rondaRepository.contarRondasDePartida(partida);
+        if (cantidadRondasActuales == null) {
+            cantidadRondasActuales = 0L;
+        }
+        if (cantidadRondasActuales >= partida.getRondasTotales()) {
+            throw new IllegalStateException("Ya se jugaron todas las rondas permitidas para esta partida.");
+        }
+
         // Usar palabraService para obtener palabra
         HashMap<Palabra, List<Definicion>> palabraYDef = palabraService.traerPalabraYDefinicion(idioma);
 
@@ -36,11 +45,13 @@ public class RondaServicioImpl implements RondaService {
         ronda.setPalabra(extraerPalabra(palabraYDef, idioma)); // Pasar el idioma
         ronda.setEstado(Estado.EN_CURSO);
         ronda.setFechaHora(LocalDateTime.now());
+        ronda.setNumeroDeRonda(cantidadRondasActuales + 1);
 
         return rondaRepository.guardar(ronda);
     }
 
-    private Palabra extraerPalabra(HashMap<Palabra, List<Definicion>> palabraYDef, String idioma) {
+    @Override
+    public Palabra extraerPalabra(HashMap<Palabra, List<Definicion>> palabraYDef, String idioma) {
         // Verificar que el HashMap no esté vacío
         if (palabraYDef == null || palabraYDef.isEmpty()) {
             throw new IllegalArgumentException("No se encontraron palabras para crear la ronda");
@@ -57,5 +68,11 @@ public class RondaServicioImpl implements RondaService {
         palabra.setIdioma(idioma.equalsIgnoreCase("Castellano") ? "es" : "en");
 
         return palabra;
+    }
+
+    @Override
+    public void desactivarRonda(Ronda rondaActual) {
+        rondaActual.setEstado(Estado.FINALIZADA);
+        rondaRepository.actualizar(rondaActual);
     }
 }

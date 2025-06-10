@@ -1,7 +1,16 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida;
+import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.model.Usuario;
+import com.tallerwebi.dominio.model.UsuarioPartida;
+import com.tallerwebi.infraestructura.PartidaRepository;
+import com.tallerwebi.infraestructura.UsuarioPartidaRepository;
+import com.tallerwebi.infraestructura.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,24 +19,34 @@ import java.util.Map;
 
 @Service
 public class PartidaServiceImpl implements PartidaService {
-    private final Map<String, Partida> partidas = new HashMap<>();
+    private final PartidaRepository partidaRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final UsuarioPartidaRepository usuarioPartidaRepository;
 
-    @Override
-    public Partida iniciarNuevaPartida(String jugadorId, String nombre) {
-        Partida nueva = new Partida();
-        nueva.agregarJugador(jugadorId, nombre);
-        partidas.put(jugadorId, nueva);
-        return nueva;
+    @Autowired
+    public PartidaServiceImpl(PartidaRepository partidaRepository,
+                              UsuarioRepository usuarioRepository,
+                              UsuarioPartidaRepository usuarioPartidaRepository) {
+        this.partidaRepository = partidaRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.usuarioPartidaRepository = usuarioPartidaRepository;
     }
 
     @Override
-    public Partida obtenerPartida(String jugadorId) {
-        return partidas.get(jugadorId);
+    @Transactional
+    public Partida2 iniciarNuevaPartida(String nombrePartida) {
+        // Crear la nueva partida
+        Partida2 partida = new Partida2();
+        partida.setNombre(nombrePartida);
+        partida.setEstado(Estado.EN_ESPERA);
+        partidaRepository.guardar(partida);
+
+        return partida;
     }
 
     @Override
-    public void eliminarPartida(String jugadorId) {
-        partidas.remove(jugadorId);
+    public boolean estaTerminada(Partida2 partida) {
+        return false;
     }
 
 

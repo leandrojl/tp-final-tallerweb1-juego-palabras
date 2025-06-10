@@ -11,19 +11,15 @@ import com.tallerwebi.infraestructura.UsuarioPartidaRepository;
 import com.tallerwebi.infraestructura.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.ui.ExtendedModelMap;
-import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -84,7 +80,7 @@ public class JuegoControllerTest {
 
         ronda = new Ronda();
         ronda.setId(10L);
-        ronda.setNumeroDeRonda(1);
+        ronda.setNumeroDeRonda(1L);
         ronda.setEstado(Estado.EN_CURSO);
         ronda.setPartida(partida);
         ronda.setDefinicion("Definición de prueba");
@@ -127,7 +123,7 @@ public class JuegoControllerTest {
         when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
         when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
         when(rondaRepository.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
-        when(usuarioPartidaRepository.buscarPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida));
+        when(usuarioPartidaRepository.buscarListaDeUsuariosPartidaPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida));
 
         ModelAndView mov = controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
 
@@ -144,7 +140,7 @@ public class JuegoControllerTest {
         when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
         when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
         when(rondaRepository.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
-        when(usuarioPartidaRepository.buscarPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida));
+        when(usuarioPartidaRepository.buscarListaDeUsuariosPartidaPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida));
 
         ModelAndView mov = controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
 
@@ -173,7 +169,7 @@ public class JuegoControllerTest {
         usuarioPartida2.setPartida(partida);
         usuarioPartida2.setPuntaje(80);
 
-        when(usuarioPartidaRepository.buscarPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida, usuarioPartida2));
+        when(usuarioPartidaRepository.buscarListaDeUsuariosPartidaPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida, usuarioPartida2));
 
         ModelAndView mov = controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
 
@@ -200,7 +196,7 @@ public class JuegoControllerTest {
         when(partidaRepository.buscarPorId(1L)).thenReturn(partida);
         when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(1L, 1L)).thenReturn(usuarioPartida);
         when(rondaRepository.buscarRondaActivaPorPartidaId(1L)).thenReturn(ronda);
-        when(usuarioPartidaRepository.buscarPorPartidaId(1L)).thenReturn(List.of(usuarioPartida));
+        when(usuarioPartidaRepository.buscarListaDeUsuariosPartidaPorPartidaId(1L)).thenReturn(List.of(usuarioPartida));
 
         ModelAndView mov = controladorJuego.mostrarVistaJuego(1L, 1L);
 

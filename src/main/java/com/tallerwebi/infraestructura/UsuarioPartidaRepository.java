@@ -7,10 +7,12 @@ import com.tallerwebi.dominio.model.UsuarioPartida;
 import java.util.List;
 
 public interface UsuarioPartidaRepository {
-    void guardar(Partida2 partida);
+    void guardar(UsuarioPartida usuarioPartida);
 
-    void borrar(Partida2 partida);
+    void borrar(UsuarioPartida usuarioPartida);
 
     UsuarioPartida buscarPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId);
-    List<UsuarioPartida> buscarPorPartidaId(Long id);
+    List<UsuarioPartida> buscarListaDeUsuariosPartidaPorPartidaId(Long id);
+
+    UsuarioPartida buscarPorUsuarioId(Long jugadorId);
 }

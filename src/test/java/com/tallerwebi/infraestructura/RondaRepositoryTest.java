@@ -58,21 +58,21 @@ class RondaRepositoryImplTest {
         ronda1.setPartida(partida1);
         ronda1.setPalabra(palabra);
         ronda1.setEstado(Estado.EN_CURSO);
-        ronda1.setNumeroDeRonda(1);
+        ronda1.setNumeroDeRonda(1L);
         ronda1.setFechaHora(LocalDateTime.now().minusHours(2));
 
         ronda2 = new Ronda();
         ronda2.setPartida(partida1);
         ronda2.setPalabra(palabra);
         ronda2.setEstado(Estado.FINALIZADA);
-        ronda2.setNumeroDeRonda(2);
+        ronda2.setNumeroDeRonda(2L);
         ronda2.setFechaHora(LocalDateTime.now().minusHours(1));
 
         ronda3 = new Ronda();
         ronda3.setPartida(partida2);
         ronda3.setPalabra(palabra);
         ronda3.setEstado(Estado.EN_CURSO);
-        ronda3.setNumeroDeRonda(1);
+        ronda3.setNumeroDeRonda(1L);
         ronda3.setFechaHora(LocalDateTime.now());
 
         // Forzar flush para asegurar que se guarden
@@ -87,7 +87,7 @@ class RondaRepositoryImplTest {
         nuevaRonda.setPartida(partida1);
         nuevaRonda.setPalabra(palabra);
         nuevaRonda.setEstado(Estado.EN_CURSO);
-        nuevaRonda.setNumeroDeRonda(3);
+        nuevaRonda.setNumeroDeRonda(3L);
         nuevaRonda.setFechaHora(LocalDateTime.now());
 
         // When
@@ -287,7 +287,7 @@ class RondaRepositoryImplTest {
 
         // When
         ronda1.setEstado(Estado.FINALIZADA);
-        ronda1.setNumeroDeRonda(5);
+        ronda1.setNumeroDeRonda(5L);
         rondaRepository.actualizar(ronda1);
         sessionFactory.getCurrentSession().flush();
         sessionFactory.getCurrentSession().clear(); // Limpiar cache
