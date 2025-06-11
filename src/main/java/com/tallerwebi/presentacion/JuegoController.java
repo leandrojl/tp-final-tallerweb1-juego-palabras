@@ -15,10 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -33,15 +30,6 @@ public class JuegoController {
     //private final DefinicionService definicionServicio;
     private final PalabraService palabraServicio;
     private final AciertoService aciertoServicio;
-
-    // Repositorios (para consultas específicas si es necesario)
-    private final UsuarioRepository usuarioRepository;
-    private final PartidaRepository partidaRepository;
-    private final RondaRepository rondaRepository;
-    private final PalabraRepository palabraRepository;
-    // private final DefinicionRepository definicionRepository;
-    private final UsuarioPartidaRepository usuarioPartidaRepository;
-    private final AciertoRepository aciertoRepository;
     private final UsuarioPartidaService usuarioPartidaService;
 
     @Autowired
@@ -67,13 +55,8 @@ public class JuegoController {
         //this.definicionServicio = definicionServicio;
         this.palabraServicio = palabraServicio;
         this.aciertoServicio = aciertoServicio;
-        this.usuarioRepository = usuarioRepository;
-        this.partidaRepository = partidaRepository;
-        this.rondaRepository = rondaRepository;
-        this.palabraRepository = palabraRepository;
+
         // this.definicionRepository = definicionRepository;
-        this.usuarioPartidaRepository = usuarioPartidaRepository;
-        this.aciertoRepository = aciertoRepository;
         this.usuarioPartidaService = usuarioPartidaService;
     }
 
@@ -81,18 +64,18 @@ public class JuegoController {
     public ModelAndView mostrarVistaJuego(@RequestParam Long usuarioId, @RequestParam Long partidaId) throws UsuarioInexistente, PartidaInexistente {
 
         // El usuario ya está registrado, solo lo obtenemos
-        Usuario usuario = usuarioRepository.buscarPorId(usuarioId);
+        Usuario usuario = usuarioServicio.buscarPorId(usuarioId);
         if (usuario == null) {
             throw new UsuarioInexistente();
         }
         // La partida ya existe (viene del lobby), solo la obtenemos
-        Partida2 partida = partidaRepository.buscarPorId(partidaId);
+        Partida2 partida = partidaServicio.buscarPorId(partidaId);
         if (partida == null) {
             throw new PartidaInexistente();
         }
 
         // Verificar que el usuario está en esta partida
-        UsuarioPartida usuarioPartida = usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId);
+        UsuarioPartida usuarioPartida = usuarioPartidaService.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId);
         if (usuarioPartida == null) {
             throw new RuntimeException("El usuario no pertenece a esta partida");
         }
@@ -100,28 +83,29 @@ public class JuegoController {
         // Si la partida está "EN_ESPERA", cambiarla a "EN_CURSO" al iniciar
         if (partida.getEstado() == Estado.EN_ESPERA) {
             partida.setEstado(Estado.EN_CURSO);
-            partidaRepository.actualizarEstado(partida.getId(), Estado.EN_CURSO);
+            partidaServicio.actualizarEstado(partida.getId(), Estado.EN_CURSO);
         }
 
         // Verificar si necesitamos crear la primera ronda
-        Ronda rondaActual = rondaRepository.buscarRondaActivaPorPartidaId(partida.getId());
+        Ronda rondaActual = rondaServicio.buscarRondaActivaPorPartidaId(partida.getId());
         if (rondaActual == null) {
+
+            rondaActual = rondaServicio.crearNuevaRonda(partida, obtenerIdiomaPartida(partida));
+            rondaActual = rondaServicio.guardar(rondaActual);
+
             // Obtener palabra con sus definiciones usando tu servicio existente
-            // Asumo que la partida tiene un idioma configurado, si no usar "Mixto" por defecto
+//            // Asumo que la partida tiene un idioma configurado, si no usar "Mixto" por defecto
             String idiomaPartida = partida.getIdioma() != null ? partida.getIdioma() : "Mixto";
             HashMap<Palabra, List<Definicion>> palabraConDefiniciones = palabraServicio.traerPalabraYDefinicion(idiomaPartida);
-
-            // Extraer la palabra y una definición aleatoria
+//
+//            // Extraer la palabra y una definición aleatoria
             Palabra palabraTexto = palabraConDefiniciones.keySet().iterator().next();
             List<Definicion> definiciones = palabraConDefiniciones.get(palabraTexto);
             Definicion definicionSeleccionada = definiciones.get(new Random().nextInt(definiciones.size()));
 
-            // Crear nueva ronda
-            rondaActual = rondaServicio.crearNuevaRonda(partida, idiomaPartida);
-            rondaActual = rondaRepository.guardar(rondaActual);
         }
         // Obtener todos los participantes de la partida con sus puntajes actuales
-        List<UsuarioPartida> participantes = usuarioPartidaRepository.buscarListaDeUsuariosPartidaPorPartidaId(partida.getId());
+        List<UsuarioPartida> participantes = usuarioPartidaService.buscarListaDeUsuariosPartidaPorPartidaId(partida.getId());
         List<Map<String, Object>> jugadoresView = participantes.stream()
                 .map(up -> {
                     Map<String, Object> datos = new HashMap<>();
@@ -148,6 +132,11 @@ public class JuegoController {
         return mov;
     }
 
+    private String obtenerIdiomaPartida(Partida2 partida) {
+        // Asumo que la partida tiene un idioma configurado, si no usar "Mixto" por defecto
+        return Optional.ofNullable(partida.getIdioma()).orElse("Mixto");
+    }
+
     private Palabra obtenerPalabraDeRonda(Ronda rondaActual) {
         if (rondaActual.getPalabra() != null) {
             return rondaActual.getPalabra();
@@ -165,26 +154,26 @@ public class JuegoController {
     @PostMapping("/intentar")
     @ResponseBody
     public Map<String, Object> procesarIntentoAjax(@RequestParam String intento,
-                                                   @RequestParam Long jugadorId,
+                                                   @RequestParam Long usuarioId,
                                                    @RequestParam int tiempoRestante) {
         Map<String, Object> response = new HashMap<>();
 
         // Obtener relación usuario-partida
-        UsuarioPartida usuarioPartida = usuarioPartidaRepository.buscarPorUsuarioId(jugadorId);
+        UsuarioPartida usuarioPartida = usuarioPartidaService.buscarPorUsuarioId(usuarioId);
         if (usuarioPartida == null) {
             response.put("error", "Jugador no está en ninguna partida activa");
             return response;
         }
 
         Partida2 partida = usuarioPartida.getPartida();
-        Ronda rondaActual = rondaRepository.buscarRondaActivaPorPartidaId(partida.getId());
+        Ronda rondaActual = rondaServicio.buscarRondaActivaPorPartidaId(partida.getId());
 
         if (rondaActual == null) {
             response.put("error", "No hay ronda activa");
             return response;
         }
 
-        Boolean acierto = intento.equalsIgnoreCase(rondaActual.getPalabra().getDescripcion());
+        boolean acierto = intento.equalsIgnoreCase(rondaActual.getPalabra().getDescripcion());
 
         if (acierto) {
             // Calcular puntos
@@ -214,7 +203,7 @@ public class JuegoController {
             } else {
                 // La partida ha terminado
                 partida.setEstado(Estado.FINALIZADA);
-                partidaRepository.actualizarEstado(partida.getId(), Estado.FINALIZADA);
+                partidaServicio.actualizarEstado(partida.getId(), Estado.FINALIZADA);
 
                 response.put("estado", "partida_finalizada");
                 response.put("mensaje", "¡La partida ha terminado!");

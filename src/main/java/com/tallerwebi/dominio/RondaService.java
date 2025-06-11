@@ -13,4 +13,8 @@ public interface RondaService {
 
     void desactivarRonda(Ronda rondaActual);
     Ronda crearNuevaRonda(Partida2 partida, String idioma);
+
+    Ronda buscarRondaActivaPorPartidaId(Long id);
+
+    Ronda guardar(Ronda rondaActual);
 }

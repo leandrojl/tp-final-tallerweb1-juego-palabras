@@ -15,7 +15,6 @@ import java.util.Map;
 
 @Service
 @Transactional
-
 public class RondaServicioImpl implements RondaService {
 
     private final RondaRepository rondaRepository;
@@ -48,6 +47,16 @@ public class RondaServicioImpl implements RondaService {
         ronda.setNumeroDeRonda(cantidadRondasActuales + 1);
 
         return rondaRepository.guardar(ronda);
+    }
+
+    @Override
+    public Ronda buscarRondaActivaPorPartidaId(Long id) {
+        return this.rondaRepository.buscarRondaActivaPorPartidaId(id);
+    }
+
+    @Override
+    public Ronda guardar(Ronda rondaActual) {
+        return this.rondaRepository.guardar(rondaActual);
     }
 
     @Override

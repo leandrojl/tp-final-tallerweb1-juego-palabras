@@ -46,7 +46,17 @@ public class PartidaServiceImpl implements PartidaService {
 
     @Override
     public boolean estaTerminada(Partida2 partida) {
-        return false;
+        return partida.getEstado() == Estado.FINALIZADA;
+    }
+
+    @Override
+    public Partida2 buscarPorId(Long partidaId) {
+        return partidaRepository.buscarPorId(partidaId);
+    }
+
+    @Override
+    public void actualizarEstado(Long id, Estado estado) {
+        this.partidaRepository.actualizarEstado(id, estado);
     }
 
 

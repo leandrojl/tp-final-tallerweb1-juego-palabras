@@ -59,4 +59,9 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository{
                 .setParameter("usuarioId", usuarioId)
                 .uniqueResult();
     }
+
+    @Override
+    public void actualizar(UsuarioPartida usuarioPartida) {
+        sessionFactory.getCurrentSession().update(usuarioPartida);
+    }
 }

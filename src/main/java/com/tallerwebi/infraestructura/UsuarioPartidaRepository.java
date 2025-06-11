@@ -15,4 +15,6 @@ public interface UsuarioPartidaRepository {
     List<UsuarioPartida> buscarListaDeUsuariosPartidaPorPartidaId(Long id);
 
     UsuarioPartida buscarPorUsuarioId(Long jugadorId);
+
+    void actualizar(UsuarioPartida usuarioPartida);
 }

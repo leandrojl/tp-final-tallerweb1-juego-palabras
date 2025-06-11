@@ -37,22 +37,14 @@ public class JuegoControllerTest {
     @Mock
     private UsuarioService usuarioServicio;
     @Mock
+    private UsuarioPartidaService usuarioPartidaServicio;
+    @Mock
     private PalabraService palabraServicio;
     @Mock
     private AciertoService aciertoServicio;
 
-    @Mock
-    private UsuarioRepository usuarioRepository;
-    @Mock
-    private PartidaRepository partidaRepository;
-    @Mock
-    private RondaRepository rondaRepository;
-    @Mock
-    private PalabraRepository palabraRepository;
-    @Mock
-    private UsuarioPartidaRepository usuarioPartidaRepository;
-    @Mock
-    private AciertoRepository aciertoRepository;
+
+
     private Usuario usuario;
     private Partida2 partida;
     private UsuarioPartida usuarioPartida;
@@ -93,7 +85,7 @@ public class JuegoControllerTest {
         Long usuarioId = 1L;
         Long partidaId = 1L;
 
-        when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(null);
+        when(usuarioServicio.buscarPorId(usuarioId)).thenReturn(null);
 
         Exception exception = assertThrows(UsuarioInexistente.class, () -> {
             controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
@@ -106,8 +98,8 @@ public class JuegoControllerTest {
         Long usuarioId = 1L;
         Long partidaId = 1L;
 
-        when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(usuario);
-        when(partidaRepository.buscarPorId(partidaId)).thenReturn(null);
+        when(usuarioServicio.buscarPorId(usuarioId)).thenReturn(usuario);
+        when(partidaServicio.buscarPorId(partidaId)).thenReturn(null);
 
         Exception exception = assertThrows(PartidaInexistente.class, () -> {
             controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
@@ -119,11 +111,11 @@ public class JuegoControllerTest {
         Long usuarioId = 1L;
         Long partidaId = 1L;
 
-        when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(usuario);
-        when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
-        when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
-        when(rondaRepository.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
-        when(usuarioPartidaRepository.buscarListaDeUsuariosPartidaPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida));
+        when(usuarioServicio.buscarPorId(usuarioId)).thenReturn(usuario);
+        when(partidaServicio.buscarPorId(partidaId)).thenReturn(partida);
+        when(usuarioPartidaServicio.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
+        when(rondaServicio.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
+        when(usuarioPartidaServicio.buscarListaDeUsuariosPartidaPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida));
 
         ModelAndView mov = controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
 
@@ -136,11 +128,11 @@ public class JuegoControllerTest {
         Long usuarioId = 1L;
         Long partidaId = 1L;
 
-        when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(usuario);
-        when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
-        when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
-        when(rondaRepository.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
-        when(usuarioPartidaRepository.buscarListaDeUsuariosPartidaPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida));
+        when(usuarioServicio.buscarPorId(usuarioId)).thenReturn(usuario);
+        when(partidaServicio.buscarPorId(partidaId)).thenReturn(partida);
+        when(usuarioPartidaServicio.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
+        when(rondaServicio.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
+        when(usuarioPartidaServicio.buscarListaDeUsuariosPartidaPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida));
 
         ModelAndView mov = controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
 
@@ -155,10 +147,10 @@ public class JuegoControllerTest {
         Long usuarioId = 1L;
         Long partidaId = 1L;
 
-        when(usuarioRepository.buscarPorId(usuarioId)).thenReturn(usuario);
-        when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
-        when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
-        when(rondaRepository.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
+        when(usuarioServicio.buscarPorId(usuarioId)).thenReturn(usuario);
+        when(partidaServicio.buscarPorId(partidaId)).thenReturn(partida);
+        when(usuarioPartidaServicio.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(usuarioPartida);
+        when(rondaServicio.buscarRondaActivaPorPartidaId(partidaId)).thenReturn(ronda);
 
         Usuario otroUsuario = new Usuario();
         otroUsuario.setId(2L);
@@ -169,7 +161,7 @@ public class JuegoControllerTest {
         usuarioPartida2.setPartida(partida);
         usuarioPartida2.setPuntaje(80);
 
-        when(usuarioPartidaRepository.buscarListaDeUsuariosPartidaPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida, usuarioPartida2));
+        when(usuarioPartidaServicio.buscarListaDeUsuariosPartidaPorPartidaId(partidaId)).thenReturn(List.of(usuarioPartida, usuarioPartida2));
 
         ModelAndView mov = controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
 
@@ -192,11 +184,11 @@ public class JuegoControllerTest {
         ronda.setPalabra(palabrax);
 
 
-        when(usuarioRepository.buscarPorId(1L)).thenReturn(usuario);
-        when(partidaRepository.buscarPorId(1L)).thenReturn(partida);
-        when(usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(1L, 1L)).thenReturn(usuarioPartida);
-        when(rondaRepository.buscarRondaActivaPorPartidaId(1L)).thenReturn(ronda);
-        when(usuarioPartidaRepository.buscarListaDeUsuariosPartidaPorPartidaId(1L)).thenReturn(List.of(usuarioPartida));
+        when(usuarioServicio.buscarPorId(1L)).thenReturn(usuario);
+        when(partidaServicio.buscarPorId(1L)).thenReturn(partida);
+        when(usuarioPartidaServicio.buscarPorUsuarioIdYPartidaId(1L, 1L)).thenReturn(usuarioPartida);
+        when(rondaServicio.buscarRondaActivaPorPartidaId(1L)).thenReturn(ronda);
+        when(usuarioPartidaServicio.buscarListaDeUsuariosPartidaPorPartidaId(1L)).thenReturn(List.of(usuarioPartida));
 
         ModelAndView mov = controladorJuego.mostrarVistaJuego(1L, 1L);
 
