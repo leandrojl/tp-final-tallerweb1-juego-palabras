@@ -17,8 +17,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
 
 
 @ExtendWith(SpringExtension.class)@WebAppConfiguration
@@ -32,12 +35,59 @@ public class UsuarioPartidaRepositoryTest {
     @Test
     @Transactional
     @Rollback
+    public void obtenerLaCantidadDePartidasGanadasPorUnJugador(){
+        Usuario usuario = givenDiferentesPartidasPorJugador();
+        int cantidad = whenConsultoPartidasGanadasDeUnJugador(usuario);
+        thenComparoCantidadDePartidas(2, cantidad);
+    }
+    @Test
+    @Transactional
+    @Rollback
     public void ObtenerLaCantidadDePartidasJugadasPorUnJugador(){
      Usuario usuario = givenDiferentesPartidasPorJugador();
 
 
      int cantidad = whenConsultoPartidasDeUnJugador(usuario);
      thenComparoCantidadDePartidas(2, cantidad);
+
+    }
+    @Test
+    @Transactional
+    @Rollback
+    public void ObtenerElWinrateDeUnJugador(){
+        Usuario usuario = givenDiferentesPartidasPorJugador();
+        double winrate = whenConsultoWinrateDeUnJugador(usuario);
+        thenComparoWinrate(100.00, winrate);
+    }
+    @Test
+    @Transactional
+    @Rollback
+    public void obtenerElRanking(){
+        givenDiferentesPartidasPorJugador();
+        List<Object[]> ranking= whenConsultoRanking();
+        thenComparoRanking(ranking);
+    }
+
+    private void thenComparoRanking(List<Object[]> ranking) {
+   assertThat(ranking.size(), equalTo(2));
+   assertThat(ranking.get(0)[1], equalTo(2L));
+        assertThat(ranking.get(0)[0], equalTo("juan"));
+
+    }
+
+    private List<Object[]> whenConsultoRanking() {
+    return usuarioPartidaRepository.obtenerRanking();
+
+    }
+
+
+    private double whenConsultoWinrateDeUnJugador(Usuario usuario) {
+        return usuarioPartidaRepository.getWinrate(usuario);
+    }
+
+
+    private void thenComparoWinrate(double v, double winrate) {
+        assertThat(v, equalTo(winrate));
 
     }
 
@@ -52,7 +102,7 @@ public class UsuarioPartidaRepositoryTest {
         Partida2 partida1 = new Partida2("encuentro1", "Castellano", true, 5, 2);
         Partida2 partida2 = new Partida2("encuentro1", "Castellano", true, 5, 2);
         Partida2 partida3 = new Partida2("encuentro1", "Castellano", true, 5, 2);
-        UsuarioPartida upartida1 = new UsuarioPartida(usuario1,partida1, false);
+        UsuarioPartida upartida1 = new UsuarioPartida(usuario1,partida1, true);
         UsuarioPartida upartida2 = new UsuarioPartida(usuario1,partida2, true);
         UsuarioPartida upartida3 = new UsuarioPartida(usuario2,partida1, false);
         UsuarioPartida upartida4 = new UsuarioPartida(usuario3,partida1, true);
@@ -79,6 +129,9 @@ public class UsuarioPartidaRepositoryTest {
     private int whenConsultoPartidasDeUnJugador(Usuario usuario) {
 
         return usuarioPartidaRepository.getCantidadDePartidasDeJugador(usuario);
+    }
+    private int whenConsultoPartidasGanadasDeUnJugador(Usuario usuario) {
+        return usuarioPartidaRepository.getCantidadDePartidasGanadasDeJugador(usuario);
     }
 
 }

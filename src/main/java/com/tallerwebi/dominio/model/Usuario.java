@@ -21,6 +21,12 @@ public class Usuario {
     public Usuario() {
 
     }
+    public Usuario(String nombreUsuario, String email, String passoword, int moneda){
+        this.nombreUsuario = nombreUsuario;
+        this.email = email;
+        this.password = passoword;
+        this.moneda = moneda;
+}
 
     public Usuario(String nombreUsuario, String email, String password) {
         this.nombreUsuario = nombreUsuario;
