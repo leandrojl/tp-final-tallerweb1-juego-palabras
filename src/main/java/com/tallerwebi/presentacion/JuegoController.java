@@ -164,6 +164,170 @@ public class JuegoController {
         }
         return "Definición no disponible";
     }
+
+    @PostMapping("/intentar")
+    @ResponseBody
+    public Map<String, Object> procesarIntentoAjax(@RequestParam String intento,
+                                                   @RequestParam Long usuarioId,
+                                                   @RequestParam Long partidaId,
+                                                   @RequestParam int tiempoRestante) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        Partida2 partida = partidaRepository.buscarPorId(partidaId);
+        Usuario usuario = usuarioRepository.buscarPorId(usuarioId);
+        Ronda ronda = rondaRepository.buscarRondaActivaPorPartidaId(partidaId);
+        UsuarioPartida usuarioPartida = usuarioPartidaRepository.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId);
+
+        if (partida == null || usuario == null || ronda == null || usuarioPartida == null) {
+            response.put("error", "Datos inválidos");
+            return response;
+        }
+
+        boolean acierto = intento.equalsIgnoreCase(ronda.getPalabra().getDescripcion());
+        response.put("correcto", acierto);
+
+        if (acierto) {
+
+            int puntos = calcularPuntosSegunTiempo(tiempoRestante);
+
+
+            usuarioPartida.setPuntaje(usuarioPartida.getPuntaje() + puntos);
+            usuarioPartidaRepository.guardar(partida);
+
+
+            ronda.setEstado(Estado.FINALIZADA);
+            rondaRepository.actualizar(ronda);
+
+            if (ronda.getNumeroDeRonda() < partida.getRondasTotales()) {
+                HashMap<Palabra, List<Definicion>> palabraConDef = palabraServicio.traerPalabraYDefinicion(partida.getIdioma());
+                Palabra nuevaPalabra = palabraConDef.keySet().iterator().next();
+                List<Definicion> definiciones = palabraConDef.get(nuevaPalabra);
+                String nuevaDefinicion = definiciones.get(new Random().nextInt(definiciones.size())).getDefinicion();
+
+                Ronda nuevaRonda = new Ronda();
+                nuevaRonda.setPartida(partida);
+                nuevaRonda.setPalabra(nuevaPalabra);
+                nuevaRonda.setDefinicion(nuevaDefinicion);
+                nuevaRonda.setNumeroDeRonda(ronda.getNumeroDeRonda() + 1);
+                nuevaRonda.setEstado(Estado.EN_CURSO);
+                rondaRepository.guardar(nuevaRonda);
+
+                response.put("nuevaDefinicion", nuevaDefinicion);
+                response.put("nuevaPalabra", nuevaPalabra.getDescripcion());
+                response.put("rondaActual", nuevaRonda.getNumeroDeRonda());
+                response.put("partidaTerminada", false);
+            } else {
+                partidaRepository.actualizarEstado(partida.getId(), Estado.FINALIZADA);
+                response.put("partidaTerminada", true);
+            }
+
+            response.put("puntaje", usuarioPartida.getPuntaje());
+        } else {
+            response.put("partidaTerminada", false);
+        }
+
+        return response;
+    }
+
+    private int calcularPuntosSegunTiempo(int tiempoRestante) {
+        if (tiempoRestante > 45) return 100;
+        else if (tiempoRestante > 30) return 75;
+        else if (tiempoRestante > 15) return 50;
+        else if (tiempoRestante > 0) return 25;
+        else return 0;
+    }
+
+    @PostMapping("/fin-ronda")
+    @ResponseBody
+    public Map<String, Object> finRonda(@RequestParam Long usuarioId, @RequestParam Long partidaId) {
+        Map<String, Object> response = new HashMap<>();
+
+        Ronda ronda = rondaRepository.buscarRondaActivaPorPartidaId(partidaId);
+        if (ronda == null) {
+            response.put("error", "No hay ronda activa");
+            return response;
+        }
+
+        // Marcar la ronda actual como terminada
+        ronda.setEstado(Estado.FINALIZADA);
+        rondaRepository.actualizar(ronda);
+
+        Partida2 partida = partidaRepository.buscarPorId(partidaId);
+
+        // Verificar si quedan rondas
+        if (ronda.getNumeroDeRonda() < partida.getRondasTotales()) {
+            // Crear una nueva ronda
+            HashMap<Palabra, List<Definicion>> palabraConDef = palabraServicio.traerPalabraYDefinicion(partida.getIdioma());
+            Palabra nuevaPalabra = palabraConDef.keySet().iterator().next();
+            List<Definicion> definiciones = palabraConDef.get(nuevaPalabra);
+            String nuevaDefinicion = definiciones.get(new Random().nextInt(definiciones.size())).getDefinicion();
+
+            Ronda nuevaRonda = new Ronda();
+            nuevaRonda.setPartida(partida);
+            nuevaRonda.setPalabra(nuevaPalabra);
+            nuevaRonda.setDefinicion(nuevaDefinicion);
+            nuevaRonda.setNumeroDeRonda(ronda.getNumeroDeRonda() + 1);
+            nuevaRonda.setEstado(Estado.EN_CURSO);
+            rondaRepository.guardar(nuevaRonda);
+
+            response.put("partidaTerminada", false);
+            response.put("nuevaPalabra", nuevaPalabra.getDescripcion());
+            response.put("nuevaDefinicion", nuevaDefinicion);
+            response.put("rondaActual", nuevaRonda.getNumeroDeRonda());
+        } else {
+            // Se terminó la partida
+            partidaRepository.actualizarEstado(partidaId, Estado.FINALIZADA);
+            response.put("partidaTerminada", true);
+        }
+
+        return response;
+    }
+
+
+    @GetMapping("/resultados")
+    public ModelAndView mostrarResultados(@RequestParam Long usuarioId, @RequestParam Long partidaId) {
+
+        Usuario usuario = usuarioRepository.buscarPorId(usuarioId);
+        Partida2 partida = partidaRepository.buscarPorId(partidaId);
+
+        if (usuario == null || partida == null) {
+            throw new RuntimeException("Datos inválidos");
+        }
+
+        List<UsuarioPartida> participantes = usuarioPartidaRepository.buscarPorPartidaId(partidaId);
+
+        if (participantes.isEmpty()) {
+            ModelAndView errorView = new ModelAndView("resultados");
+            errorView.addObject("mensajeError", "No hay jugadores en esta partida.");
+            return errorView;
+        }
+
+        // Ordenar por puntaje descendente
+        List<Map<String, Object>> ranking = participantes.stream()
+                .map(up -> {
+                    Map<String, Object> datos = new HashMap<>();
+                    datos.put("nombre", up.getUsuario().getNombreUsuario());
+                    datos.put("puntaje", up.getPuntaje());
+                    datos.put("esJugadorActual", up.getUsuario().getId().equals(usuarioId));
+                    return datos;
+                })
+                .sorted((a, b) -> ((Integer) b.get("puntaje")).compareTo((Integer) a.get("puntaje")))
+                .collect(Collectors.toList());
+
+        String nombreGanador = (String) ranking.get(0).get("nombre");
+        String nombreJugadorActual = usuario.getNombreUsuario();
+
+        ModelAndView mav = new ModelAndView("resultados");
+        mav.addObject("ranking", ranking);
+        mav.addObject("ganador", nombreGanador);
+        mav.addObject("jugadorActual", nombreJugadorActual);
+        mav.addObject("nombrePartida", partida.getNombre());
+
+        return mav;
+    }
+
+
 /*
     @PostMapping("/intentar")
     @ResponseBody
@@ -203,13 +367,7 @@ public class JuegoController {
         return response;
     }
 
-    private int calcularPuntosSegunTiempo(int tiempoRestante) {
-        if (tiempoRestante > 45) return 100;
-        else if (tiempoRestante > 30) return 75;
-        else if (tiempoRestante > 15) return 50;
-        else if (tiempoRestante > 0) return 25;
-        else return 0;
-    }
+
 
     @PostMapping("/fin-ronda")
     @ResponseBody

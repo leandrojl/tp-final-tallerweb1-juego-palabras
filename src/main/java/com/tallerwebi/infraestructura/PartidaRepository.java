@@ -11,4 +11,5 @@ public interface PartidaRepository {
 
     Partida2 buscarPorId(Long partidaId);
     void actualizarEstado(Long partidaId, Estado nuevoEstado);
+
 }

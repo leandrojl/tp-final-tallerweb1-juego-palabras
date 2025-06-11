@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class ControladorVistaFinal {
+public class ResultadosController {
 
     @RequestMapping("/vistaFinal")
     public ModelAndView verPantallaFinal(@RequestParam String nombre,@RequestParam Integer puntos) {
 
-        ModelAndView mav = new ModelAndView("vistaFinalJuego");
+        ModelAndView mav = new ModelAndView("resultados");
         mav.addObject("nombre", nombre);
         mav.addObject("puntos", puntos);
         return mav;

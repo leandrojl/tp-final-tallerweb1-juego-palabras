@@ -11,7 +11,7 @@ public class Palabra {
 
     private String descripcion;
 
-    private String idioma; // 👈 ESTE FALTABA
+    private String idioma; // ESTE FALTABA
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "palabra_id")
@@ -50,4 +50,5 @@ public class Palabra {
     public void setDefinicion(List<Definicion> definiciones) {
         this.definiciones = definiciones;
     }
+
 }

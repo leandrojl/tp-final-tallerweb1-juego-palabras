@@ -13,4 +13,6 @@ public interface UsuarioPartidaRepository {
 
     UsuarioPartida buscarPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId);
     List<UsuarioPartida> buscarPorPartidaId(Long id);
+
+
 }
