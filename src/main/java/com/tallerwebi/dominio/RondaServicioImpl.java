@@ -19,7 +19,7 @@ import java.util.Map;
 public class RondaServicioImpl implements RondaService {
 
     private final RondaRepository rondaRepository;
-    private final PalabraService palabraService; // El servicio actual renombrado
+    private final PalabraService palabraService;
 
     public RondaServicioImpl(RondaRepository rondaRepository, PalabraService palabraService) {
         this.rondaRepository = rondaRepository;

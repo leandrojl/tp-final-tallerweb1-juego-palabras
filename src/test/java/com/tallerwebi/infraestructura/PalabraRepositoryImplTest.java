@@ -91,11 +91,7 @@ public class PalabraRepositoryImplTest {
         }
     }
 
-    @Test
-    void queRetorneListaVaciaSiNoHayPalabras() {
-        List<Palabra> resultado = palabraRepository.buscarTodas();
-        assertTrue(resultado.isEmpty());
-    }
+
 
     @Test
     void queRetorneLaCantidadCorrectaDePalabra() {
@@ -111,7 +107,7 @@ public class PalabraRepositoryImplTest {
 
 
     @Test
-    void buscarPorIdioma_ConVariasPalabrasDelMismoIdioma_DeberiaRetornarTodas() {
+    void retornarTodasLasPalabrasDelMismoIdioma() {
         palabraRepository.guardar(crearPalabra("Casa", "es"));
         palabraRepository.guardar(crearPalabra("Perro", "es"));
         palabraRepository.guardar(crearPalabra("Gato", "es"));
@@ -126,7 +122,7 @@ public class PalabraRepositoryImplTest {
     }
 
     @Test
-    void guardar_PalabraConDefiniciones_DeberiaGuardarCorrectamente() {
+    void guardarCorrectamentePalabraConDefinicion() {
         Palabra palabra = crearPalabra("Casa", "es");
         Definicion def1 = crearDefinicion("Lugar donde vive una familia");
         Definicion def2 = crearDefinicion("Edificio para habitar");

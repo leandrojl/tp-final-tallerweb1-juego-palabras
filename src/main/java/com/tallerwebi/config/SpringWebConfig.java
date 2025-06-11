@@ -1,5 +1,7 @@
 package com.tallerwebi.config;
 
+import com.tallerwebi.helpers.HelperPalabra;
+import com.tallerwebi.helpers.IPalabraHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -71,5 +73,11 @@ public class SpringWebConfig implements WebMvcConfigurer {
         viewResolver.setTemplateEngine(templateEngine());
         return viewResolver;
     }
+
+    @Bean
+    public IPalabraHelper palabraHelper() {
+        return new HelperPalabra();
+    }
+
 
 }

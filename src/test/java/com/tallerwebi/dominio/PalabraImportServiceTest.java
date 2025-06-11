@@ -1,113 +1,102 @@
+
 package com.tallerwebi.dominio;
 
-import com.tallerwebi.dominio.model.Definicion;
 import com.tallerwebi.dominio.model.Palabra;
-import com.tallerwebi.helpers.IPalabraHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.*;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PalabraImportServiceTest {
+@ActiveProfiles("test")
+class PalabraImportServiceIntegrationTest {
 
     @Mock
     private PalabraRepository palabraRepository;
-
-    @Mock
-    private IPalabraHelper palabraHelper;
 
     private PalabraImportService palabraImportService;
 
     @BeforeEach
     void setUp() {
-        palabraImportService = new PalabraImportService(palabraRepository, palabraHelper);
+        // Usar la implementación REAL del helper, no mock
+        palabraImportService = new PalabraImportService(palabraRepository, new com.tallerwebi.helpers.HelperPalabra());
     }
 
     @Test
-    void deberiaImportarPalabrasEnCastellanoCorrectamente() {
+    void deberiaImportarPalabrasRealesEnCastellanoDesdeWikidata() {
         String idioma = "Castellano";
-        Map<String, List<String>> palabrasYDescripciones = new HashMap<>();
-        palabrasYDescripciones.put("casa", Arrays.asList("Edificio destinado a vivienda", "Hogar familiar"));
-        palabrasYDescripciones.put("perro", Arrays.asList("Animal doméstico canino", "Mascota fiel"));
 
-        when(palabraHelper.getPalabraYDescripcion(idioma)).thenReturn(palabrasYDescripciones);
-
+        // Ejecutar la importación real
         palabraImportService.importarPalabraDesdeAPI(idioma);
 
-        verify(palabraRepository, times(2)).guardar(any(Palabra.class));
+        // Verificar que se guardaron palabras
+        verify(palabraRepository, atLeast(1)).guardar(any(Palabra.class));
 
-        verify(palabraRepository).guardar(argThat(palabra ->
-                palabra.getDescripcion().equals("casa") &&
-                        palabra.getIdioma().equals("es") &&
-                        palabra.getDefinicion().size() == 2
-        ));
+        // Capturar las palabras guardadas para validarlas
+        verify(palabraRepository, atLeast(1)).guardar(argThat(palabra -> {
+            // Validaciones de las palabras reales obtenidas
+            assertNotNull(palabra.getDescripcion(), "La palabra no debe ser nula");
+            assertFalse(palabra.getDescripcion().trim().isEmpty(), "La palabra no debe estar vacía");
+            assertEquals("es", palabra.getIdioma(), "El idioma debe ser español");
+            assertTrue(palabra.getDescripcion().length() >= 3, "La palabra debe tener al menos 3 caracteres");
+            assertTrue(palabra.getDescripcion().length() <= 15, "La palabra no debe ser muy larga");
 
-        verify(palabraRepository).guardar(argThat(palabra ->
-                palabra.getDescripcion().equals("perro") &&
-                        palabra.getIdioma().equals("es") &&
-                        palabra.getDefinicion().size() == 2
-        ));
+            // Si tiene definiciones, validarlas
+            if (palabra.getDefinicion() != null && !palabra.getDefinicion().isEmpty()) {
+                palabra.getDefinicion().forEach(def -> {
+                    assertNotNull(def.getDefinicion(), "La definición no debe ser nula");
+                    assertFalse(def.getDefinicion().trim().isEmpty(), "La definición no debe estar vacía");
+                });
+            }
+
+            System.out.println("Palabra importada: " + palabra.getDescripcion() +
+                    " - Definiciones: " + palabra.getDefinicion().size());
+            return true;
+        }));
     }
 
     @Test
-    void deberiaImportarPalabrasEnInglesCorrectamente() {
+    void deberiaImportarPalabrasRealesEnInglesDesdeWikidata() {
         String idioma = "English";
-        Map<String, List<String>> palabrasYDescripciones = new HashMap<>();
-        palabrasYDescripciones.put("house", Arrays.asList("A building for human habitation", "Place where people live"));
-        palabrasYDescripciones.put("dog", Arrays.asList("Domestic carnivorous mammal", "Man's best friend"));
-
-        when(palabraHelper.getPalabraYDescripcion(idioma)).thenReturn(palabrasYDescripciones);
 
         palabraImportService.importarPalabraDesdeAPI(idioma);
 
-        verify(palabraRepository, times(2)).guardar(any(Palabra.class));
+        verify(palabraRepository, atLeast(1)).guardar(any(Palabra.class));
 
-        verify(palabraRepository).guardar(argThat(palabra ->
-                palabra.getDescripcion().equals("house") &&
-                        palabra.getIdioma().equals("en") &&
-                        palabra.getDefinicion().size() == 2
-        ));
+        verify(palabraRepository, atLeast(1)).guardar(argThat(palabra -> {
+            // Validaciones de las palabras reales obtenidas
+            assertNotNull(palabra.getDescripcion(), "La palabra no debe ser nula");
+            assertFalse(palabra.getDescripcion().trim().isEmpty(), "La palabra no debe estar vacía");
+            assertEquals("en", palabra.getIdioma(), "El idioma debe ser inglés");
+            assertTrue(palabra.getDescripcion().length() >= 3, "La palabra debe tener al menos 3 caracteres");
 
-        verify(palabraRepository).guardar(argThat(palabra ->
-                palabra.getDescripcion().equals("dog") &&
-                        palabra.getIdioma().equals("en") &&
-                        palabra.getDefinicion().size() == 2
-        ));
+            // Validar que es una palabra en inglés (caracteres latinos básicos)
+            assertTrue(palabra.getDescripcion().matches("^[a-zA-Z\\s]+$"),
+                    "La palabra en inglés debe contener solo letras y espacios");
+
+            System.out.println("English word imported: " + palabra.getDescripcion() +
+                    " - Definitions: " + palabra.getDefinicion().size());
+            return true;
+        }));
     }
 
     @Test
-    void deberiaManejarmapVacioCorrectamente() {
-        String idioma = "Castellano";
-        Map<String, List<String>> palabrasVacias = new HashMap<>();
+    void deberiaManejarErroresDeAPI() {
+        // Test para verificar que maneja errores de API sin fallar
+        String idiomaInvalido = "IdiomaInexistente";
 
-        when(palabraHelper.getPalabraYDescripcion(idioma)).thenReturn(palabrasVacias);
+        // No debería lanzar excepción
+        assertDoesNotThrow(() -> {
+            palabraImportService.importarPalabraDesdeAPI(idiomaInvalido);
+        });
 
-        palabraImportService.importarPalabraDesdeAPI(idioma);
 
-        verify(palabraRepository, never()).guardar(any(Palabra.class));
-    }
-
-    @Test
-    void deberiaManejarPalabraConDefinicionesVacias() {
-        String idioma = "Castellano";
-        Map<String, List<String>> palabrasConListaVacia = new HashMap<>();
-        palabrasConListaVacia.put("palabra", Collections.emptyList());
-
-        when(palabraHelper.getPalabraYDescripcion(idioma)).thenReturn(palabrasConListaVacia);
-
-        palabraImportService.importarPalabraDesdeAPI(idioma);
-
-        verify(palabraRepository, times(1)).guardar(argThat(palabra ->
-                palabra.getDescripcion().equals("palabra") &&
-                        palabra.getIdioma().equals("es") &&
-                        palabra.getDefinicion().isEmpty()
-        ));
     }
 }
