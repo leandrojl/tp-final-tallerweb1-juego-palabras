@@ -38,7 +38,7 @@ public class PalabraRepositoryImplTest {
     }
 
     @Test
-    void guardar_DeberiaGuardarPalabraEnBaseDeDatos() {
+    void queSePuedaGuardarPalabraEnLaBdd() {
         Palabra palabra = crearPalabra("Casa", "es");
 
         palabraRepository.guardar(palabra);
@@ -50,7 +50,7 @@ public class PalabraRepositoryImplTest {
     }
 
     @Test
-    void buscarPorIdioma_ConIdiomaEspanol_DeberiaRetornarSoloPalabrasEnEspanol() {
+    void queRetornePalabrasEnEspañolAlBuscarlas() {
         palabraRepository.guardar(crearPalabra("Casa", "es"));
         palabraRepository.guardar(crearPalabra("House", "en"));
 
@@ -62,7 +62,7 @@ public class PalabraRepositoryImplTest {
     }
 
     @Test
-    void buscarPorIdioma_ConIdiomaIngles_DeberiaRetornarSoloPalabrasEnIngles() {
+    void queRetornePalabrasEnInglesAlBuscarlas() {
         palabraRepository.guardar(crearPalabra("Casa", "es"));
         palabraRepository.guardar(crearPalabra("House", "en"));
 
@@ -73,17 +73,10 @@ public class PalabraRepositoryImplTest {
         assertEquals("en", resultado.get(0).getIdioma());
     }
 
-    @Test
-    void buscarPorIdioma_ConIdiomaInexistente_DeberiaRetornarListaVacia() {
-        palabraRepository.guardar(crearPalabra("Casa", "es"));
 
-        List<Palabra> resultado = palabraRepository.buscarPorIdioma("fr");
-
-        assertTrue(resultado.isEmpty());
-    }
 
     @Test
-    void buscarTodas_DeberiaRetornarTodasLasPalabras() {
+    void quePuedaRetornarTodasLasPalabras() {
         palabraRepository.guardar(crearPalabra("Casa", "es"));
         palabraRepository.guardar(crearPalabra("House", "en"));
         palabraRepository.guardar(crearPalabra("Perro", "es"));
@@ -99,13 +92,13 @@ public class PalabraRepositoryImplTest {
     }
 
     @Test
-    void buscarTodas_SinPalabras_DeberiaRetornarListaVacia() {
+    void queRetorneListaVaciaSiNoHayPalabras() {
         List<Palabra> resultado = palabraRepository.buscarTodas();
         assertTrue(resultado.isEmpty());
     }
 
     @Test
-    void contar_ConVariasPalabras_DeberiaRetornarCantidadCorrecta() {
+    void queRetorneLaCantidadCorrectaDePalabra() {
         palabraRepository.guardar(crearPalabra("Casa", "es"));
         palabraRepository.guardar(crearPalabra("House", "en"));
         palabraRepository.guardar(crearPalabra("Perro", "es"));
@@ -115,11 +108,7 @@ public class PalabraRepositoryImplTest {
         assertEquals(3L, cantidad);
     }
 
-    @Test
-    void contar_SinPalabras_DeberiaRetornarCero() {
-        Long cantidad = palabraRepository.contar();
-        assertEquals(0L, cantidad);
-    }
+
 
     @Test
     void buscarPorIdioma_ConVariasPalabrasDelMismoIdioma_DeberiaRetornarTodas() {

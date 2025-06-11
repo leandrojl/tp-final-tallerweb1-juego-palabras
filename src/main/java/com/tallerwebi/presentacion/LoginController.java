@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import jakarta.servlet.http.HttpSession;
+import javax.persistence.*;
+import javax.servlet.http.HttpSession;
 
 @Controller
 public class LoginController {

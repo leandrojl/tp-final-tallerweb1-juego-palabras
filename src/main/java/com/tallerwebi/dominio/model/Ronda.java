@@ -1,7 +1,7 @@
 package com.tallerwebi.dominio.model;
 
 import com.tallerwebi.dominio.Enum.Estado;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

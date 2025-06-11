@@ -27,11 +27,9 @@ class PalabraImportServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Ahora le pasamos el helper mock al constructor
         palabraImportService = new PalabraImportService(palabraRepository, palabraHelper);
     }
 
-    // Ejemplo de test para Castellano
     @Test
     void deberiaImportarPalabrasEnCastellanoCorrectamente() {
         String idioma = "Castellano";

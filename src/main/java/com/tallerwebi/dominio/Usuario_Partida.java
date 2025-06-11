@@ -4,7 +4,7 @@ package com.tallerwebi.dominio;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Usuario;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import org.hibernate.type.EnumType;
 
 

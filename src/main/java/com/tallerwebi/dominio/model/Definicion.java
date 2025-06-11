@@ -1,6 +1,6 @@
 package com.tallerwebi.dominio.model;
-import jakarta.persistence.*;
 
+import javax.persistence.*;
 
 
 @Entity

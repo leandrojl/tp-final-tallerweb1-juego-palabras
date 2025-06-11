@@ -1,11 +1,13 @@
 package com.tallerwebi.helpers;
 
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-
+@Component
 public class HelperPalabra implements IPalabraHelper {
 
     private static final String rutaArchivoPalabrasEnCastellano = "src/main/resources/palabrasEnCastellano.txt";

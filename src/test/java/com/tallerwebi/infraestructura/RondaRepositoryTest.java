@@ -74,7 +74,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_guardar_ronda_correctamente() {
+    void queSePuedaGuardarRonda() {
         Ronda nuevaRonda = crearRonda(partida1, Estado.EN_CURSO, 3, 0);
 
         Ronda resultado = rondaRepository.guardar(nuevaRonda);
@@ -92,7 +92,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_buscar_ronda_por_id() {
+    void queSePuedaTraerRondaPorId() {
         Ronda ronda = crearRonda(partida1, Estado.EN_CURSO, 1, 2);
         rondaRepository.guardar(ronda);
         sessionFactory.getCurrentSession().flush();
@@ -111,7 +111,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_retornar_null_cuando_no_encuentra_ronda_por_id() {
+    void queNoSeEncuentreRondaPorIdInexistente() {
         Long idInexistente = 999L;
 
         Ronda resultado = rondaRepository.buscarPorId(idInexistente);
@@ -122,7 +122,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_buscar_rondas_por_partida_ordenadas_por_numero() {
+    void queSePuedanTraerRondasPorPartidaOrdenadasPorNumero() {
         Ronda ronda1 = crearRonda(partida1, Estado.EN_CURSO, 1, 2);
         Ronda ronda2 = crearRonda(partida1, Estado.FINALIZADA, 2, 1);
         Ronda ronda3 = crearRonda(partida2, Estado.EN_CURSO, 1, 0);
@@ -144,7 +144,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_buscar_rondas_por_estado() {
+    void queSePuedanTraerRondasPorEstado() {
         Ronda ronda1 = crearRonda(partida1, Estado.EN_CURSO, 1, 2);
         Ronda ronda2 = crearRonda(partida1, Estado.FINALIZADA, 2, 1);
         Ronda ronda3 = crearRonda(partida2, Estado.EN_CURSO, 1, 0);
@@ -168,7 +168,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_buscar_rondas_por_partida_y_estado() {
+    void queSePuedanTraerRondasPorPartidaYEstado() {
         Ronda ronda1 = crearRonda(partida1, Estado.EN_CURSO, 1, 2);
         Ronda ronda2 = crearRonda(partida1, Estado.FINALIZADA, 2, 1);
         Ronda ronda3 = crearRonda(partida2, Estado.EN_CURSO, 1, 0);
@@ -189,7 +189,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_buscar_ultima_ronda_de_partida() {
+    void queSePuedaTraerUltimaRondaDeUnaPartida() {
         Ronda ronda1 = crearRonda(partida1, Estado.EN_CURSO, 1, 2);
         Ronda ronda2 = crearRonda(partida1, Estado.FINALIZADA, 2, 1);
 
@@ -208,7 +208,8 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_retornar_null_cuando_partida_no_tiene_rondas() {
+    void queSePuedaRetornarNullCuandoPartidaNoTieneRondas() {
+
         Partida2 partidaSinRondas = new Partida2();
         partidaSinRondas.setNombre("Partida Sin Rondas");
         sessionFactory.getCurrentSession().save(partidaSinRondas);
@@ -223,7 +224,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_buscar_todas_las_rondas_ordenadas_por_fecha_desc() {
+    void queSePuedaBuscarRondasPorOrdenDesc() {
         Ronda ronda1 = crearRonda(partida1, Estado.EN_CURSO, 1, 2);
         Ronda ronda2 = crearRonda(partida1, Estado.FINALIZADA, 2, 1);
         Ronda ronda3 = crearRonda(partida2, Estado.EN_CURSO, 1, 0);
@@ -244,7 +245,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_contar_rondas_de_partida() {
+    void queSePuedaContarRondasDePartida() {
         Ronda ronda1 = crearRonda(partida1, Estado.EN_CURSO, 1, 2);
         Ronda ronda2 = crearRonda(partida1, Estado.FINALIZADA, 2, 1);
         Ronda ronda3 = crearRonda(partida2, Estado.EN_CURSO, 1, 0);
@@ -265,7 +266,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_eliminar_ronda() {
+    void queSePuedaEliminarRonda() {
         Ronda ronda = crearRonda(partida1, Estado.EN_CURSO, 1, 2);
         rondaRepository.guardar(ronda);
         sessionFactory.getCurrentSession().flush();
@@ -284,7 +285,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_actualizar_ronda() {
+    void queSePuedaActualizarRonda() {
         Ronda ronda = crearRonda(partida1, Estado.EN_CURSO, 1, 2);
         rondaRepository.guardar(ronda);
         sessionFactory.getCurrentSession().flush();
@@ -308,7 +309,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_retornar_lista_vacia_cuando_no_hay_rondas_con_criterio() {
+    void queRetorneUnalistaVaciaDeRondasSinCriterio() {
         List<Ronda> rondasPorEstado = rondaRepository.buscarPorEstado(Estado.EN_CURSO);
         List<Ronda> rondasPorPartida = rondaRepository.buscarPorPartida(partida1);
         List<Ronda> todasLasRondas = rondaRepository.buscarTodasLasRondas();
@@ -321,7 +322,7 @@ class RondaRepositoryImplTest {
     @Test
     @Rollback
     @Transactional
-    void deberia_retornar_cero_cuando_partida_no_tiene_rondas_para_contar() {
+    void queSePuedaRetornar0CuandoPartidaNoTieneRondasParaContar() {
         Partida2 partidaNueva = new Partida2();
         partidaNueva.setNombre("Partida Nueva");
         sessionFactory.getCurrentSession().save(partidaNueva);

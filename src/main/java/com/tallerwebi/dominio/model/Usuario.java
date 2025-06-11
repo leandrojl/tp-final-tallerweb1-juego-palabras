@@ -2,7 +2,7 @@ package com.tallerwebi.dominio.model;
 
 import com.tallerwebi.dominio.Enum.Tipo_Usuario;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 public class Usuario {
