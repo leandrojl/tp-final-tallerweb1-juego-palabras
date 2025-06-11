@@ -6,10 +6,7 @@ import com.tallerwebi.dominio.excepcion.ElUsuarioNoPerteneceAEstaPartida;
 import com.tallerwebi.dominio.excepcion.PartidaInexistente;
 import com.tallerwebi.dominio.excepcion.UsuarioInexistente;
 import com.tallerwebi.dominio.model.*;
-import com.tallerwebi.infraestructura.AciertoRepository;
-import com.tallerwebi.infraestructura.PartidaRepository;
-import com.tallerwebi.infraestructura.UsuarioPartidaRepository;
-import com.tallerwebi.infraestructura.UsuarioRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
