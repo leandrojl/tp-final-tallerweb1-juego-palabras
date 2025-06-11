@@ -457,7 +457,7 @@ public class JuegoControllerTest {
 
         Partida2 partida = new Partida2();
         partida.setId(partidaId);
-        partida.setRondasTotales(2);
+        partida.setRondasTotales(5);
         partida.setEstado(Estado.EN_CURSO);
         partida.setIdioma("ES");
 
@@ -468,7 +468,7 @@ public class JuegoControllerTest {
         ronda.setId(200L);
         ronda.setPartida(partida);
         ronda.setPalabra(palabra);
-        ronda.setNumeroDeRonda(2); // Última ronda
+        ronda.setNumeroDeRonda(5);
         ronda.setEstado(Estado.EN_CURSO);
 
         UsuarioPartida usuarioPartida = new UsuarioPartida();
@@ -488,7 +488,7 @@ public class JuegoControllerTest {
         // Verificaciones
         assertEquals(true, response.get("correcto"));
         assertEquals(true, response.get("partidaTerminada"));
-        assertEquals(75, response.get("puntaje")); // 50 + 25
+        assertEquals(100, response.get("puntaje"));
         verify(partidaRepository).actualizarEstado(partidaId, Estado.FINALIZADA);
     }
     @Test
@@ -616,7 +616,7 @@ public class JuegoControllerTest {
 
         ModelAndView mav = controladorJuego.mostrarResultados(usuarioId, partidaId);
 
-        assertEquals("vistaFinalJuego", mav.getViewName());
+        assertEquals("resultados", mav.getViewName());
 
         List<Map<String, Object>> ranking = (List<Map<String, Object>>) mav.getModel().get("ranking");
 
