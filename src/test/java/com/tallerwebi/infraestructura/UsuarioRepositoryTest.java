@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -28,11 +29,25 @@ public class UsuarioRepositoryTest {
     @Autowired
     private UsuarioRepositoryImpl repositorioUsuario;
 
+
+    @Test
+    @Transactional
+    @Rollback
+    public void queSePuedaBuscarUnUsuarioPorId(){
+        givenExisteUsuario();
+        long id= 1 ;
+        Usuario usuarioEncontrado = whenBuscarUnUsuarioPorId(id);
+        thenUsuarioEncontradoExitosamente("pepe123",usuarioEncontrado);
+    }
+
+
+
     @Test
     @Transactional
     @Rollback
     public void queSePuedaGuardarUnUsuario(){
         Usuario usuario = givenCrearUsuario("pepe123","pepe123@gmail.com","123456");
+
         Serializable id = whenGuardarUsuarioEnBdd(usuario);
         thenUsuarioGuardado(id);
     }
@@ -67,9 +82,12 @@ public class UsuarioRepositoryTest {
 
     private void thenUsuarioGuardado(Serializable id) {
         assertNotNull(id);
-    }
+        }
 
     private Serializable whenGuardarUsuarioEnBdd(Usuario usuario) {
         return this.repositorioUsuario.guardar(usuario);
+    }
+    private Usuario whenBuscarUnUsuarioPorId(long i) {
+        return repositorioUsuario.buscarPorId(i);
     }
 }

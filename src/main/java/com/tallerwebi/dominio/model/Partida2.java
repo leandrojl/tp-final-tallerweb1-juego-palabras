@@ -31,6 +31,14 @@ public class Partida2 {
         this.estado = estado;
     }
 
+    public Partida2(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int minimoJugadores) {
+        this.nombre = nombre;
+        this.idioma = idioma;
+        this.permiteComodin = permiteComodin;
+        this.rondasTotales = rondasTotales;
+        this.minimoJugadores = minimoJugadores;
+    }
+
     public Long getId() {
         return id;
     }

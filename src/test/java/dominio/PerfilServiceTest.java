@@ -2,6 +2,8 @@ package dominio;
 
 import com.tallerwebi.dominio.PerfilService;
 import com.tallerwebi.dominio.PerfilServiceImpl;
+import com.tallerwebi.dominio.UsuarioRepository;
+import com.tallerwebi.infraestructura.UsuarioRepositoryImpl;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -11,8 +13,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class PerfilServiceTest {
+    private UsuarioRepository usuarioRepository;
+    private PerfilService perfilService = new PerfilServiceImpl((UsuarioRepositoryImpl) usuarioRepository);
 
-PerfilService perfilService = new PerfilServiceImpl();
 
     @Test
     public void obtenerDatosDePerfil() {
