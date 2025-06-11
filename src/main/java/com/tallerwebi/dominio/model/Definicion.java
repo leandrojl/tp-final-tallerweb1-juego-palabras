@@ -16,7 +16,6 @@ public class Definicion {
 
 
     public Definicion() {
-
     }
 
     public Definicion(String def) {

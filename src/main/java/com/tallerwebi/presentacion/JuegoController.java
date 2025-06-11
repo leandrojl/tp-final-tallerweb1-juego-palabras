@@ -95,15 +95,20 @@ public class JuegoController {
             rondaActual = rondaServicio.guardar(rondaActual);
 
             // Obtener palabra con sus definiciones usando tu servicio existente
-//            // Asumo que la partida tiene un idioma configurado, si no usar "Mixto" por defecto
+            // Asumo que la partida tiene un idioma configurado, si no usar "Mixto" por defecto
             String idiomaPartida = partida.getIdioma() != null ? partida.getIdioma() : "Mixto";
             HashMap<Palabra, List<Definicion>> palabraConDefiniciones = palabraServicio.traerPalabraYDefinicion(idiomaPartida);
-//
-//            // Extraer la palabra y una definición aleatoria
+
+            // Extraer la palabra y una definición aleatoria
             Palabra palabraTexto = palabraConDefiniciones.keySet().iterator().next();
             List<Definicion> definiciones = palabraConDefiniciones.get(palabraTexto);
             Definicion definicionSeleccionada = definiciones.get(new Random().nextInt(definiciones.size()));
+            // Asignar palabra y definición a la ronda
+            rondaActual.setPalabra(palabraTexto);
+            rondaActual.setDefinicion(definicionSeleccionada);
 
+            // Guardar la ronda con la palabra y la definición asociadas
+            rondaActual = rondaServicio.guardar(rondaActual);
         }
         // Obtener todos los participantes de la partida con sus puntajes actuales
         List<UsuarioPartida> participantes = usuarioPartidaService.buscarListaDeUsuariosPartidaPorPartidaId(partida.getId());

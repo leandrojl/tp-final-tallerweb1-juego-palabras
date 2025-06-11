@@ -76,7 +76,9 @@ public class JuegoControllerTest {
         ronda.setNumeroDeRonda(1L);
         ronda.setEstado(Estado.EN_CURSO);
         ronda.setPartida(partida);
-        ronda.setDefinicion("Definición de prueba");
+        Definicion definicion = new Definicion();
+        definicion.setDefinicion("Definicion de prueba");
+        ronda.setDefinicion(definicion);
         ronda.setPalabra(new Palabra());
     }
 
@@ -154,8 +156,8 @@ public class JuegoControllerTest {
 
         assertEquals(usuarioId, mov.getModel().get("usuarioId"));
         assertEquals(partidaId, mov.getModel().get("partidaId"));
-        assertEquals("Definición de prueba", mov.getModel().get("definicion"));
-    }
+        Definicion definicionEnModelo = (Definicion) mov.getModel().get("definicion");
+        assertEquals("Definicion de prueba", definicionEnModelo.getDefinicion());    }
 
     @Test
     public void queSeAgreguenLosJugadoresAlModelo() throws Exception {
