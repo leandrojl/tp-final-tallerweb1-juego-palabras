@@ -37,10 +37,39 @@ public class LobbyRepositoryImpl implements LobbyRepository {
                 .getResultList();
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<Partida2> obtenerPartidasEnCurso() {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("FROM Partida2 p WHERE p.estado = :estado", Partida2.class)
+                .setParameter("estado", Estado.EN_CURSO)
+                .getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Partida2> obtenerPartidasFinalizadas() {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("FROM Partida2 p WHERE p.estado = :estado", Partida2.class)
+                .setParameter("estado", Estado.FINALIZADA)
+                .getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Partida2> obtenerPartidasCanceladas() {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("FROM Partida2 p WHERE p.estado = :estado", Partida2.class)
+                .setParameter("estado", Estado.CANCELADA)
+                .getResultList();
+    }
+
     @Transactional
     @Override
     public void eliminarTodasLasPartidas() {
         Session session = sessionFactory.getCurrentSession();
         session.createQuery("DELETE FROM Partida2").executeUpdate();
     }
+
+
 }

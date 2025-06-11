@@ -40,14 +40,13 @@ public class LobbyController {
             jugador.setNombre("july3p");
             model.addAttribute("jugador", jugador);
 
-           //momentaneamente se crean partidas en espera de ejemplo
-            lobbyService.guardar(new Partida2("Partida en espera 1", "Ingles", true, 5, 2, Estado.EN_ESPERA));
-            lobbyService.guardar(new Partida2("Partida en espera 2", "Ingles", false, 3, 4, Estado.EN_ESPERA));
-            lobbyService.guardar(new Partida2("Partida en espera 3", "Ingles", true, 7, 3, Estado.EN_ESPERA));
-
             // obtengo las partidas en espera
             List<Partida2> partidas = lobbyService.obtenerPartidasEnEspera();
-            model.addAttribute("partidas", partidas);
+            if (partidas.isEmpty()) {
+                model.addAttribute("mensaje", "No hay partidas disponibles en curso.");
+            } else {
+                model.addAttribute("partidas", partidas);
+            }
         }
 
         return new ModelAndView("lobby");

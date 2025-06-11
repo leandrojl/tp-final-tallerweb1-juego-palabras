@@ -27,9 +27,9 @@ public class LobbyServiceTest {
     public void testObtenerPartidasEnEsperaConMock() {
 
         when(lobbyServiceMock.obtenerPartidasEnEspera()).thenReturn(List.of(
-                new Partida2("Partida en espera 1", "Ingles", true, 5, 2, Estado.EN_ESPERA),
-                new Partida2("Partida en espera 2", "Ingles", false, 3, 4, Estado.EN_ESPERA),
-                new Partida2("Partida en espera 3", "Ingles", true, 7, 3, Estado.EN_ESPERA)
+                new Partida2("Partida en espera 1", "Ingles", true, 5,5, 2, Estado.EN_ESPERA),
+                new Partida2("Partida en espera 2", "Ingles", false, 3,5, 4, Estado.EN_ESPERA),
+                new Partida2("Partida en espera 3", "Ingles", true, 7,5, 3, Estado.EN_ESPERA)
         ));
 
         List<Partida2> partidas = lobbyServiceMock.obtenerPartidasEnEspera();

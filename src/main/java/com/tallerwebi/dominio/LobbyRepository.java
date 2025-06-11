@@ -10,4 +10,10 @@ public interface LobbyRepository {
     List<Partida2> obtenerPartidasEnEspera();
 
     void eliminarTodasLasPartidas();
+
+    List<Partida2> obtenerPartidasEnCurso();
+
+    List<Partida2> obtenerPartidasFinalizadas();
+
+    List<Partida2> obtenerPartidasCanceladas();
 }
