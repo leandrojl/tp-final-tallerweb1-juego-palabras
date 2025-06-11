@@ -2,19 +2,23 @@ const stompClient = new StompJs.Client({
     brokerURL: 'ws://localhost:8080/spring/wschat'
 });
 
-
+console.log("SUSCRIPTOR A")
 
 stompClient.debug = function(str) {
     console.log(str)
  };
 
 stompClient.onConnect = (frame) => {
+
     console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/messages', (m) => {
-        console.log(JSON.parse(m.body).content);
+        console.log("Mensaje del subscribe:", JSON.parse(m.body));
+        const data = JSON.parse(m.body);
+        console.log(data.content);
+
         const messagesContainer = document.getElementById("palabras-mencionadas");
-        const newMessage = document.createElement("p")
-        newMessage.textContent = JSON.parse(m.body).content;
+        const newMessage = document.createElement("p");
+        newMessage.textContent = data.username + ": " + data.content;
         messagesContainer.appendChild(newMessage);
     });
 };
@@ -37,6 +41,7 @@ stompClient.onStompError = (frame) => {
 };
 
 stompClient.activate();
+
 
 // Take the value in the ‘message-input’ text field and send it to the server with empty headers.
 function sendMessage(){

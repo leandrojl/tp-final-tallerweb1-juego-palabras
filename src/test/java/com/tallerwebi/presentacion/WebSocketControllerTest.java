@@ -1,14 +1,19 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.excepcion.UsuarioNoIdentificadoException;
 import com.tallerwebi.dominio.model.MensajeEnviado;
 import com.tallerwebi.dominio.model.MensajeRecibido;
+import org.eclipse.jetty.server.session.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.*;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import javax.servlet.http.HttpSession;
 import java.lang.reflect.Type;
 import java.util.concurrent.*;
 
@@ -31,7 +36,7 @@ public class WebSocketControllerTest {
     public void queUnJugadorPuedaEstarListo() throws Exception {
         EstadoJugador estadoJugador = givenJugadorEnSala("pepe",true);
         CompletableFuture<EstadoJugador> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/salaDeEspera",
-                "/app/salaDeEspera",estadoJugador,EstadoJugador.class);
+                "/app/salaDeEspera",estadoJugador,"pepe",EstadoJugador.class);
         EstadoJugador resultado = completableFuture.get(5, TimeUnit.SECONDS);
         thenJugadorListo(resultado);
     }
@@ -68,10 +73,31 @@ public class WebSocketControllerTest {
     @Test
     public void siSeEstaEnUnaPartidaQueSePuedaVerLaPalabraIndicada() throws Exception {
         CompletableFuture<MensajeEnviado> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/messages",
-                "/app/chat",new MensajeRecibido("nube"),MensajeEnviado.class);
+                "/app/chat",new MensajeRecibido("nube"),"pepe",MensajeEnviado.class);
 
         MensajeEnviado mensajeEnviado = completableFuture.get(5, TimeUnit.SECONDS);
         thenMensajeEnviadoCorrectamente("nube",mensajeEnviado);
+    }
+
+    @Test
+    public void siSeEstaEnUnaPartidaQueSePuedaSaberQuienEscribioLaPlabraIndicada() throws Exception{
+
+
+        CompletableFuture<MensajeEnviado> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/messages",
+                "/app/chat",new MensajeRecibido("nube"),"pepe",MensajeEnviado.class);
+
+        MensajeEnviado mensajeEnviado = completableFuture.get(5, TimeUnit.SECONDS);
+        thenMensajeEnviadoCorrectamente("nube",mensajeEnviado);
+        thenSeVeQuienEscribioElMensaje("pepe",mensajeEnviado.getUsername());
+    }
+
+    @Test
+    public void siSeEstaEnUnaPartidaYNoSeSabeQuienEscribioLaPalabraQueDeError() {
+    }
+
+
+    private void thenSeVeQuienEscribioElMensaje(String nombreEsperado, String username) {
+        assertEquals(nombreEsperado,username);
     }
 
 
@@ -98,6 +124,7 @@ public class WebSocketControllerTest {
             String topic,
             String appDestination,
             Object mensajeAEnviar,
+            String nombreEmisor,
             Class<T> tipoDeRespuesta
     ) throws InterruptedException, ExecutionException, TimeoutException {
 
@@ -117,8 +144,11 @@ public class WebSocketControllerTest {
                 completableFuture.complete(tipoDeRespuesta.cast(payload));
             }
         });
+        StompHeaders headers = new StompHeaders();
+        headers.setDestination(appDestination);
+        headers.add("nombreUsuario", nombreEmisor);
+        session.send(headers, mensajeAEnviar);
 
-        session.send(appDestination, mensajeAEnviar);
         return completableFuture;
     }
 

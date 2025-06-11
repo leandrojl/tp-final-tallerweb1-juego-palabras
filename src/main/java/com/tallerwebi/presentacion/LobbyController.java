@@ -6,6 +6,7 @@ import com.tallerwebi.dominio.PartidaService;
 import com.tallerwebi.dominio.model.Jugador;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +40,8 @@ public class LobbyController {
             jugador = new Jugador();
             jugador.setNombre("july3p");
             model.addAttribute("jugador", jugador);
+            Usuario usuario = new Usuario("pepe","pepe@gmail.com","password");
+            session.setAttribute("usuario", usuario);
 
            //momentaneamente se crean partidas en espera de ejemplo
             lobbyService.guardar(new Partida2("Partida en espera 1", "Ingles", true, 5, 2, Estado.EN_ESPERA));

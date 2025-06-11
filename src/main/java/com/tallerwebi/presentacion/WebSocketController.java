@@ -1,10 +1,19 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.excepcion.UsuarioNoIdentificadoException;
 import com.tallerwebi.dominio.model.MensajeEnviado;
 import com.tallerwebi.dominio.model.MensajeRecibido;
+import com.tallerwebi.dominio.model.Usuario;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
+
+import javax.servlet.http.HttpSession;
+import java.security.Principal;
 
 @Controller
 public class WebSocketController {
@@ -25,8 +34,14 @@ public class WebSocketController {
 
     @MessageMapping("/chat")
     @SendTo("/topic/messages")
-    public MensajeEnviado getMessages(MensajeRecibido mensajeRecibido) {
-        return new MensajeEnviado(mensajeRecibido.getMessage());
+    public MensajeEnviado getMessages(MensajeRecibido mensajeRecibido, Message<?> message) {
+        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.wrap(message);
+        Usuario usuario = (Usuario) accessor.getSessionAttributes().get("usuario");
+        if (usuario == null) {
+            String nombreUsuario = accessor.getFirstNativeHeader("nombreUsuario");
+            return new MensajeEnviado(mensajeRecibido.getMessage(), nombreUsuario != null ? nombreUsuario : "Anonimo");
+        }
+        return new MensajeEnviado(mensajeRecibido.getMessage(), usuario.getNombreUsuario());
     }
 
 
