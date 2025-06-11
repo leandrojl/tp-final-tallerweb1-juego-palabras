@@ -2,6 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.ElUsuarioNoPerteneceAEstaPartida;
 import com.tallerwebi.dominio.excepcion.PartidaInexistente;
 import com.tallerwebi.dominio.excepcion.UsuarioInexistente;
 import com.tallerwebi.dominio.model.*;
@@ -91,6 +92,20 @@ public class JuegoControllerTest {
             controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
         });
 
+    }
+
+    @Test
+    public void mostrarVistaJuego_lanzaException_siUsuarioNoEstaEnTalPartida() throws Exception {
+        Long usuarioId = 1L;
+        Long partidaId = 1L;
+
+        when(usuarioServicio.buscarPorId(usuarioId)).thenReturn(usuario);
+        when(partidaServicio.buscarPorId(partidaId)).thenReturn(partida);
+        when(usuarioPartidaServicio.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId)).thenReturn(null);
+
+        Exception exception = assertThrows(ElUsuarioNoPerteneceAEstaPartida.class, () -> {
+            controladorJuego.mostrarVistaJuego(usuarioId, partidaId);
+        });
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.ElUsuarioNoPerteneceAEstaPartida;
 import com.tallerwebi.dominio.excepcion.PalabraNoDisponibleException;
 import com.tallerwebi.dominio.excepcion.PartidaInexistente;
 import com.tallerwebi.dominio.excepcion.UsuarioInexistente;
@@ -61,7 +62,7 @@ public class JuegoController {
     }
 
     @GetMapping
-    public ModelAndView mostrarVistaJuego(@RequestParam Long usuarioId, @RequestParam Long partidaId) throws UsuarioInexistente, PartidaInexistente {
+    public ModelAndView mostrarVistaJuego(@RequestParam Long usuarioId, @RequestParam Long partidaId) throws Exception {
 
         // El usuario ya está registrado, solo lo obtenemos
         Usuario usuario = usuarioServicio.buscarPorId(usuarioId);
@@ -77,7 +78,7 @@ public class JuegoController {
         // Verificar que el usuario está en esta partida
         UsuarioPartida usuarioPartida = usuarioPartidaService.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId);
         if (usuarioPartida == null) {
-            throw new RuntimeException("El usuario no pertenece a esta partida");
+            throw new ElUsuarioNoPerteneceAEstaPartida();
         }
 
         // Si la partida está "EN_ESPERA", cambiarla a "EN_CURSO" al iniciar
