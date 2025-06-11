@@ -9,5 +9,5 @@ public interface PerfilService {
 
     Usuario buscarDatosDeUsuarioPorId(int i);
 
-    double obtenerWinrate(int i);
+    double obtenerWinrate(Usuario usuario);
 }

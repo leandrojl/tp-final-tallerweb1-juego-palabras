@@ -51,8 +51,9 @@ public class PerfilServiceTest {
     }
     @Test
     public void obtenerWinrate(){
-        givenIdUsuario();
-        double winrateObtenido = whenObtieneWinrate(1);
+        Usuario usuario = givenIdUsuario();
+        Mockito.when(usuarioPartidaRepository.getWinrate(usuario)).thenReturn(50.0);
+        double winrateObtenido = whenObtieneWinrate(usuario);
         thenComparaWinrate(winrateObtenido, 50.00);
     }
     @Test
@@ -74,8 +75,9 @@ public class PerfilServiceTest {
     assertThat(winrateObtenido, equalTo(v));
     }
 
-    private double whenObtieneWinrate(int i) {
-    return perfilService.obtenerWinrate(i);
+    private double whenObtieneWinrate(Usuario usuario) {
+
+        return perfilService.obtenerWinrate(usuario);
     }
 
     private void thenElUsuarioExiste(Usuario usuarioObtenido) {

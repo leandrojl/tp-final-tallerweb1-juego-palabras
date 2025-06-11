@@ -39,7 +39,7 @@ private final UsuarioPartidaRepository usuarioPartidaRepository;
     }
 
     @Override
-    public double obtenerWinrate(int i) {
-        return 0.0;
+    public double obtenerWinrate(Usuario usuario) {
+        return usuarioPartidaRepository.getWinrate(usuario);
     }
 }
