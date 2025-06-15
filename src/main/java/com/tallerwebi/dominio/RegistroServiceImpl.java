@@ -15,11 +15,7 @@ import java.util.List;
 public class RegistroServiceImpl implements RegistroService {
 
     private final UsuarioRepository repositorioUsuario;
-    /*private List<Usuario> usuarios = Arrays.asList(
-            new Usuario("pepe1235421", "pepe@gmail.com", "abc123245"),
-            new Usuario("lucas", "lucas@gmail.com", "12151gdsf"),
-            new Usuario("nicolas", "nicolas@gmail.com", "bv2b132v1")
-    );*/
+
     @Autowired
     public RegistroServiceImpl(UsuarioRepository repositorioUsuario) {
         this.repositorioUsuario = repositorioUsuario;

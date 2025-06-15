@@ -18,13 +18,28 @@ public class UsuarioPartida {
     @ManyToOne
     @JoinColumn(name = "id_partida", nullable = false)
     private Partida2 partida;
-
+    private boolean gano;
     public UsuarioPartida (){
 
     }
 
+
+    public UsuarioPartida(Usuario usuario, Partida2 partida, boolean gano) {
+    this.usuario=usuario;
+    this.partida=partida;
+    this.gano=gano;
+    }
+
     // Getters y setters
-    public Long getId() {
+    public boolean getGano() {
+        return gano;
+    }
+
+    public void setGano(boolean gano) {
+        this.gano = gano;
+    }
+
+        public Long getId() {
         return id;
     }
 

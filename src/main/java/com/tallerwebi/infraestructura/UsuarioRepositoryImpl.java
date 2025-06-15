@@ -9,13 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 @Repository("repositorioUsuario")
 public class UsuarioRepositoryImpl implements UsuarioRepository{
 
 
-    private final SessionFactory sessionFactory;
+    private SessionFactory sessionFactory ;
 
+    public UsuarioRepositoryImpl(){}
     @Autowired
     public UsuarioRepositoryImpl(SessionFactory sessionFactory){
         this.sessionFactory = sessionFactory;
@@ -47,6 +49,11 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
     @Override
     public void modificar(Usuario usuario) {
         sessionFactory.getCurrentSession().update(usuario);
+    }
+
+    @Override
+    public Usuario buscarPorId(long i) {
+               return (Usuario) sessionFactory.getCurrentSession().createCriteria(Usuario.class).add(Restrictions.eq("id", i)).uniqueResult();
     }
 
 }

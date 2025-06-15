@@ -1,5 +1,8 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.model.Usuario;
+import com.tallerwebi.infraestructura.UsuarioRepositoryImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -9,15 +12,34 @@ import java.util.Map;
 @Service
 @Transactional
 public class PerfilServiceImpl implements PerfilService {
+private final UsuarioRepositoryImpl usuarioRepository;
+private final UsuarioPartidaRepository usuarioPartidaRepository;
+
+@Autowired
+    public PerfilServiceImpl(UsuarioRepositoryImpl usuarioRepository, UsuarioPartidaRepository usuarioPartidaRepository) {
+        this.usuarioRepository = usuarioRepository;
+    this.usuarioPartidaRepository = usuarioPartidaRepository;
+}
 
     @Override
-    public Map<String, Object> obtenerDatosDePerfil() {
+    public Map<String, Object> obtenerDatosDePerfil(Usuario usuario) {
         Map<String, Object> modelo = new HashMap<>();
-        modelo.put("nombre", "Juan Perez");
-        modelo.put("usuario", "Juancito123");
-        modelo.put("edad", "15");
-        modelo.put("winrate", "70%");
+        modelo.put("nombre", "Juan");
+        modelo.put("usuario", usuario.getNombreUsuario());
+        modelo.put("Email", usuario.getEmail());
+        modelo.put("winrate", usuarioPartidaRepository.getWinrate(usuario));
         modelo.put("fotoPerfil","fotoperfil1.png");
         return modelo;
+    }
+
+    @Override
+    public Usuario buscarDatosDeUsuarioPorId(int i) {
+        return usuarioRepository.buscarPorId(i);
+
+    }
+
+    @Override
+    public double obtenerWinrate(Usuario usuario) {
+        return usuarioPartidaRepository.getWinrate(usuario);
     }
 }
