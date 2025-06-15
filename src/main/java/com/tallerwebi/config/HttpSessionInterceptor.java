@@ -1,6 +1,5 @@
 package com.tallerwebi.config;
 
-import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.socket.WebSocketHandler;
@@ -16,18 +15,26 @@ public class HttpSessionInterceptor implements HandshakeInterceptor {
                                    ServerHttpResponse response,
                                    WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) {
+
         if (request instanceof org.springframework.http.server.ServletServerHttpRequest) {
             org.springframework.http.server.ServletServerHttpRequest servletRequest =
                     (org.springframework.http.server.ServletServerHttpRequest) request;
 
-            HttpSession httpSession = servletRequest.getServletRequest().getSession(false);
-            if (httpSession != null) {
-                String usuario = (String) httpSession.getAttribute("usuario");
-                if (usuario != null) {
-                    attributes.put("usuario", usuario);
+            // te trae el nombre de usuario por url para tests
+            String nombreUsuario = servletRequest.getServletRequest().getParameter("usuario");
+
+            // te trae lo que este en HttpSession
+            if (nombreUsuario == null) {
+                HttpSession session = servletRequest.getServletRequest().getSession(false);
+                if (session != null) {
+                    nombreUsuario = (String) session.getAttribute("usuario");
                 }
             }
+            if (nombreUsuario != null) {
+                attributes.put("usuario", nombreUsuario);
+            }
         }
+
         return true;
     }
 
@@ -36,6 +43,6 @@ public class HttpSessionInterceptor implements HandshakeInterceptor {
                                ServerHttpResponse response,
                                WebSocketHandler wsHandler,
                                Exception exception) {
+        // Nada
     }
 }
-

@@ -1,19 +1,15 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.excepcion.UsuarioNoIdentificadoException;
+import com.tallerwebi.dominio.model.EstadoJugador;
 import com.tallerwebi.dominio.model.MensajeEnviado;
 import com.tallerwebi.dominio.model.MensajeRecibido;
-import org.eclipse.jetty.server.session.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.*;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
-import javax.servlet.http.HttpSession;
 import java.lang.reflect.Type;
 import java.util.concurrent.*;
 
@@ -31,7 +27,6 @@ public class WebSocketControllerTest {
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
     }
 
-    // PARA SALA DE ESPERA
     @Test
     public void queUnJugadorPuedaEstarListo() throws Exception {
         EstadoJugador estadoJugador = givenJugadorEnSala("pepe",true);
@@ -43,32 +38,19 @@ public class WebSocketControllerTest {
 
 
     @Test
-    public void queSiUnJugadorAunNoEstaListoNoSePuedaIniciarUnaPartida(){
+    public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {  //EN DESARROLLO
+        EstadoJugador jugador2 = new EstadoJugador("jugador2", true);
 
+        CompletableFuture<String> errorEsperado = whenEnvioYReciboError(
+                "/app/salaDeEspera",
+                jugador2,
+                "jugador1"
+        );
+
+        String errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
+        assertEquals("No se puede modificar el estado de otro jugador", errorMensaje);
     }
 
-    @Test
-    public void siAmbosJugadoresEstanListosSePuedaIniciarUnaPartida() {
-
-    }
-
-
-    //adicionales que pienso
-
-    /*@Test
-    public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo(){
-        WebSocketController webSocketController = new WebSocketController();
-        EstadoJugador jugador1 = new EstadoJugador("jugador1", false);
-        EstadoJugador jugador2 = new EstadoJugador("jugador2", false);
-        jugador1.setEstaListo(true);
-        assertThrows(Exception.class, () -> {
-            webSocketController.actualizarEstadoJugador(jugador2,"jugador1");
-        });
-        assertTrue(jugador1.isEstaListo(), false);
-        assertFalse(jugador2.isEstaListo(), false);
-    }*/
-
-    // PARA LA PARTIDA
 
     @Test
     public void siSeEstaEnUnaPartidaQueSePuedaVerLaPalabraIndicada() throws Exception {
@@ -91,34 +73,75 @@ public class WebSocketControllerTest {
         thenSeVeQuienEscribioElMensaje("pepe",mensajeEnviado.getUsername());
     }
 
+
+
+    @Test
+    public void queSiUnJugadorAunNoEstaListoNoSePuedaIniciarUnaPartida(){
+
+    }
+
+    @Test
+    public void siAmbosJugadoresEstanListosSePuedaIniciarUnaPartida() {
+
+    }
+
     @Test
     public void siSeEstaEnUnaPartidaYNoSeSabeQuienEscribioLaPalabraQueDeError() {
     }
 
-
-    private void thenSeVeQuienEscribioElMensaje(String nombreEsperado, String username) {
-        assertEquals(nombreEsperado,username);
-    }
-
-
     @Test
     public void queAlRefrescarLaPaginaNoSeReinicieWebSocket(){
 
+    }
+
+    private void thenSeVeQuienEscribioElMensaje(String nombreEsperado, String username) {
+        assertEquals(nombreEsperado,username);
     }
     private void thenMensajeEnviadoCorrectamente(String mensajeEsperado, MensajeEnviado mensajeEnviado) {
         assertEquals(mensajeEsperado, mensajeEnviado.getContent());
     }
     private EstadoJugador givenJugadorEnSala(String nombre, boolean estaListo) {
         EstadoJugador estadoJugador = new EstadoJugador();
-        estadoJugador.setJugadorId(nombre);
+        estadoJugador.setUsername(nombre);
         estadoJugador.setEstaListo(estaListo);
         return estadoJugador;
     }
 
     private void thenJugadorListo(EstadoJugador resultado) {
-        assertEquals("pepe", resultado.getJugadorId());
+        assertEquals("pepe", resultado.getUsername());
         assertTrue(resultado.isEstaListo());
     }
+
+    private CompletableFuture<String> whenEnvioYReciboError(
+            String appDestination,
+            Object mensajeAEnviar,
+            String nombreEmisor
+    ) throws Exception {
+        CompletableFuture<String> errorFuture = new CompletableFuture<>();
+        System.out.println(URL + "?usuario=" + nombreEmisor);
+        StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
+        StompSession session = stompClient.connect(URL + "?usuario=" + nombreEmisor, sessionHandler)
+                .get(1, TimeUnit.SECONDS);
+
+        session.subscribe("/user/queue/errors", new StompFrameHandler() {
+
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+
+                return String.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                errorFuture.complete((String) payload);
+            }
+        });
+
+        session.send(appDestination, mensajeAEnviar);
+
+        return errorFuture;
+    }
+
 
     private <T> CompletableFuture<T> whenEnvioMensajeYReciboRespuesta(
             String topic,
@@ -131,7 +154,9 @@ public class WebSocketControllerTest {
         CompletableFuture<T> completableFuture = new CompletableFuture<>();
 
         StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
-        StompSession session = stompClient.connect(URL, sessionHandler).get(1, TimeUnit.SECONDS);
+        String urlConUsuario = URL + "?usuario=" + nombreEmisor;
+        StompSession session = stompClient.connect(urlConUsuario, sessionHandler).get(1, TimeUnit.SECONDS);
+
 
         session.subscribe(topic, new StompFrameHandler() {
             @Override
@@ -144,34 +169,9 @@ public class WebSocketControllerTest {
                 completableFuture.complete(tipoDeRespuesta.cast(payload));
             }
         });
-        StompHeaders headers = new StompHeaders();
-        headers.setDestination(appDestination);
-        headers.add("nombreUsuario", nombreEmisor);
-        session.send(headers, mensajeAEnviar);
+        session.send(appDestination, mensajeAEnviar);
 
         return completableFuture;
-    }
-
-
-    public static class EstadoJugador {
-        private String jugadorId;
-        private boolean estaListo;
-
-        public String getJugadorId() {
-            return jugadorId;
-        }
-
-        public void setJugadorId(String jugadorId) {
-            this.jugadorId = jugadorId;
-        }
-
-        public boolean isEstaListo() {
-            return estaListo;
-        }
-
-        public void setEstaListo(boolean estaListo) {
-            this.estaListo = estaListo;
-        }
     }
 }
 
