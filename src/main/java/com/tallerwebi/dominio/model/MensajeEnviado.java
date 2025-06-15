@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio.model;
 
 public class MensajeEnviado {
+    private String username;
     private String content;
 
     public MensajeEnviado() {
@@ -10,11 +11,24 @@ public class MensajeEnviado {
         this.content = content;
     }
 
+    public MensajeEnviado(String message, String nombreUsuario) {
+        this.content = message;
+        this.username = nombreUsuario;
+    }
+
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }
