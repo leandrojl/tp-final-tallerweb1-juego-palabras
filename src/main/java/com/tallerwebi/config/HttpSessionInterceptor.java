@@ -22,7 +22,7 @@ public class HttpSessionInterceptor implements HandshakeInterceptor {
 
             HttpSession httpSession = servletRequest.getServletRequest().getSession(false);
             if (httpSession != null) {
-                Usuario usuario = (Usuario) httpSession.getAttribute("usuario");
+                String usuario = (String) httpSession.getAttribute("usuario");
                 if (usuario != null) {
                     attributes.put("usuario", usuario);
                 }

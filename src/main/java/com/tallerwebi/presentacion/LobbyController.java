@@ -40,8 +40,7 @@ public class LobbyController {
             jugador = new Jugador();
             jugador.setNombre("july3p");
             model.addAttribute("jugador", jugador);
-            Usuario usuario = new Usuario("pepe","pepe@gmail.com","password");
-            session.setAttribute("usuario", usuario);
+            session.setAttribute("usuario", "pepe");
 
             // obtengo las partidas en espera
             List<Partida2> partidas = lobbyService.obtenerPartidasEnEspera();

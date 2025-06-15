@@ -34,14 +34,14 @@ public class WebSocketController {
 
     @MessageMapping("/chat")
     @SendTo("/topic/messages")
-    public MensajeEnviado getMessages(MensajeRecibido mensajeRecibido, Message<?> message) {
-        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.wrap(message);
-        Usuario usuario = (Usuario) accessor.getSessionAttributes().get("usuario");
-        if (usuario == null) {
-            String nombreUsuario = accessor.getFirstNativeHeader("nombreUsuario");
-            return new MensajeEnviado(mensajeRecibido.getMessage(), nombreUsuario != null ? nombreUsuario : "Anonimo");
+    public MensajeEnviado getMessages(MensajeRecibido mensajeRecibido, Principal principal) {
+        String nombreUsuario;
+        if (principal != null) {
+            nombreUsuario = principal.getName();
+        } else {
+            nombreUsuario = "Anónimo";
         }
-        return new MensajeEnviado(mensajeRecibido.getMessage(), usuario.getNombreUsuario());
+        return new MensajeEnviado(mensajeRecibido.getMessage(), nombreUsuario);
     }
 
 
