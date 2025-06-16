@@ -1,10 +1,12 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.PartidaService;
 import com.tallerwebi.dominio.model.EstadoJugador;
 import com.tallerwebi.dominio.model.MensajeEnviado;
 import com.tallerwebi.dominio.model.MensajeRecibido;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.*;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
@@ -13,18 +15,25 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import java.lang.reflect.Type;
 import java.util.concurrent.*;
 
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class WebSocketControllerTest {
 
     static final String URL = "ws://localhost:8080/spring/wschat";
 
     private WebSocketStompClient stompClient;
+    private PartidaService partidaService;
+    private WebSocketController webSocketController;
 
     @BeforeEach
     public void setup() {
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+        partidaService = Mockito.mock(PartidaService.class);
+        webSocketController = new WebSocketController(partidaService);
     }
 
     @Test
@@ -37,19 +46,6 @@ public class WebSocketControllerTest {
     }
 
 
-    @Test
-    public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {  //EN DESARROLLO
-        EstadoJugador jugador2 = new EstadoJugador("jugador2", true);
-
-        CompletableFuture<String> errorEsperado = whenEnvioYReciboError(
-                "/app/salaDeEspera",
-                jugador2,
-                "jugador1"
-        );
-
-        String errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
-        assertEquals("No se puede modificar el estado de otro jugador", errorMensaje);
-    }
 
 
     @Test
@@ -73,6 +69,48 @@ public class WebSocketControllerTest {
         thenSeVeQuienEscribioElMensaje("pepe",mensajeEnviado.getUsername());
     }
 
+    @Test
+    public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {  //EN DESARROLLO
+        EstadoJugador jugador2 = new EstadoJugador("jugador2", true);
+
+        CompletableFuture<String> errorEsperado = whenEnvioYReciboError(
+                "/app/salaDeEspera",
+                jugador2,
+                "jugador1"
+        );
+
+        String errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
+        assertEquals("No se puede modificar el estado de otro jugador", errorMensaje);
+    }
+
+    @Test
+    public void dadoQueHayDosUsuariosConectadosAlWebSocketsQueSePuedaEnviarUnMensajePrivadoAUnUsuario() throws Exception {
+        CompletableFuture<MensajeEnviado> futurePepe = givenUsuarioConectado("pepe");
+        CompletableFuture<MensajeEnviado> futureJose = givenUsuarioConectado("jose");
+        String mensaje = "Este mensaje le deberia llegar a pepe";
+        String nombreUsuario = "pepe";
+
+        doAnswer(invocation -> {
+            String usuario = invocation.getArgument(0);
+            String msg = invocation.getArgument(1);
+
+            if (usuario.equals("pepe")) {
+                futurePepe.complete(new MensajeEnviado(usuario, msg));
+            } else if (usuario.equals("jose")) {
+                futureJose.complete(new MensajeEnviado(usuario, msg));
+            }
+            return true;
+        }).when(partidaService).enviarMensajeAUsuarioEspecifico(anyString(), anyString());
+
+        whenEnviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
+
+        assertThrows(TimeoutException.class, () -> futureJose.get(5, TimeUnit.SECONDS));
+        MensajeEnviado mensajeEnviado = futurePepe.get(5, TimeUnit.SECONDS);
+        assertEquals(mensaje,mensajeEnviado.getContent());
+        assertEquals(nombreUsuario,mensajeEnviado.getUsername());
+    }
+
+
 
 
     @Test
@@ -92,6 +130,30 @@ public class WebSocketControllerTest {
     @Test
     public void queAlRefrescarLaPaginaNoSeReinicieWebSocket(){
 
+    }
+    private void whenEnviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
+        this.webSocketController.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
+    }
+    private CompletableFuture<MensajeEnviado> givenUsuarioConectado(String nombreUsuario) throws Exception{
+        CompletableFuture <MensajeEnviado> completableFuture = new CompletableFuture<>();
+        StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
+        StompSession session = stompClient.connect(URL + "?usuario=" + nombreUsuario, sessionHandler)
+                .get(1, TimeUnit.SECONDS);
+
+        session.subscribe("/user/queue/paraTest", new StompFrameHandler() {
+
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+
+                return MensajeEnviado.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                completableFuture.complete((MensajeEnviado) payload);
+            }
+        });
+        return completableFuture;
     }
 
     private void thenSeVeQuienEscribioElMensaje(String nombreEsperado, String username) {
@@ -118,7 +180,6 @@ public class WebSocketControllerTest {
             String nombreEmisor
     ) throws Exception {
         CompletableFuture<String> errorFuture = new CompletableFuture<>();
-        System.out.println(URL + "?usuario=" + nombreEmisor);
         StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
         StompSession session = stompClient.connect(URL + "?usuario=" + nombreEmisor, sessionHandler)
                 .get(1, TimeUnit.SECONDS);

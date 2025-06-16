@@ -11,5 +11,6 @@ public interface PartidaService {
     void eliminarPartida(String jugadorId);
 
 
+    void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje);
 }
 

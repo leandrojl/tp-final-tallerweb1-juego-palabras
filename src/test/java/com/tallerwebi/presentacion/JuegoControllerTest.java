@@ -4,6 +4,7 @@ import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.model.Jugador;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
@@ -21,12 +22,13 @@ public class JuegoControllerTest {
     private PartidaService partidaServicio;
     private RondaService rondaServicio;
     private JuegoController controladorJuego;
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @BeforeEach
     public void setUp() {
         rondaServicio = mock(RondaService.class);
         puntajeServicio = new PuntajeServiceImpl();
-        partidaServicio = new PartidaServiceImpl();
+        partidaServicio = new PartidaServiceImpl(simpMessagingTemplate);
         controladorJuego = new JuegoController(rondaServicio, puntajeServicio, partidaServicio);
     }
 

@@ -1,8 +1,10 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.PartidaService;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.model.MensajeEnviado;
 import com.tallerwebi.dominio.model.MensajeRecibido;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -15,6 +17,12 @@ import java.security.Principal;
 @Controller
 public class WebSocketController {
 
+    private PartidaService partidaServiceMock;
+
+    @Autowired
+    public WebSocketController(PartidaService partidaServiceMock) {
+        this.partidaServiceMock = partidaServiceMock;
+    }
 
     @MessageMapping("/salaDeEspera")
     @SendTo("/topic/salaDeEspera")
@@ -42,7 +50,10 @@ public class WebSocketController {
         } else {
             nombreUsuario = "Anónimo";
         }
-        return new MensajeEnviado(mensajeRecibido.getMessage(), nombreUsuario);
+        return new MensajeEnviado(nombreUsuario,mensajeRecibido.getMessage());
     }
 
+    public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
+        this.partidaServiceMock.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
+    }
 }

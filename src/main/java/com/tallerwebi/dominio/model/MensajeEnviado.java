@@ -11,8 +11,9 @@ public class MensajeEnviado {
         this.content = content;
     }
 
-    public MensajeEnviado(String message, String nombreUsuario) {
-        this.content = message;
+
+    public MensajeEnviado(String nombreUsuario, String content) {
+        this.content = content;
         this.username = nombreUsuario;
     }
 
