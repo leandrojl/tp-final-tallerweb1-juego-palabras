@@ -30,15 +30,15 @@ public class WebSocketController {
         //Si un usuario intenta cambiar el estado que no es suyo se valida
         String nombreUsuario = estadoJugador.getUsername();
             if(!nombreUsuario.equals(principal.getName())) {
-                throw new UsuarioInvalidoException();
+                throw new UsuarioInvalidoException("Error, no se puede alterar el estado de otro jugador");
             }
         return estadoJugador;
     }
 
     @MessageExceptionHandler(UsuarioInvalidoException.class)
     @SendToUser("/queue/errors")
-    public String handleUsuarioInvalidoException(UsuarioInvalidoException ex) {
-        return "No se puede modificar el estado de otro jugador";
+    public MensajeRecibido handleUsuarioInvalidoException(UsuarioInvalidoException ex) {
+        return new MensajeRecibido(ex.getMessage());
     }
 
     @MessageMapping("/chat")

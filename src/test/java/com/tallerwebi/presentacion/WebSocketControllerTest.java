@@ -73,14 +73,14 @@ public class WebSocketControllerTest {
     public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {  //EN DESARROLLO
         EstadoJugador jugador2 = new EstadoJugador("jugador2", true);
 
-        CompletableFuture<String> errorEsperado = whenEnvioYReciboError(
+        CompletableFuture<MensajeRecibido> errorEsperado = whenEnvioYReciboError(
                 "/app/salaDeEspera",
                 jugador2,
                 "jugador1"
         );
 
-        String errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
-        assertEquals("No se puede modificar el estado de otro jugador", errorMensaje);
+        MensajeRecibido errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
+        assertEquals("Error, no se puede alterar el estado de otro jugador", errorMensaje.getMessage());
     }
 
     @Test
@@ -174,12 +174,12 @@ public class WebSocketControllerTest {
         assertTrue(resultado.isEstaListo());
     }
 
-    private CompletableFuture<String> whenEnvioYReciboError(
+    private CompletableFuture<MensajeRecibido> whenEnvioYReciboError(
             String appDestination,
             Object mensajeAEnviar,
             String nombreEmisor
     ) throws Exception {
-        CompletableFuture<String> errorFuture = new CompletableFuture<>();
+        CompletableFuture<MensajeRecibido> errorFuture = new CompletableFuture<>();
         StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
         StompSession session = stompClient.connect(URL + "?usuario=" + nombreEmisor, sessionHandler)
                 .get(1, TimeUnit.SECONDS);
@@ -189,12 +189,12 @@ public class WebSocketControllerTest {
             @Override
             public Type getPayloadType(StompHeaders headers) {
 
-                return String.class;
+                return MensajeRecibido.class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                errorFuture.complete((String) payload);
+                errorFuture.complete((MensajeRecibido) payload);
             }
         });
 
