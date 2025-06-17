@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -8,9 +9,10 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SalaDeEsperaServiceTest {
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     //se prueba la implementacion del ServicioSalaDeEspera(interfaz)
-    private final SalaDeEsperaService servicioSalaDeEspera = new SalaDeEsperaServiceImpl();
+    private final SalaDeEsperaService servicioSalaDeEspera = new SalaDeEsperaServiceImpl(simpMessagingTemplate);
 
     @Test
     public void deberiaObtenerJugadoresDelFormularioCorrectamente() {

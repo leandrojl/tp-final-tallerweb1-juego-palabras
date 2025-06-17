@@ -1,6 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.PartidaService;
+import com.tallerwebi.dominio.SalaDeEsperaService;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.model.MensajeEnviado;
 import com.tallerwebi.dominio.model.MensajeRecibido;
@@ -17,11 +18,13 @@ import java.security.Principal;
 @Controller
 public class WebSocketController {
 
-    private PartidaService partidaServiceMock;
+    private PartidaService partidaService;
+    private SalaDeEsperaService salaDeEsperaService;
 
     @Autowired
-    public WebSocketController(PartidaService partidaServiceMock) {
-        this.partidaServiceMock = partidaServiceMock;
+    public WebSocketController(PartidaService partidaService, SalaDeEsperaService salaDeEsperaService) {
+        this.partidaService = partidaService;
+        this.salaDeEsperaService = salaDeEsperaService;
     }
 
     @MessageMapping("/salaDeEspera")
@@ -54,6 +57,10 @@ public class WebSocketController {
     }
 
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
-        this.partidaServiceMock.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
+        this.partidaService.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
+    }
+
+    public void irAlJuego() {
+        this.salaDeEsperaService.irAlJuego();
     }
 }

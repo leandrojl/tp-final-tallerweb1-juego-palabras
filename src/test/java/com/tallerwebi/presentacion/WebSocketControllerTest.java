@@ -1,6 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.PartidaService;
+import com.tallerwebi.dominio.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.EstadoJugador;
 import com.tallerwebi.dominio.model.MensajeEnviado;
 import com.tallerwebi.dominio.model.MensajeRecibido;
@@ -26,6 +27,7 @@ public class WebSocketControllerTest {
 
     private WebSocketStompClient stompClient;
     private PartidaService partidaService;
+    private SalaDeEsperaService salaDeEsperaService;
     private WebSocketController webSocketController;
 
     @BeforeEach
@@ -33,7 +35,8 @@ public class WebSocketControllerTest {
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
         partidaService = Mockito.mock(PartidaService.class);
-        webSocketController = new WebSocketController(partidaService);
+        salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
+        webSocketController = new WebSocketController(partidaService,salaDeEsperaService);
     }
 
     @Test
@@ -69,8 +72,10 @@ public class WebSocketControllerTest {
         thenSeVeQuienEscribioElMensaje("pepe",mensajeEnviado.getUsername());
     }
 
+    //PARA SPRINT 3 MIO
+
     @Test
-    public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {  //EN DESARROLLO
+    public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {
         EstadoJugador jugador2 = new EstadoJugador("jugador2", true);
 
         CompletableFuture<MensajeRecibido> errorEsperado = whenEnvioYReciboError(
@@ -85,8 +90,8 @@ public class WebSocketControllerTest {
 
     @Test
     public void dadoQueHayDosUsuariosConectadosAlWebSocketsQueSePuedaEnviarUnMensajePrivadoAUnUsuario() throws Exception {
-        CompletableFuture<MensajeEnviado> futurePepe = givenUsuarioConectado("pepe");
-        CompletableFuture<MensajeEnviado> futureJose = givenUsuarioConectado("jose");
+        CompletableFuture<MensajeEnviado> futurePepe = givenUsuarioConectado("pepe","/user/queue/paraTest");
+        CompletableFuture<MensajeEnviado> futureJose = givenUsuarioConectado("jose","/user/queue/paraTest");
         String mensaje = "Este mensaje le deberia llegar a pepe";
         String nombreUsuario = "pepe";
 
@@ -111,7 +116,16 @@ public class WebSocketControllerTest {
     }
 
 
+    @Test
+    public void queSiLosJugadoresEstanListosSeInicieLaPartida() throws Exception {
+        givenUsuarioConectado("pepe","/topic/iniciarPartida");
+        whenInicioPartida();
+        verify(salaDeEsperaService).irAlJuego();
+    }
 
+    private void whenInicioPartida() {
+        this.webSocketController.irAlJuego();
+    }
 
     @Test
     public void queSiUnJugadorAunNoEstaListoNoSePuedaIniciarUnaPartida(){
@@ -134,13 +148,13 @@ public class WebSocketControllerTest {
     private void whenEnviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
         this.webSocketController.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
     }
-    private CompletableFuture<MensajeEnviado> givenUsuarioConectado(String nombreUsuario) throws Exception{
+    private CompletableFuture<MensajeEnviado> givenUsuarioConectado(String nombreUsuario,String dondeSeConecta) throws Exception{
         CompletableFuture <MensajeEnviado> completableFuture = new CompletableFuture<>();
         StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
         StompSession session = stompClient.connect(URL + "?usuario=" + nombreUsuario, sessionHandler)
                 .get(1, TimeUnit.SECONDS);
 
-        session.subscribe("/user/queue/paraTest", new StompFrameHandler() {
+        session.subscribe(dondeSeConecta, new StompFrameHandler() {
 
             @Override
             public Type getPayloadType(StompHeaders headers) {

@@ -13,4 +13,5 @@ public interface SalaDeEsperaService {
     List<Long> verificarSiHayJugadoresQueNoEstenListos(Map<Long, Boolean> jugadores);
 
 
+    void irAlJuego();
 }

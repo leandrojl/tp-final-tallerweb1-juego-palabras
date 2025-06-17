@@ -1,6 +1,10 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.model.MensajeEnviado;
+import com.tallerwebi.dominio.model.MensajeRecibido;
 import com.tallerwebi.dominio.model.Usuario;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -12,6 +16,13 @@ import java.util.Map;
 @Service("servicioSalaDeEspera")
 @Transactional
 public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
+
+    SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+    }
 
 
     @Override
@@ -42,6 +53,11 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         }
 
         return jugadoresNoListos;
+    }
+
+    @Override
+    public void irAlJuego(){
+        this.simpMessagingTemplate.convertAndSend("topic/iniciarPartida",new MensajeEnviado("server","redirect"));
     }
 
 }
