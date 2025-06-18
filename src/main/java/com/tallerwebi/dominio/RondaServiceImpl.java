@@ -1,12 +1,20 @@
 package com.tallerwebi.dominio;
 
 
+import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.model.Palabra;
+import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.model.Ronda;
 import com.tallerwebi.helpers.HelperPalabra;
+import com.tallerwebi.infraestructura.PartidaRepository;
+import com.tallerwebi.infraestructura.RondaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -17,23 +25,39 @@ public class RondaServiceImpl implements RondaService {
     private final HelperPalabra helperPalabra = new HelperPalabra();
 
 
+    @Autowired
+    private RondaRepository rondaRepositorio;
 
+    @Autowired
+    private PartidaRepository partidaRepositorio;
+
+    @Autowired
+    private PalabraServicio palabraServicio;
 
     @Override
-    public HashMap<String, String> traerPalabraYDefinicion() {
-        String idioma = "Castellano";
-        HashMap<String, List<String>> originalMap = (HashMap<String, List<String>>) helperPalabra.getPalabraYDescripcion(idioma);
-        HashMap<String, String> transformedMap = new HashMap<>();
-
-        for (String key : originalMap.keySet()) {
-            List<String> values = originalMap.get(key);
-            if (values != null && !values.isEmpty()) {
-                transformedMap.put(key, values.get(0)); // Tomar el primer elemento de la lista
-            }
+    public Ronda crearRonda(Long partidaId, String idioma) {
+        Partida2 partida = partidaRepositorio.buscarPorId(partidaId);
+        if (partida == null) {
+            throw new IllegalArgumentException("No se encontró la partida con ID: " + partidaId);
         }
 
-        return transformedMap;
+        int numeroDeRonda = rondaRepositorio.obtenerCantidadDeRondasPorPartida(partidaId) + 1;
+
+        // ✅ Usamos palabra que ya tiene sus definiciones asociadas
+        Palabra palabra = palabraServicio.obtenerPalabraConDefinicionesDesdeHelper(idioma);
+
+        Ronda nuevaRonda = new Ronda();
+        nuevaRonda.setPartida(partida);
+        nuevaRonda.setPalabra(palabra);
+        nuevaRonda.setNumeroDeRonda(numeroDeRonda);
+        nuevaRonda.setEstado(Estado.EN_CURSO);
+        nuevaRonda.setFechaHora(LocalDateTime.now());
+
+        rondaRepositorio.guardar(nuevaRonda);
+
+        return nuevaRonda;
     }
+
 
 
 }

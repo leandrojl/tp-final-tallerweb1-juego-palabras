@@ -1,5 +1,8 @@
 package com.tallerwebi.helpers;
 
+import com.tallerwebi.dominio.model.Definicion;
+import com.tallerwebi.dominio.model.Palabra;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -11,13 +14,34 @@ public class HelperPalabra {
     private static final String  rutaArchivoPalabrasEnCastellano = "src/main/resources/palabrasEnCastellano.txt";
     private static final String rutaArchivoPalabrasEnIngles="src/main/resources/palabrasEnIngles.txt";
 
-    public Map<String, List<String>> getPalabraYDescripcion(String idioma) {
-        Map<String, List<String>> palabraYDescripcion = new HashMap<>();
-        String palabra = getPalabra(idioma);
-        List<String> definiciones = getDefinicion(palabra, idioma);
+    public Map<Palabra, List<Definicion>> getPalabraYDescripcion(String idioma) {
+        Map<Palabra, List<Definicion>> palabraYDescripcion = new HashMap<>();
+
+        String textoPalabra = getPalabra(idioma); // sigue trayéndola del .txt
+
+        List<String> descripciones = getDefinicion(textoPalabra, idioma); // devuelve List<String>
+
+        // Crear objeto Palabra
+        Palabra palabra = new Palabra();
+        palabra.setDescripcion(textoPalabra);
+        palabra.setIdioma(idioma);
+
+        // Convertir descripciones a entidades Definicion
+        List<Definicion> definiciones = new ArrayList<>();
+        for (String descripcion : descripciones) {
+            Definicion def = new Definicion();
+            def.setDefinicion(descripcion);
+            def.setPalabra(palabra);
+            definiciones.add(def);
+        }
+
+        // Relacionar y armar map
+        palabra.setDefiniciones(definiciones);
         palabraYDescripcion.put(palabra, definiciones);
+
         return palabraYDescripcion;
     }
+
 
 
     public String getPalabra(String idioma) {
@@ -39,7 +63,7 @@ public class HelperPalabra {
 
 
     public List<String> getDefinicion(String palabra, String idioma) {
-        com.tallerwebi.HelperDefinicion hd = new com.tallerwebi.HelperDefinicion();
+        com.tallerwebi.helpers.HelperDefinicion hd = new com.tallerwebi.helpers.HelperDefinicion();
         return  hd.obtenerDescripcionDesdeWikidata(palabra, idioma);
     }
 }
