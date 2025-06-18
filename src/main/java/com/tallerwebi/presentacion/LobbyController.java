@@ -2,6 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.LobbyService;
+import com.tallerwebi.dominio.Partida2Service;
 import com.tallerwebi.dominio.PartidaService;
 import com.tallerwebi.dominio.model.Jugador;
 import com.tallerwebi.dominio.model.Partida;
@@ -10,7 +11,10 @@ import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
@@ -23,11 +27,34 @@ public class LobbyController {
 
     private PartidaService partidaService;
     private LobbyService lobbyService;
+    private Partida2Service partida2Service;
 
     @Autowired
-    public LobbyController(PartidaService partidaService, LobbyService lobbyService) {
-        this.partidaService = partidaService;
+    public LobbyController(Partida2Service partida2Service, LobbyService lobbyService) {
+        this.partida2Service = partida2Service;
         this.lobbyService = lobbyService;
+    }
+
+    @PostMapping("/crear-sala")
+    public String crearSala(
+            @RequestParam String nombre,
+            @RequestParam String idioma,
+            @RequestParam(required = false) boolean permiteComodin,
+            @RequestParam int rondasTotales,
+            @RequestParam int maximoJugadores,
+            @RequestParam int minimoJugadores
+    ) {
+        // Aquí deberías crear la sala usando tu servicio, por ejemplo:
+        Partida2 nuevaPartida = new Partida2(nombre, idioma, permiteComodin, rondasTotales, maximoJugadores, minimoJugadores, Estado.EN_ESPERA);
+        partida2Service.crearPartida(nuevaPartida);
+
+        // Redirige al lobby después de crear la sala
+        return "redirect:/lobby";
+    }
+
+    @GetMapping("/crear-sala")
+    public String mostrarFormularioCrearSala() {
+        return "crear-sala";
     }
 
     @RequestMapping("/lobby")

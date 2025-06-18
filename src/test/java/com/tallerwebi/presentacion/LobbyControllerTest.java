@@ -28,11 +28,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class LobbyControllerTest {
 
-    PartidaService partidaServiceMock;
+    PartidaService partida2ServiceMock;
     LobbyService lobbyService;
     LobbyController controladorLobby;
 
@@ -40,9 +40,9 @@ public class LobbyControllerTest {
 
     @BeforeEach
     public void setUp() {
-        PartidaService partidaService = Mockito.mock(PartidaService.class);
+        Partida2Service partida2Service = Mockito.mock(Partida2Service.class);
         LobbyService lobbyService = Mockito.mock(LobbyService.class);
-        LobbyController lobbyController = new LobbyController(partidaService, lobbyService);
+        LobbyController lobbyController = new LobbyController(partida2Service, lobbyService);
 
         // Usar FileTemplateResolver para leer desde el sistema de archivos
         FileTemplateResolver templateResolver = new FileTemplateResolver();
@@ -61,6 +61,24 @@ public class LobbyControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(lobbyController)
                 .setViewResolvers(viewResolver)
                 .build();
+    }
+
+    @Test
+    public void deberiaRetornarVistaCrearSalaAlAccederACrearSala() throws Exception {
+        mockMvc.perform(get("/crear-sala"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("crear-sala"));
+    }
+
+    @Test
+    public void deberiaMostrarFormularioDeConfiguracionDePartidaAlCrearSala() throws Exception {
+        mockMvc.perform(get("/crear-sala"))
+                .andExpect(content().string(containsString("form"))) // El formulario
+                .andExpect(content().string(containsString("name=\"idioma\"")))
+                .andExpect(content().string(containsString("name=\"permiteComodin\"")))
+                .andExpect(content().string(containsString("name=\"rondasTotales\"")))
+                .andExpect(content().string(containsString("name=\"maximoJugadores\"")))
+                .andExpect(content().string(containsString("name=\"minimoJugadores\"")));
     }
 
     @Test
