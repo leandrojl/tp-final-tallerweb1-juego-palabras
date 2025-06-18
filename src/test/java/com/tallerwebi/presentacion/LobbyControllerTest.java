@@ -8,17 +8,27 @@ import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Usuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import org.thymeleaf.templateresolver.FileTemplateResolver;
 
 import javax.servlet.http.HttpSession;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 public class LobbyControllerTest {
 
@@ -26,11 +36,37 @@ public class LobbyControllerTest {
     LobbyService lobbyService;
     LobbyController controladorLobby;
 
+    private MockMvc mockMvc;
+
     @BeforeEach
     public void setUp() {
-        partidaServiceMock = mock(PartidaService.class);
-        lobbyService = mock(LobbyService.class);
-        controladorLobby = new LobbyController(partidaServiceMock, lobbyService);
+        PartidaService partidaService = Mockito.mock(PartidaService.class);
+        LobbyService lobbyService = Mockito.mock(LobbyService.class);
+        LobbyController lobbyController = new LobbyController(partidaService, lobbyService);
+
+        // Usar FileTemplateResolver para leer desde el sistema de archivos
+        FileTemplateResolver templateResolver = new FileTemplateResolver();
+        templateResolver.setPrefix("src/main/webapp/WEB-INF/views/thymeleaf/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode("HTML");
+        templateResolver.setCharacterEncoding("UTF-8");
+
+        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver);
+
+        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
+        viewResolver.setTemplateEngine(templateEngine);
+        viewResolver.setCharacterEncoding("UTF-8");
+
+        mockMvc = MockMvcBuilders.standaloneSetup(lobbyController)
+                .setViewResolvers(viewResolver)
+                .build();
+    }
+
+    @Test
+    public void deberiaMostrarBotonCrearSalaEnLobby() throws Exception {
+        mockMvc.perform(get("/lobby"))
+                .andExpect(content().string(containsString("Crear Sala")));
     }
 
     @Test
