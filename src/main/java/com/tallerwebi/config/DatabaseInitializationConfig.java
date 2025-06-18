@@ -1,7 +1,7 @@
 package com.tallerwebi.config;
 
 import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.LobbyService;
+import com.tallerwebi.dominio.interfaceService.LobbyService;
 import com.tallerwebi.dominio.model.Partida2;
 import org.springframework.context.annotation.Configuration;
 

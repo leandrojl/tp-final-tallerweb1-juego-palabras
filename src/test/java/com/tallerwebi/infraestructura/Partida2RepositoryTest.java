@@ -1,12 +1,10 @@
 package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.Partida2Repository;
+import com.tallerwebi.dominio.interfaceRepository.Partida2Repository;
 import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.integracion.config.HibernateTestConfig;
 import com.tallerwebi.integracion.config.SpringWebTestConfig;
-import org.hibernate.SessionFactory;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

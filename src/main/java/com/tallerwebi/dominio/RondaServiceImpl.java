@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio;
 
 
+import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.helpers.HelperPalabra;
 import org.springframework.stereotype.Service;
 

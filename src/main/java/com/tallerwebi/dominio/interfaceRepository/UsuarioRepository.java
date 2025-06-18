@@ -1,9 +1,8 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.interfaceRepository;
 
 import com.tallerwebi.dominio.model.Usuario;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 public interface UsuarioRepository {
 

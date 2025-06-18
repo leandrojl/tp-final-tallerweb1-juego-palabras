@@ -1,8 +1,7 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.MensajeEnviado;
-import com.tallerwebi.dominio.model.MensajeRecibido;
-import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.PartidaService;
-import com.tallerwebi.dominio.SalaDeEsperaService;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
+import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.EstadoJugador;
 import com.tallerwebi.dominio.model.MensajeEnviado;
 import com.tallerwebi.dominio.model.MensajeRecibido;

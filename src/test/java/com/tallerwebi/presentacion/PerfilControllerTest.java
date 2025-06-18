@@ -1,6 +1,6 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.PerfilService;
+import com.tallerwebi.dominio.interfaceService.PerfilService;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.ModelAndView;
 

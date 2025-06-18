@@ -2,6 +2,8 @@ package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.excepcion.PasswordMenorAOchoCaracteresException;
 import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
+import com.tallerwebi.dominio.interfaceService.RegistroService;
 import org.junit.jupiter.api.BeforeEach;
 import com.tallerwebi.dominio.model.Usuario;
 import org.junit.jupiter.api.Test;

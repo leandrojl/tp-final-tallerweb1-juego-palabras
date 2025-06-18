@@ -2,7 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.excepcion.PasswordMenorAOchoCaracteresException;
 import com.tallerwebi.dominio.model.Usuario;
-import com.tallerwebi.dominio.RegistroService;
+import com.tallerwebi.dominio.interfaceService.RegistroService;
 import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

@@ -1,6 +1,5 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.interfaceService;
 
-import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Partida2;
 
 

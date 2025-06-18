@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.interfaceService.PuntajeService;
 import com.tallerwebi.dominio.model.Jugador;
 import org.springframework.stereotype.Service;
 

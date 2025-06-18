@@ -1,4 +1,4 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.interfaceRepository;
 
 import com.tallerwebi.dominio.model.Usuario;
 

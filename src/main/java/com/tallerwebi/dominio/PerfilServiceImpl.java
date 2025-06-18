@@ -1,5 +1,7 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
+import com.tallerwebi.dominio.interfaceService.PerfilService;
 import com.tallerwebi.dominio.model.Usuario;
 import com.tallerwebi.infraestructura.UsuarioRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;

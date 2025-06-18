@@ -1,6 +1,4 @@
-package com.tallerwebi.dominio;
-
-import com.tallerwebi.dominio.model.Usuario;
+package com.tallerwebi.dominio.interfaceService;
 
 import java.util.List;
 import java.util.Map;

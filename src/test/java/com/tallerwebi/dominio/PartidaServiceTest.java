@@ -1,15 +1,9 @@
 package com.tallerwebi.dominio;
 
-import com.tallerwebi.dominio.model.Partida;
-import org.junit.jupiter.api.Assertions;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 public class PartidaServiceTest {
 

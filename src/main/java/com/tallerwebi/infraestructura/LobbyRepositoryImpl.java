@@ -1,6 +1,6 @@
 package com.tallerwebi.infraestructura;
 
-import com.tallerwebi.dominio.LobbyRepository;
+import com.tallerwebi.dominio.interfaceRepository.LobbyRepository;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida2;
 import org.hibernate.Session;

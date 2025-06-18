@@ -2,6 +2,8 @@ package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
 
+import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
+import com.tallerwebi.dominio.interfaceService.LoginService;
 import org.junit.jupiter.api.BeforeEach;
 
 import com.tallerwebi.dominio.model.Usuario;

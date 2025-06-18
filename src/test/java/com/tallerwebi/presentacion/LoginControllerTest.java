@@ -2,7 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.model.Usuario;
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
-import com.tallerwebi.dominio.LoginService;
+import com.tallerwebi.dominio.interfaceService.LoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

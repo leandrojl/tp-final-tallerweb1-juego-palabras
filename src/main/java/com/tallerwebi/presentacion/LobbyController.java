@@ -1,13 +1,11 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.LobbyService;
-import com.tallerwebi.dominio.Partida2Service;
-import com.tallerwebi.dominio.PartidaService;
+import com.tallerwebi.dominio.interfaceService.LobbyService;
+import com.tallerwebi.dominio.interfaceService.Partida2Service;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.model.Jugador;
-import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Partida2;
-import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller

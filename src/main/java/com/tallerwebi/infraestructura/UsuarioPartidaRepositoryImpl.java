@@ -1,10 +1,7 @@
 package com.tallerwebi.infraestructura;
 
 
-import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.UsuarioPartidaRepository;
-import com.tallerwebi.dominio.Usuario_Partida;
-import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.model.Usuario;
 import com.tallerwebi.dominio.model.UsuarioPartida;
 import org.hibernate.Session;
@@ -14,7 +11,6 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository

@@ -1,7 +1,9 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.interfaceService.LobbyService;
+import com.tallerwebi.dominio.interfaceService.Partida2Service;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.model.Jugador;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Partida2;
@@ -16,7 +18,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
 import javax.servlet.http.HttpSession;

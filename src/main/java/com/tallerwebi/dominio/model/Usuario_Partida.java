@@ -1,10 +1,7 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.model;
 
 
 import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.model.Partida2;
-import com.tallerwebi.dominio.model.Usuario;
-import org.hibernate.type.EnumType;
 
 import javax.persistence.*;
 

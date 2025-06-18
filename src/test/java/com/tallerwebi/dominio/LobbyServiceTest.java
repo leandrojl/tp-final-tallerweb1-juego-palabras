@@ -1,7 +1,7 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.model.Partida;
+import com.tallerwebi.dominio.interfaceService.LobbyService;
 import com.tallerwebi.dominio.model.Partida2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
