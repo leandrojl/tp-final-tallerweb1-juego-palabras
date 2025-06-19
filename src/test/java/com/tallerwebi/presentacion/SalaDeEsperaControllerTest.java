@@ -161,4 +161,7 @@ public class SalaDeEsperaControllerTest {
     public void entoncesRedirigoAlJugadorALaSalaDeEspera(ModelAndView mav) {
         assertThat(mav.getViewName(),equalToIgnoringCase("sala-de-espera"));
     }
+
+
+
 }

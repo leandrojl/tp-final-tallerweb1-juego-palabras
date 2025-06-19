@@ -8,15 +8,19 @@ import com.tallerwebi.dominio.model.MensajeRecibido;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import com.tallerwebi.dominio.model.EstadoJugador;
 
 import java.security.Principal;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 public class WebSocketController {
+
 
     private PartidaService partidaService;
     private SalaDeEsperaService salaDeEsperaService;
@@ -26,6 +30,7 @@ public class WebSocketController {
         this.partidaService = partidaService;
         this.salaDeEsperaService = salaDeEsperaService;
     }
+
 
     @MessageMapping("/salaDeEspera")
     @SendTo("/topic/salaDeEspera")
@@ -55,6 +60,11 @@ public class WebSocketController {
         }
         return new MensajeEnviado(nombreUsuario,mensajeRecibido.getMessage());
     }
+    @MessageMapping("/usuarioSeUneASalaDeEspera")
+    public void usuarioSeUneASala(MensajeRecibido mensajeRecibido){
+        String nombreUsuario =  mensajeRecibido.getMessage();
+        this.salaDeEsperaService.notificarQueSeUneUnNuevoUsuarioALaSala(nombreUsuario);
+    }
 
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
         this.partidaService.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
@@ -62,5 +72,9 @@ public class WebSocketController {
 
     public void irAlJuego() {
         this.salaDeEsperaService.irAlJuego();
+    }
+
+    public void notificarQueSeUneUnNuevoUsuarioALaSala(String nombreUsuarioQueAcabaDeUnirseALaSala) {
+        this.salaDeEsperaService.notificarQueSeUneUnNuevoUsuarioALaSala(nombreUsuarioQueAcabaDeUnirseALaSala);
     }
 }

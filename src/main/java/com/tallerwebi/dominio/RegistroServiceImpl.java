@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Transactional
 @Service
@@ -31,11 +32,17 @@ public class RegistroServiceImpl implements RegistroService {
             throw new PasswordMenorAOchoCaracteresException();
         }
         //Aca agregaria al usuario a la base de datos
-        return new Usuario();
+        this.repositorioUsuario.guardar(new Usuario(nombre, password));
+        return null;
     }
 
     @Override
     public Usuario buscarUsuario(String usuario) {
         return this.repositorioUsuario.buscar(usuario);
+    }
+
+    @Override
+    public List<Usuario> obtenerUsuariosLogueados() {
+        return this.repositorioUsuario.obtenerTodosLosUsuariosLogueados();
     }
 }

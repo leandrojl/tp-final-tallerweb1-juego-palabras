@@ -55,7 +55,16 @@ public class LobbyController {
     }
 
     @RequestMapping("/lobby")
-    public ModelAndView Lobby(Model model) {
+    public ModelAndView Lobby(HttpSession session, Model model) {
+        Jugador jugador = (Jugador) session.getAttribute("jugador");
+
+        if (jugador != null) {
+            model.addAttribute("jugador", jugador);
+        } else {
+            jugador = new Jugador();
+            jugador.setNombre("july3p");
+            model.addAttribute("jugador", jugador);
+            session.setAttribute("usuario", "pepe");
 
             // obtengo las partidas en espera
             List<Partida2> partidas = lobbyService.obtenerPartidasEnEspera();
@@ -64,7 +73,7 @@ public class LobbyController {
             } else {
                 model.addAttribute("partidas", partidas);
             }
-
+        }
 
         return new ModelAndView("lobby");
     }
