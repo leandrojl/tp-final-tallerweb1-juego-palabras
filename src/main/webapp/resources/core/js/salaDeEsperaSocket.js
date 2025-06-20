@@ -26,7 +26,10 @@ stompClient.onConnect = (frame) => {
 
     stompClient.subscribe('/topic/cuandoUsuarioSeUneASalaDeEspera', (m) => {
         const data = JSON.parse(m.body);
-        agregarJugador(data.message);
+        const usuario = data.message;
+        if (!document.getElementById(`jugador-`+usuario)) {
+            agregarJugador(usuario);
+        }
     });
 
     stompClient.subscribe('/user/queue/jugadoresExistentes', (m) => {

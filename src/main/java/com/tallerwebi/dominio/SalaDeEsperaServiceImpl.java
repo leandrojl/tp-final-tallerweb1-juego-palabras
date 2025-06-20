@@ -63,7 +63,6 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     @Override
     public void notificarQueSeUneUnNuevoUsuarioALaSala(String nombreUsuarioQueAcabaDeUnirseALaSala) {
         usuariosEnSala.add(nombreUsuarioQueAcabaDeUnirseALaSala);
-        this.simpMessagingTemplate.convertAndSend("/topic/cuandoUsuarioSeUneASalaDeEspera",new MensajeRecibido(nombreUsuarioQueAcabaDeUnirseALaSala));
         this.simpMessagingTemplate.convertAndSendToUser(
                 nombreUsuarioQueAcabaDeUnirseALaSala,
                 "/queue/jugadoresExistentes",
