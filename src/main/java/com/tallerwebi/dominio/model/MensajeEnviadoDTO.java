@@ -1,18 +1,18 @@
 package com.tallerwebi.dominio.model;
 
-public class MensajeEnviado {
+public class MensajeEnviadoDTO {
     private String username;
     private String content;
 
-    public MensajeEnviado() {
+    public MensajeEnviadoDTO() {
     }
 
-    public MensajeEnviado(String content) {
+    public MensajeEnviadoDTO(String content) {
         this.content = content;
     }
 
 
-    public MensajeEnviado(String nombreUsuario, String content) {
+    public MensajeEnviadoDTO(String nombreUsuario, String content) {
         this.content = content;
         this.username = nombreUsuario;
     }

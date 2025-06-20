@@ -1,15 +1,15 @@
 package com.tallerwebi.dominio.model;
 
-public class EstadoJugador {
+public class EstadoJugadorDTO {
     private String username;
     private boolean estaListo;
 
-    public EstadoJugador(String username, boolean estaListo) {
+    public EstadoJugadorDTO(String username, boolean estaListo) {
         this.username = username;
         this.estaListo = estaListo;
     }
 
-    public EstadoJugador() {
+    public EstadoJugadorDTO() {
 
     }
 

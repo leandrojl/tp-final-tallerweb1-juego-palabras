@@ -1,15 +1,14 @@
 package com.tallerwebi.dominio.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ListaUsuarios {
+public class ListaUsuariosDTO {
     private List<String> usuarios;
 
-    public ListaUsuarios() {
+    public ListaUsuariosDTO() {
     }
 
-    public ListaUsuarios(List<String> usuarios) {
+    public ListaUsuariosDTO(List<String> usuarios) {
         this.usuarios = usuarios;
     }
 

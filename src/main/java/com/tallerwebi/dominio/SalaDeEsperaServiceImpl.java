@@ -1,9 +1,8 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
-import com.tallerwebi.dominio.model.ListaUsuarios;
-import com.tallerwebi.dominio.model.MensajeEnviado;
-import com.tallerwebi.dominio.model.MensajeRecibido;
+import com.tallerwebi.dominio.model.ListaUsuariosDTO;
+import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -57,16 +56,16 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     @Override
     public void irAlJuego(){
-        this.simpMessagingTemplate.convertAndSend("topic/iniciarPartida",new MensajeEnviado("server","redirect"));
+        this.simpMessagingTemplate.convertAndSend("topic/iniciarPartida",new MensajeEnviadoDTO("server","redirect"));
     }
 
     @Override
-    public void notificarQueSeUneUnNuevoUsuarioALaSala(String nombreUsuarioQueAcabaDeUnirseALaSala) {
+    public void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala) {
         usuariosEnSala.add(nombreUsuarioQueAcabaDeUnirseALaSala);
         this.simpMessagingTemplate.convertAndSendToUser(
                 nombreUsuarioQueAcabaDeUnirseALaSala,
                 "/queue/jugadoresExistentes",
-                new ListaUsuarios(new ArrayList<>(usuariosEnSala))
+                new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
         );
     }
 
