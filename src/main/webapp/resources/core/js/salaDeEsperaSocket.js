@@ -24,6 +24,11 @@ stompClient.onConnect = (frame) => {
         }
     });
 
+    stompClient.subscribe('/topic/cuandoUsuarioSeUneASalaDeEspera', (m) => {
+        const data = JSON.parse(m.body);
+        agregarJugador(data.message);
+    });
+
     stompClient.subscribe('/user/queue/jugadoresExistentes', (m) => {
         const data = JSON.parse(m.body);
 
@@ -33,12 +38,12 @@ stompClient.onConnect = (frame) => {
             }
         });
     });
-
-    const usuario = sessionStorage.getItem("usuario");
+    const message = "acabo de unirme";
     stompClient.publish({
         destination: "/app/usuarioSeUneASalaDeEspera",
-        body: JSON.stringify({message: usuario})
+        body: JSON.stringify({message: message})
     });
+
 };
 
 
