@@ -176,6 +176,16 @@ public class PartidaServiceImpl implements PartidaService {
     }
 
     @Override
+    public Partida2 obtenerPartidaPorJugador(String jugadorId) {
+        for (Map.Entry<Long, List<String>> entry : jugadoresPartida.entrySet()) {
+            if (entry.getValue().contains(jugadorId)) {
+                return partidaRepositorio.buscarPorId(entry.getKey());
+            }
+        }
+        return null;
+    }
+
+    @Override
     public EstadoPartida obtenerEstadoPartida(Long partidaId) {
         Partida2 partida = partidaRepositorio.buscarPorId(partidaId);
         Map<String, Object> estado = estadosPartida.get(partidaId);

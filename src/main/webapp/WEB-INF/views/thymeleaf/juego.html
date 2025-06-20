@@ -319,170 +319,157 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-
  <script th:inline="javascript">
-     let finRondaEjecutada = false; // 🛑 Previene múltiples ejecuciones
-
-     // === CONFIGURACIÓN INICIAL ===
-     const palabra = /*[[${palabra}]]*/ "default";
-     const letras = palabra.split('');
+     const jugadorId = /*[[${jugadorId}]]*/ "demo";
+     const partidaId = jugadorId;
+     const palabra = /*[[${palabra}]]*/ "ejemplo";
+     const letras = palabra.split("");
      let indexLetra = 0;
+     let tiempoRestante = 60;
+     let finRondaEjecutada = false;
 
-     const tiempoMaximo = 60;
-     let tiempoRestante = tiempoMaximo;
+     // Solo una instancia
+     const stompClient = new StompJs.Client({
+         brokerURL: 'ws://localhost:8080/spring/wschat',
+         reconnectDelay: 5000,
+         debug: (str) => console.log(str)
+     });
 
-     const temporizadorText = document.getElementById('temporizadorText');
-     const progressCircle = document.getElementById('progressCircle');
-     const circunferencia = 2 * Math.PI * 54;
+     stompClient.onConnect = () => {
+         console.log("✅ Conectado al WebSocket");
 
-     progressCircle.style.strokeDasharray = circunferencia;
-     progressCircle.style.strokeDashoffset = 0;
+         // SUBSCRIPCIÓN A RESULTADOS
+         stompClient.subscribe('/topic/juego/resultado', (message) => {
+             const data = JSON.parse(message.body);
+             console.log("Resultado:", data);
 
+             if (data.correcto) {
+                 clearInterval(intervaloTemporizador);
+                 clearInterval(intervaloLetras);
 
-     const intervaloLetras = setInterval(() => {
-         if (indexLetra < letras.length) {
-             const spanLetra = document.getElementById(`letra-${indexLetra}`);
-             if (spanLetra) {
-                 spanLetra.textContent = letras[indexLetra];
-                 spanLetra.classList.remove('oculto');
-                 spanLetra.classList.add('visible');
-             }
-             indexLetra++;
-         } else {
-             clearInterval(intervaloLetras);
-         }
-     }, 15000);
-
-
-     const intervaloTemporizador = setInterval(() => {
-         if (tiempoRestante <= 0) {
-             clearInterval(intervaloTemporizador);
-             clearInterval(intervaloLetras);
-             finRonda();
-         } else {
-             temporizadorText.textContent = tiempoRestante;
-             let offset = circunferencia - (tiempoRestante / tiempoMaximo) * circunferencia;
-             progressCircle.style.strokeDashoffset = offset;
-             tiempoRestante--;
-         }
-     }, 1000);
-
-
-     function finRonda() {
-         if (finRondaEjecutada) return;
-         finRondaEjecutada = true;
-
-         clearInterval(intervaloTemporizador);
-         clearInterval(intervaloLetras);
-
-         const jugadorId = document.getElementById("jugadorId").value;
-
-         fetch('/spring/juego/fin-ronda?jugadorId=' + jugadorId, {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' }
-         })
-             .then(response => response.json())
-             .then(data => {
                  if (data.partidaTerminada) {
-                     alert('¡Se acabó el tiempo! Fin de la partida.');
-                     window.location.href = '/spring/juego/final?jugadorId=' + data.jugadorId;
+                     alert("¡Correcto! Terminaste la partida.");
+                     window.location.href = `/spring/juego/final?jugadorId=${jugadorId}`;
                  } else {
-                     alert("¡Se acabó el tiempo! Nueva ronda.");
-                     location.reload(); // recarga para mostrar la nueva palabra y definición
+                     alert("¡Correcto! Nueva ronda.");
+                     location.reload();
                  }
-             })
-             .catch(err => {
-                 console.error('Error al finalizar ronda', err);
-             });
+             } else {
+                 alert("Incorrecto, intentá de nuevo.");
+             }
+         });
+
+         // SUBSCRIPCIÓN A CAMBIO DE RONDA
+         stompClient.subscribe('/topic/juego/nuevaRonda', (message) => {
+             const data = JSON.parse(message.body);
+             console.log("Nueva ronda:", data);
+             location.reload(); // podrías actualizar solo palabra y definición si querés evitar recargar
+         });
+
+         // SUBSCRIPCIÓN AL CHAT
+         stompClient.subscribe('/topic/messages', (m) => {
+             const data = JSON.parse(m.body);
+             console.log("Mensaje del chat:", data.content);
+
+             const messagesContainer = document.getElementById("palabras-mencionadas");
+             const newMessage = document.createElement("p");
+             newMessage.textContent = data.username + ": " + data.content;
+             messagesContainer.appendChild(newMessage);
+         });
+     };
+
+     stompClient.onWebSocketError = (error) => {
+         console.error('Error con websocket:', error);
+     };
+
+     stompClient.onStompError = (frame) => {
+         console.error('Error STOMP:', frame.headers['message']);
+         console.error('Detalles:', frame.body);
+     };
+
+     stompClient.activate();
+
+     // ENVÍO DE MENSAJE DE CHAT
+     function sendMessage() {
+         let input = document.getElementById("input-intento");
+         let message = input.value;
+
+         stompClient.publish({
+             destination: "/app/chat",
+             body: JSON.stringify({ message: message })
+         });
+
+         input.value = "";
      }
 
-
-
+     // ========= JUEGO ===========
      document.addEventListener("DOMContentLoaded", () => {
          const input = document.getElementById("input-intento");
-         const jugadorId = document.getElementById("jugadorId").value;
 
          input.addEventListener("keydown", (event) => {
              if (event.key === "Enter") {
                  event.preventDefault();
-
                  const intento = input.value.trim();
                  if (intento === "") return;
 
-                 fetch('/spring/juego/intentar', {
-                     method: 'POST',
-                     headers: {
-                         'Content-Type': 'application/x-www-form-urlencoded'
-                     },
-                     body: `intento=${encodeURIComponent(intento)}&jugadorId=${encodeURIComponent(jugadorId)}&tiempoRestante=${tiempoRestante}`
-                 })
-                     .then(response => response.json())
-                     .then(data => {
-                         if (data.correcto) {
-                             clearInterval(intervaloTemporizador);
-                             clearInterval(intervaloLetras);
-                             if (data.partidaTerminada) {
-                                 alert("¡Correcto! Terminaste la partida.");
-                                 window.location.href = '/spring/juego/final?jugadorId=' + jugadorId;
-                             } else {
-                                 alert("¡Correcto! Avanzás de ronda.");
-                                 location.reload();
-                             }
-                         } else {
-                             alert("Incorrecto. Intentá de nuevo.");
-                         }
+                 stompClient.publish({
+                     destination: "/app/juego/intentar",
+                     body: JSON.stringify({
+                         partidaId,
+                         intento,
+                         tiempoRestante
                      })
-                     .catch(error => {
-                         console.error("Error al enviar el intento:", error);
-                     });
+                 });
 
                  input.value = "";
              }
          });
-     });
- </script>
 
-
- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
- <script>
-     $(document).ready(function() {
-         // Prevenir submit real
-         $('form').on('submit', function(e) {
-             e.preventDefault();
-
-             const intento = $('#input-intento').val().trim();
-             const jugadorId = $('#jugadorId').val();
-
-             if (intento === "") return;
-
-             $.post('/juego/intentar', { intento, jugadorId }, function(response) {
-                 if (response.correcto) {
-                     alert('¡Correcto!');
-                     $('#input-intento').val('');
-
-                     // Actualizar datos en la UI
-                     $('#rondaActual').text(response.ronda);
-                     $('.lead[th\\:text="${definicion}"]').text(response.nuevaDefinicion || '');
-
-                     // Reiniciar temporizador (a implementar)
-                     // resetTemporizador();
-
-                 } else {
-                     alert('Incorrecto, intenta de nuevo.');
+         // Mostrar letras progresivamente
+         const intervaloLetras = setInterval(() => {
+             if (indexLetra < letras.length) {
+                 const spanLetra = document.getElementById(`letra-${indexLetra}`);
+                 if (spanLetra) {
+                     spanLetra.textContent = letras[indexLetra];
+                     spanLetra.classList.remove('oculto');
+                     spanLetra.classList.add('visible');
                  }
-             });
-         });
-     });
- </script>
+                 indexLetra++;
+             } else {
+                 clearInterval(intervaloLetras);
+             }
+         }, 15000);
 
- <script>
-     document.getElementById("input-intento").addEventListener("keydown", function(event) {
-         if (event.key === "Enter") {
-             sendMessage(); // tu función para enviar el mensaje
+         // Temporizador visual
+         const tiempoMaximo = 60;
+         const circunferencia = 2 * Math.PI * 45;
+         const progressCircle = document.getElementById('progressCircle');
+         const temporizadorText = document.getElementById('temporizadorText');
+         progressCircle.style.strokeDasharray = circunferencia;
+
+         const intervaloTemporizador = setInterval(() => {
+             if (tiempoRestante <= 0) {
+                 clearInterval(intervaloTemporizador);
+                 clearInterval(intervaloLetras);
+                 finRonda();
+             } else {
+                 temporizadorText.textContent = tiempoRestante;
+                 let offset = circunferencia - (tiempoRestante / tiempoMaximo) * circunferencia;
+                 progressCircle.style.strokeDashoffset = offset;
+                 tiempoRestante--;
+             }
+         }, 1000);
+
+         function finRonda() {
+             if (finRondaEjecutada) return;
+             finRondaEjecutada = true;
+
+             stompClient.publish({
+                 destination: "/app/juego/finRonda",
+                 body: JSON.stringify({ partidaId })
+             });
          }
      });
-
  </script>
 
 

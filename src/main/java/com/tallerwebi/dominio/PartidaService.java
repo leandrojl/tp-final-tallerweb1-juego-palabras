@@ -18,6 +18,8 @@ public interface PartidaService {
 
     void finalizarRondaPorTiempo(Long partidaId);
 
+    Partida2 obtenerPartidaPorJugador(String jugadorId);
+
     EstadoPartida obtenerEstadoPartida(Long partidaId);
 
 }
