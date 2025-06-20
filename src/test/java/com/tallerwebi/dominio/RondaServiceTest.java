@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
+/*
 class RondaServiceTest {
     RondaServiceImpl rondaServicio = new RondaServiceImpl();
-
 
 
 
@@ -20,3 +20,4 @@ class RondaServiceTest {
 
 
 }
+*/

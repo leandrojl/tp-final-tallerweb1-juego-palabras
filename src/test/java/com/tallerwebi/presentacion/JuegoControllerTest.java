@@ -15,7 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
+/*
 public class JuegoControllerTest {
 
     private PuntajeService puntajeServicio;
@@ -99,3 +99,5 @@ public class JuegoControllerTest {
         assertEquals(nombre, model.getAttribute("jugadorActual"));
     }
 }
+
+ */

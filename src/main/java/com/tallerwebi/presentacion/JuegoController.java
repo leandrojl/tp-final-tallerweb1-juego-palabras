@@ -66,7 +66,7 @@ public class JuegoController {
 
         return mov;
     }
-
+/*
     @PostMapping("/intentar")
     @ResponseBody
     public Map<String, Object> procesarIntentoAjax(@RequestParam String intento,
@@ -165,4 +165,8 @@ public class JuegoController {
 
         return "vistaFinalJuego";
     }
+
+ */
 }
+
+

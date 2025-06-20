@@ -20,8 +20,6 @@ import java.util.Map;
 @Transactional
 public class RondaServiceImpl implements RondaService {
 
-    private final int MAX_RONDAS = 5;
-    private int rondaActual = 1;
     private final HelperPalabra helperPalabra = new HelperPalabra();
 
 
