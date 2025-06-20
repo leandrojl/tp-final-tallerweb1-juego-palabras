@@ -61,8 +61,8 @@ public class WebSocketController {
         return new MensajeEnviado(nombreUsuario,mensajeRecibido.getMessage());
     }
     @MessageMapping("/usuarioSeUneASalaDeEspera")
-    public void usuarioSeUneASala(MensajeRecibido mensajeRecibido){
-        String nombreUsuario =  mensajeRecibido.getMessage();
+    public void usuarioSeUneASala(MensajeRecibido mensajeRecibido,Principal principal){
+        String nombreUsuario = principal.getName();
         this.salaDeEsperaService.notificarQueSeUneUnNuevoUsuarioALaSala(nombreUsuario);
     }
 
