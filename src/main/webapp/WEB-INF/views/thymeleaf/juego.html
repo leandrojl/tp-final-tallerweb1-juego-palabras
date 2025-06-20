@@ -151,8 +151,10 @@
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             cursor: default;
         }
+
         .chat-container {
-            max-height: 400px; /* O lo que quieras */
+            max-height: 400px;
+            /* O lo que quieras */
             overflow-y: auto;
             padding: 10px;
             background: #f5f5f5;
@@ -196,10 +198,11 @@
             border: 1px solid #ccc;
             border-radius: 8px;
         }
+
         #palabras-mencionadas {
-             display: flex;
-             flex-direction: column;
-         }
+            display: flex;
+            flex-direction: column;
+        }
 
 
         .message-bubble {
@@ -225,80 +228,63 @@
             background-color: #f8d7da;
             align-self: flex-start;
         }
-
-
     </style>
 </head>
 
 <body>
- <header class="bg-dark text-white py-3 shadow-sm">
+    <header class="bg-dark text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <h1 class="h2 mb-0">Definila</h1>
             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalAbandonar">Abandonar</button>
         </div>
     </header>
 
- <main class="container-fluid py-4">
-     <div class="row">
+    <main class="container-fluid py-4">
+        <div class="row">
+            <!-- Columna izquierda -->
+            <div class="col-md-8">
+                <section class="juego-container text-start">
+                    <h1 class="display-4 fw-bold mb-2">Adivina la palabra</h1>
+                    <p class="lead mb-4">Ronda <span id="rondaActual" th:text="${rondaActual}">1</span> de 5</p>
 
-         <!-- Columna izquierda: juego principal -->
-         <div class="col-md-8">
-             <section class="juego-container text-start">
-                 <h1 class="display-4 fw-bold mb-2">Adivina la palabra</h1>
-                 <p class="lead mb-4">Ronda <span id="rondaActual" th:text="${rondaActual}">1</span> de 5</p>
+                    <div class="temporizador mb-4">
+                        <svg width="100" height="100">
+                            <circle cx="50" cy="50" r="45" stroke="#333" stroke-width="10" fill="none" />
+                            <circle id="progressCircle" cx="50" cy="50" r="45" stroke="#00f" stroke-width="10"
+                                fill="none" stroke-dasharray="282.6" stroke-dashoffset="0" />
+                        </svg>
+                        <div id="temporizadorText" class="temporizador-text">60</div>
+                    </div>
 
-                 <div class="temporizador mb-4">
-                     <svg width="100" height="100">
-                         <circle cx="50" cy="50" r="45" stroke="#333" stroke-width="10" fill="none" />
-                         <circle id="progressCircle" cx="50" cy="50" r="45" stroke="#00f" stroke-width="10" fill="none"
-                                 stroke-dasharray="282.6" stroke-dashoffset="0" />
-                     </svg>
-                     <div id="temporizadorText" class="temporizador-text">60</div>
-                 </div>
+                    <p class="lead mb-4" id="definicionActual" th:text="${definicion}">Definición</p>
 
-                 <p class="lead mb-4" th:text="${definicion}">Definition goes here</p>
+                    <div class="palabra-inputs mb-4" id="contenedor-palabra">
+                        <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
+                            th:id="'letra-' + ${iterStat.index}"></span>
+                    </div>
+                </section>
+            </div>
 
-                 <<div class="palabra-inputs mb-4" id="contenedor-palabra">
-          <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
-                th:id="'letra-' + ${iterStat.index}">
-          </span>
-                 </div>
-             </section>
-         </div>
+            <!-- Columna derecha -->
+            <div class="col-md-4 d-flex flex-column align-items-center">
+                <div id="palabras-mencionadas" class="chat-container"></div>
+                <input type="text" id="input-intento" placeholder="Escribí la palabra..."
+                    class="form-control form-control-lg mt-3" />
+                <input type="hidden" id="usuarioId" th:value="${usuarioId}" />
+            </div>
+        </div>
+    </main>
 
-         <!-- Columna derecha: input -->
-         <div class="col-md-4 d-flex flex-column align-items-center justify-content-start">
-             <div id="palabras-mencionadas" class="chat-container">
-             </div>
-             <form th:action="@{/juego}" method="post" class="w-100">
-                 <div class="mb-3">
-                     <input  type="text" id="input-intento" placeholder="Escribí la palabra..." class="form-control form-control-lg" />
-                 </div>
-                 <input type="hidden" id="jugadorId" name="jugadorId" th:value="${jugadorId}" />
-             </form>
-         </div>
+    <!-- Ranking -->
+    <div class="ranking-horizontal" th:if="${jugadores}">
+        <div th:each="jugador : ${jugadores}" class="jugador" th:data-player-id="${jugador.id}">
+            <div class="avatar"></div>
+            <span th:text="${jugador.nombre}">Jugador</span>
+            (<span class="badge bg-secondary" th:text="${jugador.puntaje}">0</span> pts)
+        </div>
+    </div>
 
-
-     </div>
- </main>
-
- <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
- <script th:src="@{/js/script.js}"></script>
-
- <div class="ranking-horizontal" th:if="${jugadores}">
-     <div th:each="jugador : ${jugadores}" class="jugador">
-         <div class="avatar"></div>
-         <span th:text="${jugador.nombre}">Jugador</span>
-         (<span th:text="${jugador.puntaje}">0</span> pts)
-     </div>
- </div>
-
-
-
- <footer class="bg-dark text-center py-3 shadow-sm mt-auto">
-        <small>&copy; 2025 Taller Web 1 - Definila</small>
-    </footer>
-
+    <!-- Modal abandonar -->
     <div class="modal fade" id="modalAbandonar" tabindex="-1" aria-labelledby="modalAbandonarLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -317,175 +303,11 @@
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-
- <script th:inline="javascript">
-     let finRondaEjecutada = false; // 🛑 Previene múltiples ejecuciones
-
-     // === CONFIGURACIÓN INICIAL ===
-     const palabra = /*[[${palabra}]]*/ "default";
-     const letras = palabra.split('');
-     let indexLetra = 0;
-
-     const tiempoMaximo = 60;
-     let tiempoRestante = tiempoMaximo;
-
-     const temporizadorText = document.getElementById('temporizadorText');
-     const progressCircle = document.getElementById('progressCircle');
-     const circunferencia = 2 * Math.PI * 54;
-
-     progressCircle.style.strokeDasharray = circunferencia;
-     progressCircle.style.strokeDashoffset = 0;
-
-
-     const intervaloLetras = setInterval(() => {
-         if (indexLetra < letras.length) {
-             const spanLetra = document.getElementById(`letra-${indexLetra}`);
-             if (spanLetra) {
-                 spanLetra.textContent = letras[indexLetra];
-                 spanLetra.classList.remove('oculto');
-                 spanLetra.classList.add('visible');
-             }
-             indexLetra++;
-         } else {
-             clearInterval(intervaloLetras);
-         }
-     }, 15000);
-
-
-     const intervaloTemporizador = setInterval(() => {
-         if (tiempoRestante <= 0) {
-             clearInterval(intervaloTemporizador);
-             clearInterval(intervaloLetras);
-             finRonda();
-         } else {
-             temporizadorText.textContent = tiempoRestante;
-             let offset = circunferencia - (tiempoRestante / tiempoMaximo) * circunferencia;
-             progressCircle.style.strokeDashoffset = offset;
-             tiempoRestante--;
-         }
-     }, 1000);
-
-
-     function finRonda() {
-         if (finRondaEjecutada) return;
-         finRondaEjecutada = true;
-
-         clearInterval(intervaloTemporizador);
-         clearInterval(intervaloLetras);
-
-         const jugadorId = document.getElementById("jugadorId").value;
-
-         fetch('/spring/juego/fin-ronda?jugadorId=' + jugadorId, {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' }
-         })
-             .then(response => response.json())
-             .then(data => {
-                 if (data.partidaTerminada) {
-                     alert('¡Se acabó el tiempo! Fin de la partida.');
-                     window.location.href = '/spring/juego/final?jugadorId=' + data.jugadorId;
-                 } else {
-                     alert("¡Se acabó el tiempo! Nueva ronda.");
-                     location.reload(); // recarga para mostrar la nueva palabra y definición
-                 }
-             })
-             .catch(err => {
-                 console.error('Error al finalizar ronda', err);
-             });
-     }
-
-
-
-     document.addEventListener("DOMContentLoaded", () => {
-         const input = document.getElementById("input-intento");
-         const jugadorId = document.getElementById("jugadorId").value;
-
-         input.addEventListener("keydown", (event) => {
-             if (event.key === "Enter") {
-                 event.preventDefault();
-
-                 const intento = input.value.trim();
-                 if (intento === "") return;
-
-                 fetch('/spring/juego/intentar', {
-                     method: 'POST',
-                     headers: {
-                         'Content-Type': 'application/x-www-form-urlencoded'
-                     },
-                     body: `intento=${encodeURIComponent(intento)}&jugadorId=${encodeURIComponent(jugadorId)}&tiempoRestante=${tiempoRestante}`
-                 })
-                     .then(response => response.json())
-                     .then(data => {
-                         if (data.correcto) {
-                             clearInterval(intervaloTemporizador);
-                             clearInterval(intervaloLetras);
-                             if (data.partidaTerminada) {
-                                 alert("¡Correcto! Terminaste la partida.");
-                                 window.location.href = '/spring/juego/final?jugadorId=' + jugadorId;
-                             } else {
-                                 alert("¡Correcto! Avanzás de ronda.");
-                                 location.reload();
-                             }
-                         } else {
-                             alert("Incorrecto. Intentá de nuevo.");
-                         }
-                     })
-                     .catch(error => {
-                         console.error("Error al enviar el intento:", error);
-                     });
-
-                 input.value = "";
-             }
-         });
-     });
- </script>
-
-
- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
- <script>
-     $(document).ready(function() {
-         // Prevenir submit real
-         $('form').on('submit', function(e) {
-             e.preventDefault();
-
-             const intento = $('#input-intento').val().trim();
-             const jugadorId = $('#jugadorId').val();
-
-             if (intento === "") return;
-
-             $.post('/juego/intentar', { intento, jugadorId }, function(response) {
-                 if (response.correcto) {
-                     alert('¡Correcto!');
-                     $('#input-intento').val('');
-
-                     // Actualizar datos en la UI
-                     $('#rondaActual').text(response.ronda);
-                     $('.lead[th\\:text="${definicion}"]').text(response.nuevaDefinicion || '');
-
-                     // Reiniciar temporizador (a implementar)
-                     // resetTemporizador();
-
-                 } else {
-                     alert('Incorrecto, intenta de nuevo.');
-                 }
-             });
-         });
-     });
- </script>
-
- <script>
-     document.getElementById("input-intento").addEventListener("keydown", function(event) {
-         if (event.key === "Enter") {
-             sendMessage(); // tu función para enviar el mensaje
-         }
-     });
-
- </script>
-
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/resources/core/js/juego.js"></script>
 </body>
 
 </html>
