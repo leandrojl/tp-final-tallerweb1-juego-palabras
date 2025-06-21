@@ -86,14 +86,13 @@
             <!-- Mensaje de bienvenida -->
             <div class="col-6 d-flex justify-content-center align-items-start">
                 <div class="btn btn-orange btn-large d-flex align-items-center justify-content-center">
-                    <span th:text="${jugador.nombre}"></span>
             </div>
         </div>
 
         <!-- Botones centrales: Sala de Espera y Iniciar Partida -->
         <div class="row mt-5 justify-content-center gap-4">
             <div class="col-auto">
-                <a th:href="@{/salaDeEspera}" class="btn btn-orange btn-start">
+                <a th:href="@{/irASalaDeEspera}" class="btn btn-orange btn-start">
                     <i class="bi bi-door-open me-2"></i>Sala de Espera
                 </a>
             </div>

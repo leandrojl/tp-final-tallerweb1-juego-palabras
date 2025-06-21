@@ -12,4 +12,6 @@ public interface SalaDeEsperaService {
 
 
     void irAlJuego();
+
+    void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala);
 }

@@ -1,13 +1,13 @@
 package com.tallerwebi.dominio.model;
 
-public class MensajeRecibido {
+public class MensajeRecibidoDTO {
 
     private String message;
 
-    public MensajeRecibido() {
+    public MensajeRecibidoDTO() {
     }
 
-    public MensajeRecibido(String message) {
+    public MensajeRecibidoDTO(String message) {
         this.message = message;
     }
 

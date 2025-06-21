@@ -1,22 +1,22 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
-import com.tallerwebi.dominio.model.MensajeEnviado;
+import com.tallerwebi.dominio.model.ListaUsuariosDTO;
+import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service("servicioSalaDeEspera")
 @Transactional
 public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     SimpMessagingTemplate simpMessagingTemplate;
+    private final Set<String> usuariosEnSala = ConcurrentHashMap.newKeySet();
 
     @Autowired
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
@@ -56,7 +56,17 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     @Override
     public void irAlJuego(){
-        this.simpMessagingTemplate.convertAndSend("topic/iniciarPartida",new MensajeEnviado("server","redirect"));
+        this.simpMessagingTemplate.convertAndSend("topic/iniciarPartida",new MensajeEnviadoDTO("server","redirect"));
+    }
+
+    @Override
+    public void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala) {
+        usuariosEnSala.add(nombreUsuarioQueAcabaDeUnirseALaSala);
+        this.simpMessagingTemplate.convertAndSendToUser(
+                nombreUsuarioQueAcabaDeUnirseALaSala,
+                "/queue/jugadoresExistentes",
+                new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
+        );
     }
 
 }

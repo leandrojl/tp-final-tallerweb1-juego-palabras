@@ -9,6 +9,7 @@ import com.tallerwebi.dominio.model.Partida2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,10 @@ public class LobbyController {
         this.lobbyService = lobbyService;
     }
 
+    @GetMapping("/crear-sala")
+    public String mostrarFormularioCrearSala() {
+        return "crear-sala";
+    }
     @PostMapping("/crear-sala")
     public String crearSala(
             @RequestParam String nombre,
@@ -49,10 +54,6 @@ public class LobbyController {
         return "redirect:/lobby";
     }
 
-    @GetMapping("/crear-sala")
-    public String mostrarFormularioCrearSala() {
-        return "crear-sala";
-    }
 
     @RequestMapping("/lobby")
     public ModelAndView Lobby(HttpSession session, Model model) {
@@ -64,7 +65,7 @@ public class LobbyController {
             jugador = new Jugador();
             jugador.setNombre("july3p");
             model.addAttribute("jugador", jugador);
-            session.setAttribute("usuario", "pepe");
+            //session.setAttribute("usuario", "pepe");
 
             // obtengo las partidas en espera
             List<Partida2> partidas = lobbyService.obtenerPartidasEnEspera();
@@ -99,6 +100,13 @@ public class LobbyController {
         return new ModelAndView("recompensas");
     }
 
+    @RequestMapping("/irASalaDeEspera")
+    public ModelAndView irASalaDeEspera(HttpSession session) {
+        ModelMap modelMap = new ModelMap();
+        String nombreUsuario = (String) session.getAttribute("usuario");
+        modelMap.addAttribute("usuario",nombreUsuario);
+        return new ModelAndView("sala-de-espera",modelMap);
+    }
 
 
 

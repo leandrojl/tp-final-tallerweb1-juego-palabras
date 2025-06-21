@@ -2,9 +2,10 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
-import com.tallerwebi.dominio.model.EstadoJugador;
-import com.tallerwebi.dominio.model.MensajeEnviado;
-import com.tallerwebi.dominio.model.MensajeRecibido;
+import com.tallerwebi.dominio.model.EstadoJugadorDTO;
+import com.tallerwebi.dominio.model.ListaUsuariosDTO;
+import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
+import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,10 +42,10 @@ public class WebSocketControllerTest {
 
     @Test
     public void queUnJugadorPuedaEstarListo() throws Exception {
-        EstadoJugador estadoJugador = givenJugadorEnSala("pepe",true);
-        CompletableFuture<EstadoJugador> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/salaDeEspera",
-                "/app/salaDeEspera",estadoJugador,"pepe",EstadoJugador.class);
-        EstadoJugador resultado = completableFuture.get(5, TimeUnit.SECONDS);
+        EstadoJugadorDTO estadoJugadorDTO = givenJugadorEnSala("pepe",true);
+        CompletableFuture<EstadoJugadorDTO> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/salaDeEspera",
+                "/app/salaDeEspera", estadoJugadorDTO,"pepe", EstadoJugadorDTO.class);
+        EstadoJugadorDTO resultado = completableFuture.get(5, TimeUnit.SECONDS);
         thenJugadorListo(resultado);
     }
 
@@ -53,45 +54,47 @@ public class WebSocketControllerTest {
 
     @Test
     public void siSeEstaEnUnaPartidaQueSePuedaVerLaPalabraIndicada() throws Exception {
-        CompletableFuture<MensajeEnviado> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/messages",
-                "/app/chat",new MensajeRecibido("nube"),"pepe",MensajeEnviado.class);
+        CompletableFuture<MensajeEnviadoDTO> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/messages",
+                "/app/chat",new MensajeRecibidoDTO("nube"),"pepe", MensajeEnviadoDTO.class);
 
-        MensajeEnviado mensajeEnviado = completableFuture.get(5, TimeUnit.SECONDS);
-        thenMensajeEnviadoCorrectamente("nube",mensajeEnviado);
+        MensajeEnviadoDTO mensajeEnviadoDTO = completableFuture.get(5, TimeUnit.SECONDS);
+        thenMensajeEnviadoCorrectamente("nube", mensajeEnviadoDTO);
     }
 
     @Test
     public void siSeEstaEnUnaPartidaQueSePuedaSaberQuienEscribioLaPlabraIndicada() throws Exception{
 
 
-        CompletableFuture<MensajeEnviado> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/messages",
-                "/app/chat",new MensajeRecibido("nube"),"pepe",MensajeEnviado.class);
+        CompletableFuture<MensajeEnviadoDTO> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/messages",
+                "/app/chat",new MensajeRecibidoDTO("nube"),"pepe", MensajeEnviadoDTO.class);
 
-        MensajeEnviado mensajeEnviado = completableFuture.get(5, TimeUnit.SECONDS);
-        thenMensajeEnviadoCorrectamente("nube",mensajeEnviado);
-        thenSeVeQuienEscribioElMensaje("pepe",mensajeEnviado.getUsername());
+        MensajeEnviadoDTO mensajeEnviadoDTO = completableFuture.get(5, TimeUnit.SECONDS);
+        thenMensajeEnviadoCorrectamente("nube", mensajeEnviadoDTO);
+        thenSeVeQuienEscribioElMensaje("pepe", mensajeEnviadoDTO.getUsername());
     }
 
     //PARA SPRINT 3 MIO
 
     @Test
     public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {
-        EstadoJugador jugador2 = new EstadoJugador("jugador2", true);
+        EstadoJugadorDTO jugador2 = new EstadoJugadorDTO("jugador2", true);
 
-        CompletableFuture<MensajeRecibido> errorEsperado = whenEnvioYReciboError(
+        CompletableFuture<MensajeRecibidoDTO> errorEsperado = whenEnvioYReciboError(
                 "/app/salaDeEspera",
                 jugador2,
                 "jugador1"
         );
 
-        MensajeRecibido errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
+        MensajeRecibidoDTO errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
         assertEquals("Error, no se puede alterar el estado de otro jugador", errorMensaje.getMessage());
     }
 
     @Test
     public void dadoQueHayDosUsuariosConectadosAlWebSocketsQueSePuedaEnviarUnMensajePrivadoAUnUsuario() throws Exception {
-        CompletableFuture<MensajeEnviado> futurePepe = givenUsuarioConectado("pepe","/user/queue/paraTest");
-        CompletableFuture<MensajeEnviado> futureJose = givenUsuarioConectado("jose","/user/queue/paraTest");
+        CompletableFuture<MensajeEnviadoDTO> futurePepe = givenUsuarioConectado("pepe","/user/queue/paraTest", false,
+                MensajeEnviadoDTO.class);
+        CompletableFuture<MensajeEnviadoDTO> futureJose = givenUsuarioConectado("jose","/user/queue/paraTest", false,
+                MensajeEnviadoDTO.class);
         String mensaje = "Este mensaje le deberia llegar a pepe";
         String nombreUsuario = "pepe";
 
@@ -100,9 +103,9 @@ public class WebSocketControllerTest {
             String msg = invocation.getArgument(1);
 
             if (usuario.equals("pepe")) {
-                futurePepe.complete(new MensajeEnviado(usuario, msg));
+                futurePepe.complete(new MensajeEnviadoDTO(usuario, msg));
             } else if (usuario.equals("jose")) {
-                futureJose.complete(new MensajeEnviado(usuario, msg));
+                futureJose.complete(new MensajeEnviadoDTO(usuario, msg));
             }
             return true;
         }).when(partidaService).enviarMensajeAUsuarioEspecifico(anyString(), anyString());
@@ -110,90 +113,96 @@ public class WebSocketControllerTest {
         whenEnviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
 
         assertThrows(TimeoutException.class, () -> futureJose.get(5, TimeUnit.SECONDS));
-        MensajeEnviado mensajeEnviado = futurePepe.get(5, TimeUnit.SECONDS);
-        assertEquals(mensaje,mensajeEnviado.getContent());
-        assertEquals(nombreUsuario,mensajeEnviado.getUsername());
-    }
-
-
-    @Test
-    public void queSiLosJugadoresEstanListosSeInicieLaPartida() throws Exception {
-        givenUsuarioConectado("pepe","/topic/iniciarPartida");
-        whenInicioPartida();
-        verify(salaDeEsperaService).irAlJuego();
-    }
-
-    private void whenInicioPartida() {
-        this.webSocketController.irAlJuego();
+        MensajeEnviadoDTO mensajeEnviadoDTO = futurePepe.get(5, TimeUnit.SECONDS);
+        assertEquals(mensaje, mensajeEnviadoDTO.getContent());
+        assertEquals(nombreUsuario, mensajeEnviadoDTO.getUsername());
     }
 
     @Test
-    public void queSiUnJugadorAunNoEstaListoNoSePuedaIniciarUnaPartida(){
+    public void siAlguienSeUneALaSalaDeEsperaLosDemasJugadoresPuedenVerlo() throws Exception {
+        String nombreUsuarioQueAcabaDeUnirseALaSala = "jose";
+        CompletableFuture<MensajeRecibidoDTO> usuarioYaEnSalaDeEspera = givenUsuarioConectado("pepe","/topic" +
+                "/cuandoUsuarioSeUneASalaDeEspera",false , MensajeRecibidoDTO.class);
+        givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera",
+                        true,
+                        MensajeRecibidoDTO.class);
 
+        MensajeRecibidoDTO mensajeRecibidoDTO = usuarioYaEnSalaDeEspera.get(5, TimeUnit.SECONDS);
+        assertEquals(nombreUsuarioQueAcabaDeUnirseALaSala, mensajeRecibidoDTO.getMessage());
     }
 
     @Test
-    public void siAmbosJugadoresEstanListosSePuedaIniciarUnaPartida() {
+    public void siYaHayUsuariosEnLaSalaQueAquelNuevoUsuarioQueSeUnePuedaVerLosQueYaEstanEnDichaSala() throws Exception {
+        givenUsuarioConectado("pepe","/topic" +
+                "/cuandoUsuarioSeUneASalaDeEspera",true , MensajeRecibidoDTO.class);
+        CompletableFuture<ListaUsuariosDTO> usuarioQueAcabaDeUnirseALaSala =
+                givenUsuarioConectado("jose","/user/queue/jugadoresExistentes",
+                        true,
+                        ListaUsuariosDTO.class);
+        ListaUsuariosDTO lista = usuarioQueAcabaDeUnirseALaSala.get(2, TimeUnit.SECONDS);
+        assertTrue(lista.getUsuarios().contains("pepe"));
 
     }
+    private <T> CompletableFuture<T> givenUsuarioConectado(
+            String nombreUsuario,
+            String dondeSeConecta,
+            Boolean notificaALosDemasUsuarioQueSeUneALaSala,
+            Class<T> tipoDeRespuesta
+    ) throws Exception {
 
-    @Test
-    public void siSeEstaEnUnaPartidaYNoSeSabeQuienEscribioLaPalabraQueDeError() {
-    }
-
-    @Test
-    public void queAlRefrescarLaPaginaNoSeReinicieWebSocket(){
-
-    }
-    private void whenEnviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
-        this.webSocketController.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
-    }
-    private CompletableFuture<MensajeEnviado> givenUsuarioConectado(String nombreUsuario,String dondeSeConecta) throws Exception{
-        CompletableFuture <MensajeEnviado> completableFuture = new CompletableFuture<>();
+        CompletableFuture<T> completableFuture = new CompletableFuture<>();
         StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
         StompSession session = stompClient.connect(URL + "?usuario=" + nombreUsuario, sessionHandler)
                 .get(1, TimeUnit.SECONDS);
 
         session.subscribe(dondeSeConecta, new StompFrameHandler() {
-
             @Override
             public Type getPayloadType(StompHeaders headers) {
-
-                return MensajeEnviado.class;
+                return tipoDeRespuesta;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                completableFuture.complete((MensajeEnviado) payload);
+                completableFuture.complete(tipoDeRespuesta.cast(payload));
             }
         });
+
+        if(notificaALosDemasUsuarioQueSeUneALaSala){
+            session.send("/app/usuarioSeUneASalaDeEspera",new MensajeRecibidoDTO(nombreUsuario));
+        }
+
         return completableFuture;
     }
+
+    private void whenEnviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
+        this.webSocketController.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
+    }
+
 
     private void thenSeVeQuienEscribioElMensaje(String nombreEsperado, String username) {
         assertEquals(nombreEsperado,username);
     }
-    private void thenMensajeEnviadoCorrectamente(String mensajeEsperado, MensajeEnviado mensajeEnviado) {
-        assertEquals(mensajeEsperado, mensajeEnviado.getContent());
+    private void thenMensajeEnviadoCorrectamente(String mensajeEsperado, MensajeEnviadoDTO mensajeEnviadoDTO) {
+        assertEquals(mensajeEsperado, mensajeEnviadoDTO.getContent());
     }
-    private EstadoJugador givenJugadorEnSala(String nombre, boolean estaListo) {
-        EstadoJugador estadoJugador = new EstadoJugador();
-        estadoJugador.setUsername(nombre);
-        estadoJugador.setEstaListo(estaListo);
-        return estadoJugador;
+    private EstadoJugadorDTO givenJugadorEnSala(String nombre, boolean estaListo) {
+        EstadoJugadorDTO estadoJugadorDTO = new EstadoJugadorDTO();
+        estadoJugadorDTO.setUsername(nombre);
+        estadoJugadorDTO.setEstaListo(estaListo);
+        return estadoJugadorDTO;
     }
 
-    private void thenJugadorListo(EstadoJugador resultado) {
+    private void thenJugadorListo(EstadoJugadorDTO resultado) {
         assertEquals("pepe", resultado.getUsername());
         assertTrue(resultado.isEstaListo());
     }
 
-    private CompletableFuture<MensajeRecibido> whenEnvioYReciboError(
+    private CompletableFuture<MensajeRecibidoDTO> whenEnvioYReciboError(
             String appDestination,
             Object mensajeAEnviar,
             String nombreEmisor
     ) throws Exception {
-        CompletableFuture<MensajeRecibido> errorFuture = new CompletableFuture<>();
+        CompletableFuture<MensajeRecibidoDTO> errorFuture = new CompletableFuture<>();
         StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
         StompSession session = stompClient.connect(URL + "?usuario=" + nombreEmisor, sessionHandler)
                 .get(1, TimeUnit.SECONDS);
@@ -203,12 +212,12 @@ public class WebSocketControllerTest {
             @Override
             public Type getPayloadType(StompHeaders headers) {
 
-                return MensajeRecibido.class;
+                return MensajeRecibidoDTO.class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                errorFuture.complete((MensajeRecibido) payload);
+                errorFuture.complete((MensajeRecibidoDTO) payload);
             }
         });
 

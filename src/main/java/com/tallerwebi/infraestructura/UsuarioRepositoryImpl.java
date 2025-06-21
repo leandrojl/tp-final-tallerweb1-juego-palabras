@@ -1,6 +1,8 @@
 package com.tallerwebi.infraestructura;
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
+import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Usuario;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Repository("repositorioUsuario")
 public class UsuarioRepositoryImpl implements UsuarioRepository{
@@ -53,6 +56,13 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
     @Override
     public Usuario buscarPorId(long i) {
                return (Usuario) sessionFactory.getCurrentSession().createCriteria(Usuario.class).add(Restrictions.eq("id", i)).uniqueResult();
+    }
+
+    @Override
+    public List<Usuario> obtenerTodosLosUsuariosLogueados() {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("FROM Usuario u ", Usuario.class)
+                .getResultList();
     }
 
 }

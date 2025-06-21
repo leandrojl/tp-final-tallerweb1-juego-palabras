@@ -46,28 +46,7 @@
     <form th:action="@{/iniciarPartida}" method="post">
         <div class="card card-custom p-3 mb-4">
             <div class="section-title mb-2"><h2 class="h2 mb-0">Sala de espera</h2></div>
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>ID</th>
-                    <th>Listo?</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="usuario : ${usuarios}">
-                    <td th:text="${usuario.getNombre()}"></td>
-                    <td th:text="${usuario.getId()}"></td>
-                    <td>
-                        <select class="form-select"
-                                th:name="'jugador_' + ${usuario.getId()}">
-                            <option value="false" selected>no</option>
-                            <option value="true">si</option>
-                        </select>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <div id="jugadores-container"></div>
             <div class="mb-4 text-center">
                 <button type="submit" class="btn btn-warning btn-lg w-50 rounded-4 shadow">
                     Iniciar Partida
@@ -101,6 +80,10 @@
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
-<script th:src="@{/js/script.js}"></script>
+<script th:inline="javascript">
+    const nombreUsuario = /*[[${usuario}]]*/ "anonimo";
+    sessionStorage.setItem("usuario", nombreUsuario);
+</script>
+<script th:src="@{/js/salaDeEsperaSocket.js}"></script>
 </body>
 </html>

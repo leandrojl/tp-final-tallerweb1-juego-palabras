@@ -1,7 +1,7 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.interfaceService.PartidaService;
-import com.tallerwebi.dominio.model.MensajeEnviado;
+import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
 import com.tallerwebi.dominio.model.Partida;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -41,7 +41,7 @@ public class PartidaServiceImpl implements PartidaService {
 
     @Override
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
-        simpMessagingTemplate.convertAndSendToUser(nombreUsuario,"/queue/paraTest",new MensajeEnviado(nombreUsuario,
+        simpMessagingTemplate.convertAndSendToUser(nombreUsuario,"/queue/paraTest",new MensajeEnviadoDTO(nombreUsuario,
                 mensaje));
     }
 

@@ -3,6 +3,7 @@ package com.tallerwebi.dominio.interfaceRepository;
 import com.tallerwebi.dominio.model.Usuario;
 
 import java.io.Serializable;
+import java.util.List;
 
 public interface UsuarioRepository {
 
@@ -12,4 +13,6 @@ public interface UsuarioRepository {
     void modificar(Usuario usuario);
 
     Usuario buscarPorId(long i);
+
+    List<Usuario> obtenerTodosLosUsuariosLogueados();
 }
