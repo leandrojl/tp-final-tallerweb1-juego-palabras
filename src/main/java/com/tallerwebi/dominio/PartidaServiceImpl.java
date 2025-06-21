@@ -5,10 +5,13 @@ import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.infraestructura.PartidaRepository;
 import com.tallerwebi.infraestructura.RondaRepository;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +26,12 @@ public class PartidaServiceImpl implements PartidaService {
 
     @Autowired
     private final RondaRepository rondaRepositorio;
+    @Autowired
+    private LocalSessionFactoryBean sessionFactory;
+
+    @Autowired
+    private SessionFactory sessionFactory2;
+
 
 
     @Autowired
@@ -122,7 +131,13 @@ public class PartidaServiceImpl implements PartidaService {
         dto.setDefinicion(definicionTexto);
         dto.setNumeroRonda(ronda.getNumeroDeRonda());
 
-        return dto;
+        simpMessagingTemplate.convertAndSend("/topic/juego/"+partidaId, dto);
+        return null;
+    }
+
+    @Override
+    public Serializable crearPartida(Partida2 nuevaPartida) {
+        return partidaRepository.crearPartida(nuevaPartida);
     }
 
 

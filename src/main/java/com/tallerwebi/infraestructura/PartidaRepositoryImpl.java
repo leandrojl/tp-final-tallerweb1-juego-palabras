@@ -5,6 +5,8 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.io.Serializable;
+
 @Repository
 public class PartidaRepositoryImpl implements PartidaRepository {
 
@@ -20,5 +22,10 @@ public class PartidaRepositoryImpl implements PartidaRepository {
     @Override
     public void guardar(Partida2 partida) {
         sessionFactory.getCurrentSession().save(partida);
+    }
+
+    @Override
+    public Serializable crearPartida(Partida2 nuevaPartida) {
+        return sessionFactory.getCurrentSession().save(nuevaPartida);
     }
 }

@@ -1,11 +1,11 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.DefinicionDto;
+import com.tallerwebi.dominio.MensajeInicioRonda;
+import com.tallerwebi.dominio.interfaceService.Partida2Service;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
-import com.tallerwebi.dominio.model.EstadoJugadorDTO;
-import com.tallerwebi.dominio.model.ListaUsuariosDTO;
-import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
-import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
+import com.tallerwebi.dominio.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,11 +14,13 @@ import org.springframework.messaging.simp.stomp.*;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.concurrent.*;
 
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -39,6 +41,44 @@ public class WebSocketControllerTest {
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         webSocketController = new WebSocketController(partidaService,salaDeEsperaService);
     }
+
+    @Test
+    public void queSePuedaIniciarUnaPartida() throws Exception{
+     ///topic/juego/${partidaId}`
+        /* String topic,
+            String appDestination,
+            Object mensajeAEnviar,
+            String nombreEmisor,
+            Class<T> tipoDeRespuesta*/
+
+        Serializable serial =1;
+        Partida2 partida = new Partida2("prueba","Castellano", true, 2, 2);
+        Mockito.when(partidaService.crearPartida(partida)).thenReturn(serial);
+        partidaService.crearPartida(partida);
+        MensajeInicioRonda mensaje = new MensajeInicioRonda(1L);
+        //givenUsuarioConectado("lucas", "topic/juego/"+serial, false, DefinicionDto.class);
+        CompletableFuture <DefinicionDto> retorno = whenEnvioMensajeYReciboRespuesta("topic/juego/"+1L,"/app/juego/inicar",mensaje,"pepe", DefinicionDto.class);
+        DefinicionDto definicion = retorno.get(2,TimeUnit.SECONDS);
+        thenPartidaLista(definicion);
+
+    }
+    private void whenCuandoInicioLaPartida() {
+
+    }
+
+    private void thenPartidaLista(DefinicionDto retorno) {
+        assertNotNull(retorno.getPalabra());
+        assertNotNull(retorno.getDefinicionTexto());
+        assertThat(retorno.getNumeroDeRonda(), equalTo(1L));
+
+    }
+
+
+
+    private void givenInicializarDatos() {
+
+    }
+
 
     @Test
     public void queUnJugadorPuedaEstarListo() throws Exception {
@@ -257,5 +297,7 @@ public class WebSocketControllerTest {
 
         return completableFuture;
     }
+
+
 }
 

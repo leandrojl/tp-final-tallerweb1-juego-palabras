@@ -78,6 +78,7 @@ public class WebSocketController {
     }
 
     @MessageMapping("/juego/iniciar")
+    //@SendTo("/topic/juego/partidaId")
     public void iniciarRonda(MensajeInicioRonda mensaje){
         Long partidaId = mensaje.getPartidaId();
 
@@ -86,6 +87,7 @@ public class WebSocketController {
 
         // Enviás la info a todos los que están en esa partida
         //messagingTemplate.convertAndSend("/topic/juego/" + partidaId, datosRonda);
+        ;
     }
 
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
@@ -95,5 +97,6 @@ public class WebSocketController {
     public void irAlJuego() {
         this.salaDeEsperaService.irAlJuego();
     }
+
 
 }

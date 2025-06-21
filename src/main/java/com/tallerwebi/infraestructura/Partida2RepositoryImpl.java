@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
+
 @Repository
 public class Partida2RepositoryImpl implements Partida2Repository {
 
@@ -20,8 +22,8 @@ public class Partida2RepositoryImpl implements Partida2Repository {
 
     @Transactional
     @Override
-    public void crearPartida(Partida2 nuevaPartida) {
-        Session session = sessionFactory.getCurrentSession();
-        session.save(nuevaPartida);
+    public Serializable crearPartida(Partida2 nuevaPartida) {
+        return sessionFactory.getCurrentSession().save(nuevaPartida);
+
     }
 }

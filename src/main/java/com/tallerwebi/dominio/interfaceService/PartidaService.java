@@ -4,6 +4,9 @@ import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.DtoIntento;
 import com.tallerwebi.dominio.ResultadoIntentoDto;
 import com.tallerwebi.dominio.model.Partida;
+import com.tallerwebi.dominio.model.Partida2;
+
+import java.io.Serializable;
 
 
 public interface PartidaService {
@@ -17,5 +20,6 @@ public interface PartidaService {
     ResultadoIntentoDto procesarIntento(DtoIntento intento, String name);
 
     DefinicionDto iniciarPrimerRonda(Long partidaId);
+    Serializable crearPartida (Partida2 nuevaPartida);
 }
 

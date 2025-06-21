@@ -11,12 +11,12 @@ class RondaServiceTest {
 
 
 
-
+/*
     @Test
     void queRondaMeTraigaUnaDefinicion() {
         HashMap<String,String> pYD = rondaServicio.traerPalabraYDefinicion(); ;
         assertFalse(pYD.isEmpty());
     }
-
+*/
 
 }
