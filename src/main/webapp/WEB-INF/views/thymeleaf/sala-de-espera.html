@@ -80,6 +80,10 @@
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+<script th:inline="javascript">
+    const nombreUsuario = /*[[${usuario}]]*/ "anonimo";
+    sessionStorage.setItem("usuario", nombreUsuario);
+</script>
 <script th:src="@{/js/salaDeEsperaSocket.js}"></script>
 </body>
 </html>

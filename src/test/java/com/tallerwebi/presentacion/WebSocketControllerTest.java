@@ -123,8 +123,7 @@ public class WebSocketControllerTest {
         String nombreUsuarioQueAcabaDeUnirseALaSala = "jose";
         CompletableFuture<MensajeRecibidoDTO> usuarioYaEnSalaDeEspera = givenUsuarioConectado("pepe","/topic" +
                 "/cuandoUsuarioSeUneASalaDeEspera",false , MensajeRecibidoDTO.class);
-        CompletableFuture<MensajeRecibidoDTO> usuarioQueAcabaDeUnirseALaSala =
-                givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera",
+        givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera",
                         true,
                         MensajeRecibidoDTO.class);
 
@@ -134,7 +133,7 @@ public class WebSocketControllerTest {
 
     @Test
     public void siYaHayUsuariosEnLaSalaQueAquelNuevoUsuarioQueSeUnePuedaVerLosQueYaEstanEnDichaSala() throws Exception {
-        CompletableFuture<MensajeRecibidoDTO> usuarioYaEnSalaDeEspera = givenUsuarioConectado("pepe","/topic" +
+        givenUsuarioConectado("pepe","/topic" +
                 "/cuandoUsuarioSeUneASalaDeEspera",true , MensajeRecibidoDTO.class);
         CompletableFuture<ListaUsuariosDTO> usuarioQueAcabaDeUnirseALaSala =
                 givenUsuarioConectado("jose","/user/queue/jugadoresExistentes",

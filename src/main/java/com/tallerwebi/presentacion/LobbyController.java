@@ -101,10 +101,10 @@ public class LobbyController {
     }
 
     @RequestMapping("/irASalaDeEspera")
-    public ModelAndView irASalaDeEspera(HttpSession session, Model model) {
+    public ModelAndView irASalaDeEspera(HttpSession session) {
         ModelMap modelMap = new ModelMap();
         String nombreUsuario = (String) session.getAttribute("usuario");
-        modelMap.addAttribute(nombreUsuario);
+        modelMap.addAttribute("usuario",nombreUsuario);
         return new ModelAndView("sala-de-espera",modelMap);
     }
 
