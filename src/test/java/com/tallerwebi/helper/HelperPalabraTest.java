@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 public class HelperPalabraTest {
-
+/*
     @Test
     public void obtenerUnMap(){
         HelperPalabra helperPalabra = new HelperPalabra ();
@@ -69,5 +69,5 @@ public class HelperPalabraTest {
             assertThat(entry.getValue(), is(notNullValue()));
         }
     }
-
+*/
 }

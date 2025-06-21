@@ -34,9 +34,9 @@ public class DatabaseInitializationConfig {
         }
 
         if(registroService.obtenerUsuariosLogueados().isEmpty()){
-            registroService.registrar("pepe","pass1");
-            registroService.registrar("jose","pass2");
-            registroService.registrar("lucas","pass3");
+            registroService.registrar("pepe","contraseñaLarga123");
+            registroService.registrar("jose","contraseñaLarga123");
+            registroService.registrar("lucas","contraseñaLarga123");
         }
     }
 }
