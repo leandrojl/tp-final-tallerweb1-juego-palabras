@@ -41,7 +41,7 @@ public class WebSocketController {
     }
 
     @MessageExceptionHandler(UsuarioInvalidoException.class)
-    @SendToUser("/queue/errors")
+    @SendToUser("/queue/mensajeAlIntentarCambiarEstadoDeOtroJugador")
     public MensajeRecibidoDTO handleUsuarioInvalidoException(UsuarioInvalidoException ex) {
         return new MensajeRecibidoDTO(ex.getMessage());
     }

@@ -32,6 +32,11 @@ stompClient.onConnect = (frame) => {
             }
         });
     });
+
+    stompClient.subscribe('/user/queue/mensajeAlIntentarCambiarEstadoDeOtroJugador', (m) => {
+        const data = JSON.parse(m.body);
+        mostrarError(data.message);
+    });
     const message = "acabo de unirme";
     stompClient.publish({
         destination: "/app/usuarioSeUneASalaDeEspera",
@@ -75,6 +80,7 @@ function modificarBotonDeEstadoJugador(estadoJugador) {
 
 function agregarJugador(usuario) {
     const contenedor = document.getElementById("jugadores-container");
+    const usuarioActual = sessionStorage.getItem("usuario");
 
     const jugadorDiv = document.createElement("div");
     jugadorDiv.id = `jugador-${usuario}`;
@@ -84,25 +90,64 @@ function agregarJugador(usuario) {
     nombreSpan.className = "fw-bold fs-5";
     nombreSpan.textContent = usuario;
 
-    // Usamos un <div> en lugar de <button>
     const boton = document.createElement("div");
     boton.id = `ready-button-${usuario}`;
     boton.className = "btn btn-danger";
     boton.textContent = "NO ESTOY LISTO";
-    boton.style.cursor = "pointer"; // Opcional: muestra el cursor de "click"
 
-    // Estado local: no está listo al principio
-    let estaListo = false;
+    // Solo permitir clic si es el usuario actual
+    if (usuario === usuarioActual) {
+        let estaListo = false;
 
-    boton.addEventListener("click", () => {
-        estaListo = !estaListo;
-        const usuarioActual = sessionStorage.getItem("usuario");
-        toggleReady(usuarioActual, estaListo);
-    });
+        boton.style.cursor = "pointer";
+        boton.addEventListener("click", () => {
+            estaListo = !estaListo;
+            toggleReady(usuario, estaListo);
+        });
+    } else {
+        // Visualmente mostrar que no se puede hacer clic
+        boton.style.pointerEvents = "none";   // No permite clic
+        boton.style.opacity = "0.6";          // Más apagado
+        boton.style.cursor = "not-allowed";   // Cursor de prohibido
+    }
 
     jugadorDiv.appendChild(nombreSpan);
     jugadorDiv.appendChild(boton);
     contenedor.appendChild(jugadorDiv);
+}
+
+
+function mostrarError(message) {
+    const errorDiv = document.createElement("div");
+
+    errorDiv.textContent = message;
+    errorDiv.style.position = "fixed";
+    errorDiv.style.top = "20px";
+    errorDiv.style.left = "50%";
+    errorDiv.style.transform = "translateX(-50%)";
+    errorDiv.style.padding = "12px 24px";
+    errorDiv.style.backgroundColor = "rgba(220, 53, 69, 0.9)"; // rojo tipo Bootstrap con opacidad
+    errorDiv.style.color = "#fff";
+    errorDiv.style.borderRadius = "8px";
+    errorDiv.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+    errorDiv.style.zIndex = "9999";
+    errorDiv.style.opacity = "0";
+    errorDiv.style.transition = "opacity 0.5s ease";
+
+    document.body.appendChild(errorDiv);
+
+    // Fade in
+    setTimeout(() => {
+        errorDiv.style.opacity = "1";
+    }, 10);
+
+    // Fade out y remove
+    setTimeout(() => {
+        errorDiv.style.opacity = "0";
+        setTimeout(() => {
+            document.body.removeChild(errorDiv);
+        }, 500);
+    }, 3000); // visible durante 3 segundos
 }
 
 
