@@ -78,9 +78,8 @@ public class WebSocketController {
     }
 
     @MessageMapping("/juego/iniciar")
-    //@SendTo("/topic/juego/partidaId")
     public void iniciarRonda(MensajeInicioRonda mensaje){
-        Long partidaId = mensaje.getPartidaId();
+        Long partidaId = mensaje.getId();
 
         // Acá generás la ronda
         DefinicionDto datosRonda = partidaService.iniciarPrimerRonda(partidaId);

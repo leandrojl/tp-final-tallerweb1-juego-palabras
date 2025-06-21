@@ -128,8 +128,8 @@ public class PartidaServiceImpl implements PartidaService {
         // Armar el DTO para enviar al frontend
         DefinicionDto dto = new DefinicionDto();
         dto.setPalabra(palabra.getDescripcion());
-        dto.setDefinicion(definicionTexto);
-        dto.setNumeroRonda(ronda.getNumeroDeRonda());
+        dto.setDefinicionTexto(definicionTexto);
+        dto.setNumeroDeRonda(ronda.getNumeroDeRonda());
 
         simpMessagingTemplate.convertAndSend("/topic/juego/"+partidaId, dto);
         return null;

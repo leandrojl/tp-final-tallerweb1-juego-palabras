@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-/*
+
 @Service
 @Transactional
 public class Partida2ServiceImpl implements Partida2Service {
@@ -21,6 +21,16 @@ public class Partida2ServiceImpl implements Partida2Service {
     @Autowired
     public Partida2ServiceImpl(Partida2Repository partida2Repository) {
         this.partida2Repository = partida2Repository;
+    }
+
+    @Override
+    public DefinicionDto iniciarPrimerRonda(Long partidaId) {
+        return null;
+    }
+
+    @Override
+    public Serializable crearPartida(Partida2 nuevaPartida) {
+        return null;
     }
 
     /*@Override
@@ -53,13 +63,13 @@ public class Partida2ServiceImpl implements Partida2Service {
 
             return dto;
 
-    }
+    }*/
 
-    @Override
+    /*@Override
     public Serializable crearPartida(Partida2 nuevaPartida) {
         return partida2Repository.crearPartida(nuevaPartida);
 
-    }
+    }*/
 
 
-}*/
+}

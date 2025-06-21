@@ -16,7 +16,13 @@ public class Definicion {
     @JoinColumn(name = "palabra_id") // clave foránea hacia Palabra
     private Palabra palabra;
 
-    public Definicion() {}
+    public Definicion() {
+
+    }
+
+    public Definicion(String definicion) {
+        this.definicion = definicion;
+    }
 
     public Long getId() {
         return id;

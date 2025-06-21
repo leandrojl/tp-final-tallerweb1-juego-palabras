@@ -2,20 +2,27 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.MensajeInicioRonda;
+import com.tallerwebi.dominio.PartidaServiceImpl;
 import com.tallerwebi.dominio.interfaceService.Partida2Service;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
+import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.*;
+import com.tallerwebi.infraestructura.PartidaRepository;
+import com.tallerwebi.infraestructura.RondaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.*;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.concurrent.*;
 
 
@@ -27,41 +34,66 @@ import static org.mockito.Mockito.*;
 public class WebSocketControllerTest {
 
     static final String URL = "ws://localhost:8080/spring/wschat";
-
-    private WebSocketStompClient stompClient;
-    private PartidaService partidaService;
+    private PartidaServiceImpl partidaService;
+    private SimpMessagingTemplate messagingTemplate;
+    private RondaService rondaService;
+    private PartidaRepository partidaRepository;
+    private RondaRepository rondaRepository;
     private SalaDeEsperaService salaDeEsperaService;
     private WebSocketController webSocketController;
+    private WebSocketStompClient stompClient;
 
     @BeforeEach
-    public void setup() {
+    public void setUp() {
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-        partidaService = Mockito.mock(PartidaService.class);
+        rondaRepository = mock(RondaRepository.class);
+        messagingTemplate = mock(SimpMessagingTemplate.class);
+        rondaService = mock(RondaService.class);
+        partidaRepository = mock(PartidaRepository.class);
+
+        partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository);
+        ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         webSocketController = new WebSocketController(partidaService,salaDeEsperaService);
     }
 
     @Test
-    public void queSePuedaIniciarUnaPartida() throws Exception{
-     ///topic/juego/${partidaId}`
-        /* String topic,
-            String appDestination,
-            Object mensajeAEnviar,
-            String nombreEmisor,
-            Class<T> tipoDeRespuesta*/
+    public void siYaHayUnaPartidaIniciadaQueLosUsuariosObtenganLosDatosDeRonda() throws Exception {
+        Long idPartida = 1L;
+        Partida2 partida = new Partida2("prueba", "Castellano", true, 2, 2);
 
-        Serializable serial =1;
-        Partida2 partida = new Partida2("prueba","Castellano", true, 2, 2);
-        Mockito.when(partidaService.crearPartida(partida)).thenReturn(serial);
-        partidaService.crearPartida(partida);
-        MensajeInicioRonda mensaje = new MensajeInicioRonda(1L);
-        //givenUsuarioConectado("lucas", "topic/juego/"+serial, false, DefinicionDto.class);
-        CompletableFuture <DefinicionDto> retorno = whenEnvioMensajeYReciboRespuesta("topic/juego/"+1L,"/app/juego/inicar",mensaje,"pepe", DefinicionDto.class);
-        DefinicionDto definicion = retorno.get(2,TimeUnit.SECONDS);
-        thenPartidaLista(definicion);
+        when(partidaRepository.buscarPorId(idPartida)).thenReturn(partida);
 
+        Palabra palabra = new Palabra();
+        palabra.setDescripcion("Casa");
+        palabra.setDefiniciones(List.of(new Definicion("Lugar donde se vive")));
+
+        Ronda ronda = new Ronda();
+        ronda.setPalabra(palabra);
+        ronda.setNumeroDeRonda(1);
+
+        when(rondaService.crearRonda(idPartida, "Castellano")).thenReturn(ronda);
+
+        CompletableFuture<DefinicionDto> future = new CompletableFuture<>();
+
+        doAnswer(invocation -> {
+            DefinicionDto dto = invocation.getArgument(1);
+            future.complete(dto);
+            return null;
+        }).when(messagingTemplate).convertAndSend(eq("/topic/juego/" + idPartida), any(DefinicionDto.class));
+
+        partidaService.iniciarPrimerRonda(idPartida);
+
+        DefinicionDto dto = future.get(2, TimeUnit.SECONDS);
+
+        assertNotNull(dto);
+        assertEquals("Casa", dto.getPalabra());
+        assertEquals("Lugar donde se vive", dto.getDefinicionTexto());
+        assertEquals(1, dto.getNumeroDeRonda());
     }
+
+
     private void whenCuandoInicioLaPartida() {
 
     }

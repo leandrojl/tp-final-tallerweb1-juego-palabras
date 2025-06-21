@@ -29,7 +29,7 @@ public class HelperPalabra {
         // Convertir descripciones a entidades Definicion
         List<Definicion> definiciones = new ArrayList<>();
         for (String descripcion : descripciones) {
-            Definicion def = new Definicion();
+            Definicion def = new Definicion("Lugar donde se vive");
             def.setDefinicion(descripcion);
             def.setPalabra(palabra);
             definiciones.add(def);

@@ -67,4 +67,6 @@ public class Ronda {
     public void setFechaHora(LocalDateTime fechaHora) {
         this.fechaHora = fechaHora;
     }
+
+
 }
