@@ -1,29 +1,31 @@
 package com.tallerwebi.infraestructura;
 
-import com.tallerwebi.dominio.interfaceRepository.Partida2Repository;
 import com.tallerwebi.dominio.model.Partida2;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 
 @Repository
-public class Partida2RepositoryImpl implements Partida2Repository {
-
-    private final SessionFactory sessionFactory;
+public class PartidaRepositoryImpl implements PartidaRepository {
 
     @Autowired
-    public Partida2RepositoryImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    private SessionFactory sessionFactory;
+
+    @Override
+    public Partida2 buscarPorId(Long id) {
+        return sessionFactory.getCurrentSession().get(Partida2.class, id);
     }
 
-    @Transactional
+    // Ejemplo: guardar una partida (por si querés usarlo después)
+    @Override
+    public void guardar(Partida2 partida) {
+        sessionFactory.getCurrentSession().save(partida);
+    }
+
     @Override
     public Serializable crearPartida(Partida2 nuevaPartida) {
         return sessionFactory.getCurrentSession().save(nuevaPartida);
-
     }
 }

@@ -1,5 +1,9 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.DefinicionDto;
+import com.tallerwebi.dominio.DtoIntento;
+import com.tallerwebi.dominio.MensajeInicioRonda;
+import com.tallerwebi.dominio.ResultadoIntentoDto;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
@@ -65,6 +69,27 @@ public class WebSocketController {
         return new MensajeRecibidoDTO(nombreUsuario);
     }
 
+    @MessageMapping("/juego/intento")
+    @SendTo("/topic/mostrarIntento")
+    public ResultadoIntentoDto procesarIntento(DtoIntento intento, Principal principal){
+
+            return partidaService.procesarIntento(intento, principal.getName());
+
+    }
+
+    @MessageMapping("/juego/iniciar")
+    //@SendTo("/topic/juego/partidaId")
+    public void iniciarRonda(MensajeInicioRonda mensaje){
+        Long partidaId = mensaje.getPartidaId();
+
+        // Acá generás la ronda
+        DefinicionDto datosRonda = partidaService.iniciarPrimerRonda(partidaId);
+
+        // Enviás la info a todos los que están en esa partida
+        //messagingTemplate.convertAndSend("/topic/juego/" + partidaId, datosRonda);
+        ;
+    }
+
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
         this.partidaService.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
     }
@@ -72,5 +97,6 @@ public class WebSocketController {
     public void irAlJuego() {
         this.salaDeEsperaService.irAlJuego();
     }
+
 
 }

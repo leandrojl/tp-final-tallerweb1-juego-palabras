@@ -1,6 +1,6 @@
 package com.tallerwebi.helper;
 
-import com.tallerwebi.HelperDefinicion;
+import com.tallerwebi.helpers.HelperDefinicion;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

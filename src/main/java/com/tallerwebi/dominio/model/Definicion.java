@@ -1,19 +1,22 @@
 package com.tallerwebi.dominio.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+
 
 @Entity
 public class Definicion {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String definicion;
 
-    public Definicion() {
-    }
+    @ManyToOne
+    @JoinColumn(name = "palabra_id") // clave foránea hacia Palabra
+    private Palabra palabra;
+
+    public Definicion() {}
 
     public Long getId() {
         return id;
@@ -29,5 +32,13 @@ public class Definicion {
 
     public void setDefinicion(String definicion) {
         this.definicion = definicion;
+    }
+
+    public Palabra getPalabra() {
+        return palabra;
+    }
+
+    public void setPalabra(Palabra palabra) {
+        this.palabra = palabra;
     }
 }

@@ -3,6 +3,7 @@ package com.tallerwebi.dominio.model;
 import com.tallerwebi.dominio.Enum.Estado;
 
 import javax.persistence.*;
+import java.util.Arrays;
 import java.util.Objects;
 
 @Entity
@@ -116,5 +117,12 @@ public class Partida2 {
                 Objects.equals(nombre, partida2.nombre) &&
                 Objects.equals(idioma, partida2.idioma) &&
                 estado == partida2.estado;
+    }
+
+    public Arrays getUsuariosPartida() {
+        return null;
+    }
+
+    public Object getRondaActual() {return null;
     }
 }
