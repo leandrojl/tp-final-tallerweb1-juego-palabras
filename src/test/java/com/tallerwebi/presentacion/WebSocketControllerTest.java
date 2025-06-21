@@ -207,7 +207,7 @@ public class WebSocketControllerTest {
         StompSession session = stompClient.connect(URL + "?usuario=" + nombreEmisor, sessionHandler)
                 .get(1, TimeUnit.SECONDS);
 
-        session.subscribe("/user/queue/errors", new StompFrameHandler() {
+        session.subscribe("/user/queue/mensajeAlIntentarCambiarEstadoDeOtroJugador", new StompFrameHandler() {
 
             @Override
             public Type getPayloadType(StompHeaders headers) {
