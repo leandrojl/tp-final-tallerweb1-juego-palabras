@@ -36,4 +36,18 @@ public class RondaRepositoryImpl implements RondaRepository {
                 .uniqueResult();
         return count.intValue();
     }
+
+
+    @Override
+    public Ronda obtenerUltimaRondaDePartida(Long partidaId) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("SELECT r FROM Ronda r " +
+                        "JOIN FETCH r.palabra " + // opcional, si querés la palabra cargada
+                        "WHERE r.partida.id = :partidaId " +
+                        "ORDER BY r.numeroDeRonda DESC", Ronda.class)
+                .setParameter("partidaId", partidaId)
+                .setMaxResults(1)
+                .uniqueResult();
+    }
+
 }

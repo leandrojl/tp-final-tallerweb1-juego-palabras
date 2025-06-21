@@ -11,4 +11,6 @@ public interface RondaRepository {
     List<Ronda> buscarPorPartidaConPalabra(Long partidaId);
 
     int obtenerCantidadDeRondasPorPartida(Long partidaId);
+
+    Ronda obtenerUltimaRondaDePartida(Long partidaId);
 }
