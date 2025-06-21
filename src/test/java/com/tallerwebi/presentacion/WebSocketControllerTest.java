@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.interfaceService.Partida2Service;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.EstadoJugadorDTO;
@@ -27,7 +28,7 @@ public class WebSocketControllerTest {
     static final String URL = "ws://localhost:8080/spring/wschat";
 
     private WebSocketStompClient stompClient;
-    private PartidaService partidaService;
+    private Partida2Service partidaService;
     private SalaDeEsperaService salaDeEsperaService;
     private WebSocketController webSocketController;
 
@@ -35,7 +36,7 @@ public class WebSocketControllerTest {
     public void setup() {
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-        partidaService = Mockito.mock(PartidaService.class);
+        partidaService = Mockito.mock(Partida2Service.class);
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         webSocketController = new WebSocketController(partidaService,salaDeEsperaService);
     }

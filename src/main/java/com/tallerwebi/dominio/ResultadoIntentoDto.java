@@ -5,6 +5,17 @@ public class ResultadoIntentoDto {
     private String jugador;
     private String palabraCorrecta;
 
+
+    public ResultadoIntentoDto(){
+
+    }
+
+    public ResultadoIntentoDto(boolean esCorrecto, String jugador, String palabraCorrecta) {
+        this.esCorrecto = esCorrecto;
+        this.jugador = jugador;
+        this.palabraCorrecta = palabraCorrecta;
+    }
+
     public boolean isEsCorrecto() {
         return esCorrecto;
     }

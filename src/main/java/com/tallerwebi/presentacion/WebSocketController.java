@@ -4,6 +4,7 @@ import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.DtoIntento;
 import com.tallerwebi.dominio.MensajeInicioRonda;
 import com.tallerwebi.dominio.ResultadoIntentoDto;
+import com.tallerwebi.dominio.interfaceService.Partida2Service;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
@@ -23,11 +24,11 @@ import java.security.Principal;
 public class WebSocketController {
 
 
-    private PartidaService partidaService;
+    private Partida2Service partidaService;
     private SalaDeEsperaService salaDeEsperaService;
 
     @Autowired
-    public WebSocketController(PartidaService partidaService, SalaDeEsperaService salaDeEsperaService) {
+    public WebSocketController(Partida2Service partidaService, SalaDeEsperaService salaDeEsperaService) {
         this.partidaService = partidaService;
         this.salaDeEsperaService = salaDeEsperaService;
     }
@@ -85,7 +86,8 @@ public class WebSocketController {
         DefinicionDto datosRonda = partidaService.iniciarPrimerRonda(partidaId);
 
         // Enviás la info a todos los que están en esa partida
-        //messagingTemplate.convertAndSend("/topic/juego/" + partidaId, datosRonda);
+        partidaService.enviarDatosDeLaRonda(datosRonda,partidaId);
+
     }
 
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
