@@ -1,10 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.DefinicionDto;
-import com.tallerwebi.dominio.MensajeInicioRonda;
 import com.tallerwebi.dominio.PartidaServiceImpl;
-import com.tallerwebi.dominio.interfaceService.Partida2Service;
-import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.*;
@@ -20,7 +17,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.*;
@@ -83,7 +79,7 @@ public class WebSocketControllerTest {
             return null;
         }).when(messagingTemplate).convertAndSend(eq("/topic/juego/" + idPartida), any(DefinicionDto.class));
 
-        partidaService.iniciarPrimerRonda(idPartida);
+        partidaService.iniciarNuevaRonda(idPartida);
 
         DefinicionDto dto = future.get(2, TimeUnit.SECONDS);
 

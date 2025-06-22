@@ -34,7 +34,14 @@ function enviarIntento(palabra) {
         partidaId,
         tiempoRestante
     }));
+    stompClient.send("/app/juego/verificarAvanceDeRonda", {}, JSON.stringify({
+            jugadorId,
+            partidaId,
+            tiempoRestante
+        }));
 }
+
+//  "/verificarAvanzarRonda"
 
 // === RECIBE MENSAJE DEL SERVIDOR ===
 function manejarMensajeServidor(mensaje) {
@@ -69,7 +76,7 @@ function actualizarRanking(jugadores) {
         div.innerHTML = `<div class="avatar"></div> <span>${j.nombre}</span> (${j.puntaje} pts)`;
         contenedor.appendChild(div);
     });
-}
+}//a hacer
 
 // === TEMPORIZADOR ===
 function iniciarTemporizador() {
@@ -87,7 +94,7 @@ function iniciarTemporizador() {
             tiempoRestante--;
         }
     }, 1000);
-}
+}//metodo a hacer
 
 // === MOSTRAR LETRAS ===
 function mostrarLetras() {

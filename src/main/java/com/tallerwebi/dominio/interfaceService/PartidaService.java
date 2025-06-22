@@ -19,7 +19,7 @@ public interface PartidaService {
 
     ResultadoIntentoDto procesarIntento(DtoIntento intento, String name);
 
-    DefinicionDto iniciarPrimerRonda(Long partidaId);
+    DefinicionDto iniciarNuevaRonda(Long partidaId);
     Serializable crearPartida (Partida2 nuevaPartida);
 }
 

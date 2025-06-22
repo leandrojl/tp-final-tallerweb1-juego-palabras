@@ -1,9 +1,6 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.DefinicionDto;
-import com.tallerwebi.dominio.DtoIntento;
-import com.tallerwebi.dominio.MensajeInicioRonda;
-import com.tallerwebi.dominio.ResultadoIntentoDto;
+import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
@@ -69,25 +66,47 @@ public class WebSocketController {
         return new MensajeRecibidoDTO(nombreUsuario);
     }
 
-    @MessageMapping("/juego/intento")
-    @SendTo("/topic/mostrarIntento")
-    public ResultadoIntentoDto procesarIntento(DtoIntento intento, Principal principal){
 
-            return partidaService.procesarIntento(intento, principal.getName());
-
-    }
 
     @MessageMapping("/juego/iniciar")
     public void iniciarRonda(MensajeInicioRonda mensaje){
         Long partidaId = mensaje.getId();
 
         // Acá generás la ronda
-        DefinicionDto datosRonda = partidaService.iniciarPrimerRonda(partidaId);
+        DefinicionDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
 
         // Enviás la info a todos los que están en esa partida
         //messagingTemplate.convertAndSend("/topic/juego/" + partidaId, datosRonda);
         ;
     }
+
+    @MessageMapping("/juego/intento")
+    @SendTo("/topic/mostrarIntento")
+    public ResultadoIntentoDto procesarIntento(DtoIntento intento, Principal principal){
+
+        return partidaService.procesarIntento(intento, principal.getName());
+        //si acierta pepi acerto.. sino mostrarenchat palabra prueba..
+        //si es correcto registro acierto en tablaAcierto y suma puntosActuales y mandarALaVista en el DTO
+        //los puntosActuales de todos los usuarios
+        //mandarIndividualmente a/c.usuario los puntajes y almacenarPuntajesDeTodos en un array
+        // (usar ListaUsuariosDto) y hacer topic que envie ese array
+    }//hacer tdd
+
+    //verificarAciertos countDeAciertos where idRonda.getAciertos ==  "/juego/verificarAvanceDeRonda"
+    //@MessageMapping("/juego/verificarAvanceDeRonda")
+    //    public void finalizarRonda(DtoInfoRondaFinalizada info){
+    //        partidaService.avanzarRonda(info);
+    //
+    //      En el servicio : template.topic/avanzarRonda Dto(datosNuevaRonda)
+    //    }
+
+    //verificar tablaacriertos
+    //verificarTiempo
+    //FinalizarPartida -> vistaFinal con puntajes
+
+
+
+
 
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
         this.partidaService.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);

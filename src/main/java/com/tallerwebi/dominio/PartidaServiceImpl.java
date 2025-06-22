@@ -104,7 +104,7 @@ public class PartidaServiceImpl implements PartidaService {
     }
 
     @Override
-    public DefinicionDto iniciarPrimerRonda(Long partidaId) {
+    public DefinicionDto iniciarNuevaRonda(Long partidaId) {
         // Obtener la partida (usando el repositorio, o el método que tengas para acceder a la partida)
         Partida2 partida = partidaRepository.buscarPorId(partidaId);
 
@@ -124,6 +124,8 @@ public class PartidaServiceImpl implements PartidaService {
                 .findFirst()
                 .map(Definicion::getDefinicion)
                 .orElse("Definición no disponible");
+
+        //verificarRonda - inicializarPuntajesEnCero//
 
         // Armar el DTO para enviar al frontend
         DefinicionDto dto = new DefinicionDto();

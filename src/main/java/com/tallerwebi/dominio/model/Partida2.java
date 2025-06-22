@@ -21,7 +21,6 @@ public class Partida2 {
     private Estado estado;
 
     public Partida2(){
-
     }
 
     public Partida2(String nombre, String idioma, boolean permiteComodin, int rondasTotales,int maximoJugadores, int minimoJugadores, Estado estado) {
