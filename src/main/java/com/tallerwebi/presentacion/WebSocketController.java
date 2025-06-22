@@ -72,12 +72,9 @@ public class WebSocketController {
     public void iniciarRonda(MensajeInicioRonda mensaje){
         Long partidaId = mensaje.getId();
 
-        // Acá generás la ronda
+        // Acá generás la ronda - INICIAR CHAT
         DefinicionDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
 
-        // Enviás la info a todos los que están en esa partida
-        //messagingTemplate.convertAndSend("/topic/juego/" + partidaId, datosRonda);
-        ;
     }
 
     @MessageMapping("/juego/intento")
@@ -86,12 +83,18 @@ public class WebSocketController {
 
         return partidaService.procesarIntento(intento, principal.getName());
         //si acierta pepi acerto.. sino mostrarenchat palabra prueba..
+        //verificar que ronda no este terminada
+        //bloquearChat
+        //puntaje segun orden de acierto
         //si es correcto registro acierto en tablaAcierto y suma puntosActuales y mandarALaVista en el DTO
         //los puntosActuales de todos los usuarios
         //mandarIndividualmente a/c.usuario los puntajes y almacenarPuntajesDeTodos en un array
+        //ir actualizando los putajes
         // (usar ListaUsuariosDto) y hacer topic que envie ese array
-    }//hacer tdd
+    } //hacer tdd
 
+
+    // == PASAR DE RONDA ==
     //verificarAciertos countDeAciertos where idRonda.getAciertos ==  "/juego/verificarAvanceDeRonda"
     //@MessageMapping("/juego/verificarAvanceDeRonda")
     //    public void finalizarRonda(DtoInfoRondaFinalizada info){

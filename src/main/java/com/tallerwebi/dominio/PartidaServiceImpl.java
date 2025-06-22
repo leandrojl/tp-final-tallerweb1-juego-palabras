@@ -125,7 +125,8 @@ public class PartidaServiceImpl implements PartidaService {
                 .map(Definicion::getDefinicion)
                 .orElse("Definición no disponible");
 
-        //verificarRonda - inicializarPuntajesEnCero//
+        //verificarRonda - actualizarPuntajeRepo al finalizarRonda//
+        //traer lista de jugadores con puntaje 0
 
         // Armar el DTO para enviar al frontend
         DefinicionDto dto = new DefinicionDto();
