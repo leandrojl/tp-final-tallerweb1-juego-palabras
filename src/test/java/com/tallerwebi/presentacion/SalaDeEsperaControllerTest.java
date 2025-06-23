@@ -33,11 +33,6 @@ import static org.mockito.Mockito.mock;
 public class SalaDeEsperaControllerTest {
 
     static final String URL = "ws://localhost:8080/spring/wschat";
-    private PartidaServiceImpl partidaService;
-    private SimpMessagingTemplate messagingTemplate;
-    private RondaService rondaService;
-    private PartidaRepository partidaRepository;
-    private RondaRepository rondaRepository;
     private SalaDeEsperaService salaDeEsperaService;
     private SalaDeEsperaController salaDeEsperaController;
     private WebSocketStompClient stompClient;
@@ -46,13 +41,6 @@ public class SalaDeEsperaControllerTest {
     public void setUp() {
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-        rondaRepository = mock(RondaRepository.class);
-        messagingTemplate = mock(SimpMessagingTemplate.class);
-        rondaService = mock(RondaService.class);
-        partidaRepository = mock(PartidaRepository.class);
-
-        partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository);
-        ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         salaDeEsperaController = new SalaDeEsperaController(salaDeEsperaService);
     }
