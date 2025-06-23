@@ -1,19 +1,24 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.DefinicionDto;
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.PuntajeService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.Jugador;
 import com.tallerwebi.dominio.model.Partida2;
 
+import com.tallerwebi.dominio.model.Ronda;
 import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,17 +41,46 @@ public class JuegoController {
 
     @GetMapping
     public ModelAndView mostrarVistaJuego(HttpSession session) {
+        Long usuarioId = (Long) session.getAttribute("usuarioID");
+        String nombreUsuario = (String) session.getAttribute("usuario");
 
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-        Partida2 partida = (Partida2) session.getAttribute("partida");
+        if (usuarioId == null || nombreUsuario == null) {
+            return new ModelAndView("redirect:/login");
+        }
 
-        ModelAndView mov = new ModelAndView();
+        // 1. Crear la nueva partida (configurá los datos que quieras, acá ejemplo básico)
+        Partida2 nuevaPartida = new Partida2();
+        nuevaPartida.setNombre("Partida de " + nombreUsuario);
+        nuevaPartida.setIdioma("es"); // o lo que corresponda
+        nuevaPartida.setPermiteComodin(false);
+        nuevaPartida.setRondasTotales(5);
+        nuevaPartida.setMaximoJugadores(1);
+        nuevaPartida.setMinimoJugadores(1);
+        nuevaPartida.setEstado(Estado.EN_CURSO);
 
-        mov.addObject("usuarioId", usuario.getId());
-        mov.addObject("partidaId", partida.getId());
+        // 2. Guardar la partida en la BD
+        Serializable idPartida = partidaServicio.crearPartida(nuevaPartida);
+        nuevaPartida.setId((Long) idPartida);
 
-        return mov;
+        // 3. Crear la primera ronda
+        DefinicionDto dto = partidaServicio.iniciarNuevaRonda(nuevaPartida.getId());
+
+        // 4. Guardar la partida y el usuario en sesión para futuras consultas
+        session.setAttribute("partidaID", nuevaPartida.getId());
+        session.setAttribute("usuarioID", usuarioId);
+        session.setAttribute("nombreUsuario", nombreUsuario);
+
+        // 5. Preparar modelo para la vista
+        ModelMap model = new ModelMap();
+        model.put("usuarioId", usuarioId);
+        model.put("rondaActual", dto.getNumeroDeRonda());
+        model.put("palabra", dto.getPalabra());
+        model.put("definicion", dto.getDefinicionTexto());
+        // Si querés, agregá jugadores y puntajes acá (en modo solo hay uno)
+
+        return new ModelAndView("juego", model);
     }
+
 
 //    @PostMapping("/intentar")
 //    @ResponseBody

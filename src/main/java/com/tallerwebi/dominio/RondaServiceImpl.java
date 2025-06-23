@@ -21,9 +21,7 @@ import java.util.Map;
 @Transactional
 public class RondaServiceImpl implements RondaService {
 
-    private final int MAX_RONDAS = 5;
-    private int rondaActual = 1;
-    private final HelperPalabra helperPalabra = new HelperPalabra();
+
 
 
     @Autowired
@@ -44,7 +42,6 @@ public class RondaServiceImpl implements RondaService {
 
         int numeroDeRonda = rondaRepositorio.obtenerCantidadDeRondasPorPartida(partidaId) + 1;
 
-        // ✅ Usamos palabra que ya tiene sus definiciones asociadas
         Palabra palabra = palabraServicio.obtenerPalabraConDefinicionesDesdeHelper(idioma);
 
         Ronda nuevaRonda = new Ronda();

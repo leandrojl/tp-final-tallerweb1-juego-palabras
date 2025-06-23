@@ -259,6 +259,7 @@
                     <p class="lead mb-4" id="definicionActual" th:text="${definicion}">Definición</p>
 
                     <div class="palabra-inputs mb-4" id="contenedor-palabra">
+                        <input type="hidden" id="palabraOculta" th:value="${palabra}" />
                         <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
                             th:id="'letra-' + ${iterStat.index}"></span>
                     </div>
@@ -270,7 +271,7 @@
                 <div id="palabras-mencionadas" class="chat-container"></div>
                 <input type="text" id="input-intento" placeholder="Escribí la palabra..."
                     class="form-control form-control-lg mt-3" />
-                <input type="hidden" id="usuarioId" th:value="${usuarioId}" />
+                <input type="hidden" id="jugadorId" th:value="${usuarioId}" />
             </div>
         </div>
     </main>
@@ -307,7 +308,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/resources/core/js/juego.js"></script>
+    <script th:src="@{/resources/core/js/juego.js}"></script>
 </body>
 
 </html>

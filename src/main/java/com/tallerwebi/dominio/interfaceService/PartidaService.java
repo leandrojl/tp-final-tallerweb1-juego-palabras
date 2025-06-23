@@ -21,5 +21,7 @@ public interface PartidaService {
 
     DefinicionDto iniciarNuevaRonda(Long partidaId);
     Serializable crearPartida (Partida2 nuevaPartida);
+
+    DefinicionDto obtenerPalabraYDefinicionDeRondaActual(Long partidaId);
 }
 

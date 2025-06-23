@@ -5,6 +5,7 @@ public class MensajeInicioRonda {
     public MensajeInicioRonda(Long id){
         this.id=id;
     }
+    public MensajeInicioRonda(){};
 
     public Long getId() {
         return id;

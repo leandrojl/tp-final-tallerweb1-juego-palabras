@@ -1,9 +1,9 @@
 package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.interfaceRepository.Partida2Repository;
 import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.integracion.config.HibernateTestConfig;
+import com.tallerwebi.integracion.config.SimpMessagingMockConfigTest;
 import com.tallerwebi.integracion.config.SpringWebTestConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {SpringWebTestConfig.class, HibernateTestConfig.class})
-public class Partida2RepositoryTest {
+@ContextConfiguration(classes = {SpringWebTestConfig.class, HibernateTestConfig.class, SimpMessagingMockConfigTest.class})
+public class PartidaRepositoryTest {
 
     @Autowired
-    private Partida2Repository partida2Repository;
+    private PartidaRepository partidaRepository;
 
 
     @Test
@@ -30,7 +30,10 @@ public class Partida2RepositoryTest {
     @Rollback
     public void testCrearPartidaPersisteEnBase() {
         Partida2 partida = new Partida2("Sala Test", "Español", true, 5, 6, 2, Estado.EN_ESPERA);
-        partida2Repository.crearPartida(partida);
-        assertNotNull(partida.getId());
+        partidaRepository.crearPartida(partida);
+
+        assertNotNull(partidaRepository.buscarPorId(partida.getId()));
     }
+
+
 }

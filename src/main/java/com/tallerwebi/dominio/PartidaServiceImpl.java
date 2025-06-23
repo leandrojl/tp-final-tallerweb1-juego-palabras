@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Transactional
 public class PartidaServiceImpl implements PartidaService {
     SimpMessagingTemplate simpMessagingTemplate;
 
@@ -31,6 +33,9 @@ public class PartidaServiceImpl implements PartidaService {
 
     @Autowired
     private SessionFactory sessionFactory2;
+
+
+    private final Map<Long, DefinicionDto> definicionesPorPartida = new HashMap<>();
 
 
 
@@ -134,8 +139,10 @@ public class PartidaServiceImpl implements PartidaService {
         dto.setDefinicionTexto(definicionTexto);
         dto.setNumeroDeRonda(ronda.getNumeroDeRonda());
 
+        definicionesPorPartida.put(partidaId, dto);
+
         simpMessagingTemplate.convertAndSend("/topic/juego/"+partidaId, dto);
-        return null;
+        return dto;
     }
 
     @Override
@@ -143,5 +150,10 @@ public class PartidaServiceImpl implements PartidaService {
         return partidaRepository.crearPartida(nuevaPartida);
     }
 
+
+    @Override
+    public DefinicionDto obtenerPalabraYDefinicionDeRondaActual(Long partidaId) {
+        return definicionesPorPartida.get(partidaId);
+    }
 
 }
