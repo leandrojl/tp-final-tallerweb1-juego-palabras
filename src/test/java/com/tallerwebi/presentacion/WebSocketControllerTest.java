@@ -4,13 +4,11 @@ import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.PartidaServiceImpl;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
-import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.infraestructura.PartidaRepository;
 import com.tallerwebi.infraestructura.RondaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.*;
@@ -38,7 +36,7 @@ public class WebSocketControllerTest {
     private RondaRepository rondaRepository;
     private WebSocketController webSocketController;
     private WebSocketStompClient stompClient;
-    private PartidaService partidaService2;
+    private PartidaService partidaServiceMock;
 
     @BeforeEach
     public void setUp() {
@@ -47,12 +45,11 @@ public class WebSocketControllerTest {
         rondaRepository = mock(RondaRepository.class);
         messagingTemplate = mock(SimpMessagingTemplate.class);
         rondaService = mock(RondaService.class);
-        partidaService2 = mock(PartidaService.class);
         partidaRepository = mock(PartidaRepository.class);
-        partidaService2 = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository);
+        partidaServiceMock = mock(PartidaService.class);
         partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository);
         ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
-        webSocketController = new WebSocketController(partidaService);
+        webSocketController = new WebSocketController(partidaServiceMock);
     }
 
     @Test
@@ -158,7 +155,7 @@ public class WebSocketControllerTest {
                 futureJose.complete(new MensajeEnviadoDTO(usuario, msg));
             }
             return true;
-        }).when(partidaService2).enviarMensajeAUsuarioEspecifico(anyString(), anyString());
+        }).when(partidaServiceMock).enviarMensajeAUsuarioEspecifico(anyString(), anyString());
 
         whenEnviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
 
