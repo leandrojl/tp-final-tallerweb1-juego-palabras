@@ -97,9 +97,10 @@
                 </a>
             </div>
             <div class="col-auto">
-                <a th:href="@{/juego(jugadorId=${usuarioID})}" class="btn btn-orange btn-start">
+                <a th:href="@{/juego(jugadorId=${usuarioID})}" class="btn btn-orange btn-start" onclick="return iniciarUnaSolaVez(this)">
                     <i class="bi bi-controller me-2"></i>Iniciar Partida
                 </a>
+
             </div>
             <div class="col-auto">
                 <a th:href="@{/crear-sala}" class="btn btn-success btn-start">
@@ -164,5 +165,22 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let partidaIniciada = false;
+
+    function iniciarUnaSolaVez(link) {
+        if (partidaIniciada) {
+            return false; // evitar segundo clic
+        }
+        partidaIniciada = true;
+
+        // Mostrar estado de carga
+        link.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Cargando...';
+        link.classList.add("disabled");
+        return true;
+    }
+</script>
+
 </body>
+
 </html>
