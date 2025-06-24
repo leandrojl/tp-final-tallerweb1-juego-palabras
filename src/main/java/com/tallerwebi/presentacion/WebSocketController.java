@@ -72,8 +72,7 @@ public class WebSocketController {
     public void iniciarRonda(MensajeInicioRonda mensaje){
         Long partidaId = mensaje.getId();
 
-        // Acá generás la ronda - INICIAR CHAT
-        DefinicionDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
+        RondaDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
 
     }
 

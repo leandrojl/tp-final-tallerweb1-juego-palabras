@@ -2,6 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.RondaDto;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.PuntajeService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
@@ -38,7 +39,65 @@ public class JuegoController {
         this.puntajeServicio = puntajeServicio;
         this.partidaServicio = partidaServicio;
     }
+    @GetMapping
+    public ModelAndView mostrarVistaJuego(HttpSession session) {
+        Long usuarioId = (Long) session.getAttribute("usuarioID");
+        String nombreUsuario = (String) session.getAttribute("usuario");
 
+        if (usuarioId == null || nombreUsuario == null) {
+            return new ModelAndView("redirect:/login");
+        }
+
+        Long partidaId = (Long) session.getAttribute("partidaID");
+
+        // Si no hay partida en sesión, la creo ahora
+        if (partidaId == null) {
+            Partida2 nuevaPartida = new Partida2();
+            nuevaPartida.setNombre("Partida de " + nombreUsuario);
+
+            // Ejemplo idioma aleatorio
+            String idioma = Math.random() < 0.5 ? "Castellano" : "Ingles";
+            nuevaPartida.setIdioma(idioma);
+            nuevaPartida.setPermiteComodin(false);
+            nuevaPartida.setRondasTotales(5);
+            nuevaPartida.setMaximoJugadores(1);
+            nuevaPartida.setMinimoJugadores(1);
+            nuevaPartida.setEstado(Estado.EN_CURSO);
+
+            Serializable id = partidaServicio.crearPartida(nuevaPartida);
+            nuevaPartida.setId((Long) id);
+
+            // Guardar id en sesión para próximas peticiones
+            session.setAttribute("partidaID", nuevaPartida.getId());
+
+            // Crear primera ronda y obtener datos para la vista
+            RondaDto dto = partidaServicio.iniciarNuevaRonda(nuevaPartida.getId());
+
+            ModelMap model = new ModelMap();
+            model.put("usuarioId", usuarioId);
+            model.put("partidaId", nuevaPartida.getId());
+            model.put("palabra", dto.getPalabra());
+            model.put("definicion", dto.getDefinicionTexto());
+            model.put("rondaActual", dto.getNumeroDeRonda());
+
+            return new ModelAndView("juego", model);
+        }
+
+        // Si ya existe partida en sesión, solo busco datos para mostrar
+        RondaDto definicion = partidaServicio.obtenerPalabraYDefinicionDeRondaActual(partidaId);
+
+        ModelMap model = new ModelMap();
+        model.put("usuarioId", usuarioId);
+        model.put("partidaId", partidaId);
+        model.put("palabra", definicion.getPalabra());
+        model.put("definicion", definicion.getDefinicionTexto());
+        model.put("rondaActual", definicion.getNumeroDeRonda());
+
+        return new ModelAndView("juego", model);
+    }
+
+
+    /*
     @GetMapping
     public ModelAndView mostrarVistaJuego(HttpSession session) {
         Long usuarioId = (Long) session.getAttribute("usuarioID");
@@ -51,7 +110,10 @@ public class JuegoController {
         // 1. Crear la nueva partida (configurá los datos que quieras, acá ejemplo básico)
         Partida2 nuevaPartida = new Partida2();
         nuevaPartida.setNombre("Partida de " + nombreUsuario);
-        nuevaPartida.setIdioma("es"); // o lo que corresponda
+
+        String idioma = Math.random() < 0.5 ? "Castellano" : "Ingles";
+
+        nuevaPartida.setIdioma(idioma); // o lo que corresponda
         nuevaPartida.setPermiteComodin(false);
         nuevaPartida.setRondasTotales(5);
         nuevaPartida.setMaximoJugadores(1);
@@ -80,6 +142,8 @@ public class JuegoController {
 
         return new ModelAndView("juego", model);
     }
+
+     */
 
 
 //    @PostMapping("/intentar")

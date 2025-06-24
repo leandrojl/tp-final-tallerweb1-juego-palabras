@@ -1,11 +1,17 @@
 package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.model.Usuario;
+import com.tallerwebi.dominio.model.Usuario_Partida;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Repository
 public class PartidaRepositoryImpl implements PartidaRepository {
@@ -28,4 +34,6 @@ public class PartidaRepositoryImpl implements PartidaRepository {
     public Serializable crearPartida(Partida2 nuevaPartida) {
         return sessionFactory.getCurrentSession().save(nuevaPartida);
     }
+
+
 }

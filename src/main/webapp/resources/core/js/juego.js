@@ -12,18 +12,23 @@ let indexLetra = 0;
 
 // === WEBSOCKET ===
 function conectarWebSocket() {
-    const socket = new SockJS("/wschat");
+    const socket = new SockJS("/spring/wschat");
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, () => {
+        // Suscribimos a los topics para recibir mensajes
         stompClient.subscribe(`/topic/juego/${partidaId}`, manejarMensajeServidor);
         stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
         stompClient.subscribe(`/topic/mostrarIntento`, mostrarResultadoIntentoIncorrecto);
+
+        // Ya conectado, iniciamos la ronda
+        iniciarRonda();
     });
 }
 
-function iniciarRonda(){
-    stompClient.publish({destination: "/app/juego/iniciar", body: JSON.stringify({message: message})});
+// === INICIA LA RONDA EN EL SERVIDOR ===
+function iniciarRonda() {
+    stompClient.send("/app/juego/iniciar", {}, JSON.stringify({ partidaId }));
 }
 
 // === ENVÍA INTENTO ===
@@ -34,14 +39,13 @@ function enviarIntento(palabra) {
         partidaId,
         tiempoRestante
     }));
-    stompClient.send("/app/juego/verificarAvanceDeRonda", {}, JSON.stringify({
-            jugadorId,
-            partidaId,
-            tiempoRestante
-        }));
-}
 
-//  "/verificarAvanzarRonda"
+    stompClient.send("/app/juego/verificarAvanceDeRonda", {}, JSON.stringify({
+        jugadorId,
+        partidaId,
+        tiempoRestante
+    }));
+}
 
 // === RECIBE MENSAJE DEL SERVIDOR ===
 function manejarMensajeServidor(mensaje) {
@@ -60,23 +64,29 @@ function mostrarResultadoIntento(mensaje) {
     const data = JSON.parse(mensaje.body);
     mostrarMensajeChat(data.intento, data.correcto);
 }
-// === RESULTADO DEL INTENTO INCORRECTO (Publico) ===
- function mostrarResultadoIntentoIncorrecto(mensaje) {
-     const data = JSON.parse(mensaje.body);
-     mostrarMensajeChat(data.intento, data.correcto);
- }
+
+// === RESULTADO DEL INTENTO INCORRECTO (Público) ===
+function mostrarResultadoIntentoIncorrecto(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    mostrarMensajeChat(data.intento, data.correcto);
+}
 
 // === RANKING ACTUALIZADO ===
 function actualizarRanking(jugadores) {
     const contenedor = document.querySelector(".ranking-horizontal");
-    contenedor.innerHTML = "";
+    contenedor.innerHTML = ""; // Limpiar antes de agregar jugadores nuevos
+
     jugadores.forEach(j => {
         const div = document.createElement("div");
         div.className = "jugador" + (j.correcto ? " correcto" : "");
-        div.innerHTML = `<div class="avatar"></div> <span>${j.nombre}</span> (${j.puntaje} pts)`;
+        div.innerHTML = `
+            <div class="avatar"></div> 
+            <span>${j.nombre}</span> 
+            (<span class="badge bg-secondary">${j.puntaje}</span> pts)
+        `;
         contenedor.appendChild(div);
     });
-}//a hacer
+}
 
 // === TEMPORIZADOR ===
 function iniciarTemporizador() {
@@ -94,7 +104,7 @@ function iniciarTemporizador() {
             tiempoRestante--;
         }
     }, 1000);
-}//metodo a hacer
+}
 
 // === MOSTRAR LETRAS ===
 function mostrarLetras() {
@@ -131,10 +141,8 @@ function mostrarMensajeChat(texto, esCorrecto) {
 // === INICIALIZACIÓN ===
 document.addEventListener("DOMContentLoaded", () => {
     conectarWebSocket();
-    iniciarRonda();
     iniciarTemporizador();
     mostrarLetras();
-
 
     const input = document.getElementById("input-intento");
     input.addEventListener("keydown", function (e) {
@@ -148,3 +156,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+

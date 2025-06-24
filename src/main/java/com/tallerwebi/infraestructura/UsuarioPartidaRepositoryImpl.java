@@ -16,32 +16,32 @@ import java.util.List;
 @Repository
 public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
 
-    SessionFactory sessionFactory;
-    public UsuarioPartidaRepositoryImpl(){}
     @Autowired
-    public UsuarioPartidaRepositoryImpl(SessionFactory sessionFactory){
-    this.sessionFactory = sessionFactory;}
+    private SessionFactory sessionFactory;
+
+
+
 
 
     @Override
     public int getCantidadDePartidasDeJugador(Usuario usuario) {
 
-         Long resultado = (long) sessionFactory.getCurrentSession().createCriteria(UsuarioPartida.class)
-                .add(Restrictions.eq("usuario",usuario))
+        Long resultado = (long) sessionFactory.getCurrentSession().createCriteria(UsuarioPartida.class)
+                .add(Restrictions.eq("usuario", usuario))
                 .setProjection(Projections.rowCount())
                 .uniqueResult();
-         int cantidad = (resultado!=null)? resultado.intValue() : 0;
+        int cantidad = (resultado != null) ? resultado.intValue() : 0;
         return cantidad;
     }
 
     @Override
     public int getCantidadDePartidasGanadasDeJugador(Usuario usuario) {
         Long resultado = (long) sessionFactory.getCurrentSession().createCriteria(UsuarioPartida.class)
-                .add(Restrictions.eq("usuario",usuario))
-                .add(Restrictions.eq("gano",true))
+                .add(Restrictions.eq("usuario", usuario))
+                .add(Restrictions.eq("gano", true))
                 .setProjection(Projections.rowCount())
                 .uniqueResult();
-        int cantidad = (resultado!=null)? resultado.intValue() : 0;
+        int cantidad = (resultado != null) ? resultado.intValue() : 0;
         return cantidad;
 
 
@@ -49,10 +49,10 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
 
     @Override
     public double getWinrate(Usuario usuario) {
-        int partidasJugadas=getCantidadDePartidasDeJugador(usuario);
-        int partidasGanadas=getCantidadDePartidasGanadasDeJugador(usuario);
+        int partidasJugadas = getCantidadDePartidasDeJugador(usuario);
+        int partidasGanadas = getCantidadDePartidasGanadasDeJugador(usuario);
 
-        return  partidasJugadas>0 ?partidasGanadas*100.0/partidasJugadas : 0.0;
+        return partidasJugadas > 0 ? partidasGanadas * 100.0 / partidasJugadas : 0.0;
     }
 
     @Override
@@ -67,4 +67,47 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                         "ORDER BY COUNT(p) DESC", Object[].class
         ).getResultList();
     }
+
+
+    @Override
+    public void guardarUsuarioPartida(UsuarioPartida usuarioPartida) {
+        sessionFactory.getCurrentSession().save(usuarioPartida);
+    }
+
+
+    @Override
+    public void actualizarPuntaje(Long usuarioId, Long partidaId, int nuevoPuntaje) {
+        UsuarioPartida up = (UsuarioPartida) sessionFactory.getCurrentSession()
+                .createCriteria(UsuarioPartida.class)
+                .add(Restrictions.eq("usuario.id", usuarioId))
+                .add(Restrictions.eq("partida.id", partidaId))
+                .uniqueResult();
+
+        if (up != null) {
+            up.setPuntaje(nuevoPuntaje);
+            sessionFactory.getCurrentSession().update(up);
+
+        }
+
+
+    }
+
+    @Override
+    public int obtenerPuntaje(Long usuarioId, Long partidaId) {
+        UsuarioPartida up = (UsuarioPartida) sessionFactory.getCurrentSession()
+                .createCriteria(UsuarioPartida.class)
+                .add(Restrictions.eq("usuario.id", usuarioId))
+                .add(Restrictions.eq("partida.id", partidaId))
+                .uniqueResult();
+
+        return up != null ? up.getPuntaje() : 0;
+    }
+    @Override
+    public List<UsuarioPartida> obtenerUsuarioPartidaPorPartida(Long partidaId) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createCriteria(UsuarioPartida.class)
+                .add(Restrictions.eq("partida.id", partidaId))
+                .list();
+    }
+
 }

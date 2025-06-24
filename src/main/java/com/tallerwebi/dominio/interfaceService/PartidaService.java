@@ -3,6 +3,7 @@ package com.tallerwebi.dominio.interfaceService;
 import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.DtoIntento;
 import com.tallerwebi.dominio.ResultadoIntentoDto;
+import com.tallerwebi.dominio.RondaDto;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Partida2;
 
@@ -19,9 +20,9 @@ public interface PartidaService {
 
     ResultadoIntentoDto procesarIntento(DtoIntento intento, String name);
 
-    DefinicionDto iniciarNuevaRonda(Long partidaId);
+    RondaDto iniciarNuevaRonda(Long partidaId);
     Serializable crearPartida (Partida2 nuevaPartida);
 
-    DefinicionDto obtenerPalabraYDefinicionDeRondaActual(Long partidaId);
+    RondaDto  obtenerPalabraYDefinicionDeRondaActual(Long partidaId);
 }
 

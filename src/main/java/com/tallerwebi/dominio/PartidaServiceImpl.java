@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.*;
@@ -14,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -27,6 +30,9 @@ public class PartidaServiceImpl implements PartidaService {
     private final RondaService rondaService;
 
     @Autowired
+    private UsuarioPartidaRepository usuarioPartidaRepository;
+
+    @Autowired
     private final RondaRepository rondaRepositorio;
     @Autowired
     private LocalSessionFactoryBean sessionFactory;
@@ -35,7 +41,7 @@ public class PartidaServiceImpl implements PartidaService {
     private SessionFactory sessionFactory2;
 
 
-    private final Map<Long, DefinicionDto> definicionesPorPartida = new HashMap<>();
+    private final Map<Long, RondaDto> definicionesPorPartida = new HashMap<>();
 
 
 
@@ -107,7 +113,7 @@ public class PartidaServiceImpl implements PartidaService {
 
         return resultado;
     }
-
+/*
     @Override
     public DefinicionDto iniciarNuevaRonda(Long partidaId) {
         // Obtener la partida (usando el repositorio, o el método que tengas para acceder a la partida)
@@ -145,6 +151,56 @@ public class PartidaServiceImpl implements PartidaService {
         return dto;
     }
 
+ */
+
+    @Override
+    public RondaDto iniciarNuevaRonda(Long partidaId) {
+        Partida2 partida = partidaRepository.buscarPorId(partidaId);
+        if (partida == null) {
+            throw new IllegalArgumentException("No existe la partida con ID: " + partidaId);
+        }
+
+        String idioma = partida.getIdioma();
+        Ronda ronda = rondaService.crearRonda(partidaId, idioma);
+        Palabra palabra = ronda.getPalabra();
+
+        String definicionTexto = palabra.getDefiniciones().stream()
+                .findFirst()
+                .map(Definicion::getDefinicion)
+                .orElse("Definición no disponible");
+
+        // Obtener usuarios de la partida desde UsuarioPartida
+        List<UsuarioPartida> usuariosEnPartida = usuarioPartidaRepository.obtenerUsuarioPartidaPorPartida(partidaId);
+
+        // Armar lista de DTOs
+        List<JugadorPuntajeDto> jugadoresDto = usuariosEnPartida.stream()
+                .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
+                .collect(Collectors.toList());
+
+        // Armar DTO de inicio de ronda
+        RondaDto dto = new RondaDto();
+        dto.setPalabra(palabra.getDescripcion());
+        dto.setDefinicionTexto(definicionTexto);
+        dto.setNumeroDeRonda(ronda.getNumeroDeRonda());
+        dto.setJugadores(jugadoresDto);
+
+        // Guardar info en memoria
+        definicionesPorPartida.put(partidaId, dto);
+
+        // Enviar la definición y la palabra
+        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dto);
+
+        // También enviar puntajes para ranking (puede ser redundante, pero si querés que se actualice separado):
+        Map<String, Object> mensajeRanking = new HashMap<>();
+        mensajeRanking.put("tipo", "actualizar-puntajes");
+        mensajeRanking.put("jugadores", jugadoresDto); // Reutilizamos el mismo DTO
+
+        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, mensajeRanking);
+
+        return dto;
+    }
+
+
     @Override
     public Serializable crearPartida(Partida2 nuevaPartida) {
         return partidaRepository.crearPartida(nuevaPartida);
@@ -152,7 +208,7 @@ public class PartidaServiceImpl implements PartidaService {
 
 
     @Override
-    public DefinicionDto obtenerPalabraYDefinicionDeRondaActual(Long partidaId) {
+    public RondaDto obtenerPalabraYDefinicionDeRondaActual(Long partidaId) {
         return definicionesPorPartida.get(partidaId);
     }
 

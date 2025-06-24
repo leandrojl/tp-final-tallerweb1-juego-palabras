@@ -10,7 +10,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic","/queue");
+        registry.enableSimpleBroker("/topic", "/queue");
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
     }
@@ -18,8 +18,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/wschat")
-                .addInterceptors(new HttpSessionInterceptor())
-                .setHandshakeHandler(new CustomHandshakeHandler());
+                .setAllowedOrigins("*")   // OJO: adaptar origenes permitidos
+                .withSockJS();
     }
-
 }

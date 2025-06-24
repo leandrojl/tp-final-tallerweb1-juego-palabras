@@ -19,6 +19,8 @@ public class UsuarioPartida {
     @JoinColumn(name = "id_partida", nullable = false)
     private Partida2 partida;
     private boolean gano;
+    private int puntaje;
+
     public UsuarioPartida (){
 
     }
@@ -61,5 +63,17 @@ public class UsuarioPartida {
 
     public void setPartida(Partida2 partida) {
         this.partida = partida;
+    }
+
+    public void setPuntaje(int puntaje) {
+        this.puntaje = puntaje;
+    }
+
+    public boolean isGano() {
+        return gano;
+    }
+
+    public int getPuntaje() {
+        return puntaje;
     }
 }

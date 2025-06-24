@@ -238,7 +238,6 @@
             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalAbandonar">Abandonar</button>
         </div>
     </header>
-
     <main class="container-fluid py-4">
         <div class="row">
             <!-- Columna izquierda -->
@@ -247,13 +246,13 @@
                     <h1 class="display-4 fw-bold mb-2">Adivina la palabra</h1>
                     <p class="lead mb-4">Ronda <span id="rondaActual" th:text="${rondaActual}">1</span> de 5</p>
 
-                    <div class="temporizador mb-4">
+                    <div class="temporizador mb-4 position-relative" style="width: 100px; height: 100px;">
                         <svg width="100" height="100">
                             <circle cx="50" cy="50" r="45" stroke="#333" stroke-width="10" fill="none" />
                             <circle id="progressCircle" cx="50" cy="50" r="45" stroke="#00f" stroke-width="10"
-                                fill="none" stroke-dasharray="282.6" stroke-dashoffset="0" />
+                                    fill="none" stroke-dasharray="282.6" stroke-dashoffset="0" />
                         </svg>
-                        <div id="temporizadorText" class="temporizador-text">60</div>
+                        <div id="temporizadorText" class="position-absolute top-50 start-50 translate-middle fs-3 fw-bold text-primary">60</div>
                     </div>
 
                     <p class="lead mb-4" id="definicionActual" th:text="${definicion}">Definición</p>
@@ -261,7 +260,7 @@
                     <div class="palabra-inputs mb-4" id="contenedor-palabra">
                         <input type="hidden" id="palabraOculta" th:value="${palabra}" />
                         <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
-                            th:id="'letra-' + ${iterStat.index}"></span>
+                              th:id="'letra-' + ${iterStat.index}"></span>
                     </div>
                 </section>
             </div>
@@ -270,20 +269,15 @@
             <div class="col-md-4 d-flex flex-column align-items-center">
                 <div id="palabras-mencionadas" class="chat-container"></div>
                 <input type="text" id="input-intento" placeholder="Escribí la palabra..."
-                    class="form-control form-control-lg mt-3" />
+                       class="form-control form-control-lg mt-3" />
                 <input type="hidden" id="jugadorId" th:value="${usuarioId}" />
+                <input type="hidden" id="partidaId" th:value="${partidaId}" />
             </div>
         </div>
     </main>
 
-    <!-- Ranking -->
-    <div class="ranking-horizontal" th:if="${jugadores}">
-        <div th:each="jugador : ${jugadores}" class="jugador" th:data-player-id="${jugador.id}">
-            <div class="avatar"></div>
-            <span th:text="${jugador.nombre}">Jugador</span>
-            (<span class="badge bg-secondary" th:text="${jugador.puntaje}">0</span> pts)
-        </div>
-    </div>
+    <!-- Ranking (ahora lo llenamos con JS) -->
+    <div class="ranking-horizontal d-flex justify-content-center gap-4 flex-wrap mt-4"></div>
 
     <!-- Modal abandonar -->
     <div class="modal fade" id="modalAbandonar" tabindex="-1" aria-labelledby="modalAbandonarLabel" aria-hidden="true">
@@ -305,9 +299,9 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <script th:src="@{/resources/core/js/juego.js}"></script>
 </body>
 
