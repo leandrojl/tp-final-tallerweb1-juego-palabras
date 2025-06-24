@@ -35,8 +35,8 @@ private final UsuarioPartidaRepository usuarioPartidaRepository;
     }
 
     @Override
-    public Usuario buscarDatosDeUsuarioPorId(int i) {
-        return usuarioRepository.buscarPorId(i);
+    public Usuario buscarDatosDeUsuarioPorId(Long id) {
+        return usuarioRepository.buscarPorId(id);
 
     }
 

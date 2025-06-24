@@ -57,17 +57,12 @@ public class PartidaServiceImpl implements PartidaService {
 
     private final Map<String, Partida> partidas = new HashMap<>();
 
-    @Override
-    public Partida iniciarNuevaPartida(String jugadorId, String nombre) {
-        Partida nueva = new Partida();
-        nueva.agregarJugador(jugadorId, nombre);
-        partidas.put(jugadorId, nueva);
-        return nueva;
-    }
+
+
 
     @Override
-    public Partida obtenerPartida(String jugadorId) {
-        return partidas.get(jugadorId);
+    public Partida2 obtenerPartidaPorId(Long partidaId) {
+        return partidaRepository.buscarPorId(partidaId);
     }
 
     @Override
@@ -169,36 +164,27 @@ public class PartidaServiceImpl implements PartidaService {
                 .map(Definicion::getDefinicion)
                 .orElse("Definición no disponible");
 
-        // Obtener usuarios de la partida desde UsuarioPartida
         List<UsuarioPartida> usuariosEnPartida = usuarioPartidaRepository.obtenerUsuarioPartidaPorPartida(partidaId);
 
-        // Armar lista de DTOs
         List<JugadorPuntajeDto> jugadoresDto = usuariosEnPartida.stream()
                 .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
                 .collect(Collectors.toList());
 
-        // Armar DTO de inicio de ronda
         RondaDto dto = new RondaDto();
         dto.setPalabra(palabra.getDescripcion());
         dto.setDefinicionTexto(definicionTexto);
         dto.setNumeroDeRonda(ronda.getNumeroDeRonda());
         dto.setJugadores(jugadoresDto);
 
-        // Guardar info en memoria
-        definicionesPorPartida.put(partidaId, dto);
-
-        // Enviar la definición y la palabra
         simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dto);
 
-        // También enviar puntajes para ranking (puede ser redundante, pero si querés que se actualice separado):
-        Map<String, Object> mensajeRanking = new HashMap<>();
-        mensajeRanking.put("tipo", "actualizar-puntajes");
-        mensajeRanking.put("jugadores", jugadoresDto); // Reutilizamos el mismo DTO
-
-        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, mensajeRanking);
+        MensajeTipoRanking mensaje = new MensajeTipoRanking("actualizar-puntajes", jugadoresDto);
+        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, mensaje);
 
         return dto;
     }
+
+
 
 
     @Override

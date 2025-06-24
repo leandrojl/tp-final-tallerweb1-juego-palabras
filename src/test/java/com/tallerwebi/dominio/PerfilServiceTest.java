@@ -45,7 +45,7 @@ public class PerfilServiceTest {
     @Test
     public void obtenerUsuarioPorId(){
         Usuario usuario = givenIdUsuario();
-        Mockito.when(usuarioRepository.buscarPorId(1)).thenReturn(usuario);
+        Mockito.when(usuarioRepository.buscarPorId(1L)).thenReturn(usuario);
         Usuario usuarioObtenido = whenObtieneDatos(1);
         thenElUsuarioExiste(usuarioObtenido);
     }
@@ -86,7 +86,7 @@ public class PerfilServiceTest {
 
     private Usuario whenObtieneDatos(int id) {
 
-       return perfilService.buscarDatosDeUsuarioPorId(1);
+       return perfilService.buscarDatosDeUsuarioPorId(1l);
     }
 
     private Usuario givenIdUsuario() {

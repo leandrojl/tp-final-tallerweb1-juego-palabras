@@ -67,14 +67,14 @@ public class WebSocketController {
     }
 
 
-
     @MessageMapping("/juego/iniciar")
-    public void iniciarRonda(MensajeInicioRonda mensaje){
-        Long partidaId = mensaje.getId();
+    public void iniciarRonda(MensajeInicioRonda mensaje) {
+        Long partidaId = mensaje.getPartidaId();
 
         RondaDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
 
     }
+
 
     @MessageMapping("/juego/intento")
     @SendTo("/topic/mostrarIntento")

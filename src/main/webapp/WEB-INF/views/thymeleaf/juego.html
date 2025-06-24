@@ -265,6 +265,7 @@
                 </section>
             </div>
 
+
             <!-- Columna derecha -->
             <div class="col-md-4 d-flex flex-column align-items-center">
                 <div id="palabras-mencionadas" class="chat-container"></div>
@@ -278,6 +279,7 @@
 
     <!-- Ranking (ahora lo llenamos con JS) -->
     <div class="ranking-horizontal d-flex justify-content-center gap-4 flex-wrap mt-4"></div>
+    <input type="hidden" id="usuarioNombre" th:value="${usuario}" />
 
     <!-- Modal abandonar -->
     <div class="modal fade" id="modalAbandonar" tabindex="-1" aria-labelledby="modalAbandonarLabel" aria-hidden="true">

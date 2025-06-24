@@ -3,20 +3,16 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.RondaDto;
-import com.tallerwebi.dominio.interfaceService.PartidaService;
-import com.tallerwebi.dominio.interfaceService.PuntajeService;
-import com.tallerwebi.dominio.interfaceService.RondaService;
-import com.tallerwebi.dominio.model.Jugador;
-import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.interfaceService.*;
+import com.tallerwebi.dominio.model.*;
 
-import com.tallerwebi.dominio.model.Ronda;
-import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import com.tallerwebi.dominio.JugadorPuntajeDto;
 
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
@@ -32,12 +28,18 @@ public class JuegoController {
     private final RondaService rondaServicio;
     private final PuntajeService puntajeServicio;
     private final PartidaService partidaServicio;
+    private final UsuarioPartidaService usuarioPartidaService;
+    private final UsuarioService usuarioService;
 
     @Autowired
-    public JuegoController(RondaService rondaServicio, PuntajeService puntajeServicio, PartidaService partidaServicio) {
+    public JuegoController(RondaService rondaServicio, PuntajeService puntajeServicio, PartidaService partidaServicio,
+                           UsuarioPartidaService usuarioPartidaService,
+                           UsuarioService usuarioService) {
         this.rondaServicio = rondaServicio;
         this.puntajeServicio = puntajeServicio;
         this.partidaServicio = partidaServicio;
+        this.usuarioPartidaService = usuarioPartidaService;
+        this.usuarioService = usuarioService;
     }
     @GetMapping
     public ModelAndView mostrarVistaJuego(HttpSession session) {
@@ -49,15 +51,16 @@ public class JuegoController {
         }
 
         Long partidaId = (Long) session.getAttribute("partidaID");
+        ModelMap model = new ModelMap();
+        model.put("usuarioId", usuarioId);
+        model.put("usuario", nombreUsuario);
+
 
         // Si no hay partida en sesión, la creo ahora
         if (partidaId == null) {
             Partida2 nuevaPartida = new Partida2();
             nuevaPartida.setNombre("Partida de " + nombreUsuario);
-
-            // Ejemplo idioma aleatorio
-            String idioma = Math.random() < 0.5 ? "Castellano" : "Ingles";
-            nuevaPartida.setIdioma(idioma);
+            nuevaPartida.setIdioma(Math.random() < 0.5 ? "Castellano" : "Ingles");
             nuevaPartida.setPermiteComodin(false);
             nuevaPartida.setRondasTotales(5);
             nuevaPartida.setMaximoJugadores(1);
@@ -66,28 +69,33 @@ public class JuegoController {
 
             Serializable id = partidaServicio.crearPartida(nuevaPartida);
             nuevaPartida.setId((Long) id);
-
-            // Guardar id en sesión para próximas peticiones
             session.setAttribute("partidaID", nuevaPartida.getId());
 
-            // Crear primera ronda y obtener datos para la vista
+            // Asociar usuario con la partida
+            Usuario usuario = usuarioService.obtenerUsuarioPorId(usuarioId);
+            usuarioPartidaService.asociarUsuarioConPartida(usuario, nuevaPartida);
+
+            // Iniciar la ronda y obtener los datos
             RondaDto dto = partidaServicio.iniciarNuevaRonda(nuevaPartida.getId());
 
-            ModelMap model = new ModelMap();
-            model.put("usuarioId", usuarioId);
             model.put("partidaId", nuevaPartida.getId());
             model.put("palabra", dto.getPalabra());
             model.put("definicion", dto.getDefinicionTexto());
             model.put("rondaActual", dto.getNumeroDeRonda());
 
+            int puntaje = dto.getJugadores().stream()
+                    .filter(j -> j.getNombre().equals(nombreUsuario))
+                    .map(JugadorPuntajeDto::getPuntaje)
+                    .findFirst()
+                    .orElse(0);
+            model.put("puntaje", puntaje);
+
             return new ModelAndView("juego", model);
         }
 
-        // Si ya existe partida en sesión, solo busco datos para mostrar
+        // Ya existe partida, solo cargo info actual
         RondaDto definicion = partidaServicio.obtenerPalabraYDefinicionDeRondaActual(partidaId);
 
-        ModelMap model = new ModelMap();
-        model.put("usuarioId", usuarioId);
         model.put("partidaId", partidaId);
         model.put("palabra", definicion.getPalabra());
         model.put("definicion", definicion.getDefinicionTexto());

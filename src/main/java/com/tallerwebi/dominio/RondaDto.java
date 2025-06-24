@@ -3,6 +3,7 @@ package com.tallerwebi.dominio;
 import java.util.List;
 
 public class RondaDto {
+    private String tipo;
     private String palabra;
     private String definicionTexto;
     private int numeroDeRonda;
@@ -41,5 +42,13 @@ public class RondaDto {
 
     public void setJugadores(List<JugadorPuntajeDto> jugadores) {
         this.jugadores = jugadores;
+    }
+
+
+    public String getTipo() {
+        return tipo;
+    }
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 }

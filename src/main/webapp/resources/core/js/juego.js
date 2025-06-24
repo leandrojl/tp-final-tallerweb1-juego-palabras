@@ -16,12 +16,10 @@ function conectarWebSocket() {
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, () => {
-        // Suscribimos a los topics para recibir mensajes
         stompClient.subscribe(`/topic/juego/${partidaId}`, manejarMensajeServidor);
         stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
         stompClient.subscribe(`/topic/mostrarIntento`, mostrarResultadoIntentoIncorrecto);
 
-        // Ya conectado, iniciamos la ronda
         iniciarRonda();
     });
 }
@@ -51,8 +49,12 @@ function enviarIntento(palabra) {
 function manejarMensajeServidor(mensaje) {
     const data = JSON.parse(mensaje.body);
 
-    if (data.tipo === "actualizar-puntajes") {
+    if (data.tipo === "actualizar-puntajes" || data.tipo === "inicio-ronda") {
         actualizarRanking(data.jugadores);
+        if (data.tipo === "inicio-ronda") {
+            document.getElementById("palabraOculta").value = data.palabra;
+            document.getElementById("definicionTexto").textContent = data.definicionTexto;
+        }
     } else if (data.tipo === "fin-ronda") {
         detenerTimers();
         window.location.href = `/juego?ronda=${data.siguienteRonda}&jugadorId=${jugadorId}`;
@@ -74,17 +76,35 @@ function mostrarResultadoIntentoIncorrecto(mensaje) {
 // === RANKING ACTUALIZADO ===
 function actualizarRanking(jugadores) {
     const contenedor = document.querySelector(".ranking-horizontal");
-    contenedor.innerHTML = ""; // Limpiar antes de agregar jugadores nuevos
+    contenedor.innerHTML = "";
 
-    jugadores.forEach(j => {
-        const div = document.createElement("div");
-        div.className = "jugador" + (j.correcto ? " correcto" : "");
-        div.innerHTML = `
-            <div class="avatar"></div> 
-            <span>${j.nombre}</span> 
-            (<span class="badge bg-secondary">${j.puntaje}</span> pts)
-        `;
-        contenedor.appendChild(div);
+    const nombreActual = document.getElementById("usuarioNombre").value;
+    const colores = ["#ec4899", "#22c55e", "#3b82f6", "#a855f7", "#6b7280"];
+
+    jugadores.forEach((j, index) => {
+        const jugadorDiv = document.createElement("div");
+        jugadorDiv.classList.add("jugador", "d-flex", "align-items-center", "gap-2", "px-3", "py-2", "rounded", "shadow-sm");
+        jugadorDiv.style.backgroundColor = colores[index % colores.length];
+        jugadorDiv.style.color = "#fff";
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.style.width = "12px";
+        avatar.style.height = "12px";
+        avatar.style.backgroundColor = "white";
+        avatar.style.borderRadius = "2px";
+
+        const nombreSpan = document.createElement("span");
+        nombreSpan.textContent = j.nombre;
+
+        const puntajeSpan = document.createElement("span");
+        puntajeSpan.innerHTML = `(<span class="badge bg-secondary">${j.puntaje}</span> pts)`;
+
+        jugadorDiv.appendChild(avatar);
+        jugadorDiv.appendChild(nombreSpan);
+        jugadorDiv.appendChild(puntajeSpan);
+
+        contenedor.appendChild(jugadorDiv);
     });
 }
 

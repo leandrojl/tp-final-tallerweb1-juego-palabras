@@ -1,17 +1,12 @@
 package com.tallerwebi.dominio;
 
 public class MensajeInicioRonda {
-    Long id;
-    public MensajeInicioRonda(Long id){
-        this.id=id;
+    private Long partidaId;
+    public MensajeInicioRonda(Long partidaId){
+        this.partidaId=partidaId;
     }
     public MensajeInicioRonda(){};
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getPartidaId() { return partidaId; }
+    public void setPartidaId(Long partidaId) { this.partidaId = partidaId; }
 }

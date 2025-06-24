@@ -11,8 +11,10 @@ import java.io.Serializable;
 
 
 public interface PartidaService {
-    Partida iniciarNuevaPartida(String jugadorId, String nombre);
-    Partida obtenerPartida(String jugadorId);
+    //Partida2 iniciarNuevaPartida(String jugadorId, String nombre);
+
+    Partida2 obtenerPartidaPorId(Long partidaId);
+
     void eliminarPartida(String jugadorId);
 
 
