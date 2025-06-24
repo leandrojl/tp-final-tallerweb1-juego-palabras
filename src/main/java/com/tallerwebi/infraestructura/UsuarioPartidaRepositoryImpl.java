@@ -67,4 +67,27 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                         "ORDER BY COUNT(p) DESC", Object[].class
         ).getResultList();
     }
+
+    @Override
+    public int contarUsuariosEnPartida(Long idPartida) {
+        Long resultado = (Long) sessionFactory.getCurrentSession()
+                .createCriteria(UsuarioPartida.class)
+                .add(Restrictions.eq("partida.id", idPartida))
+                .setProjection(Projections.rowCount())
+                .uniqueResult();
+
+        return (resultado != null) ? resultado.intValue() : 0;
+    }
+
+    @Override
+    public List<UsuarioPartida> buscarPorPartida(Long idPartida) {
+        String hql = "FROM UsuarioPartida up JOIN FETCH up.usuario WHERE up.partida.id = :idPartida";
+
+        return sessionFactory.getCurrentSession()
+                .createQuery(hql, UsuarioPartida.class)
+                .setParameter("idPartida", idPartida)
+                .getResultList();
+    }
+
+
 }

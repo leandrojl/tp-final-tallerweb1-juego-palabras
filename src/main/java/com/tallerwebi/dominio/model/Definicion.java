@@ -47,4 +47,6 @@ public class Definicion {
     public void setPalabra(Palabra palabra) {
         this.palabra = palabra;
     }
+
+
 }

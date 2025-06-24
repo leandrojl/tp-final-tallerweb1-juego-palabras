@@ -13,4 +13,8 @@ public interface RondaRepository {
     int obtenerCantidadDeRondasPorPartida(Long partidaId);
 
     Ronda obtenerUltimaRondaDePartida(Long partidaId);
+
+    void actualizar(Ronda ronda);
+
+
 }

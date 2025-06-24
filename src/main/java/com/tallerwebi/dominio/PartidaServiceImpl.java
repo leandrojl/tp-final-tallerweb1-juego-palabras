@@ -1,5 +1,7 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.*;
@@ -12,8 +14,11 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PartidaServiceImpl implements PartidaService {
@@ -23,9 +28,10 @@ public class PartidaServiceImpl implements PartidaService {
     private final PartidaRepository partidaRepository;
     @Autowired
     private final RondaService rondaService;
-
     @Autowired
     private final RondaRepository rondaRepositorio;
+    @Autowired
+    private final UsuarioPartidaRepository usuarioPartidaRepository;
     @Autowired
     private LocalSessionFactoryBean sessionFactory;
 
@@ -35,11 +41,12 @@ public class PartidaServiceImpl implements PartidaService {
 
 
     @Autowired
-    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate, PartidaRepository partidaRepository, RondaService rondaService, RondaRepository rondaRepositorio) {
+    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate, PartidaRepository partidaRepository, RondaService rondaService, RondaRepository rondaRepositorio, UsuarioPartidaRepository usuarioPartidaRepository) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.partidaRepository = partidaRepository;
         this.rondaService = rondaService;
         this.rondaRepositorio = rondaRepositorio;
+        this.usuarioPartidaRepository = usuarioPartidaRepository;
     }
 
 
@@ -136,6 +143,75 @@ public class PartidaServiceImpl implements PartidaService {
 
         simpMessagingTemplate.convertAndSend("/topic/juego/"+partidaId, dto);
         return null;
+    }
+
+    @Override
+    public DefinicionDto avanzarRonda(MensajeAvanzarRondaDTO dto) {
+        Long partidaId = dto.getIdPartida();
+        Long rondaId = dto.getIdRonda();
+
+        Partida2 partida = partidaRepository.buscarPorId(partidaId);
+        Ronda rondaActual = rondaRepositorio.obtenerUltimaRondaDePartida(partidaId);
+
+        // Marcar ronda anterior como terminada
+        rondaActual.setEstado(Estado.FINALIZADA);
+        rondaRepositorio.actualizar(rondaActual);
+
+        // ¿Terminó la partida?
+        if (esUltimaRonda(partidaId)) {
+            partida.setEstado(Estado.FINALIZADA);
+            partidaRepository.actualizar(partida);
+            return null;
+        }
+
+        // Crear nueva ronda
+        Ronda nuevaRonda = rondaService.crearRonda(partidaId, partida.getIdioma());
+        Palabra palabra = nuevaRonda.getPalabra();
+
+        String definicionTexto = palabra.getDefiniciones().stream()
+                .findFirst()
+                .map(Definicion::getDefinicion)
+                .orElse("Definición no disponible");
+
+        DefinicionDto dtoRespuesta = new DefinicionDto();
+        dtoRespuesta.setPalabra(palabra.getDescripcion());
+        dtoRespuesta.setDefinicionTexto(definicionTexto);
+        dtoRespuesta.setNumeroDeRonda(nuevaRonda.getNumeroDeRonda());
+
+        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dtoRespuesta);
+        return dtoRespuesta;
+    }
+
+    @Override
+    public boolean esUltimaRonda(Long idPartida) {
+        Partida2 partida = partidaRepository.buscarPorId(idPartida);
+        Ronda ultimaRonda = rondaRepositorio.obtenerUltimaRondaDePartida(idPartida);
+        return ultimaRonda.getNumeroDeRonda() >= partida.getRondasTotales();
+    }
+
+
+    @Override
+    public void enviarRankingFinal(Long idPartida) {
+
+        List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(idPartida);
+
+        List<RankingDTO> ranking = jugadores.stream()
+                .map(up -> new RankingDTO(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
+                .sorted(Comparator.comparingInt(RankingDTO::getPuntaje).reversed())
+                .collect(Collectors.toList());
+
+
+        simpMessagingTemplate.convertAndSend("/topic/vistaFinal", ranking);
+    }
+
+    @Override
+    public List<RankingDTO> obtenerRanking(Long partidaId) {
+        List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(partidaId);
+
+        return jugadores.stream()
+                .map(up -> new RankingDTO(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
+                .sorted(Comparator.comparingInt(RankingDTO::getPuntaje).reversed())
+                .collect(Collectors.toList());
     }
 
     @Override

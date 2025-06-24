@@ -28,4 +28,9 @@ public class PartidaRepositoryImpl implements PartidaRepository {
     public Serializable crearPartida(Partida2 nuevaPartida) {
         return sessionFactory.getCurrentSession().save(nuevaPartida);
     }
+
+    @Override
+    public void actualizar(Partida2 partida){
+        sessionFactory.getCurrentSession().update(partida);
+    }
 }

@@ -50,4 +50,10 @@ public class RondaRepositoryImpl implements RondaRepository {
                 .uniqueResult();
     }
 
+    @Override
+    public void actualizar(Ronda ronda) {
+        sessionFactory.getCurrentSession().update(ronda);
+    }
+
+
 }

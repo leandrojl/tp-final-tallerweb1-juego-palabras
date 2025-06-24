@@ -174,12 +174,12 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="entry, iter : ${ranking}"
-            th:classappend="${entry.key.nombre == ganador} ? 'table-success'">
+        <tr th:each="jugador, iter : ${ranking}" th:classappend="${jugador.nombreUsuario == ganador} ? 'table-success'">
             <td th:text="${iter.index + 1}">1</td>
-            <td th:text="${entry.key.nombre}">Jugador</td>
-            <td th:text="${entry.value}">0</td>
+            <td th:text="${jugador.nombreUsuario}">Jugador</td>
+            <td th:text="${jugador.puntaje}">0</td>
         </tr>
+
         </tbody>
     </table>
 

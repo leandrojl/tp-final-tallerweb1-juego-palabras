@@ -1,20 +1,20 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
+import com.tallerwebi.dominio.interfaceService.AciertoService;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
-import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
-import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
+import com.tallerwebi.dominio.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
-import com.tallerwebi.dominio.model.EstadoJugadorDTO;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 public class WebSocketController {
@@ -22,11 +22,13 @@ public class WebSocketController {
 
     private PartidaService partidaService;
     private SalaDeEsperaService salaDeEsperaService;
+    private AciertoService aciertoService;
 
     @Autowired
-    public WebSocketController(PartidaService partidaService, SalaDeEsperaService salaDeEsperaService) {
+    public WebSocketController(PartidaService partidaService, SalaDeEsperaService salaDeEsperaService, AciertoService aciertoService) {
         this.partidaService = partidaService;
         this.salaDeEsperaService = salaDeEsperaService;
+        this.aciertoService = aciertoService;
     }
 
 
@@ -107,9 +109,24 @@ public class WebSocketController {
     //verificarTiempo
     //FinalizarPartida -> vistaFinal con puntajes
 
+    @MessageMapping("/juego/verificarAvanceDeRonda")
+    public void verificarAvanceDeRonda(MensajeAvanzarRondaDTO info) {
+        Long idPartida = info.getIdPartida();
+        Long idRonda = info.getIdRonda();
+        boolean tiempoAgotado = info.isTiempoAgotado();
 
+        boolean todosAcertaron = aciertoService.todosAcertaron(idPartida, idRonda);
 
+        if (todosAcertaron || tiempoAgotado) {
+            DefinicionDto dto = partidaService.avanzarRonda(info);
 
+            if (dto == null) {
+                // Partida finalizada: enviar puntajes
+                partidaService.enviarRankingFinal(idPartida);
+            }
+            // Si dto != null, ya fue enviado internamente desde el service
+        }
+    }
 
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
         this.partidaService.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);

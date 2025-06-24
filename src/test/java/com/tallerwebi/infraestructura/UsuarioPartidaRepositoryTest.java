@@ -1,6 +1,7 @@
 package com.tallerwebi.infraestructura;
 
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Usuario;
@@ -101,12 +102,12 @@ public class UsuarioPartidaRepositoryTest {
         Partida2 partida1 = new Partida2("encuentro1", "Castellano", true, 5, 2);
         Partida2 partida2 = new Partida2("encuentro1", "Castellano", true, 5, 2);
         Partida2 partida3 = new Partida2("encuentro1", "Castellano", true, 5, 2);
-        UsuarioPartida upartida1 = new UsuarioPartida(usuario1,partida1, true);
-        UsuarioPartida upartida2 = new UsuarioPartida(usuario1,partida2, true);
-        UsuarioPartida upartida3 = new UsuarioPartida(usuario2,partida1, false);
-        UsuarioPartida upartida4 = new UsuarioPartida(usuario3,partida1, true);
-        UsuarioPartida upartida5 = new UsuarioPartida(usuario2,partida2, false);
-        UsuarioPartida upartida6 = new UsuarioPartida(usuario3,partida2, false);
+        UsuarioPartida upartida1 = new UsuarioPartida(usuario1,partida1, true, 100, Estado.FINALIZADA);
+        UsuarioPartida upartida2 = new UsuarioPartida(usuario1,partida2, true,100, Estado.FINALIZADA);
+        UsuarioPartida upartida3 = new UsuarioPartida(usuario2,partida1, false,20, Estado.FINALIZADA);
+        UsuarioPartida upartida4 = new UsuarioPartida(usuario3,partida1, true,100, Estado.FINALIZADA);
+        UsuarioPartida upartida5 = new UsuarioPartida(usuario2,partida2, false,20, Estado.FINALIZADA);
+        UsuarioPartida upartida6 = new UsuarioPartida(usuario3,partida2, false,20, Estado.FINALIZADA);
         sessionFactory.getCurrentSession().save(usuario1);
         sessionFactory.getCurrentSession().save(usuario2);
         sessionFactory.getCurrentSession().save(usuario3);

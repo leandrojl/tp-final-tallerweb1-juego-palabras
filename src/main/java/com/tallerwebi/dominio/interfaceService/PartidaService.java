@@ -1,12 +1,11 @@
 package com.tallerwebi.dominio.interfaceService;
 
-import com.tallerwebi.dominio.DefinicionDto;
-import com.tallerwebi.dominio.DtoIntento;
-import com.tallerwebi.dominio.ResultadoIntentoDto;
+import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Partida2;
 
 import java.io.Serializable;
+import java.util.List;
 
 
 public interface PartidaService {
@@ -20,6 +19,15 @@ public interface PartidaService {
     ResultadoIntentoDto procesarIntento(DtoIntento intento, String name);
 
     DefinicionDto iniciarNuevaRonda(Long partidaId);
+
+    DefinicionDto avanzarRonda(MensajeAvanzarRondaDTO dto);
+
+    boolean esUltimaRonda(Long idPartida);
+
     Serializable crearPartida (Partida2 nuevaPartida);
+
+    void enviarRankingFinal(Long idPartida);
+
+    List<RankingDTO> obtenerRanking(Long partidaId);
 }
 

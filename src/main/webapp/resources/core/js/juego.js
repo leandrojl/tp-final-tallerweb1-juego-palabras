@@ -3,6 +3,7 @@ let tiempoRestante = 60;
 let intervaloTemporizador;
 let intervaloLetras;
 let finRondaEjecutada = false;
+let rondaActual = null;
 
 const jugadorId = document.getElementById("jugadorId").value;
 const partidaId = document.getElementById("partidaId").value;
@@ -19,6 +20,7 @@ function conectarWebSocket() {
         stompClient.subscribe(`/topic/juego/${partidaId}`, manejarMensajeServidor);
         stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
         stompClient.subscribe(`/topic/mostrarIntento`, mostrarResultadoIntentoIncorrecto);
+        stompClient.subscribe("/topic/vistaFinal", mostrarRankingFinal);
     });
 }
 
@@ -35,10 +37,11 @@ function enviarIntento(palabra) {
         tiempoRestante
     }));
     stompClient.send("/app/juego/verificarAvanceDeRonda", {}, JSON.stringify({
-            jugadorId,
-            partidaId,
-            tiempoRestante
-        }));
+        partidaId,
+        idRonda: rondaActual,
+        tiempoAgotado: true
+    }));
+
 }
 
 //  "/verificarAvanzarRonda"
@@ -52,6 +55,9 @@ function manejarMensajeServidor(mensaje) {
     } else if (data.tipo === "fin-ronda") {
         detenerTimers();
         window.location.href = `/juego?ronda=${data.siguienteRonda}&jugadorId=${jugadorId}`;
+    } else if (data.numeroDeRonda) {
+        rondaActual = data.numeroDeRonda;
+        console.log("Nueva ronda recibida:", rondaActual);
     }
 }
 
@@ -127,6 +133,14 @@ function mostrarMensajeChat(texto, esCorrecto) {
     div.innerHTML = `<p class="message-text">${texto}</p>`;
     document.getElementById("palabras-mencionadas").appendChild(div);
 }
+
+// === VISTA FINAL (Ranking) ===
+function mostrarRankingFinal(mensaje) {
+    // Redirigir al HTML final con el ranking
+    window.location.href = `/juego/vistaFinalJuego?partidaId=${partidaId}`;
+}
+
+
 
 // === INICIALIZACIÓN ===
 document.addEventListener("DOMContentLoaded", () => {

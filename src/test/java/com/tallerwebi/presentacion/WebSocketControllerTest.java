@@ -2,6 +2,8 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.PartidaServiceImpl;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
+import com.tallerwebi.dominio.interfaceService.AciertoService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.*;
@@ -35,6 +37,8 @@ public class WebSocketControllerTest {
     private RondaService rondaService;
     private PartidaRepository partidaRepository;
     private RondaRepository rondaRepository;
+    private UsuarioPartidaRepository usuarioPartidaRepository;
+    private AciertoService aciertoService ;
     private SalaDeEsperaService salaDeEsperaService;
     private WebSocketController webSocketController;
     private WebSocketStompClient stompClient;
@@ -47,11 +51,13 @@ public class WebSocketControllerTest {
         messagingTemplate = mock(SimpMessagingTemplate.class);
         rondaService = mock(RondaService.class);
         partidaRepository = mock(PartidaRepository.class);
+        usuarioPartidaRepository = mock(UsuarioPartidaRepository.class);
+        aciertoService = mock(AciertoService.class);
 
-        partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository);
+        partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository,usuarioPartidaRepository);
         ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
-        webSocketController = new WebSocketController(partidaService,salaDeEsperaService);
+        webSocketController = new WebSocketController(partidaService,salaDeEsperaService, aciertoService);
     }
 
     @Test

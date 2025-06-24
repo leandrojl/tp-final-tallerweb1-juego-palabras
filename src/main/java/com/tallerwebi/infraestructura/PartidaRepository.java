@@ -11,4 +11,6 @@ public interface PartidaRepository {
     void guardar(Partida2 partida);
 
     Serializable crearPartida(Partida2 nuevaPartida);
+
+    void actualizar(Partida2 partida);
 }
