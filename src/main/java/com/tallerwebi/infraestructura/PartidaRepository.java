@@ -9,7 +9,7 @@ import java.util.List;
 public interface PartidaRepository {
     Partida2 buscarPorId(Long id);
 
-    // Ejemplo: guardar una partida (por si querés usarlo después)
+    // Ejemplo: guardar una partida (por si queres usarlo despues)
     void guardar(Partida2 partida);
 
     Serializable crearPartida(Partida2 nuevaPartida);

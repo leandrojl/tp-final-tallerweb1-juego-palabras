@@ -7,6 +7,7 @@ import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
 import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -19,7 +20,7 @@ import java.security.Principal;
 @Controller
 public class WebSocketController {
 
-
+    @Qualifier("partidaServiceImpl")
     private PartidaService partidaService;
     private SalaDeEsperaService salaDeEsperaService;
 
@@ -66,20 +67,17 @@ public class WebSocketController {
         return new MensajeRecibidoDTO(nombreUsuario);
     }
 
-
-
     @MessageMapping("/juego/iniciar")
     public void iniciarRonda(MensajeInicioRonda mensaje){
         Long partidaId = mensaje.getId();
-
-        RondaDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
-
+        partidaService.iniciarNuevaRonda(partidaId);
     }
 
     @MessageMapping("/juego/intento")
-    public void procesarIntento(DtoIntento intento, Principal principal){
-
-        partidaService.procesarIntento(intento, principal.getName());
+    public void procesarIntento(DtoIntento intento){
+        System.out.println("Intento recibido: " + intento.getIntentoPalabra());
+        partidaService.procesarIntento(intento);
+    }
         //si acierta pepi acerto.. sino mostrarenchat palabra prueba..
         //verificar que ronda no este terminada
         //bloquearChat
@@ -89,7 +87,7 @@ public class WebSocketController {
         //mandarIndividualmente a/c.usuario los puntajes y almacenarPuntajesDeTodos en un array
         //ir actualizando los putajes
         // (usar ListaUsuariosDto) y hacer topic que envie ese array
-    } //hacer tdd
+        //hacer tdd
 
 
     // == PASAR DE RONDA ==

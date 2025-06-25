@@ -4,8 +4,8 @@ let intervaloTemporizador;
 let intervaloLetras;
 let finRondaEjecutada = false;
 
-const usuarioId = document.getElementById("usuarioId").value;
-const partidaId = document.getElementById("partidaId").value;
+const usuarioId = Number(document.getElementById("usuarioId").value);
+const partidaId = Number(document.getElementById("partidaId").value);
 const palabra = document.getElementById("palabraOculta").value;
 const letras = palabra.split("");
 let indexLetra = 0;
@@ -40,11 +40,11 @@ function enviarIntento(palabra) {
         tiempoRestante
     }));
 
-    stompClient.send("/app/juego/verificarAvanceDeRonda", {}, JSON.stringify({
-        usuarioId,
-        partidaId,
-        tiempoRestante
-    }));
+//    stompClient.send("/app/juego/verificarAvanceDeRonda", {}, JSON.stringify({
+//        usuarioId,
+//        partidaId,
+//        tiempoRestante
+//    }));
 }
 
 // === RECIBE MENSAJE DEL SERVIDOR ===
@@ -62,12 +62,18 @@ function manejarMensajeServidor(mensaje) {
 // === RESULTADO DEL INTENTO (Privado) ===
 function mostrarResultadoIntento(mensaje) {
     const data = JSON.parse(mensaje.body);
+    console.log("Resultado intento privado:", data);
     mostrarMensajeChat(data.palabraCorrecta, data.esCorrecto);
 }
 
 // === RESULTADO DEL INTENTO INCORRECTO (Público) ===
 function mostrarResultadoIntentoIncorrecto(mensaje) {
+
+ console.log("MENSAJE CRUDO:", mensaje); // Esto te da el objeto recibido
+    console.log("BODY CRUDO:", mensaje.body)
+
     const data = JSON.parse(mensaje.body);
+    console.log("Intento incorrecto público:", data);
     mostrarMensajeChat(data.palabraIncorrecta, data.esCorrecto);
 }
 
@@ -151,6 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const palabra = input.value.trim();
             if (palabra !== "") {
                 enviarIntento(palabra);
+                console.log("palabra=" + palabra);
                 input.value = "";
             }
         }

@@ -38,7 +38,7 @@ public class PartidaServiceImpl implements PartidaService {
 
 
     @Autowired
-    private UsuarioPartidaRepository usuarioPartidaRepository;
+    private final UsuarioPartidaRepository usuarioPartidaRepository;
 
     @Autowired
     private final RondaRepository rondaRepositorio;
@@ -52,17 +52,16 @@ public class PartidaServiceImpl implements PartidaService {
     private final Map<Long, RondaDto> definicionesPorPartida = new HashMap<>();
 
 
-
     @Autowired
-    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate, PartidaRepository partidaRepository, RondaService rondaService, AciertoService aciertoService, UsuarioPartidaService usuarioPartidaService, RondaRepository rondaRepositorio) {
+    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate, PartidaRepository partidaRepository, RondaService rondaService, AciertoService aciertoService, UsuarioPartidaService usuarioPartidaService, UsuarioPartidaRepository usuarioPartidaRepository, RondaRepository rondaRepositorio) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.partidaRepository = partidaRepository;
         this.rondaService = rondaService;
         this.aciertoService = aciertoService;
         this.usuarioPartidaService = usuarioPartidaService;
+        this.usuarioPartidaRepository = usuarioPartidaRepository;
         this.rondaRepositorio = rondaRepositorio;
     }
-
 
 
     private final Map<String, Partida> partidas = new HashMap<>();
@@ -87,43 +86,45 @@ public class PartidaServiceImpl implements PartidaService {
 
     @Override
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
-        simpMessagingTemplate.convertAndSendToUser(nombreUsuario,"/queue/paraTest",new MensajeEnviadoDTO(nombreUsuario,
+        simpMessagingTemplate.convertAndSendToUser(nombreUsuario, "/queue/paraTest", new MensajeEnviadoDTO(nombreUsuario,
                 mensaje));
     }
 
     @Override
-    public ResultadoIntentoDto procesarIntento(DtoIntento intento, String nombreJugador) {
+    public void procesarIntento(DtoIntento intento) {
+
         Long partidaId = intento.getPartidaId();
         Long usuarioId = intento.getUsuarioId();
-        String intentoTexto = intento.getIntentoPalabra().trim();
+        String intentoTexto = intento.getIntentoPalabra();
 
-        // === 1. Obtener Partida ===
+        // === Obtener Partida ===
         Partida2 partida = partidaRepository.buscarPorId(partidaId);
         if (partida == null) {
             throw new IllegalArgumentException("Partida no encontrada con ID: " + partidaId);
         }
 
-        // === 2. Obtener Ronda actual ===
+        // === Obtener Ronda actual ===
         Ronda ronda = rondaService.obtenerUltimaRondaDePartida(partidaId);
-        Long rondaId = ronda.getId();
+        Long rondaId = 7L;//ronda.getId();
         if (ronda == null) {
             throw new IllegalStateException("No hay una ronda activa.");
-        }else if(ronda.getEstado().equals(Estado.FINALIZADA)){
+        } else if (ronda.getEstado().equals(Estado.FINALIZADA)) {
             throw new IllegalStateException("Ronda finalizada.");
         }
 
-        // === 3. Comparar intento con palabra correcta ===
-        String palabraCorrecta = ronda.getPalabra().getDescripcion();
-        boolean esCorrecto = palabraCorrecta.equalsIgnoreCase(intentoTexto);
+        // === Comparar intento con palabra correcta ===
+        String palabraCorrecta = "mmmm";//ronda.getPalabra().getDescripcion();
+        boolean esCorrecto = false;//intentoTexto.equalsIgnoreCase(palabraCorrecta);
 
-        // === 4. Armar DTO de resultado ===
+        // Armamos el ResultadoDto
+        Usuario usuario = usuarioPartidaService.obtenerUsuarioPorUsuarioIdYPartidaId(usuarioId, partidaId);
+
         ResultadoIntentoDto resultado = new ResultadoIntentoDto();
         resultado.setCorrecto(esCorrecto);
-        resultado.setJugador(nombreJugador);
-        resultado.setPalabraCorrecta(palabraCorrecta);
+        resultado.setJugador(usuario.getNombreUsuario());
 
         if (esCorrecto) {
-            // === 5. Verificar si ya había acertado ===
+            // Verificar si ya había acertado ===
             boolean yaAcerto = aciertoService.jugadorYaAcerto(usuarioId, rondaId);
             if (!yaAcerto) {
                 // === 6. Registrar acierto y calcular puntos ===
@@ -131,33 +132,47 @@ public class PartidaServiceImpl implements PartidaService {
 
                 // === 7. Sumar puntos en UsuarioPartida ===
                 usuarioPartidaService.sumarPuntos(usuarioId, partidaId, puntos);
-
-                resultado.setPuntosGanados(puntos);
-
-            } else {
-                resultado.setPuntosGanados(0); // ya había acertado
+                resultado.setPalabraCorrecta(intentoTexto);
+                resultado.setPalabraIncorrecta("");
             }
-
-            simpMessagingTemplate.convertAndSendToUser(
-                    nombreJugador,
-                    "/queue/resultado",
-                    resultado
-            );
+            simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/resultado", resultado);
 
         } else {
-            resultado.setPalabraIncorrecta(intentoTexto);
+            resultado.setPalabraCorrecta("");
+            resultado.setPalabraIncorrecta(intento.getIntentoPalabra());
+            resultado.setJugador("pepito");
+            resultado.setCorrecto(false);
             simpMessagingTemplate.convertAndSend(
-                    "/topic/mostrarIntento/" + partidaId,
+                    "/topic/mostrarIntento/" + intento.getPartidaId(),
                     resultado
             );
         }
-
-        return resultado;
     }
 
 
-    //public ResultadoIntentoDto procesarIntento(DtoIntento intento, String nombreJugador) {}
-/*
+    // =================== HARCODEADO =============================== //
+//        Boolean correcta = true;
+//        if(correcta){
+//            resultado.setPalabraCorrecta(intento.getIntentoPalabra());
+//            resultado.setPalabraIncorrecta("");
+//            resultado.setJugador("pepito");
+//            resultado.setCorrecto(true);
+//            simpMessagingTemplate.convertAndSendToUser("pepito", "/queue/resultado", resultado);
+//        } else {
+//            resultado.setPalabraCorrecta("");
+//        resultado.setPalabraIncorrecta(intento.getIntentoPalabra());
+//        resultado.setJugador("pepito");
+//        resultado.setCorrecto(false);
+//        simpMessagingTemplate.convertAndSend(
+//                "/topic/mostrarIntento/" + intento.getPartidaId(),
+//                resultado);
+//        }
+
+
+//        }
+
+
+    /*
     @Override
     public DefinicionDto iniciarNuevaRonda(Long partidaId) {
         // Obtener la partida (usando el repositorio, o el método que tengas para acceder a la partida)
@@ -196,7 +211,6 @@ public class PartidaServiceImpl implements PartidaService {
     }
 
  */
-
     @Override
     public RondaDto iniciarNuevaRonda(Long partidaId) {
         Partida2 partida = partidaRepository.buscarPorId(partidaId);

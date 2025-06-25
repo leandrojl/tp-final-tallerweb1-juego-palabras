@@ -128,4 +128,18 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
         }
     }
 
+    @Override
+    public Usuario obtenerUsuarioPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId) {
+        Session session = sessionFactory.getCurrentSession();
+
+        UsuarioPartida usuarioPartida = (UsuarioPartida) session.createCriteria(UsuarioPartida.class)
+                .createAlias("usuario", "u")
+                .createAlias("partida", "p")
+                .add(Restrictions.eq("u.id", usuarioId))
+                .add(Restrictions.eq("p.id", partidaId))
+                .uniqueResult();
+
+        return usuarioPartida != null ? usuarioPartida.getUsuario() : null;
+    }
+
 }

@@ -1,8 +1,6 @@
 package com.tallerwebi.dominio.interfaceService;
 
-import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.DtoIntento;
-import com.tallerwebi.dominio.ResultadoIntentoDto;
 import com.tallerwebi.dominio.RondaDto;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Partida2;
@@ -18,7 +16,7 @@ public interface PartidaService {
 
     void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje);
 
-    ResultadoIntentoDto procesarIntento(DtoIntento intento, String name);
+    void procesarIntento(DtoIntento intento);
 
     RondaDto iniciarNuevaRonda(Long partidaId);
     Serializable crearPartida (Partida2 nuevaPartida);

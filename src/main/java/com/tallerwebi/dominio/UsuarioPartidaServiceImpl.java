@@ -62,6 +62,11 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
         usuarioPartidaRepository.sumarPuntaje(usuarioId, partidaId,puntos);
     }
 
+    @Override
+    public Usuario obtenerUsuarioPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId) {
+        return usuarioPartidaRepository.obtenerUsuarioPorUsuarioIdYPartidaId(usuarioId, partidaId);
+    }
+
 
 }
 

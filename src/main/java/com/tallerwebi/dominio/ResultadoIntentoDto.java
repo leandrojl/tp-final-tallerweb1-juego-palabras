@@ -17,9 +17,7 @@ public class ResultadoIntentoDto {
 
     }
 
-    public boolean isEsCorrecto() {
-        return esCorrecto;
-    }
+    public Boolean esCorrecto(){return esCorrecto;}
 
     public String getJugador() {
         return jugador;
@@ -29,9 +27,11 @@ public class ResultadoIntentoDto {
         return palabraCorrecta;
     }
 
-    public void setCorrecto(boolean esCorrecto) {
-        this.esCorrecto = esCorrecto;
+    public String getPalabraIncorrecta() {
+        return palabraIncorrecta;
     }
+
+    public void setCorrecto(boolean esCorrecto) {this.esCorrecto = esCorrecto;}
 
     public void setJugador(String nombreJugador) {
         this.jugador = nombreJugador;
@@ -41,14 +41,8 @@ public class ResultadoIntentoDto {
         this.palabraCorrecta = descripcion;
     }
 
-    public void setPuntosGanados(int puntos) {
-
-    }
-
     public void setPalabraIncorrecta(String intentoTexto) {
+        this.palabraIncorrecta = intentoTexto;
     }
 
-    public String getPalabraIncorrecta() {
-        return palabraIncorrecta;
-    }
 }
