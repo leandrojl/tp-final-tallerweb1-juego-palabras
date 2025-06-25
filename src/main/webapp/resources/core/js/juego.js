@@ -158,6 +158,15 @@ function mostrarMensajeChat(texto, esCorrecto) {
     document.getElementById("palabras-mencionadas").appendChild(div);
 }
 
+// === ABANDONAR PARTIDA ===
+function abandonarPartida() {
+    const params = new URLSearchParams({
+        usuarioId: jugadorId,
+        partidaId: partidaId
+    });
+    navigator.sendBeacon("/spring/abandonarPartida?" + params.toString());
+}
+
 // === INICIALIZACIÓN ===
 document.addEventListener("DOMContentLoaded", () => {
     conectarWebSocket();
@@ -174,6 +183,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.value = "";
             }
         }
+    });
+
+    // Detectar cuando el usuario cierra la pestaña o se va
+    window.addEventListener("beforeunload", function () {
+        abandonarPartida();
     });
 });
 

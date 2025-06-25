@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import com.tallerwebi.dominio.model.Partida2;
@@ -52,9 +53,22 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
         return usuarioPartidaRepository.obtenerPuntaje(usuarioId,partidaId);
     }
 
+
+
     @Override
-    public List<UsuarioPartida> obtenerPorPartida(Long partidaId) {
-        return List.of();
+    public void marcarComoPerdedor(Long usuarioId, Long partidaId) {
+        UsuarioPartida relacion = usuarioPartidaRepository.obtenerUsuarioEspecificoPorPartida(usuarioId, partidaId);
+        if (relacion != null) {
+            relacion.setGano(false);
+            relacion.setEstado(Estado.FINALIZADA);
+
+            usuarioPartidaRepository.actualizar(relacion);
+        }
+    }
+
+    @Override
+    public UsuarioPartida obtenerUsuarioEspecificoPorPartida(Long usuarioId, Long partidaId) {
+        return usuarioPartidaRepository.obtenerUsuarioEspecificoPorPartida(usuarioId, partidaId);
     }
 
 

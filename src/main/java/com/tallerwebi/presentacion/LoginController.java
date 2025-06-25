@@ -52,7 +52,7 @@ public class LoginController {
             modelMap.addAttribute("Usuario", usuarioLogueado);
             session.setAttribute("usuario",usuarioLogueado.getNombreUsuario());
             session.setAttribute("usuarioID",usuarioLogueado.getId());
-            return new ModelAndView("lobby",modelMap);
+            return new ModelAndView("redirect:/lobby");
         }catch(DatosLoginIncorrectosException datosLoginIncorrectos){
             modelMap.addAttribute("error","Datos incorrectos");
             return new ModelAndView("login", modelMap);

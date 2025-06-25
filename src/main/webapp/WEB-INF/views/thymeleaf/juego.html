@@ -293,7 +293,7 @@
                     ¿Querés abandonar la partida? Vas a perder tu progreso.
                 </div>
                 <div class="modal-footer">
-                    <a href="/spring/lobby" class="btn btn-danger">Sí, abandonar</a>
+                    <a href="#" class="btn btn-danger" onclick="return abandonarYSalir()">Sí, abandonar</a>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 </div>
             </div>
@@ -305,6 +305,25 @@
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <script th:src="@{/resources/core/js/juego.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const contextPath = /*[[${#httpServletRequest.contextPath}]]*/ '';
+        /*]]>*/
+    </script>
+    <script>
+        function abandonarYSalir() {
+            const jugadorId = document.getElementById("jugadorId").value;
+            const partidaId = document.getElementById("partidaId").value;
+
+            navigator.sendBeacon(contextPath + "/abandonarPartida", new URLSearchParams({
+                usuarioId: jugadorId,
+                partidaId: partidaId
+            }));
+
+            window.location.href = contextPath + "/lobby";
+            return false;
+        }
+    </script>
 </body>
 
 </html>

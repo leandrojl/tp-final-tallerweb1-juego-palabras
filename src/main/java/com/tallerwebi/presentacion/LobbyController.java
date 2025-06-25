@@ -6,6 +6,7 @@ import com.tallerwebi.dominio.interfaceService.Partida2Service;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.model.Jugador;
 import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,15 +58,14 @@ public class LobbyController {
 
     @RequestMapping("/lobby")
     public ModelAndView Lobby(HttpSession session, Model model) {
-        Jugador jugador = (Jugador) session.getAttribute("jugador");
+        String nombreUsuario = (String) session.getAttribute("usuario");
 
-        if (jugador != null) {
-            model.addAttribute("jugador", jugador);
-        } else {
-            jugador = new Jugador();
-            jugador.setNombre("july3p");
-            model.addAttribute("jugador", jugador);
-            //session.setAttribute("usuario", "pepe");
+        if (nombreUsuario == null) {
+            return new ModelAndView("redirect:/login"); // o mostrar error
+        }
+        else {
+            model.addAttribute("nombreUsuario", nombreUsuario);
+
 
             // obtengo las partidas en espera
             List<Partida2> partidas = lobbyService.obtenerPartidasEnEspera();

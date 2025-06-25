@@ -24,4 +24,8 @@ public interface UsuarioPartidaRepository {
     int obtenerPuntaje(Long usuarioId, Long partidaId);
 
     List<UsuarioPartida> obtenerUsuarioPartidaPorPartida(Long partidaId);
+
+    UsuarioPartida obtenerUsuarioEspecificoPorPartida(Long usuarioId, Long partidaId);
+
+    void actualizar(UsuarioPartida relacion);
 }
