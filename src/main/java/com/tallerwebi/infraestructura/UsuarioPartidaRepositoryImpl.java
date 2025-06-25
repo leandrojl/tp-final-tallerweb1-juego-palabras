@@ -17,7 +17,7 @@ import java.util.List;
 public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
 
     @Autowired
-    private SessionFactory sessionFactory;
+    SessionFactory sessionFactory;
 
 
 

@@ -2,8 +2,10 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.PartidaServiceImpl;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
+import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.infraestructura.PartidaRepository;
 import com.tallerwebi.infraestructura.RondaRepository;
@@ -38,6 +40,7 @@ public class WebSocketControllerTest {
     private SalaDeEsperaService salaDeEsperaService;
     private WebSocketController webSocketController;
     private WebSocketStompClient stompClient;
+    private UsuarioPartidaRepository usuarioPartidaRepository;
 
     @BeforeEach
     public void setUp() {
@@ -47,8 +50,8 @@ public class WebSocketControllerTest {
         messagingTemplate = mock(SimpMessagingTemplate.class);
         rondaService = mock(RondaService.class);
         partidaRepository = mock(PartidaRepository.class);
-
-        partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository);
+        usuarioPartidaRepository = mock(UsuarioPartidaRepository.class);
+        partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,usuarioPartidaRepository,rondaRepository);
         ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         webSocketController = new WebSocketController(partidaService,salaDeEsperaService);

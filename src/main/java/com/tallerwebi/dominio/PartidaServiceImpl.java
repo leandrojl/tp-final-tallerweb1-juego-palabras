@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class PartidaServiceImpl implements PartidaService {
+
+    @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
@@ -30,7 +32,7 @@ public class PartidaServiceImpl implements PartidaService {
     private final RondaService rondaService;
 
     @Autowired
-    private UsuarioPartidaRepository usuarioPartidaRepository;
+    private final UsuarioPartidaRepository usuarioPartidaRepository;
 
     @Autowired
     private final RondaRepository rondaRepositorio;
@@ -46,10 +48,11 @@ public class PartidaServiceImpl implements PartidaService {
 
 
     @Autowired
-    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate, PartidaRepository partidaRepository, RondaService rondaService, RondaRepository rondaRepositorio) {
+    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate, PartidaRepository partidaRepository, RondaService rondaService, UsuarioPartidaRepository usuarioPartidaRepository, RondaRepository rondaRepositorio) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.partidaRepository = partidaRepository;
         this.rondaService = rondaService;
+        this.usuarioPartidaRepository = usuarioPartidaRepository;
         this.rondaRepositorio = rondaRepositorio;
     }
 
@@ -196,6 +199,10 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public RondaDto obtenerPalabraYDefinicionDeRondaActual(Long partidaId) {
         return definicionesPorPartida.get(partidaId);
+    }
+
+    Map<Long, RondaDto> obtenerMapaDefinicionesParaTest() {
+        return definicionesPorPartida;
     }
 
 }
