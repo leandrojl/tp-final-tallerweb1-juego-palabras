@@ -77,10 +77,9 @@ public class WebSocketController {
     }
 
     @MessageMapping("/juego/intento")
-    @SendTo("/topic/mostrarIntento")
-    public ResultadoIntentoDto procesarIntento(DtoIntento intento, Principal principal){
+    public void procesarIntento(DtoIntento intento, Principal principal){
 
-        return partidaService.procesarIntento(intento, principal.getName());
+        partidaService.procesarIntento(intento, principal.getName());
         //si acierta pepi acerto.. sino mostrarenchat palabra prueba..
         //verificar que ronda no este terminada
         //bloquearChat

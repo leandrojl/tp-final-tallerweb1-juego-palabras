@@ -56,6 +56,10 @@ public class RondaServiceImpl implements RondaService {
         return nuevaRonda;
     }
 
+    @Override
+    public Ronda obtenerUltimaRondaDePartida(Long partidaId) {
+        return rondaRepositorio.obtenerUltimaRondaDePartida(partidaId);
+    }
 
 
 }

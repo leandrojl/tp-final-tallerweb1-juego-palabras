@@ -11,4 +11,6 @@ public interface UsuarioPartidaService {
     void actualizarPuntaje(Long usuarioId, Long partidaId, int nuevoPuntaje);
     int obtenerPuntaje(Long usuarioId, Long partidaId);
     List<UsuarioPartida> obtenerPorPartida(Long partidaId);
+
+    void sumarPuntos(Long usuarioId, Long partidaId, int puntos);
 }

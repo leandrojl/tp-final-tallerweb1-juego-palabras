@@ -63,7 +63,7 @@ public class SalaDeEsperaController {
         }
 
         // Redirigir a /juego pasando el usuarioID de sesión
-        return new ModelAndView("redirect:/juego?jugadorId=" + usuarioId);
+        return new ModelAndView("redirect:/juego");
     }
 
 

@@ -1,5 +1,6 @@
 package com.tallerwebi.infraestructura;
 
+import com.tallerwebi.dominio.model.Palabra;
 import com.tallerwebi.dominio.model.Ronda;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,14 @@ public class RondaRepositoryImpl implements RondaRepository {
                         "ORDER BY r.numeroDeRonda DESC", Ronda.class)
                 .setParameter("partidaId", partidaId)
                 .setMaxResults(1)
+                .uniqueResult();
+    }
+
+    @Override
+    public Ronda buscarPorId(Long rondaId) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM Ronda r WHERE r.id = :rondaId", Ronda.class)
+                .setParameter("rondaId", rondaId)
                 .uniqueResult();
     }
 

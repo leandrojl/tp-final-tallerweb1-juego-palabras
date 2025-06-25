@@ -57,6 +57,11 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
         return List.of();
     }
 
+    @Override
+    public void sumarPuntos(Long usuarioId, Long partidaId, int puntos) {
+        usuarioPartidaRepository.sumarPuntaje(usuarioId, partidaId,puntos);
+    }
+
 
 }
 

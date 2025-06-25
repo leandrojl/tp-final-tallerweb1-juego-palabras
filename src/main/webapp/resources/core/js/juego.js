@@ -4,7 +4,7 @@ let intervaloTemporizador;
 let intervaloLetras;
 let finRondaEjecutada = false;
 
-const jugadorId = document.getElementById("jugadorId").value;
+const usuarioId = document.getElementById("usuarioId").value;
 const partidaId = document.getElementById("partidaId").value;
 const palabra = document.getElementById("palabraOculta").value;
 const letras = palabra.split("");
@@ -19,7 +19,7 @@ function conectarWebSocket() {
         // Suscribimos a los topics para recibir mensajes
         stompClient.subscribe(`/topic/juego/${partidaId}`, manejarMensajeServidor);
         stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
-        stompClient.subscribe(`/topic/mostrarIntento`, mostrarResultadoIntentoIncorrecto);
+        stompClient.subscribe(`/topic/mostrarIntento/${partidaId}`, mostrarResultadoIntentoIncorrecto);
 
         // Ya conectado, iniciamos la ronda
         iniciarRonda();
@@ -34,14 +34,14 @@ function iniciarRonda() {
 // === ENVÍA INTENTO ===
 function enviarIntento(palabra) {
     stompClient.send("/app/juego/intento", {}, JSON.stringify({
-        intento: palabra,
-        jugadorId,
+        intentoPalabra: palabra,
+        usuarioId,
         partidaId,
         tiempoRestante
     }));
 
     stompClient.send("/app/juego/verificarAvanceDeRonda", {}, JSON.stringify({
-        jugadorId,
+        usuarioId,
         partidaId,
         tiempoRestante
     }));
@@ -55,20 +55,20 @@ function manejarMensajeServidor(mensaje) {
         actualizarRanking(data.jugadores);
     } else if (data.tipo === "fin-ronda") {
         detenerTimers();
-        window.location.href = `/juego?ronda=${data.siguienteRonda}&jugadorId=${jugadorId}`;
+        window.location.href = `/juego?ronda=${data.siguienteRonda}&usuarioId=${usuarioId}`;
     }
 }
 
 // === RESULTADO DEL INTENTO (Privado) ===
 function mostrarResultadoIntento(mensaje) {
     const data = JSON.parse(mensaje.body);
-    mostrarMensajeChat(data.intento, data.correcto);
+    mostrarMensajeChat(data.palabraCorrecta, data.esCorrecto);
 }
 
 // === RESULTADO DEL INTENTO INCORRECTO (Público) ===
 function mostrarResultadoIntentoIncorrecto(mensaje) {
     const data = JSON.parse(mensaje.body);
-    mostrarMensajeChat(data.intento, data.correcto);
+    mostrarMensajeChat(data.palabraIncorrecta, data.esCorrecto);
 }
 
 // === RANKING ACTUALIZADO ===

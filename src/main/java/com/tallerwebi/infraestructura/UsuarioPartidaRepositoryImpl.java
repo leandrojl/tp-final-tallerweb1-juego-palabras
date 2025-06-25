@@ -110,4 +110,22 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .list();
     }
 
+    @Override
+    public void sumarPuntaje(Long usuarioId, Long partidaId, int puntos) {
+        UsuarioPartida up = (UsuarioPartida) sessionFactory.getCurrentSession()
+                .createCriteria(UsuarioPartida.class)
+                .add(Restrictions.eq("usuario.id", usuarioId))
+                .add(Restrictions.eq("partida.id", partidaId))
+                .uniqueResult();
+
+        if (up != null) {
+            int puntajeActual = up.getPuntaje();
+            up.setPuntaje(puntajeActual + puntos);
+            sessionFactory.getCurrentSession().update(up);
+        } else {
+            // Podés lanzar una excepción si se espera que siempre exista
+            throw new IllegalArgumentException("No se encontró UsuarioPartida para el usuarioId " + usuarioId + " y partidaId " + partidaId);
+        }
+    }
+
 }
