@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
@@ -32,6 +29,23 @@ public class LobbyController {
         this.partida2Service = partida2Service;
         this.lobbyService = lobbyService;
     }
+    @GetMapping("/buscar")
+    @ResponseBody
+    public List<Partida2> buscar(@RequestParam("nombre") String nombre) {
+
+        /*
+         List<Partida2> partidas = lobbyService.obtenerPartidasEnEsperaPorNombre();
+            if (partidas.isEmpty()) {
+                model.addAttribute("mensaje", "No hay partidas disponibles en curso.");
+            } else {
+                model.addAttribute("partidas", partidas);
+            }
+        }
+        */
+
+        return lobbyService.buscarPartidasPorNombre(nombre);
+    }
+
 
     @GetMapping("/crear-sala")
     public String mostrarFormularioCrearSala() {
@@ -107,7 +121,6 @@ public class LobbyController {
         modelMap.addAttribute("usuario",nombreUsuario);
         return new ModelAndView("sala-de-espera",modelMap);
     }
-
 
 
 }

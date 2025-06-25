@@ -47,8 +47,9 @@ public class WebSocketControllerTest {
         messagingTemplate = mock(SimpMessagingTemplate.class);
         rondaService = mock(RondaService.class);
         partidaRepository = mock(PartidaRepository.class);
+        ScheduledExecutorService timerRonda = mock(ScheduledExecutorService.class);
 
-        partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository);
+        partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository, timerRonda);
         ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         webSocketController = new WebSocketController(partidaService,salaDeEsperaService);

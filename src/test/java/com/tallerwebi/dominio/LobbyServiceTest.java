@@ -57,4 +57,5 @@ public class LobbyServiceTest {
         assertNotNull(partidasMock);
         assertEquals(3, partidasMock.size());
     }
+
 }

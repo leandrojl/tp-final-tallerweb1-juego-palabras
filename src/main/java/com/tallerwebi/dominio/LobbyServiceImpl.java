@@ -6,8 +6,9 @@ import com.tallerwebi.dominio.model.Partida2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
-
+@Transactional
 @Service
 public class LobbyServiceImpl implements LobbyService {
 
@@ -26,5 +27,10 @@ public class LobbyServiceImpl implements LobbyService {
     @Override
     public void guardar(Partida2 partida) {
         lobbyRepository.guardar(partida);
+    }
+
+    @Override
+    public List<Partida2> buscarPartidasPorNombre(String nombre) {
+        return lobbyRepository.obtenerPartidasPorNombre(nombre);
     }
 }

@@ -16,4 +16,6 @@ public interface LobbyRepository {
     List<Partida2> obtenerPartidasFinalizadas();
 
     List<Partida2> obtenerPartidasCanceladas();
+
+    List<Partida2> obtenerPartidasPorNombre(String nombre);
 }

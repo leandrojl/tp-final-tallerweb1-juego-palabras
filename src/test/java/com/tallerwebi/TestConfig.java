@@ -1,0 +1,44 @@
+package com.tallerwebi;
+
+import com.tallerwebi.dominio.interfaceService.RondaService;
+import com.tallerwebi.infraestructura.PartidaRepository;
+import org.mockito.Mockito;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import java.util.concurrent.ScheduledExecutorService;
+
+@Configuration
+public class TestConfig {
+    @Bean
+    @Primary
+    public ScheduledExecutorService mockScheduledExecutorService() {
+        return Mockito.mock(ScheduledExecutorService.class);
+    }
+
+    @Bean
+    @Primary
+    public SimpMessagingTemplate mockSimpMessagingTemplate() {
+        return Mockito.mock(SimpMessagingTemplate.class);
+    }
+
+    // Provide mock repositories and services to avoid real DB/transactions
+    @Bean
+    @Primary
+    public PartidaRepository partidaRepository() {
+        return Mockito.mock(PartidaRepository.class);
+    }
+
+    @Bean
+    @Primary
+    public RondaService rondaService() {
+        return Mockito.mock(RondaService.class);
+    }
+}
+
+
+
+
+

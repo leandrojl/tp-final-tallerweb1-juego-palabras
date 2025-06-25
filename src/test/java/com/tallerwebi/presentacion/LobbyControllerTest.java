@@ -1,5 +1,4 @@
 package com.tallerwebi.presentacion;
-
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceService.LobbyService;
 import com.tallerwebi.dominio.interfaceService.Partida2Service;

@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.interfaceService.PartidaService;
+import com.tallerwebi.dominio.interfaceService.PuntajeService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.infraestructura.PartidaRepository;
@@ -14,11 +15,17 @@ import org.springframework.stereotype.Service;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class PartidaServiceImpl implements PartidaService {
     SimpMessagingTemplate simpMessagingTemplate;
 
+    private final ScheduledExecutorService timerRonda;
+    private ScheduledFuture<?> finalizarRondaPorTimer;
     @Autowired
     private final PartidaRepository partidaRepository;
     @Autowired
@@ -31,15 +38,19 @@ public class PartidaServiceImpl implements PartidaService {
 
     @Autowired
     private SessionFactory sessionFactory2;
-
+    @Autowired
+    private PuntajeService puntajeService;
 
 
     @Autowired
-    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate, PartidaRepository partidaRepository, RondaService rondaService, RondaRepository rondaRepositorio) {
+    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate, PartidaRepository partidaRepository, RondaService rondaService, RondaRepository rondaRepositorio, ScheduledExecutorService timerRonda) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.partidaRepository = partidaRepository;
         this.rondaService = rondaService;
         this.rondaRepositorio = rondaRepositorio;
+        this.timerRonda = timerRonda;
+
+
     }
 
 
@@ -94,6 +105,7 @@ public class PartidaServiceImpl implements PartidaService {
         // 4. Comparar
         boolean esCorrecto = palabraCorrecta.getDescripcion().equalsIgnoreCase(textoIntentado.trim());
 
+
         // 5. Armar resultado
         ResultadoIntentoDto resultado = new ResultadoIntentoDto();
         resultado.setCorrecto(esCorrecto);
@@ -125,6 +137,8 @@ public class PartidaServiceImpl implements PartidaService {
                 .map(Definicion::getDefinicion)
                 .orElse("Definición no disponible");
 
+
+
         //verificarRonda - actualizarPuntajeRepo al finalizarRonda//
         //traer lista de jugadores con puntaje 0
 
@@ -135,7 +149,16 @@ public class PartidaServiceImpl implements PartidaService {
         dto.setNumeroDeRonda(ronda.getNumeroDeRonda());
 
         simpMessagingTemplate.convertAndSend("/topic/juego/"+partidaId, dto);
-        return null;
+        this.finalizarRondaPorTimer = timerRonda.schedule(
+                () -> finalizarRonda(ronda),
+                60, TimeUnit.SECONDS
+        );
+
+
+        return dto;
+    }
+
+    public void finalizarRonda(Ronda ronda) {
     }
 
     @Override
@@ -143,5 +166,10 @@ public class PartidaServiceImpl implements PartidaService {
         return partidaRepository.crearPartida(nuevaPartida);
     }
 
+
+
+    public ScheduledFuture<?> getFinalizarRondaPorTimer() {
+        return finalizarRondaPorTimer;
+    }
 
 }
