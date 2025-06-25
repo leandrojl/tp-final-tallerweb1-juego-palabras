@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -58,14 +57,12 @@ public class SalaDeEsperaController {
     //WEBSOCKETS EN SALA DE ESPERA
 
     @MessageMapping("/salaDeEspera")
-    @SendTo("/topic/salaDeEspera")
-    public EstadoJugadorDTO actualizarEstadoJugador(EstadoJugadorDTO estadoJugadorDTO, Principal principal) {
+    public void actualizarEstadoUsuario(EstadoJugadorDTO estadoJugadorDTO, Principal principal) {
         //Si un usuario intenta cambiar el estado que no es suyo se valida
-        String nombreUsuario = estadoJugadorDTO.getUsername();
-        if(!nombreUsuario.equals(principal.getName())) {
+        Boolean correcto = this.salaDeEsperaService.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName());
+        if(!correcto){
             throw new UsuarioInvalidoException("Error, no se puede alterar el estado de otro jugador");
         }
-        return estadoJugadorDTO;
     }
 
     @MessageExceptionHandler(UsuarioInvalidoException.class)
@@ -76,11 +73,10 @@ public class SalaDeEsperaController {
 
 
     @MessageMapping("/usuarioSeUneASalaDeEspera")
-    @SendTo("/topic/cuandoUsuarioSeUneASalaDeEspera")
-    public MensajeRecibidoDTO usuarioSeUneASala(MensajeRecibidoDTO mensajeRecibidoDTO, Principal principal){
+    public void usuarioSeUneASala(MensajeRecibidoDTO mensajeRecibidoDTO, Principal principal){
         String nombreUsuario = principal.getName();
-        this.salaDeEsperaService.mostrarAUnUsuarioLosUsuariosExistentesEnSala(nombreUsuario);
-        return new MensajeRecibidoDTO(nombreUsuario);
+        Long idPartida = mensajeRecibidoDTO.getNumber();
+        this.salaDeEsperaService.mostrarAUnUsuarioLosUsuariosExistentesEnSala(nombreUsuario,idPartida);
     }
 
     @MessageMapping("/inicioPartida")

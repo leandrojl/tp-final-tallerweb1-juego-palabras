@@ -197,7 +197,7 @@ public class SalaDeEsperaControllerTest {
 
     @Test
     public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {
-        EstadoJugadorDTO jugador2 = new EstadoJugadorDTO("jugador2", true);
+        EstadoJugadorDTO jugador2 = new EstadoJugadorDTO(1L,"jugador2", true);
 
         CompletableFuture<MensajeRecibidoDTO> errorEsperado = whenEnvioYReciboError(
                 "/app/salaDeEspera",

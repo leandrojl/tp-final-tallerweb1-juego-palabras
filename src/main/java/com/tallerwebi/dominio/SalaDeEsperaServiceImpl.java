@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.*;
@@ -66,18 +67,21 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         return jugadoresNoListos;
     }
 
-    @Override
-    public void irAlJuego(){
-        this.simpMessagingTemplate.convertAndSend("topic/iniciarPartida",new MensajeEnviadoDTO("server","redirect"));
-    }
+    //EN WEBSOCKETS
 
     @Override
-    public void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala) {
+    public void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala, Long idPartida) {
         usuariosEnSala.add(nombreUsuarioQueAcabaDeUnirseALaSala);
-        this.simpMessagingTemplate.convertAndSendToUser(
-                nombreUsuarioQueAcabaDeUnirseALaSala,
-                "/queue/jugadoresExistentes",
-                new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
+        for (String usuario : usuariosEnSala) {
+            this.simpMessagingTemplate.convertAndSendToUser(
+                    usuario,
+                    "/queue/jugadoresExistentes",
+                    new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
+            );
+        }
+        this.simpMessagingTemplate.convertAndSend(
+                "/topic/cuandoUsuarioSeUneASalaDeEspera/" + idPartida
+                ,new MensajeRecibidoDTO(nombreUsuarioQueAcabaDeUnirseALaSala)
         );
     }
 
@@ -87,9 +91,20 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
         List<Usuario> usuarios = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
             for (Usuario usuario : usuarios) {
-                simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida", new MensajeRecibidoDTO(
+                simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
+                        new MensajeRecibidoDTO(
                         "http://localhost:8080/spring/lobby")); // PROVISIONAL PARA QUE  FUNCIONE
             }
+    }
+
+    @Override
+    public Boolean actualizarElEstadoDeUnUsuario(EstadoJugadorDTO estadoJugadorDTO, String nombreUsuarioDelPrincipal) {
+        Long idPartida = estadoJugadorDTO.getIdPartida();
+        if(estadoJugadorDTO.getUsername().equals(nombreUsuarioDelPrincipal)){
+            this.simpMessagingTemplate.convertAndSend("/topic/salaDeEspera/" + idPartida, estadoJugadorDTO);
+            return true;
+        }
+        return false;
     }
 
 }

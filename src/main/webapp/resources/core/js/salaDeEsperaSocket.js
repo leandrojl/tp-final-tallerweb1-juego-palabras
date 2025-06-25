@@ -1,8 +1,8 @@
 const stompClient = new StompJs.Client({
     brokerURL: 'ws://localhost:8080/spring/wschat'
 });
-
-
+sessionStorage.setItem('idPartida', 1);  //Provisional
+const idPartida = sessionStorage.getItem('idPartida'); // la idea es que llegue un idPartida de la sesion
 stompClient.debug = function(str) {
     console.log(str)
 };
@@ -10,12 +10,13 @@ stompClient.debug = function(str) {
 stompClient.onConnect = (frame) => {
 
     console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/salaDeEspera', (m) => {
+
+    stompClient.subscribe('/topic/salaDeEspera/' + idPartida, (m) => { //aca iria el id de partida una vez que este
         const estadoJugador = JSON.parse(m.body);
         modificarBotonDeEstadoJugador(estadoJugador);
     });
 
-    stompClient.subscribe('/topic/cuandoUsuarioSeUneASalaDeEspera', (m) => {
+    stompClient.subscribe('/topic/cuandoUsuarioSeUneASalaDeEspera/' + idPartida, (m) => { //aca iria el id de partida una vez que este
         const data = JSON.parse(m.body);
         const usuario = data.message;
         if (!document.getElementById(`jugador-`+usuario)) {
@@ -46,7 +47,7 @@ stompClient.onConnect = (frame) => {
     const message = "acabo de unirme";
     stompClient.publish({
         destination: "/app/usuarioSeUneASalaDeEspera",
-        body: JSON.stringify({message: message})
+        body: JSON.stringify({message: message,number : idPartida}) //aca iria el id de partida una vez que este
     });
 
 };
@@ -54,7 +55,7 @@ stompClient.onConnect = (frame) => {
 function toggleReady(username, estaListo) {
     stompClient.publish({
         destination: '/app/salaDeEspera',
-        body: JSON.stringify({ username: username, estaListo: estaListo })
+        body: JSON.stringify({ idPartida : idPartida,username: username, estaListo: estaListo }) //aca iria el id de partida una vez que este
     });
 }
 
@@ -72,7 +73,7 @@ stompClient.activate();
 function iniciarPartida(){
     stompClient.publish({
         destination: '/app/inicioPartida',
-        body: JSON.stringify({ message: "", number: 1 })
+        body: JSON.stringify({ message: "", number: idPartida })  //aca iria id de partida una vez que este
     });
 }
 
@@ -107,7 +108,6 @@ function agregarJugador(usuario) {
     boton.className = "btn btn-danger";
     boton.textContent = "NO ESTOY LISTO";
 
-    // Solo permitir clic si es el usuario actual
     if (usuario === usuarioActual) {
         let estaListo = false;
 
@@ -117,10 +117,9 @@ function agregarJugador(usuario) {
             toggleReady(usuario, estaListo);
         });
     } else {
-        // Visualmente mostrar que no se puede hacer clic
-        boton.style.pointerEvents = "none";   // No permite clic
-        boton.style.opacity = "0.6";          // Más apagado
-        boton.style.cursor = "not-allowed";   // Cursor de prohibido
+        boton.style.pointerEvents = "none";
+        boton.style.opacity = "0.6";
+        boton.style.cursor = "not-allowed";
     }
 
     jugadorDiv.appendChild(nombreSpan);
@@ -138,7 +137,7 @@ function mostrarError(message) {
     errorDiv.style.left = "50%";
     errorDiv.style.transform = "translateX(-50%)";
     errorDiv.style.padding = "12px 24px";
-    errorDiv.style.backgroundColor = "rgba(220, 53, 69, 0.9)"; // rojo tipo Bootstrap con opacidad
+    errorDiv.style.backgroundColor = "rgba(220, 53, 69, 0.9)";
     errorDiv.style.color = "#fff";
     errorDiv.style.borderRadius = "8px";
     errorDiv.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
@@ -159,7 +158,7 @@ function mostrarError(message) {
         setTimeout(() => {
             document.body.removeChild(errorDiv);
         }, 500);
-    }, 3000); // visible durante 3 segundos
+    }, 3000);
 }
 
 
