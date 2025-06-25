@@ -187,8 +187,10 @@ public class SalaDeEsperaControllerTest {
 
     @Test
     public void queUnJugadorPuedaEstarListo() throws Exception {
-        EstadoJugadorDTO estadoJugadorDTO = givenJugadorEnSala("pepe",true);
-        CompletableFuture<EstadoJugadorDTO> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/salaDeEspera",
+        Long idPartida = 1L;
+        EstadoJugadorDTO estadoJugadorDTO = givenJugadorEnSala(idPartida,"pepe",true);
+        CompletableFuture<EstadoJugadorDTO> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/salaDeEspera" +
+                        "/" + idPartida,
                 "/app/salaDeEspera", estadoJugadorDTO,"pepe", EstadoJugadorDTO.class);
         EstadoJugadorDTO resultado = completableFuture.get(5, TimeUnit.SECONDS);
         thenJugadorListo(resultado);
@@ -213,10 +215,11 @@ public class SalaDeEsperaControllerTest {
 
     @Test
     public void siAlguienSeUneALaSalaDeEsperaLosDemasJugadoresPuedenVerlo() throws Exception {
+        Long idPartida = 1L;
         String nombreUsuarioQueAcabaDeUnirseALaSala = "jose";
         CompletableFuture<MensajeRecibidoDTO> usuarioYaEnSalaDeEspera = givenUsuarioConectado("pepe","/topic" +
-                "/cuandoUsuarioSeUneASalaDeEspera",false,null , MensajeRecibidoDTO.class);
-        givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera",
+                "/cuandoUsuarioSeUneASalaDeEspera/" + idPartida,false,null , MensajeRecibidoDTO.class);
+        givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera/" + idPartida,
                 true,null,
                 MensajeRecibidoDTO.class);
 
@@ -255,7 +258,7 @@ public class SalaDeEsperaControllerTest {
     }
 
     private void thenIniciarLaPartida(MensajeRecibidoDTO mensajeDelServidor) {
-        assertEquals("http://localhost:8080/spring/juego", mensajeDelServidor.getMessage());
+        assertEquals("http://localhost:8080/spring/lobby", mensajeDelServidor.getMessage());
     }
 
 
@@ -285,7 +288,7 @@ public class SalaDeEsperaControllerTest {
         });
 
         if(notificaALosDemasUsuarioQueSeUneALaSala){
-            session.send("/app/usuarioSeUneASalaDeEspera",new MensajeRecibidoDTO(nombreUsuario));
+            session.send("/app/usuarioSeUneASalaDeEspera",new MensajeRecibidoDTO(nombreUsuario,1L));
         }
         if(mensajeParaIniciarPartida != null){
             session.send("/app/inicioPartida",mensajeParaIniciarPartida);
@@ -356,10 +359,11 @@ public class SalaDeEsperaControllerTest {
     }
 
 
-    private EstadoJugadorDTO givenJugadorEnSala(String nombre, boolean estaListo) {
+    private EstadoJugadorDTO givenJugadorEnSala(Long idPartida, String nombre, boolean estaListo) {
         EstadoJugadorDTO estadoJugadorDTO = new EstadoJugadorDTO();
         estadoJugadorDTO.setUsername(nombre);
         estadoJugadorDTO.setEstaListo(estaListo);
+        estadoJugadorDTO.setIdPartida(idPartida);
         return estadoJugadorDTO;
     }
 

@@ -152,7 +152,7 @@ public class SalaDeEsperaServiceTest {
                     eq(usuario.getNombreUsuario()),
                     eq("/queue/irAPartida"),
                     argThat(dto -> dto instanceof MensajeRecibidoDTO &&
-                            ((MensajeRecibidoDTO) dto).getMessage().equals("http://localhost:8080/spring/juego"))
+                            ((MensajeRecibidoDTO) dto).getMessage().equals("http://localhost:8080/spring/lobby"))
             );
         }
     }
