@@ -51,6 +51,7 @@ public class LoginController {
             Usuario usuarioLogueado = this.loginService.login(usuario.getNombreUsuario(), usuario.getPassword());
             modelMap.addAttribute("Usuario", usuarioLogueado);
             session.setAttribute("usuario",usuarioLogueado.getNombreUsuario());
+            session.setAttribute("usuarioId",usuarioLogueado.getId());
             return new ModelAndView("lobby",modelMap);
         }catch(DatosLoginIncorrectosException datosLoginIncorrectos){
             modelMap.addAttribute("error","Datos incorrectos");

@@ -3,6 +3,7 @@ package com.tallerwebi.dominio.model;
 import com.tallerwebi.dominio.model.Partida2;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class UsuarioPartida {
@@ -62,4 +63,5 @@ public class UsuarioPartida {
     public void setPartida(Partida2 partida) {
         this.partida = partida;
     }
+
 }

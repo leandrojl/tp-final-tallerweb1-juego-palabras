@@ -48,10 +48,6 @@ public class SalaDeEsperaController {
         return new ModelAndView("redirect:/juego?jugadorId=1"); //hardcodeado por ahora
     }
 
-
-    //WEBSOCKETS EN SALA DE ESPERA
-
-
     @RequestMapping("/agregarJugadorALaSalaDeEspera")
     public ModelAndView agregarJugadorALaSalaDeEspera(Jugador jugador) {
         ModelMap modelo = new ModelMap();
@@ -59,6 +55,7 @@ public class SalaDeEsperaController {
         return new ModelAndView("sala-de-espera", modelo);
     }
 
+    //WEBSOCKETS EN SALA DE ESPERA
 
     @MessageMapping("/salaDeEspera")
     @SendTo("/topic/salaDeEspera")
@@ -84,5 +81,11 @@ public class SalaDeEsperaController {
         String nombreUsuario = principal.getName();
         this.salaDeEsperaService.mostrarAUnUsuarioLosUsuariosExistentesEnSala(nombreUsuario);
         return new MensajeRecibidoDTO(nombreUsuario);
+    }
+
+    @MessageMapping("/inicioPartida")
+    public void enviarUsuariosALaPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
+
+        this.salaDeEsperaService.redireccionarUsuariosAPartida(mensajeRecibidoDTO);
     }
 }

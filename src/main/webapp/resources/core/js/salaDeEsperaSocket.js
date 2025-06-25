@@ -37,6 +37,12 @@ stompClient.onConnect = (frame) => {
         const data = JSON.parse(m.body);
         mostrarError(data.message);
     });
+
+    stompClient.subscribe('/user/queue/irAPartida', (m) => {
+        const data = JSON.parse(m.body);
+        window.location.href = data.message;
+    });
+
     const message = "acabo de unirme";
     stompClient.publish({
         destination: "/app/usuarioSeUneASalaDeEspera",
@@ -44,7 +50,6 @@ stompClient.onConnect = (frame) => {
     });
 
 };
-
 
 function toggleReady(username, estaListo) {
     stompClient.publish({
@@ -63,6 +68,13 @@ stompClient.onStompError = (frame) => {
 };
 
 stompClient.activate();
+
+function iniciarPartida(){
+    stompClient.publish({
+        destination: '/app/inicioPartida',
+        body: JSON.stringify({ message: "", number: 1 })
+    });
+}
 
 function modificarBotonDeEstadoJugador(estadoJugador) {
     const button = document.getElementById(`ready-button-${estadoJugador.username}`);

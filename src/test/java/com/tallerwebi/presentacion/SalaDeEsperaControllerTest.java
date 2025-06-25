@@ -18,17 +18,19 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.lang.reflect.Type;
+import java.security.Principal;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import static net.bytebuddy.matcher.ElementMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class SalaDeEsperaControllerTest {
 
@@ -213,9 +215,9 @@ public class SalaDeEsperaControllerTest {
     public void siAlguienSeUneALaSalaDeEsperaLosDemasJugadoresPuedenVerlo() throws Exception {
         String nombreUsuarioQueAcabaDeUnirseALaSala = "jose";
         CompletableFuture<MensajeRecibidoDTO> usuarioYaEnSalaDeEspera = givenUsuarioConectado("pepe","/topic" +
-                "/cuandoUsuarioSeUneASalaDeEspera",false , MensajeRecibidoDTO.class);
+                "/cuandoUsuarioSeUneASalaDeEspera",false,null , MensajeRecibidoDTO.class);
         givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera",
-                true,
+                true,null,
                 MensajeRecibidoDTO.class);
 
         MensajeRecibidoDTO mensajeRecibidoDTO = usuarioYaEnSalaDeEspera.get(5, TimeUnit.SECONDS);
@@ -225,10 +227,10 @@ public class SalaDeEsperaControllerTest {
     @Test
     public void siYaHayUsuariosEnLaSalaQueAquelNuevoUsuarioQueSeUnePuedaVerLosQueYaEstanEnDichaSala() throws Exception {
         givenUsuarioConectado("pepe","/topic" +
-                "/cuandoUsuarioSeUneASalaDeEspera",true , MensajeRecibidoDTO.class);
+                "/cuandoUsuarioSeUneASalaDeEspera",true , null,MensajeRecibidoDTO.class);
         CompletableFuture<ListaUsuariosDTO> usuarioQueAcabaDeUnirseALaSala =
                 givenUsuarioConectado("jose","/user/queue/jugadoresExistentes",
-                        true,
+                        true, null,
                         ListaUsuariosDTO.class);
         ListaUsuariosDTO lista = usuarioQueAcabaDeUnirseALaSala.get(2, TimeUnit.SECONDS);
         assertTrue(lista.getUsuarios().contains("pepe"));
@@ -236,15 +238,32 @@ public class SalaDeEsperaControllerTest {
     }
 
 
+    @Test
+    public void queSePuedaIniciarLaPartida() throws Exception {
+        Long idPartida = 1L;
+        MensajeRecibidoDTO mensajeParaIniciarPartida = new MensajeRecibidoDTO("mensaje de inicio de partida",idPartida);
+        CompletableFuture<MensajeRecibidoDTO> elQueInicioLaPartida = givenUsuarioConectado("pepe","/user/queue" +
+                "/irAPartida",true,mensajeParaIniciarPartida , MensajeRecibidoDTO.class);
+        MensajeRecibidoDTO mensaje = elQueInicioLaPartida.get(2, TimeUnit.SECONDS);
+        thenIniciarLaPartida(mensaje);
+    }
 
 
+    @Test
+    public void queSePuedaRedireccionarAUnUsuarioAUnaPartida(){
 
+    }
+
+    private void thenIniciarLaPartida(MensajeRecibidoDTO mensajeDelServidor) {
+        assertEquals("http://localhost:8080/spring/juego", mensajeDelServidor.getMessage());
+    }
 
 
     private <T> CompletableFuture<T> givenUsuarioConectado(
             String nombreUsuario,
-            String dondeSeConecta,
+            String dondeSeSuscribe,
             Boolean notificaALosDemasUsuarioQueSeUneALaSala,
+            MensajeRecibidoDTO mensajeParaIniciarPartida,
             Class<T> tipoDeRespuesta
     ) throws Exception {
 
@@ -253,7 +272,7 @@ public class SalaDeEsperaControllerTest {
         StompSession session = stompClient.connect(URL + "?usuario=" + nombreUsuario, sessionHandler)
                 .get(1, TimeUnit.SECONDS);
 
-        session.subscribe(dondeSeConecta, new StompFrameHandler() {
+        session.subscribe(dondeSeSuscribe, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return tipoDeRespuesta;
@@ -267,6 +286,9 @@ public class SalaDeEsperaControllerTest {
 
         if(notificaALosDemasUsuarioQueSeUneALaSala){
             session.send("/app/usuarioSeUneASalaDeEspera",new MensajeRecibidoDTO(nombreUsuario));
+        }
+        if(mensajeParaIniciarPartida != null){
+            session.send("/app/inicioPartida",mensajeParaIniciarPartida);
         }
 
         return completableFuture;
