@@ -39,8 +39,8 @@ import static org.mockito.Mockito.*;
                 simpMessagingTemplate,
                 partidaRepository,
                 rondaService,
-                rondaRepository,
-                timerRonda));
+                rondaRepository
+        ));
 
     }
 @Test

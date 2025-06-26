@@ -164,7 +164,7 @@
                 </div>
             </div>
         </div>
-
+    </div>
 </main>
 
 <footer class="bg-dark text-center py-3 shadow-sm mt-auto">
@@ -172,7 +172,16 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/resources/core/js/buscarPartidas.js"></script>
+<!-- inyectamos el context-path -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const URL_BUSCAR = /*[[@{/buscar}]]*/ '/buscar';
+    /*]]>*/
+</script>
+
+<!-- 2) Cargamos el JS estático que usará URL_BUSCAR -->
+<script th:src="@{/js/buscarPartidas.js}"></script>
+
 
 
 </body>

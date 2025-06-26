@@ -6,10 +6,12 @@ import org.springframework.context.annotation.Configuration;
 import java.util.concurrent.Executors;
 
 @Configuration
-public class ScheduledExecutorService {
+public class ExecutorServiceConfig  {
     @Bean(destroyMethod="shutdown")
     public java.util.concurrent.ScheduledExecutorService scheduledExecutorService() {
         return Executors.newSingleThreadScheduledExecutor();
+
     }
+
 
 }

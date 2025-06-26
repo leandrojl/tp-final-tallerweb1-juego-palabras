@@ -68,6 +68,7 @@ public class LobbyRepositoryImpl implements LobbyRepository {
     public List<Partida2> obtenerPartidasPorNombre(String nombre) {
     Session session = sessionFactory.getCurrentSession();
     nombre="%"+nombre+"%";
+    System.out.println(nombre);
     return session.createQuery("FROM Partida2 p WHERE p.estado = :estado AND p.nombre LIKE :nombre", Partida2.class)
                 .setParameter("estado", Estado.EN_ESPERA)
                 .setParameter("nombre", nombre)

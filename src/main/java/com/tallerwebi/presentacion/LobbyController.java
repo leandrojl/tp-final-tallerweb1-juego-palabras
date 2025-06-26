@@ -32,16 +32,8 @@ public class LobbyController {
     @GetMapping("/buscar")
     @ResponseBody
     public List<Partida2> buscar(@RequestParam("nombre") String nombre) {
+        System.out.println(nombre);
 
-        /*
-         List<Partida2> partidas = lobbyService.obtenerPartidasEnEsperaPorNombre();
-            if (partidas.isEmpty()) {
-                model.addAttribute("mensaje", "No hay partidas disponibles en curso.");
-            } else {
-                model.addAttribute("partidas", partidas);
-            }
-        }
-        */
 
         return lobbyService.buscarPartidasPorNombre(nombre);
     }

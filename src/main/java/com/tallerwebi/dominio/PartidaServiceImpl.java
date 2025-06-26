@@ -10,6 +10,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
@@ -43,14 +44,17 @@ public class PartidaServiceImpl implements PartidaService {
 
 
     @Autowired
-    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate, PartidaRepository partidaRepository, RondaService rondaService, RondaRepository rondaRepositorio, ScheduledExecutorService timerRonda) {
+    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
+                              PartidaRepository partidaRepository,
+                              RondaService rondaService,
+                              RondaRepository rondaRepositorio) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.partidaRepository = partidaRepository;
         this.rondaService = rondaService;
         this.rondaRepositorio = rondaRepositorio;
-        this.timerRonda = timerRonda;
 
-
+        // 👇 Inicializamos DIRECTAMENTE aquí
+        this.timerRonda = Executors.newSingleThreadScheduledExecutor();
     }
 
 

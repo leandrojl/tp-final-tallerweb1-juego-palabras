@@ -23,8 +23,7 @@ public class TestConfig {
     public SimpMessagingTemplate mockSimpMessagingTemplate() {
         return Mockito.mock(SimpMessagingTemplate.class);
     }
-
-    // Provide mock repositories and services to avoid real DB/transactions
+/*
     @Bean
     @Primary
     public PartidaRepository partidaRepository() {
@@ -35,7 +34,7 @@ public class TestConfig {
     @Primary
     public RondaService rondaService() {
         return Mockito.mock(RondaService.class);
-    }
+    }*/
 }
 
 
