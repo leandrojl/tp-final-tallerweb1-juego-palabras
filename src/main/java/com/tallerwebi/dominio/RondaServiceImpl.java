@@ -2,6 +2,7 @@ package com.tallerwebi.dominio;
 
 
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.interfaceService.PalabraServicio;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.Palabra;
 import com.tallerwebi.dominio.model.Partida2;
@@ -14,8 +15,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional

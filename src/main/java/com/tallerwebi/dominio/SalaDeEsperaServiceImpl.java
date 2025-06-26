@@ -85,6 +85,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     public void redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
         Long idPartida = mensajeRecibidoDTO.getNumber();
         this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
+        //cambiar el estado de usuarioPartida a EN_CURSO DE Todos los usuarios de la partid
         List<Usuario> usuarios = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
             for (Usuario usuario : usuarios) {
                 simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida", new MensajeRecibidoDTO(

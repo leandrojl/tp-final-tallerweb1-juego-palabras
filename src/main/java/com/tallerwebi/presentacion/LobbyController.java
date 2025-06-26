@@ -1,11 +1,11 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.interfaceService.LobbyService;
-import com.tallerwebi.dominio.interfaceService.Partida2Service;
-import com.tallerwebi.dominio.interfaceService.PartidaService;
+import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.Jugador;
 import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.model.Usuario;
+import com.tallerwebi.dominio.model.UsuarioPartida;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,26 +17,33 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
+import java.io.Serializable;
 import java.util.List;
 
 @Controller
 public class LobbyController {
 
-
-    private PartidaService partidaService;
     private LobbyService lobbyService;
     private Partida2Service partida2Service;
+    private UsuarioService usuarioService;
+    private UsuarioPartidaService usuarioPartidaService;
 
     @Autowired
-    public LobbyController(Partida2Service partida2Service, LobbyService lobbyService) {
+    public LobbyController(Partida2Service partida2Service,
+                           LobbyService lobbyService,
+                           UsuarioService usuarioService,
+                           UsuarioPartidaService usuarioPartidaService) {
         this.partida2Service = partida2Service;
         this.lobbyService = lobbyService;
+        this.usuarioService = usuarioService;
+        this.usuarioPartidaService = usuarioPartidaService;
     }
 
     @GetMapping("/crear-sala")
     public String mostrarFormularioCrearSala() {
         return "crear-sala";
     }
+
     @PostMapping("/crear-sala")
     public String crearSala(
             @RequestParam String nombre,
@@ -44,36 +51,41 @@ public class LobbyController {
             @RequestParam(required = false) boolean permiteComodin,
             @RequestParam int rondasTotales,
             @RequestParam int maximoJugadores,
-            @RequestParam int minimoJugadores
+            @RequestParam int minimoJugadores,
+            HttpSession session
     ) {
-        // Aquí deberías crear la sala usando tu servicio, por ejemplo:
-        Partida2 nuevaPartida = new Partida2(nombre, idioma, permiteComodin, rondasTotales, maximoJugadores, minimoJugadores, Estado.EN_ESPERA);
-        partida2Service.crearPartida(nuevaPartida);
 
-        // Redirige al lobby después de crear la sala
-        return "redirect:/lobby";
+        Long idUsuario = (Long) session.getAttribute("usuarioId");
+
+        Partida2 nuevaPartida = new Partida2(nombre, idioma, permiteComodin, rondasTotales, maximoJugadores, minimoJugadores, Estado.EN_ESPERA);
+        Serializable idPartida = partida2Service.crearPartida(nuevaPartida);
+        //Estado estadoPartida = partida2Service.buscarEstadoPartida((Long) idPartida);
+        int puntaje = 0;
+        boolean gano = false;
+        usuarioPartidaService.agregarUsuarioAPartida(idUsuario, (Long) idPartida,puntaje,gano, Estado.EN_ESPERA);
+        System.out.println("ID de la partida creada: " + idPartida);
+        session.setAttribute("idPartida", idPartida);
+
+        return "redirect:/sala-de-espera";
     }
 
 
     @RequestMapping("/lobby")
     public ModelAndView Lobby(HttpSession session, Model model) {
-        Jugador jugador = (Jugador) session.getAttribute("jugador");
-
-        if (jugador != null) {
-            model.addAttribute("jugador", jugador);
-        } else {
-            jugador = new Jugador();
-            jugador.setNombre("july3p");
-            model.addAttribute("jugador", jugador);
-            //session.setAttribute("usuario", "pepe");
-
-            // obtengo las partidas en espera
-            List<Partida2> partidas = lobbyService.obtenerPartidasEnEspera();
-            if (partidas.isEmpty()) {
-                model.addAttribute("mensaje", "No hay partidas disponibles en curso.");
-            } else {
-                model.addAttribute("partidas", partidas);
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        if (usuarioId != null) {
+            Usuario usuario = usuarioService.buscarPorId(usuarioId); // Asegúrate de tener este servicio inyectado
+            if (usuario != null) {
+                model.addAttribute("usuarioNombre", usuario.getNombreUsuario());
             }
+        }
+
+        // obtengo las partidas en espera
+        List<Partida2> partidas = lobbyService.obtenerPartidasEnEspera();
+        if (partidas.isEmpty()) {
+            model.addAttribute("mensaje", "No hay partidas disponibles en curso.");
+        } else {
+            model.addAttribute("partidas", partidas);
         }
 
         return new ModelAndView("lobby");

@@ -2,6 +2,9 @@ const stompClient = new StompJs.Client({
     brokerURL: 'ws://localhost:8080/spring/wschat'
 });
 
+var idPartida = sessionStorage.getItem("idPartida");
+var usuario = sessionStorage.getItem("usuario");
+
 
 stompClient.debug = function(str) {
     console.log(str)
@@ -10,12 +13,12 @@ stompClient.debug = function(str) {
 stompClient.onConnect = (frame) => {
 
     console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/salaDeEspera', (m) => {
+    stompClient.subscribe('/topic/salaDeEspera/'+idPartida, (m) => {
         const estadoJugador = JSON.parse(m.body);
         modificarBotonDeEstadoJugador(estadoJugador);
     });
 
-    stompClient.subscribe('/topic/cuandoUsuarioSeUneASalaDeEspera', (m) => {
+    stompClient.subscribe('/topic/cuandoUsuarioSeUneASalaDeEspera/'+idPartida, (m) => {
         const data = JSON.parse(m.body);
         const usuario = data.message;
         if (!document.getElementById(`jugador-`+usuario)) {
@@ -72,7 +75,7 @@ stompClient.activate();
 function iniciarPartida(){
     stompClient.publish({
         destination: '/app/inicioPartida',
-        body: JSON.stringify({ message: "", number: 1 })
+        body: JSON.stringify({ message: "", number: idPartida })
     });
 }
 

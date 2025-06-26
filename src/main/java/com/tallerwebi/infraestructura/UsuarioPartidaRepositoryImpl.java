@@ -1,6 +1,7 @@
 package com.tallerwebi.infraestructura;
 
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Usuario;
@@ -90,6 +91,31 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .setParameter("usuario", usuario)
                 .setParameter("partida", partida)
                 .uniqueResult();
+    }
+
+
+    @Override
+    public void agregarUsuarioAPartida(Long idUsuario,
+                                       Long idPartida,
+                                       int puntaje,
+                                       boolean gano,
+                                       Estado estado) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Usuario usuario = session.get(Usuario.class, idUsuario);
+        Partida2 partida = session.get(Partida2.class, idPartida);
+
+        if (usuario != null && partida != null) {
+            UsuarioPartida usuarioPartida = new UsuarioPartida();
+            usuarioPartida.setUsuario(usuario);
+            usuarioPartida.setPartida(partida);
+            usuarioPartida.setGano(gano);
+            usuarioPartida.setPuntaje(puntaje);
+            usuarioPartida.setEstado(estado);
+
+            session.save(usuarioPartida);
+        }
     }
 
 

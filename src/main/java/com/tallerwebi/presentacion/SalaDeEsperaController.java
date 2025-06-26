@@ -1,6 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
+import com.tallerwebi.dominio.interfaceService.UsuarioService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +10,12 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +25,14 @@ import java.util.Map;
 public class SalaDeEsperaController {
 
     private SalaDeEsperaService salaDeEsperaService;
+    private UsuarioService usuarioService;
+
 
     @Autowired
-    public SalaDeEsperaController(SalaDeEsperaService servicioSalaDeEspera) {
+    public SalaDeEsperaController(SalaDeEsperaService servicioSalaDeEspera,
+                                  UsuarioService usuarioService) {
         this.salaDeEsperaService = servicioSalaDeEspera;
+        this.usuarioService = usuarioService;
     }
 
     public SalaDeEsperaController() {
@@ -54,6 +60,37 @@ public class SalaDeEsperaController {
         modelo.put("jugador1",jugador.getNombre());
         return new ModelAndView("sala-de-espera", modelo);
     }
+
+    @GetMapping("/sala-de-espera/{idPartida}")
+    public String salaDeEspera(@PathVariable Long idPartida, Model model, HttpSession session) {
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
+
+        model.addAttribute("usuario", nombreUsuario);
+        model.addAttribute("idPartida", idPartida);
+
+        return "sala-de-espera";
+    }
+
+    @RequestMapping(value = "/sala-de-espera", method = RequestMethod.GET)
+    public String salaDeEspera2(Model model, HttpSession session) {
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        Long idPartida = (Long) session.getAttribute("idPartida");
+        String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
+
+        model.addAttribute("usuario", nombreUsuario);
+        model.addAttribute("idPartida", idPartida);
+
+        return "sala-de-espera";
+    }
+
+    @PostMapping("/sala-de-espera")
+    public String recibirIdPartida(@RequestParam Long idPartida, HttpSession session) {
+        session.setAttribute("idPartida", idPartida);
+        return "redirect:/sala-de-espera";
+    }
+
+
 
     //WEBSOCKETS EN SALA DE ESPERA
 

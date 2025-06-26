@@ -3,6 +3,7 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.PartidaServiceImpl;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
+import com.tallerwebi.dominio.interfaceService.UsuarioService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.infraestructura.PartidaRepository;
 import com.tallerwebi.infraestructura.RondaRepository;
@@ -37,6 +38,7 @@ public class SalaDeEsperaControllerTest {
     static final String URL = "ws://localhost:8080/spring/wschat";
     private SalaDeEsperaService salaDeEsperaService;
     private SalaDeEsperaController salaDeEsperaController;
+    private UsuarioService usuarioService;
     private WebSocketStompClient stompClient;
 
     @BeforeEach
@@ -44,7 +46,7 @@ public class SalaDeEsperaControllerTest {
         stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
-        salaDeEsperaController = new SalaDeEsperaController(salaDeEsperaService);
+        salaDeEsperaController = new SalaDeEsperaController(salaDeEsperaService,usuarioService);
     }
 
 

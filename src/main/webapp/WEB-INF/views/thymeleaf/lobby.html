@@ -5,7 +5,6 @@
     <title>Lobby</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
     <style>
         body {
             background: radial-gradient(circle at top left, #1f005c, #5f0a87, #a4508b);
@@ -16,65 +15,27 @@
             flex-direction: column;
             min-height: 100vh;
         }
-
-        .btn-orange {
-            background-color: #ff6347;
-            color: white;
-        }
-
-        .btn-outline {
-            border: 2px solid black;
-            background-color: white;
-            color: black;
-        }
-
-        .btn-large {
-            width: 500px;
-            height: 100px;
-            font-size: 1.5rem;
-        }
-
-        .btn-start {
-            width: 200px;
-            height: 80px;
-            font-size: 1.2rem;
-        }
-
-        .circle-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: white;
-            color: black;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .perfil-container {
-            position: absolute;
-            top: 20px;
-            right: 40px;
-        }
+        .btn-orange { background-color: #ff6347; color: white; }
+        .btn-outline { border: 2px solid black; background-color: white; color: black; }
+        .btn-large { width: 500px; height: 100px; font-size: 1.5rem; }
+        .btn-start { width: 200px; height: 80px; font-size: 1.2rem; }
+        .circle-btn { width: 60px; height: 60px; border-radius: 50%; background-color: white; color: black; display: flex; align-items: center; justify-content: center; }
+        .perfil-container { position: absolute; top: 20px; right: 40px; }
     </style>
 </head>
 <body>
-
 <header class="bg-dark text-white py-3 shadow-sm">
     <div class="container d-flex justify-content-between align-items-center">
         <h1 class="h2 mb-0">Definila</h1>
     </div>
 </header>
-
 <main class="position-relative">
-
     <!-- Botón Perfil en círculo -->
     <div class="perfil-container">
         <a th:href="@{/perfil}" class="circle-btn">
             <i class="bi bi-person-fill"></i>
         </a>
     </div>
-
     <div class="container-fluid">
         <div class="row mt-3">
             <!-- Botones Recompensas y Rankings -->
@@ -82,13 +43,18 @@
                 <a class="btn btn-outline w-75"><i class="bi bi-star me-2"></i>Recompensas</a>
                 <a class="btn btn-outline w-75"><i class="bi bi-trophy me-2"></i>Rankings</a>
             </div>
-
             <!-- Mensaje de bienvenida -->
             <div class="col-6 d-flex justify-content-center align-items-start">
                 <div class="btn btn-orange btn-large d-flex align-items-center justify-content-center">
+                    <span th:if="${usuarioNombre != null}">
+                        ¡Bienvenido, <span th:text="${usuarioNombre}"></span>!
+                    </span>
+                    <span th:if="${usuarioNombre == null}">
+                        ¡Bienvenido al lobby!
+                    </span>
+                </div>
             </div>
         </div>
-
         <!-- Botones centrales: Sala de Espera y Iniciar Partida -->
         <div class="row mt-5 justify-content-center gap-4">
             <div class="col-auto">
@@ -108,61 +74,61 @@
             </div>
         </div>
     </div>
-        <div class="container mt-5">
-            <div class="row justify-content-center">
-                <div class="col-8">
-                    <div class="card bg-dark text-white shadow">
-                        <div class="card-header text-center">
-                            <h3>Partidas Disponibles</h3>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-8">
+                <div class="card bg-dark text-white shadow">
+                    <div class="card-header text-center">
+                        <h3>Partidas Disponibles</h3>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${mensaje != null}" class="text-center">
+                            <p class="text-warning" th:text="${mensaje}"></p>
                         </div>
-                        <div class="card-body">
-                            <table class="table table-dark table-striped text-center">
-                                <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nombre de la Partida</th>
-                                    <th>Idioma</th>
-                                    <th>Permite comodin?</th>
-                                    <th>Ronda Totales</th>
-                                    <th>Maximo Jugadores</th>
-                                    <th>Minimo Jugadores</th>
-                                    <th>Estado</th>
-
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="partida, iterStat : ${partidas}">
-                                    <td th:text="${iterStat.index + 1}"></td>
-                                    <td th:text="${partida.nombre}"></td>
-                                    <td th:text="${partida.idioma}"></td>
-                                    <td th:text="${partida.permiteComodin}"></td>
-                                    <td th:text="${partida.rondasTotales}"></td>
-                                    <td th:text="${partida.maximoJugadores}"></td>
-                                    <td th:text="${partida.minimoJugadores}"></td>
-                                    <td th:text="${partida.estado}"></td>
-                                    <td>
-                                        <a class="btn btn-sm btn-orange">
+                        <table class="table table-dark table-striped text-center" th:if="${partidas != null and !#lists.isEmpty(partidas)}">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nombre de la Partida</th>
+                                <th>Idioma</th>
+                                <th>Permite comodin?</th>
+                                <th>Ronda Totales</th>
+                                <th>Maximo Jugadores</th>
+                                <th>Minimo Jugadores</th>
+                                <th>Estado</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="partida, iterStat : ${partidas}">
+                                <td th:text="${iterStat.index + 1}"></td>
+                                <td th:text="${partida.nombre}"></td>
+                                <td th:text="${partida.idioma}"></td>
+                                <td th:text="${partida.permiteComodin}"></td>
+                                <td th:text="${partida.rondasTotales}"></td>
+                                <td th:text="${partida.maximoJugadores}"></td>
+                                <td th:text="${partida.minimoJugadores}"></td>
+                                <td th:text="${partida.estado}"></td>
+                                <td>
+                                    <form th:action="@{/sala-de-espera}" method="post" style="display:inline;">
+                                        <input type="hidden" name="idPartida" th:value="${partida.id}" />
+                                        <button type="submit" class="btn btn-sm btn-orange" th:id="'unirse-' + ${partida.id}">
                                             Unirse
-                                        </a>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div th:if="${#lists.isEmpty(partidas)}" class="text-center">
-                            <p class="text-warning">No hay partidas disponibles en curso.</p>
-                        </div>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-
+    </div>
 </main>
-
 <footer class="bg-dark text-center py-3 shadow-sm mt-auto">
     <small>&copy; 2025 Taller Web 1 - Definila</small>
 </footer>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

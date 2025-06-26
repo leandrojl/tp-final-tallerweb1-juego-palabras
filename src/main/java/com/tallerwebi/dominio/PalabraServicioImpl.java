@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.interfaceService.PalabraServicio;
 import com.tallerwebi.dominio.model.Definicion;
 import com.tallerwebi.dominio.model.Palabra;
 import com.tallerwebi.helpers.HelperPalabra;
