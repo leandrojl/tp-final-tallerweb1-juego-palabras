@@ -58,12 +58,9 @@ public class JuegoController {
             Partida2 partida = partidaServicio.obtenerPartidaPorId(partidaId);
 
             if (partida == null) {
-                // Log para debug
-                System.out.println("Partida con id " + partidaId + " no existe.");
                 session.removeAttribute("partidaID");
                 partidaId = null;
             } else if (partida.getEstado() == Estado.FINALIZADA) {
-                System.out.println("Partida con id " + partidaId + " está finalizada.");
                 session.removeAttribute("partidaID");
                 partidaId = null;
             }
@@ -138,7 +135,6 @@ public class JuegoController {
         if (relacion != null) {
             usuarioPartidaService.marcarComoPerdedor(usuarioId, partidaId);
 
-            // 🔥 Limpiar atributos de sesión relacionados a la partida
             session.removeAttribute("partidaID");
 
             return ResponseEntity.ok("OK");

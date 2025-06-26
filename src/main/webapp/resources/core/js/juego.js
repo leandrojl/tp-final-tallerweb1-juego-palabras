@@ -53,7 +53,7 @@ function manejarMensajeServidor(mensaje) {
         actualizarRanking(data.jugadores);
         if (data.tipo === "inicio-ronda") {
             document.getElementById("palabraOculta").value = data.palabra;
-            document.getElementById("definicionTexto").textContent = data.definicionTexto;
+            document.getElementById("definicionActual").textContent = data.definicion;
         }
     } else if (data.tipo === "fin-ronda") {
         detenerTimers();
