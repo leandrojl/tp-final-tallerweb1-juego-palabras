@@ -22,4 +22,6 @@ public interface UsuarioPartidaRepository {
 
     void agregarUsuarioAPartida(Long idUsuario, Long idPartida,
                                 int puntaje, boolean gano, Estado estado);
+
+    String obtenerNombreDeUsuarioEnLaPartida(Long usuarioId, Long idPartida);
 }

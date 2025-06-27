@@ -118,5 +118,14 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
         }
     }
 
+    @Override
+    public String obtenerNombreDeUsuarioEnLaPartida(Long usuarioId, Long idPartida) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("SELECT up.usuario.nombreUsuario FROM UsuarioPartida up WHERE up.usuario.id = :usuarioId AND up.partida.id = :idPartida", String.class)
+                .setParameter("usuarioId", usuarioId)
+                .setParameter("idPartida", idPartida)
+                .uniqueResult();
+    }
+
 
 }

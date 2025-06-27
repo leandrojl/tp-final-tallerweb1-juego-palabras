@@ -26,4 +26,9 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
     public void agregarUsuarioAPartida(Long idUsuario, Long idPartida, int puntaje, boolean gano, Estado estado) {
         usuarioPartidaRepository.agregarUsuarioAPartida(idUsuario, idPartida, puntaje, gano, estado);
     }
+
+    @Override
+    public String obtenerNombreDeUsuarioEnLaPartida(Long usuarioId, Long idPartida) {
+        return usuarioPartidaRepository.obtenerNombreDeUsuarioEnLaPartida(usuarioId, idPartida);
+    }
 }

@@ -1,6 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
+import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import com.tallerwebi.dominio.interfaceService.UsuarioService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
@@ -26,13 +27,16 @@ public class SalaDeEsperaController {
 
     private SalaDeEsperaService salaDeEsperaService;
     private UsuarioService usuarioService;
+    private UsuarioPartidaService usuarioPartidaService;
 
 
     @Autowired
     public SalaDeEsperaController(SalaDeEsperaService servicioSalaDeEspera,
-                                  UsuarioService usuarioService) {
+                                  UsuarioService usuarioService,
+                                  UsuarioPartidaService usuarioPartidaService) {
         this.salaDeEsperaService = servicioSalaDeEspera;
         this.usuarioService = usuarioService;
+        this.usuarioPartidaService = usuarioPartidaService;
     }
 
     public SalaDeEsperaController() {
@@ -73,11 +77,14 @@ public class SalaDeEsperaController {
     }
 
     @RequestMapping(value = "/sala-de-espera", method = RequestMethod.GET)
-    public String salaDeEspera2(Model model, HttpSession session) {
+    public String armarLaSalaDeEspera(Model model, HttpSession session) {
         Long usuarioId = (Long) session.getAttribute("usuarioId");
         Long idPartida = (Long) session.getAttribute("idPartida");
-        String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
 
+        String nombreUsuario = usuarioPartidaService.obtenerNombreDeUsuarioEnLaPartida(usuarioId,idPartida);
+        System.out.println(nombreUsuario);
+
+        model.addAttribute("usuarioId", usuarioId);
         model.addAttribute("usuario", nombreUsuario);
         model.addAttribute("idPartida", idPartida);
 

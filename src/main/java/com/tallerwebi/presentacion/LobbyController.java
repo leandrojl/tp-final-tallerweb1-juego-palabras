@@ -57,16 +57,35 @@ public class LobbyController {
 
         Long idUsuario = (Long) session.getAttribute("usuarioId");
 
-        Partida2 nuevaPartida = new Partida2(nombre, idioma, permiteComodin, rondasTotales, maximoJugadores, minimoJugadores, Estado.EN_ESPERA);
+        Partida2 nuevaPartida = new Partida2(
+                nombre,
+                idioma,
+                permiteComodin,
+                rondasTotales,
+                maximoJugadores,
+                minimoJugadores,
+                Estado.EN_ESPERA);
+
         Serializable idPartida = partida2Service.crearPartida(nuevaPartida);
-        //Estado estadoPartida = partida2Service.buscarEstadoPartida((Long) idPartida);
-        int puntaje = 0;
-        boolean gano = false;
-        usuarioPartidaService.agregarUsuarioAPartida(idUsuario, (Long) idPartida,puntaje,gano, Estado.EN_ESPERA);
-        System.out.println("ID de la partida creada: " + idPartida);
+
         session.setAttribute("idPartida", idPartida);
 
-        return "redirect:/sala-de-espera";
+        int puntaje = 0;
+        boolean gano = false;
+        Estado estado = Estado.EN_ESPERA;
+
+        usuarioPartidaService.agregarUsuarioAPartida(
+                idUsuario,
+                (Long) idPartida,
+                puntaje,
+                gano,
+                estado);
+
+        System.out.println("ID de la partida creada: " + idPartida);
+        System.out.println("ID del usuario: " + idUsuario);
+
+
+        return "redirect:/sala-de-espera"; //peticion http a @RequestMapping("/sala-de-espera") que redirige a la sala de espera
     }
 
 
