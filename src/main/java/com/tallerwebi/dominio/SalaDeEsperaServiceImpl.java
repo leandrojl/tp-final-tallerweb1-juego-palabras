@@ -107,5 +107,22 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         return false;
     }
 
+    @Override
+    public void abandonarSala(MensajeDto mensaje,String nombreUsuario) {
+        Long idUsuario = mensaje.getIdUsuario();
+        Long idPartida = mensaje.getIdPartida();
+        usuariosEnSala.remove(nombreUsuario);
+        this.usuarioPartida.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
+        //List<Usuario> usuarios = this.usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida); PARA DESPUES DEL MERGE
+        for (String usuario : usuariosEnSala) {
+            this.simpMessagingTemplate.convertAndSendToUser(
+                    usuario,
+                    "/queue/jugadoresExistentes",
+                    new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
+            );
+        }
+        this.simpMessagingTemplate.convertAndSendToUser(nombreUsuario, "/queue/irAlLobby", new MensajeRecibidoDTO("http://localhost:8080/spring/lobby"));
+    }
+
 }
 

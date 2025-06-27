@@ -3,17 +3,15 @@ package com.tallerwebi.dominio;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
+import com.tallerwebi.dominio.model.MensajeDto;
 import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
-import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Usuario;
-import com.tallerwebi.dominio.model.UsuarioPartida;
 import com.tallerwebi.infraestructura.PartidaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -111,14 +109,97 @@ public class SalaDeEsperaServiceTest {
         MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
 
         List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
+        doNothing().when(partidaRepo).actualizarEstado(idPartida, Estado.EN_CURSO);
         when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
 
-        thenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
+        whenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
 
         thenRedireccionExitosa(usuarios);
     }
 
+    @Test
+    public void siSeRedireccionaALosUsuariosAUnaPartidaQueSeActualiceElEstadoDeLaPartidaAEnCurso() {
+        Long idPartida = 1L;
+        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
 
+        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
+        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
+
+        whenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
+        verify(partidaRepo).actualizarEstado(any(Long.class), any(Estado.class));
+    }
+    //ESTOS SON LOS MIOS PARA EL SPRINT 4
+
+    @Test
+    public void SiNoSeCumpleConElMinimoDeUsuariosEstablecidoNoSePuedeRedireccionarAUnaPartida(){
+
+    }
+    @Test
+    public void siAlguienAbandonaLaSalaDeEsperaQueSeLeCanceleLaPartidaAsociada(){
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "pepe";
+        MensajeDto mensaje = new MensajeDto(idUsuario,idPartida,"abandona sala");
+
+        whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
+
+        verify(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(Long.class),any(Long.class));
+    }
+
+    @Test
+    public void siAlguienAbandonaLaSalaDeEsperaQueSeLeRedireccioneAlLobby(){
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "pepe";
+        MensajeDto mensaje = new MensajeDto(idUsuario,idPartida,"abandona sala");
+        doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(Long.class),any(Long.class));
+
+        whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
+
+        thenAbandonoLaSala(nombreUsuario);
+    }
+
+    @Test
+    public void siAlguienAbandonaLaSalaSeLeNotificaALosDemas(){
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "lucas";
+        MensajeDto mensaje = new MensajeDto(idUsuario,idPartida,"abandona sala");
+        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
+        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
+        doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(Long.class),any(Long.class));
+
+        whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
+
+        thenNotificaALosOtrosUsuarioQueAbandonaLaSala(usuarios);
+    }
+
+    private void thenNotificaALosOtrosUsuarioQueAbandonaLaSala(List<Usuario> usuarios) {
+        for(Usuario usuario : usuarios) {
+            verify(simpMessagingTemplate).convertAndSendToUser(
+                    eq(usuario.getNombreUsuario()),
+                    eq("/queue/irAlLobby"),
+                    argThat(dto -> dto instanceof MensajeRecibidoDTO &&
+                            ((MensajeRecibidoDTO) dto).getMessage().equals("http://localhost:8080/spring/lobby"))
+            );
+        }
+    }
+
+
+
+
+    private void thenAbandonoLaSala(String nombreUsuario) {
+        verify(simpMessagingTemplate).convertAndSendToUser(
+                eq(nombreUsuario),
+                eq("/queue/irAlLobby"),
+                argThat(dto -> dto instanceof MensajeRecibidoDTO &&
+                        ((MensajeRecibidoDTO) dto).getMessage().equals("http://localhost:8080/spring/lobby"))
+        );
+    }
+
+    private void whenSeAbandonaLaSalaDeEspera(MensajeDto mensaje,String nombreUsuario) {
+        this.servicioSalaDeEspera.abandonarSala(mensaje,nombreUsuario);
+    }
     /*@Test //ACA DEBERIA USAR EL HANDLER DE EXCEPTIONS CON @MessageExceptionHandler(UsuarioInvalidoException.class)
     @SendToUser("/queue/cantidadDeUsuariosInsuficientesParaIniciarPartida")
     public void SiNoSeCumpleConElMinimoDeUsuariosEstablecidoNoSePuedeRedireccionarAUnaPartida(){
@@ -157,7 +238,7 @@ public class SalaDeEsperaServiceTest {
         }
     }
 
-    private void thenSeRedireccionaALosUsuariosAUnaPartida(MensajeRecibidoDTO mensaje) {
+    private void whenSeRedireccionaALosUsuariosAUnaPartida(MensajeRecibidoDTO mensaje) {
         servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje);
     }
 

@@ -211,7 +211,6 @@ public class SalaDeEsperaControllerTest {
         assertEquals("Error, no se puede alterar el estado de otro jugador", errorMensaje.getMessage());
     }
 
-    //ESTOS SON LOS MIOS PARA EL SPRINT 3
 
     @Test
     public void siAlguienSeUneALaSalaDeEsperaLosDemasJugadoresPuedenVerlo() throws Exception {
@@ -251,11 +250,11 @@ public class SalaDeEsperaControllerTest {
         thenIniciarLaPartida(mensaje);
     }
 
+    //ESTOS SON LOS MIOS PARA EL SPRINT 4
 
-    @Test
-    public void queSePuedaRedireccionarAUnUsuarioAUnaPartida(){
 
-    }
+
+
 
     private void thenIniciarLaPartida(MensajeRecibidoDTO mensajeDelServidor) {
         assertEquals("http://localhost:8080/spring/lobby", mensajeDelServidor.getMessage());

@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio.interfaceService;
 
 import com.tallerwebi.dominio.model.EstadoJugadorDTO;
+import com.tallerwebi.dominio.model.MensajeDto;
 import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface SalaDeEsperaService {
     void redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO);
 
     Boolean actualizarElEstadoDeUnUsuario(EstadoJugadorDTO estadoJugadorDTO, String nombreUsuarioDelPrincipal);
+
+    void abandonarSala(MensajeDto mensaje,String nombreUsuarioDelPrincipal);
 }

@@ -92,5 +92,14 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .uniqueResult();
     }
 
+    @Override
+    public void borrarUsuarioPartidaAsociadaAlUsuario(Long idPartida, Long idUsuario) {
+        Session session = this.sessionFactory.getCurrentSession();
+        session.createQuery("DELETE FROM UsuarioPartida u " +
+                "WHERE u.partida = :idPartida AND u.usuario = :idUsuario")
+                .setParameter("idPartida", idPartida)
+                .setParameter("idUsuario", idUsuario);
+    }
+
 
 }

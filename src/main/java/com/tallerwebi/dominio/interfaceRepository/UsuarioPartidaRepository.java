@@ -18,4 +18,6 @@ public interface UsuarioPartidaRepository {
     List<Usuario> obtenerUsuariosDeUnaPartida(Long number);
 
     UsuarioPartida obtenerUsuarioPartida(Usuario usuario, Partida2 partida);
+
+    void borrarUsuarioPartidaAsociadaAlUsuario(Long idPartida, Long idUsuario);
 }
