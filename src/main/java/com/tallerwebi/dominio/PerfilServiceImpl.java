@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
 import com.tallerwebi.dominio.interfaceService.PerfilService;
 import com.tallerwebi.dominio.model.Usuario;
 import com.tallerwebi.infraestructura.UsuarioRepositoryImpl;
@@ -14,11 +15,12 @@ import java.util.Map;
 @Service
 @Transactional
 public class PerfilServiceImpl implements PerfilService {
-private final UsuarioRepositoryImpl usuarioRepository;
+
+private final UsuarioRepository usuarioRepository;
 private final UsuarioPartidaRepository usuarioPartidaRepository;
 
 @Autowired
-    public PerfilServiceImpl(UsuarioRepositoryImpl usuarioRepository, UsuarioPartidaRepository usuarioPartidaRepository) {
+    public PerfilServiceImpl(UsuarioRepository usuarioRepository, UsuarioPartidaRepository usuarioPartidaRepository) {
         this.usuarioRepository = usuarioRepository;
     this.usuarioPartidaRepository = usuarioPartidaRepository;
 }
@@ -43,5 +45,10 @@ private final UsuarioPartidaRepository usuarioPartidaRepository;
     @Override
     public double obtenerWinrate(Usuario usuario) {
         return usuarioPartidaRepository.getWinrate(usuario);
+    }
+
+    @Override
+    public Usuario obtenerDatosDelPerfilPorId(Long usuarioId) {
+        return usuarioRepository.buscarPorId(usuarioId);
     }
 }

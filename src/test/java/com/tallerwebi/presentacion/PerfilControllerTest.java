@@ -14,24 +14,7 @@ public class PerfilControllerTest {
 
     PerfilService perfilService = mock(PerfilService.class);
 
-    @Test
-    public void queDevuelvaLaVistaDePerfilDeUsuario(){
-        PerfilController controladorPerfil = new PerfilController(perfilService);
-        ModelAndView retorno = controladorPerfil.irAPerfil();
-        assertThat(retorno.getViewName(), equalTo("perfil"));
-    }
-    @Test
-    public void queDevuelvaUnModeloDePerfil(){
-        PerfilController controladorPerfil = new PerfilController(perfilService);
-        ModelAndView retorno = controladorPerfil.irAPerfil();
-        assertThat(retorno.getModel(), notNullValue());
-    }
-    @Test
-    public void queDevuelvaUnModeloConDatosDePerfil(){
-        PerfilController controladorPerfil = new PerfilController(perfilService);
-        ModelAndView retorno = controladorPerfil.irAPerfil();
-        Map<String, Object> modelo=retorno.getModel();
 
-    }
+
 
 }

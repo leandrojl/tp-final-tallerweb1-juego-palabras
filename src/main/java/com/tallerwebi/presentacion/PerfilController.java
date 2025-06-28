@@ -8,6 +8,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 
 @Controller
@@ -20,11 +22,12 @@ public class PerfilController {
     }
 
     @RequestMapping(value = "/perfil")
-    public ModelAndView irAPerfil(){
+    public ModelAndView irAPerfil(HttpSession session) {
         ModelMap modelo = new ModelMap();
-        Usuario usuario = new Usuario("Juan", "asd@asd", "asdd1234", 5);
-        modelo.addAllAttributes(perfilService.obtenerDatosDePerfil(usuario));
-
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        Usuario usuario = perfilService.obtenerDatosDelPerfilPorId(usuarioId);
+       /* modelo.addAllAttributes(perfilService.obtenerDatosDePerfil(usuario));*/
+        modelo.addAttribute("usuario", usuario);
 
         return new ModelAndView("perfil", modelo);
     }
