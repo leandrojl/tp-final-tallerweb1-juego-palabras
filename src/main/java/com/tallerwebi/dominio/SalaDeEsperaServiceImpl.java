@@ -1,8 +1,10 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
-import com.tallerwebi.dominio.model.ListaUsuariosDTO;
-import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
+import com.tallerwebi.dominio.model.*;
+import com.tallerwebi.infraestructura.PartidaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -17,11 +19,21 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     SimpMessagingTemplate simpMessagingTemplate;
     private final Set<String> usuariosEnSala = ConcurrentHashMap.newKeySet();
+    private UsuarioPartidaRepository usuarioPartida;
+    private PartidaRepository partidaRepo;
 
-    @Autowired
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
+
+    @Autowired
+    public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
+                                   UsuarioPartidaRepository usuarioPartida,PartidaRepository partida) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.usuarioPartida = usuarioPartida;
+        this.partidaRepo = partida;
+    }
+
 
 
     @Override
@@ -67,6 +79,18 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
                 "/queue/jugadoresExistentes",
                 new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
         );
+    }
+
+    @Override
+    public void redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
+        Long idPartida = mensajeRecibidoDTO.getNumber();
+        this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
+        //cambiar el estado de usuarioPartida a EN_CURSO DE Todos los usuarios de la partid
+        List<Usuario> usuarios = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
+            for (Usuario usuario : usuarios) {
+                simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida", new MensajeRecibidoDTO(
+                        "http://localhost:8080/spring/lobby")); // PROVISIONAL PARA QUE  FUNCIONE
+            }
     }
 
 }

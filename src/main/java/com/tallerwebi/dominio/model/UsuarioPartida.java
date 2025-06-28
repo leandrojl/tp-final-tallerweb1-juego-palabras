@@ -1,8 +1,10 @@
 package com.tallerwebi.dominio.model;
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida2;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class UsuarioPartida {
@@ -18,7 +20,9 @@ public class UsuarioPartida {
     @ManyToOne
     @JoinColumn(name = "id_partida", nullable = false)
     private Partida2 partida;
+    private int puntaje;
     private boolean gano;
+    private Estado estado;
     public UsuarioPartida (){
 
     }
@@ -28,6 +32,30 @@ public class UsuarioPartida {
     this.usuario=usuario;
     this.partida=partida;
     this.gano=gano;
+    }
+
+    public UsuarioPartida(Usuario usuario, Partida2 partida, int puntaje, boolean gano, Estado estado) {
+        this.usuario = usuario;
+        this.partida = partida;
+        this.puntaje = puntaje;
+        this.gano = gano;
+        this.estado = estado;
+    }
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
+    public int getPuntaje() {
+        return puntaje;
+    }
+
+    public void setPuntaje(int puntaje) {
+        this.puntaje = puntaje;
     }
 
     // Getters y setters
@@ -62,4 +90,5 @@ public class UsuarioPartida {
     public void setPartida(Partida2 partida) {
         this.partida = partida;
     }
+
 }

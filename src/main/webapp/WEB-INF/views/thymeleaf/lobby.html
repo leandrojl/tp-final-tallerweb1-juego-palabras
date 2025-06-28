@@ -82,13 +82,18 @@
                 <a class="btn btn-outline w-75"><i class="bi bi-star me-2"></i>Recompensas</a>
                 <a class="btn btn-outline w-75"><i class="bi bi-trophy me-2"></i>Rankings</a>
             </div>
-
             <!-- Mensaje de bienvenida -->
             <div class="col-6 d-flex justify-content-center align-items-start">
                 <div class="btn btn-orange btn-large d-flex align-items-center justify-content-center">
+                    <span th:if="${usuarioNombre != null}">
+                        ¡Bienvenido, <span th:text="${usuarioNombre}"></span>!
+                    </span>
+                    <span th:if="${usuarioNombre == null}">
+                        ¡Bienvenido al lobby!
+                    </span>
+                </div>
             </div>
         </div>
-
         <!-- Botones centrales: Sala de Espera y Iniciar Partida -->
         <div class="row mt-5 justify-content-center gap-4">
             <div class="col-auto">

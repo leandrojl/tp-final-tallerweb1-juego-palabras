@@ -1,6 +1,8 @@
 package com.tallerwebi.infraestructura;
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida2;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -27,5 +29,14 @@ public class PartidaRepositoryImpl implements PartidaRepository {
     @Override
     public Serializable crearPartida(Partida2 nuevaPartida) {
         return sessionFactory.getCurrentSession().save(nuevaPartida);
+    }
+
+    @Override
+    public void actualizarEstado(Long idPartida, Estado estado) {
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery("UPDATE Partida2 p SET p.estado = :estado WHERE p.id = :idPartida")
+                .setParameter("idPartida", idPartida)
+                .setParameter("estado",estado)
+                .executeUpdate();
     }
 }

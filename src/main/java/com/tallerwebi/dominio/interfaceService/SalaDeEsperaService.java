@@ -1,5 +1,7 @@
 package com.tallerwebi.dominio.interfaceService;
 
+import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
+
 import java.util.List;
 import java.util.Map;
 
@@ -14,4 +16,6 @@ public interface SalaDeEsperaService {
     void irAlJuego();
 
     void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala);
+
+    void redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO);
 }

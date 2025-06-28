@@ -30,7 +30,7 @@ public class Partida2ServiceImpl implements Partida2Service {
 
     @Override
     public Serializable crearPartida(Partida2 nuevaPartida) {
-        return null;
+        return partida2Repository.crearPartida(nuevaPartida);
     }
 
     /*@Override
