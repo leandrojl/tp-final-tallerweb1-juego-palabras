@@ -16,7 +16,9 @@ public interface PartidaService {
 
     void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje);
 
-    void procesarIntento(DtoIntento intento);
+    void procesarIntento(DtoIntento intento, String nombre);
+
+    void procesarIntento1(DtoIntento intento);
 
     RondaDto iniciarNuevaRonda(Long partidaId);
     Serializable crearPartida (Partida2 nuevaPartida);

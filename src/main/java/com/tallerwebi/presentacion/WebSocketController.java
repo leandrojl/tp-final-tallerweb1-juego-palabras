@@ -74,9 +74,15 @@ public class WebSocketController {
     }
 
     @MessageMapping("/juego/intento")
-    public void procesarIntento(DtoIntento intento){
+    public void procesarIntento(DtoIntento intento, Principal principal){
+        if (principal == null) {
+            System.out.println("Principal es NULL");
+        } else {
+            System.out.println("Principal name: " + principal.getName());
+        }
         System.out.println("Intento recibido: " + intento.getIntentoPalabra());
-        partidaService.procesarIntento(intento);
+        //partidaService.procesarIntento(intento, principal.getName());
+        partidaService.procesarIntento1(intento);
     }
         //si acierta pepi acerto.. sino mostrarenchat palabra prueba..
         //verificar que ronda no este terminada

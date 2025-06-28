@@ -91,30 +91,30 @@ public class PartidaServiceImpl implements PartidaService {
     }
 
     @Override
-    public void procesarIntento(DtoIntento intento) {
-
+    public void procesarIntento(DtoIntento intento, String nombre) {
+        //   ---- si acerto verificar si acertaron todos y finalizar ronda timer -----  //
         Long partidaId = intento.getPartidaId();
         Long usuarioId = intento.getUsuarioId();
         String intentoTexto = intento.getIntentoPalabra();
 
-        // === Obtener Partida ===
+        // === Obtener Partida
         Partida2 partida = partidaRepository.buscarPorId(partidaId);
         if (partida == null) {
             throw new IllegalArgumentException("Partida no encontrada con ID: " + partidaId);
         }
 
-        // === Obtener Ronda actual ===
+        // === Obtener Ronda actual
         Ronda ronda = rondaService.obtenerUltimaRondaDePartida(partidaId);
-        Long rondaId = 7L;//ronda.getId();
+        Long rondaId = ronda.getId();
         if (ronda == null) {
             throw new IllegalStateException("No hay una ronda activa.");
         } else if (ronda.getEstado().equals(Estado.FINALIZADA)) {
             throw new IllegalStateException("Ronda finalizada.");
         }
 
-        // === Comparar intento con palabra correcta ===
-        String palabraCorrecta = "mmmm";//ronda.getPalabra().getDescripcion();
-        boolean esCorrecto = false;//intentoTexto.equalsIgnoreCase(palabraCorrecta);
+        // === Comparar intento con palabra correcta
+        String palabraCorrecta = ronda.getPalabra().getDescripcion();
+        boolean esCorrecto = intentoTexto.equalsIgnoreCase(palabraCorrecta);
 
         // Armamos el ResultadoDto
         Usuario usuario = usuarioPartidaService.obtenerUsuarioPorUsuarioIdYPartidaId(usuarioId, partidaId);
@@ -127,10 +127,10 @@ public class PartidaServiceImpl implements PartidaService {
             // Verificar si ya había acertado ===
             boolean yaAcerto = aciertoService.jugadorYaAcerto(usuarioId, rondaId);
             if (!yaAcerto) {
-                // === 6. Registrar acierto y calcular puntos ===
+                // Registrar acierto y calcular puntos ===
                 int puntos = aciertoService.registrarAcierto(usuarioId, rondaId);
 
-                // === 7. Sumar puntos en UsuarioPartida ===
+                // Sumar puntos en UsuarioPartida ===
                 usuarioPartidaService.sumarPuntos(usuarioId, partidaId, puntos);
                 resultado.setPalabraCorrecta(intentoTexto);
                 resultado.setPalabraIncorrecta("");
@@ -149,26 +149,27 @@ public class PartidaServiceImpl implements PartidaService {
         }
     }
 
-
-    // =================== HARCODEADO =============================== //
-//        Boolean correcta = true;
-//        if(correcta){
-//            resultado.setPalabraCorrecta(intento.getIntentoPalabra());
-//            resultado.setPalabraIncorrecta("");
-//            resultado.setJugador("pepito");
-//            resultado.setCorrecto(true);
-//            simpMessagingTemplate.convertAndSendToUser("pepito", "/queue/resultado", resultado);
-//        } else {
-//            resultado.setPalabraCorrecta("");
-//        resultado.setPalabraIncorrecta(intento.getIntentoPalabra());
-//        resultado.setJugador("pepito");
-//        resultado.setCorrecto(false);
-//        simpMessagingTemplate.convertAndSend(
-//                "/topic/mostrarIntento/" + intento.getPartidaId(),
-//                resultado);
-//        }
-
-
+    @Override
+    public void procesarIntento1(DtoIntento intento) {
+        ResultadoIntentoDto resultado = new ResultadoIntentoDto();
+        //=================== HARCODEADO =============================== //
+        Boolean correcta = false;
+        if (correcta) {
+            resultado.setPalabraCorrecta(intento.getIntentoPalabra());
+            resultado.setPalabraIncorrecta("");
+            resultado.setJugador("pepito");
+            resultado.setCorrecto(true);
+            simpMessagingTemplate.convertAndSendToUser("hla", "/queue/resultado", resultado);
+        } else {
+            resultado.setPalabraCorrecta("");
+            resultado.setPalabraIncorrecta(intento.getIntentoPalabra());
+            resultado.setJugador("pepito");
+            resultado.setCorrecto(false);
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/mostrarIntento/" + intento.getPartidaId(),
+                    resultado);
+        }
+    }
 //        }
 
 

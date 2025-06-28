@@ -73,7 +73,7 @@ function mostrarResultadoIntentoIncorrecto(mensaje) {
     console.log("BODY CRUDO:", mensaje.body)
 
     const data = JSON.parse(mensaje.body);
-    console.log("Intento incorrecto público:", data);
+    console.log("Intento incorrecto publico:", data);
     mostrarMensajeChat(data.palabraIncorrecta, data.esCorrecto);
 }
 
