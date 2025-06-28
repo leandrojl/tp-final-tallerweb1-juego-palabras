@@ -22,31 +22,13 @@ public class WebSocketController {
 
     @Qualifier("partidaServiceImpl")
     private PartidaService partidaService;
-    private SalaDeEsperaService salaDeEsperaService;
 
     @Autowired
-    public WebSocketController(PartidaService partidaService, SalaDeEsperaService salaDeEsperaService) {
+    public WebSocketController(PartidaService partidaService) {
         this.partidaService = partidaService;
-        this.salaDeEsperaService = salaDeEsperaService;
     }
 
 
-    @MessageMapping("/salaDeEspera")
-    @SendTo("/topic/salaDeEspera")
-    public EstadoJugadorDTO actualizarEstadoJugador(EstadoJugadorDTO estadoJugadorDTO, Principal principal) {
-        //Si un usuario intenta cambiar el estado que no es suyo se valida
-        String nombreUsuario = estadoJugadorDTO.getUsername();
-            if(!nombreUsuario.equals(principal.getName())) {
-                throw new UsuarioInvalidoException("Error, no se puede alterar el estado de otro jugador");
-            }
-        return estadoJugadorDTO;
-    }
-
-    @MessageExceptionHandler(UsuarioInvalidoException.class)
-    @SendToUser("/queue/mensajeAlIntentarCambiarEstadoDeOtroJugador")
-    public MensajeRecibidoDTO handleUsuarioInvalidoException(UsuarioInvalidoException ex) {
-        return new MensajeRecibidoDTO(ex.getMessage());
-    }
 
     @MessageMapping("/chat")
     @SendTo("/topic/messages")
@@ -66,6 +48,7 @@ public class WebSocketController {
         this.salaDeEsperaService.mostrarAUnUsuarioLosUsuariosExistentesEnSala(nombreUsuario);
         return new MensajeRecibidoDTO(nombreUsuario);
     }
+
 
     @MessageMapping("/juego/iniciar")
     public void iniciarRonda(MensajeInicioRonda mensaje){
@@ -115,10 +98,6 @@ public class WebSocketController {
 
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
         this.partidaService.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
-    }
-
-    public void irAlJuego() {
-        this.salaDeEsperaService.irAlJuego();
     }
 
 

@@ -2,6 +2,7 @@ package com.tallerwebi.infraestructura;
 
 
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
+import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Usuario;
 import com.tallerwebi.dominio.model.UsuarioPartida;
 import org.hibernate.Session;
@@ -141,5 +142,28 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
 
         return usuarioPartida != null ? usuarioPartida.getUsuario() : null;
     }
+    @Override
+    public List<Usuario> obtenerUsuariosDeUnaPartida(Long idPartida) {
+        Session session = this.sessionFactory.getCurrentSession();
+        return session.createQuery(
+                        "SELECT up.usuario FROM UsuarioPartida up WHERE up.partida.id = :idPartida",
+                        Usuario.class
+                ).setParameter("idPartida", idPartida)
+                .getResultList();
+    }
+
+    @Override
+    public UsuarioPartida obtenerUsuarioPartida(Usuario usuario, Partida2 partida) {
+        Session session = this.sessionFactory.getCurrentSession();
+
+        return session.createQuery(
+                        "FROM UsuarioPartida up WHERE up.usuario = :usuario AND up.partida = :partida",
+                        UsuarioPartida.class
+                )
+                .setParameter("usuario", usuario)
+                .setParameter("partida", partida)
+                .uniqueResult();
+    }
+
 
 }

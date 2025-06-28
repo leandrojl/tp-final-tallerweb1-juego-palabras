@@ -28,4 +28,7 @@ public interface UsuarioPartidaRepository {
     void sumarPuntaje(Long usuarioId, Long partidaId, int puntos);
 
     Usuario obtenerUsuarioPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId);
+    List<Usuario> obtenerUsuariosDeUnaPartida(Long number);
+
+    UsuarioPartida obtenerUsuarioPartida(Usuario usuario, Partida2 partida);
 }

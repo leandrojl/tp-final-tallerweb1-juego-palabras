@@ -1,8 +1,11 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
-import com.tallerwebi.dominio.model.ListaUsuariosDTO;
-import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
+import com.tallerwebi.dominio.model.*;
+import com.tallerwebi.infraestructura.PartidaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -17,11 +20,21 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     SimpMessagingTemplate simpMessagingTemplate;
     private final Set<String> usuariosEnSala = ConcurrentHashMap.newKeySet();
+    private UsuarioPartidaRepository usuarioPartida;
+    private PartidaRepository partidaRepo;
 
-    @Autowired
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
+
+    @Autowired
+    public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
+                                   UsuarioPartidaRepository usuarioPartida,PartidaRepository partida) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.usuarioPartida = usuarioPartida;
+        this.partidaRepo = partida;
+    }
+
 
 
     @Override
@@ -54,19 +67,44 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         return jugadoresNoListos;
     }
 
+    //EN WEBSOCKETS
+
     @Override
-    public void irAlJuego(){
-        this.simpMessagingTemplate.convertAndSend("topic/iniciarPartida",new MensajeEnviadoDTO("server","redirect"));
+    public void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala, Long idPartida) {
+        usuariosEnSala.add(nombreUsuarioQueAcabaDeUnirseALaSala);
+        for (String usuario : usuariosEnSala) {
+            this.simpMessagingTemplate.convertAndSendToUser(
+                    usuario,
+                    "/queue/jugadoresExistentes",
+                    new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
+            );
+        }
+        this.simpMessagingTemplate.convertAndSend(
+                "/topic/cuandoUsuarioSeUneASalaDeEspera/" + idPartida
+                ,new MensajeRecibidoDTO(nombreUsuarioQueAcabaDeUnirseALaSala)
+        );
     }
 
     @Override
-    public void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala) {
-        usuariosEnSala.add(nombreUsuarioQueAcabaDeUnirseALaSala);
-        this.simpMessagingTemplate.convertAndSendToUser(
-                nombreUsuarioQueAcabaDeUnirseALaSala,
-                "/queue/jugadoresExistentes",
-                new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
-        );
+    public void redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
+        Long idPartida = mensajeRecibidoDTO.getNumber();
+        this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
+        List<Usuario> usuarios = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
+            for (Usuario usuario : usuarios) {
+                simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
+                        new MensajeRecibidoDTO(
+                        "http://localhost:8080/spring/lobby")); // PROVISIONAL PARA QUE  FUNCIONE
+            }
+    }
+
+    @Override
+    public Boolean actualizarElEstadoDeUnUsuario(EstadoJugadorDTO estadoJugadorDTO, String nombreUsuarioDelPrincipal) {
+        Long idPartida = estadoJugadorDTO.getIdPartida();
+        if(estadoJugadorDTO.getUsername().equals(nombreUsuarioDelPrincipal)){
+            this.simpMessagingTemplate.convertAndSend("/topic/salaDeEspera/" + idPartida, estadoJugadorDTO);
+            return true;
+        }
+        return false;
     }
 
 }

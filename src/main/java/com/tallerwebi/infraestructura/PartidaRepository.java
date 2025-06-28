@@ -1,5 +1,6 @@
 package com.tallerwebi.infraestructura;
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Usuario;
 
@@ -14,4 +15,5 @@ public interface PartidaRepository {
 
     Serializable crearPartida(Partida2 nuevaPartida);
 
+    void actualizarEstado(Long idPartida,Estado estado);
 }
