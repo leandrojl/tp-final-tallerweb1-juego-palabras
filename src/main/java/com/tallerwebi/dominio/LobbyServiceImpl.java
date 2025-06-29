@@ -2,6 +2,7 @@ package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.interfaceRepository.LobbyRepository;
 import com.tallerwebi.dominio.interfaceService.LobbyService;
+import com.tallerwebi.dominio.model.Partida;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

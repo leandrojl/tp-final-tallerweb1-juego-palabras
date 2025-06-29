@@ -5,6 +5,7 @@ import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceService.PalabraServicio;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.Palabra;
+import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Ronda;
 import com.tallerwebi.helpers.HelperPalabra;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;

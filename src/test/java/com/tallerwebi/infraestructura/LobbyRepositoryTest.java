@@ -3,6 +3,7 @@ package com.tallerwebi.infraestructura;
 import com.tallerwebi.TestConfig;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.LobbyRepository;
+import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.integracion.config.HibernateTestConfig;
 import com.tallerwebi.integracion.config.SpringWebTestConfig;
 import org.junit.jupiter.api.Test;

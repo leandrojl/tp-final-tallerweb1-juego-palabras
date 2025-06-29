@@ -1,5 +1,7 @@
 package com.tallerwebi.dominio.interfaceRepository;
 
+import com.tallerwebi.dominio.model.Partida;
+
 import java.util.List;
 
 public interface LobbyRepository {

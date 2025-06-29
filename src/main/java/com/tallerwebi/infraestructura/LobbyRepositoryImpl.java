@@ -2,6 +2,7 @@ package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.interfaceRepository.LobbyRepository;
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.model.Partida;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

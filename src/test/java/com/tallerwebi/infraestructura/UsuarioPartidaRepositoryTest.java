@@ -3,6 +3,7 @@ package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
+import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Usuario;
 import com.tallerwebi.dominio.model.UsuarioPartida;
 import com.tallerwebi.integracion.config.HibernateTestConfig;
@@ -101,12 +102,12 @@ public class UsuarioPartidaRepositoryTest {
         Partida partida1 = new Partida("encuentro1", "Castellano", true, 5, 2);
         Partida partida = new Partida("encuentro1", "Castellano", true, 5, 2);
         Partida partida3 = new Partida("encuentro1", "Castellano", true, 5, 2);
-        UsuarioPartida upartida1 = new UsuarioPartida(usuario1,partida1, true, 100, Estado.FINALIZADA);
-        UsuarioPartida upartida2 = new UsuarioPartida(usuario1, partida, true,100, Estado.FINALIZADA);
-        UsuarioPartida upartida3 = new UsuarioPartida(usuario2,partida1, false,20, Estado.FINALIZADA);
-        UsuarioPartida upartida4 = new UsuarioPartida(usuario3,partida1, true,100, Estado.FINALIZADA);
-        UsuarioPartida upartida5 = new UsuarioPartida(usuario2, partida, false,20, Estado.FINALIZADA);
-        UsuarioPartida upartida6 = new UsuarioPartida(usuario3, partida, false,20, Estado.FINALIZADA);
+        UsuarioPartida upartida1 = new UsuarioPartida(usuario1,partida1,  100,true, Estado.FINALIZADA);
+        UsuarioPartida upartida2 = new UsuarioPartida(usuario1, partida, 100,true, Estado.FINALIZADA);
+        UsuarioPartida upartida3 = new UsuarioPartida(usuario2,partida1, 20,false, Estado.FINALIZADA);
+        UsuarioPartida upartida4 = new UsuarioPartida(usuario3,partida1, 100,true, Estado.FINALIZADA);
+        UsuarioPartida upartida5 = new UsuarioPartida(usuario2, partida, 20,false, Estado.FINALIZADA);
+        UsuarioPartida upartida6 = new UsuarioPartida(usuario3, partida, 20,false, Estado.FINALIZADA);
         sessionFactory.getCurrentSession().save(usuario1);
         sessionFactory.getCurrentSession().save(usuario2);
         sessionFactory.getCurrentSession().save(usuario3);
