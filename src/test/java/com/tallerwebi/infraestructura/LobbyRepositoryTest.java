@@ -1,5 +1,6 @@
 package com.tallerwebi.infraestructura;
 
+import com.tallerwebi.TestConfig;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.LobbyRepository;
 import com.tallerwebi.dominio.model.Partida2;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 //estas anotaciones deben ir en la clase de test de los repositorios
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {SpringWebTestConfig.class, HibernateTestConfig.class})
+@ContextConfiguration(classes = {SpringWebTestConfig.class, HibernateTestConfig.class, TestConfig.class})
 public class LobbyRepositoryTest {
 
     @Autowired
@@ -165,5 +166,18 @@ public class LobbyRepositoryTest {
         // Verificar que no quedan partidas en el repositorio
         List<Partida2> partidasDespuesDeEliminar = lobbyRepository.obtenerPartidasEnEspera();
         assertEquals(0, partidasDespuesDeEliminar.size());
+    }
+    @Test
+    public void QueSeObtenganListaDePartidasPorNombre(){
+        Partida2 partida1 = new Partida2("Partida 1", "Español", true, 5,5, 2, Estado.EN_ESPERA);
+        Partida2 partida2 = new Partida2("Partida 2", "Inglés", false, 3,5, 4, Estado.EN_ESPERA);
+        Partida2 partida3 = new Partida2("asd", "Inglés", false, 3,5, 4, Estado.EN_ESPERA);
+
+        lobbyRepository.guardar(partida1);
+        lobbyRepository.guardar(partida2);
+        lobbyRepository.guardar(partida3);
+        List<Partida2> partidasEncontradasPorNombre= lobbyRepository.obtenerPartidasPorNombre("Partida");
+        assertEquals(2, partidasEncontradasPorNombre.size());
+
     }
 }

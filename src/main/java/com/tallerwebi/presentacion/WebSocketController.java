@@ -3,16 +3,12 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
-import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
 import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
-import com.tallerwebi.dominio.model.EstadoJugadorDTO;
 
 import java.security.Principal;
 
@@ -23,7 +19,7 @@ public class WebSocketController {
     private PartidaService partidaService;
 
     @Autowired
-    public WebSocketController(PartidaService partidaService) {
+    public WebSocketController(PartidaService partidaService, SalaDeEsperaService salaDeEsperaService) {
         this.partidaService = partidaService;
     }
 

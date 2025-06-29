@@ -2,13 +2,14 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.PartidaServiceImpl;
-import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
+import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.infraestructura.PartidaRepository;
 import com.tallerwebi.infraestructura.RondaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.*;
@@ -34,9 +35,9 @@ public class WebSocketControllerTest {
     private RondaService rondaService;
     private PartidaRepository partidaRepository;
     private RondaRepository rondaRepository;
+    private SalaDeEsperaService salaDeEsperaService;
     private WebSocketController webSocketController;
     private WebSocketStompClient stompClient;
-    private PartidaService partidaServiceMock;
 
     @BeforeEach
     public void setUp() {
@@ -46,10 +47,12 @@ public class WebSocketControllerTest {
         messagingTemplate = mock(SimpMessagingTemplate.class);
         rondaService = mock(RondaService.class);
         partidaRepository = mock(PartidaRepository.class);
-        partidaServiceMock = mock(PartidaService.class);
+        ScheduledExecutorService timerRonda = mock(ScheduledExecutorService.class);
+
         partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository);
         ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
-        webSocketController = new WebSocketController(partidaServiceMock);
+        salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
+        webSocketController = new WebSocketController(partidaService,salaDeEsperaService);
     }
 
     @Test
@@ -106,7 +109,14 @@ public class WebSocketControllerTest {
     }
 
 
-
+    @Test
+    public void queUnJugadorPuedaEstarListo() throws Exception {
+        EstadoJugadorDTO estadoJugadorDTO = givenJugadorEnSala("pepe",true);
+        CompletableFuture<EstadoJugadorDTO> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/salaDeEspera",
+                "/app/salaDeEspera", estadoJugadorDTO,"pepe", EstadoJugadorDTO.class);
+        EstadoJugadorDTO resultado = completableFuture.get(5, TimeUnit.SECONDS);
+        thenJugadorListo(resultado);
+    }
 
 
 
@@ -134,13 +144,25 @@ public class WebSocketControllerTest {
 
     //PARA SPRINT 3 MIO
 
+    @Test
+    public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {
+        EstadoJugadorDTO jugador2 = new EstadoJugadorDTO("jugador2", true);
 
+        CompletableFuture<MensajeRecibidoDTO> errorEsperado = whenEnvioYReciboError(
+                "/app/salaDeEspera",
+                jugador2,
+                "jugador1"
+        );
+
+        MensajeRecibidoDTO errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
+        assertEquals("Error, no se puede alterar el estado de otro jugador", errorMensaje.getMessage());
+    }
 
     @Test
     public void dadoQueHayDosUsuariosConectadosAlWebSocketsQueSePuedaEnviarUnMensajePrivadoAUnUsuario() throws Exception {
-        CompletableFuture<MensajeEnviadoDTO> futurePepe = givenUsuarioConectado("pepe","/user/queue/paraTest",
+        CompletableFuture<MensajeEnviadoDTO> futurePepe = givenUsuarioConectado("pepe","/user/queue/paraTest", false,
                 MensajeEnviadoDTO.class);
-        CompletableFuture<MensajeEnviadoDTO> futureJose = givenUsuarioConectado("jose","/user/queue/paraTest",
+        CompletableFuture<MensajeEnviadoDTO> futureJose = givenUsuarioConectado("jose","/user/queue/paraTest", false,
                 MensajeEnviadoDTO.class);
         String mensaje = "Este mensaje le deberia llegar a pepe";
         String nombreUsuario = "pepe";
@@ -155,7 +177,7 @@ public class WebSocketControllerTest {
                 futureJose.complete(new MensajeEnviadoDTO(usuario, msg));
             }
             return true;
-        }).when(partidaServiceMock).enviarMensajeAUsuarioEspecifico(anyString(), anyString());
+        }).when(partidaService).enviarMensajeAUsuarioEspecifico(anyString(), anyString());
 
         whenEnviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
 
@@ -165,10 +187,35 @@ public class WebSocketControllerTest {
         assertEquals(nombreUsuario, mensajeEnviadoDTO.getUsername());
     }
 
+    @Test
+    public void siAlguienSeUneALaSalaDeEsperaLosDemasJugadoresPuedenVerlo() throws Exception {
+        String nombreUsuarioQueAcabaDeUnirseALaSala = "jose";
+        CompletableFuture<MensajeRecibidoDTO> usuarioYaEnSalaDeEspera = givenUsuarioConectado("pepe","/topic" +
+                "/cuandoUsuarioSeUneASalaDeEspera",false , MensajeRecibidoDTO.class);
+        givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera",
+                        true,
+                        MensajeRecibidoDTO.class);
 
+        MensajeRecibidoDTO mensajeRecibidoDTO = usuarioYaEnSalaDeEspera.get(5, TimeUnit.SECONDS);
+        assertEquals(nombreUsuarioQueAcabaDeUnirseALaSala, mensajeRecibidoDTO.getMessage());
+    }
+
+    @Test
+    public void siYaHayUsuariosEnLaSalaQueAquelNuevoUsuarioQueSeUnePuedaVerLosQueYaEstanEnDichaSala() throws Exception {
+        givenUsuarioConectado("pepe","/topic" +
+                "/cuandoUsuarioSeUneASalaDeEspera",true , MensajeRecibidoDTO.class);
+        CompletableFuture<ListaUsuariosDTO> usuarioQueAcabaDeUnirseALaSala =
+                givenUsuarioConectado("jose","/user/queue/jugadoresExistentes",
+                        true,
+                        ListaUsuariosDTO.class);
+        ListaUsuariosDTO lista = usuarioQueAcabaDeUnirseALaSala.get(2, TimeUnit.SECONDS);
+        assertTrue(lista.getUsuarios().contains("pepe"));
+
+    }
     private <T> CompletableFuture<T> givenUsuarioConectado(
             String nombreUsuario,
             String dondeSeConecta,
+            Boolean notificaALosDemasUsuarioQueSeUneALaSala,
             Class<T> tipoDeRespuesta
     ) throws Exception {
 
@@ -189,6 +236,10 @@ public class WebSocketControllerTest {
             }
         });
 
+        if(notificaALosDemasUsuarioQueSeUneALaSala){
+            session.send("/app/usuarioSeUneASalaDeEspera",new MensajeRecibidoDTO(nombreUsuario));
+        }
+
         return completableFuture;
     }
 
@@ -203,9 +254,46 @@ public class WebSocketControllerTest {
     private void thenMensajeEnviadoCorrectamente(String mensajeEsperado, MensajeEnviadoDTO mensajeEnviadoDTO) {
         assertEquals(mensajeEsperado, mensajeEnviadoDTO.getContent());
     }
+    private EstadoJugadorDTO givenJugadorEnSala(String nombre, boolean estaListo) {
+        EstadoJugadorDTO estadoJugadorDTO = new EstadoJugadorDTO();
+        estadoJugadorDTO.setUsername(nombre);
+        estadoJugadorDTO.setEstaListo(estaListo);
+        return estadoJugadorDTO;
+    }
 
+    private void thenJugadorListo(EstadoJugadorDTO resultado) {
+        assertEquals("pepe", resultado.getUsername());
+        assertTrue(resultado.isEstaListo());
+    }
 
+    private CompletableFuture<MensajeRecibidoDTO> whenEnvioYReciboError(
+            String appDestination,
+            Object mensajeAEnviar,
+            String nombreEmisor
+    ) throws Exception {
+        CompletableFuture<MensajeRecibidoDTO> errorFuture = new CompletableFuture<>();
+        StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
+        StompSession session = stompClient.connect(URL + "?usuario=" + nombreEmisor, sessionHandler)
+                .get(1, TimeUnit.SECONDS);
 
+        session.subscribe("/user/queue/mensajeAlIntentarCambiarEstadoDeOtroJugador", new StompFrameHandler() {
+
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+
+                return MensajeRecibidoDTO.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                errorFuture.complete((MensajeRecibidoDTO) payload);
+            }
+        });
+
+        session.send(appDestination, mensajeAEnviar);
+
+        return errorFuture;
+    }
 
 
     private <T> CompletableFuture<T> whenEnvioMensajeYReciboRespuesta(

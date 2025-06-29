@@ -9,4 +9,6 @@ public interface LobbyService {
     List<Partida2> obtenerPartidasEnEspera();
 
     void guardar(Partida2 ingles);
+
+    List<Partida2> buscarPartidasPorNombre(String nombre);
 }

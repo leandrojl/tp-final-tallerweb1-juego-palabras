@@ -10,4 +10,6 @@ public interface PerfilService {
     Usuario buscarDatosDeUsuarioPorId(int i);
 
     double obtenerWinrate(Usuario usuario);
+
+    Usuario obtenerDatosDelPerfilPorId(Long usuarioId);
 }

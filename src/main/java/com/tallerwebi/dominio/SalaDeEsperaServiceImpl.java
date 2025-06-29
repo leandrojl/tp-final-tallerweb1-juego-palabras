@@ -101,7 +101,10 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     @Override
     public Boolean redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
         Long idPartida = mensajeRecibidoDTO.getNumber();
+
         Partida2 partida = usuarioPartida.obtenerPartida(idPartida);
+        //cambiar el estado de usuarioPartida a EN_CURSO DE Todos los usuarios de la partid
+
         List<Usuario> usuarios = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
         if(partida.getMinimoJugadores() > usuarios.size()) {
             return false;

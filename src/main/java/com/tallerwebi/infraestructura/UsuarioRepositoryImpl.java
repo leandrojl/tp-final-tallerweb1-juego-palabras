@@ -65,4 +65,14 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
                 .getResultList();
     }
 
+    @Override
+    public String obtenerNombrePorId(Long usuarioId) {
+
+        Usuario usuario = buscarPorId(usuarioId);
+        if (usuario != null) {
+            return usuario.getNombreUsuario();
+        }
+        return null;
+    }
+
 }

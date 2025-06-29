@@ -2,6 +2,7 @@ package com.tallerwebi.dominio;
 
 
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.interfaceService.PalabraServicio;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.Palabra;
 import com.tallerwebi.dominio.model.Partida2;
@@ -10,12 +11,16 @@ import com.tallerwebi.helpers.HelperPalabra;
 import com.tallerwebi.infraestructura.PartidaRepository;
 import com.tallerwebi.infraestructura.RondaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 
 @Service
 @Transactional
@@ -24,6 +29,7 @@ public class RondaServiceImpl implements RondaService {
     private final int MAX_RONDAS = 5;
     private int rondaActual = 1;
     private final HelperPalabra helperPalabra = new HelperPalabra();
+
 
 
     @Autowired
