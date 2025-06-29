@@ -1,19 +1,19 @@
 package com.tallerwebi.dominio.interfaceRepository;
 
-import com.tallerwebi.dominio.model.Partida2;
-
 import java.util.List;
 
 public interface LobbyRepository {
-    void guardar(Partida2 partida);
+    void guardar(Partida partida);
 
-    List<Partida2> obtenerPartidasEnEspera();
+    List<Partida> obtenerPartidasEnEspera();
 
     void eliminarTodasLasPartidas();
 
-    List<Partida2> obtenerPartidasEnCurso();
+    List<Partida> obtenerPartidasEnCurso();
 
-    List<Partida2> obtenerPartidasFinalizadas();
+    List<Partida> obtenerPartidasFinalizadas();
 
-    List<Partida2> obtenerPartidasCanceladas();
+    List<Partida> obtenerPartidasCanceladas();
+
+    List<Partida> obtenerPartidasPorNombre(String nombre);
 }

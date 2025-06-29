@@ -3,40 +3,124 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
   <title>Perfil de usuario</title>
-
   <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}"/>
-
   <link rel="stylesheet" th:href="@{/css/main.css}"/>
-
+  <style>
+    .bg-lobby {
+      background: radial-gradient(circle at top left, #1f005c, #5f0a87, #a4508b);
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+    .btn-lobby {
+      background-color: #ff6347;
+      color: #fff;
+      border: none;
+      transition: background 0.2s;
+    }
+    .btn-lobby:hover, .btn-lobby:focus {
+      background-color: #ff4500;
+      color: #fff;
+    }
+    .card-lobby {
+      border-radius: 1rem;
+      border: 2px solid #5f0a87;
+      background: #fff;
+    }
+    .profile-img {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 4px solid #5f0a87;
+      margin-bottom: 1rem;
+      background: #eee;
+    }
+    .profile-table {
+      margin: 0 auto;
+      width: 80%;
+    }
+    .profile-table td {
+      padding: 0.7rem 0.5rem;
+      vertical-align: middle;
+      font-size: 1.1rem;
+    }
+    .profile-label {
+      color: #5f0a87;
+      font-weight: 600;
+      width: 40%;
+      text-align: right;
+      padding-right: 1rem;
+    }
+    .profile-value {
+      color: #333;
+      font-weight: 500;
+      text-align: left;
+      width: 60%;
+    }
+    .no-data {
+      color: #bdbdbd;
+      font-style: italic;
+      font-weight: 400;
+    }
+  </style>
 </head>
-<body>
-<div class="container mt-5">
+<body class="bg-lobby">
+<div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card shadow-lg">
-        <a th:href="@{/lobby}" class="btn btn-orange btn-start">Ir al Lobby</a>
-        <div class="card-header text-center bg-primary text-white">
-          <h3>Perfil de Usuario</h3>
+    <div class="col-md-7">
+      <div class="card card-lobby shadow-lg">
+        <div class="card-header text-center bg-primary text-white rounded-top">
+          <h3 class="mb-0">Perfil de Usuario</h3>
         </div>
-        <div class="card-body text-center">
+        <div class="card-body">
 
-          <img th:src="@{${fotoPerfil}}"
-               alt="Foto de perfil"
-               class="rounded-circle img-thumbnail mb-3"
-               style="width: 150px; height: 150px;">
+          <!-- Botón Lobby alineado a la izquierda -->
+          <div class="mb-4 text-start">
+            <a th:href="@{/lobby}" class="btn btn-lobby btn-lg shadow">Ir al Lobby</a>
+          </div>
 
+          <!-- Foto de perfil centrada -->
+          <div class="text-center mb-4">
+            <img
+                    th:src="${usuario.fotoPerfil != null} ? @{${usuario.fotoPerfil}} : 'https://wallpapers.com/images/featured-full/fotos-de-perfil-xj8jigxkai9jag4g.jpg'"
+                    alt="Foto de perfil"
+                    class="profile-img shadow"
+            />
+          </div>
 
-          <h4 th:text="${nombre}">Nombre del usuario</h4>
-          <p class="mb-1"><strong>Edad:</strong> <span th:text="${edad}"></span> años</p>
-          <p class="mb-1"><strong>Usuario:</strong> <span th:text="${usuario}"></span></p>
-          <p class="mb-1"><strong>Winrate:</strong> <span th:text="${winrate}"></span></p>
+          <!-- Datos detallados en tabla -->
+          <table class="profile-table">
+            <tr>
+              <td class="profile-label"><i class="bi bi-person"></i> Nombre de usuario:</td>
+              <td class="profile-value">
+                <span th:if="${usuario.nombreUsuario != null}" th:text="${usuario.nombreUsuario}"></span>
+                <span th:unless="${usuario.nombreUsuario != null}" class="no-data">No hay datos</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="profile-label"><i class="bi bi-hash"></i> Usuario ID:</td>
+              <td class="profile-value">
+                <span th:if="${usuario.id != null}" th:text="${usuario.id}"></span>
+                <span th:unless="${usuario.id != null}" class="no-data">No hay datos</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="profile-label"><i class="bi bi-envelope"></i> Email:</td>
+              <td class="profile-value">
+                <span th:if="${usuario.email != null}" th:text="${usuario.email}"></span>
+                <span th:unless="${usuario.email != null}" class="no-data">No hay datos</span>
+              </td>
+            </tr>
+          </table>
+
         </div>
-
       </div>
     </div>
   </div>
 </div>
+<!-- Bootstrap Icons CDN para los íconos -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </body>
 </html>

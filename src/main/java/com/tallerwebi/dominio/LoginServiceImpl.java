@@ -20,8 +20,8 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public Usuario login(String usuario, String password) {
-        Usuario usuarioEncontrado = buscarUsuario(usuario);
+    public Usuario login(String nombreUsuario, String password) {
+        Usuario usuarioEncontrado = buscarUsuario(nombreUsuario);
         if(usuarioEncontrado == null) {
             throw new DatosLoginIncorrectosException();
         }
@@ -33,7 +33,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public Usuario buscarUsuario(String usuario) {
-        return this.repositorioUsuario.buscar(usuario);
+    public Usuario buscarUsuario(String nombreUsuario) {
+        return this.repositorioUsuario.buscar(nombreUsuario);
     }
 }

@@ -1,7 +1,6 @@
 package com.tallerwebi.dominio.model;
 
 import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.model.Partida2;
 
 
 import javax.persistence.*;
@@ -13,7 +12,7 @@ public class Ronda {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    private Partida2 partida;
+    private Partida partida;
     @OneToOne
     private Palabra palabra;
     private int numeroDeRonda;
@@ -28,11 +27,11 @@ public class Ronda {
         this.id = id;
     }
 
-    public Partida2 getPartida() {
+    public Partida getPartida() {
         return partida;
     }
 
-    public void setPartida(Partida2 partida) {
+    public void setPartida(Partida partida) {
         this.partida = partida;
     }
 

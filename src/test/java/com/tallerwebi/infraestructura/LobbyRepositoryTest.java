@@ -1,8 +1,8 @@
 package com.tallerwebi.infraestructura;
 
+import com.tallerwebi.TestConfig;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.LobbyRepository;
-import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.integracion.config.HibernateTestConfig;
 import com.tallerwebi.integracion.config.SpringWebTestConfig;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 //estas anotaciones deben ir en la clase de test de los repositorios
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {SpringWebTestConfig.class, HibernateTestConfig.class})
+@ContextConfiguration(classes = {SpringWebTestConfig.class, HibernateTestConfig.class, TestConfig.class})
 public class LobbyRepositoryTest {
 
     @Autowired
@@ -34,18 +34,18 @@ public class LobbyRepositoryTest {
     @Test
     public void testObtenerPartidasEnEspera() {
 
-        List<Partida2> partidasIniciales = lobbyRepository.obtenerPartidasEnEspera();
+        List<Partida> partidasIniciales = lobbyRepository.obtenerPartidasEnEspera();
         assertEquals(0, partidasIniciales.size());
 
-        Partida2 partida1 = new Partida2("Partida en espera 1", "Español", true, 5,5, 2, Estado.EN_ESPERA);
-        Partida2 partida2 = new Partida2("Partida en espera 2", "Inglés", false, 3,5, 4, Estado.EN_ESPERA);
-        Partida2 partida3 = new Partida2("Partida en espera 3", "Francés", true, 7,5, 3, Estado.EN_ESPERA);
+        Partida partida1 = new Partida("Partida en espera 1", "Español", true, 5,5, 2, Estado.EN_ESPERA);
+        Partida partida = new Partida("Partida en espera 2", "Inglés", false, 3,5, 4, Estado.EN_ESPERA);
+        Partida partida3 = new Partida("Partida en espera 3", "Francés", true, 7,5, 3, Estado.EN_ESPERA);
 
         lobbyRepository.guardar(partida1);
-        lobbyRepository.guardar(partida2);
+        lobbyRepository.guardar(partida);
         lobbyRepository.guardar(partida3);
 
-        List<Partida2> partidasEnEspera = lobbyRepository.obtenerPartidasEnEspera();
+        List<Partida> partidasEnEspera = lobbyRepository.obtenerPartidasEnEspera();
 
         assertNotNull(partidasEnEspera);
         assertEquals(3, partidasEnEspera.size());
@@ -57,15 +57,15 @@ public class LobbyRepositoryTest {
     @Test
     public void queSoloDevuelvaPartidasEnEspera() {
         // Configurar el repositorio con datos de prueba
-        Partida2 partidaEnEspera1 = new Partida2("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
-        Partida2 partidaEnEspera2 = new Partida2("Partida 2", "Inglés", false, 3, 5, 3, Estado.EN_ESPERA);
-        Partida2 partidaEnCurso = new Partida2("Partida 3", "Francés", true, 2, 5, 1, Estado.EN_CURSO);
+        Partida partidaEnEspera1 = new Partida("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
+        Partida partidaEnEspera2 = new Partida("Partida 2", "Inglés", false, 3, 5, 3, Estado.EN_ESPERA);
+        Partida partidaEnCurso = new Partida("Partida 3", "Francés", true, 2, 5, 1, Estado.EN_CURSO);
 
         lobbyRepository.guardar(partidaEnEspera1);
         lobbyRepository.guardar(partidaEnEspera2);
         lobbyRepository.guardar(partidaEnCurso);
 
-        List<Partida2> partidasEnEspera = lobbyRepository.obtenerPartidasEnEspera();
+        List<Partida> partidasEnEspera = lobbyRepository.obtenerPartidasEnEspera();
 
         assertNotNull(partidasEnEspera);
         assertEquals(2, partidasEnEspera.size());
@@ -75,16 +75,16 @@ public class LobbyRepositoryTest {
     @Test
     public void queSoloDevuelvaPartidasEnCurso() {
 
-        Partida2 partidaEnEspera1 = new Partida2("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
-        Partida2 partidaEnEspera2 = new Partida2("Partida 2", "Inglés", false, 3, 5, 3, Estado.EN_ESPERA);
-        Partida2 partidaEnCurso = new Partida2("Partida 3", "Francés", true, 2, 5, 1, Estado.EN_CURSO);
+        Partida partidaEnEspera1 = new Partida("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
+        Partida partidaEnEspera2 = new Partida("Partida 2", "Inglés", false, 3, 5, 3, Estado.EN_ESPERA);
+        Partida partidaEnCurso = new Partida("Partida 3", "Francés", true, 2, 5, 1, Estado.EN_CURSO);
 
         lobbyRepository.guardar(partidaEnEspera1);
         lobbyRepository.guardar(partidaEnEspera2);
         lobbyRepository.guardar(partidaEnCurso);
 
 
-        List<Partida2> partidasEnEspera = lobbyRepository.obtenerPartidasEnCurso();
+        List<Partida> partidasEnEspera = lobbyRepository.obtenerPartidasEnCurso();
 
 
         assertNotNull(partidasEnEspera);
@@ -95,16 +95,16 @@ public class LobbyRepositoryTest {
     @Test
     public void queSoloDevuelvaPartidasFinalizadas() {
         // Configurar el repositorio con datos de prueba
-        Partida2 partidaEnEspera1 = new Partida2("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
-        Partida2 partidaEnEspera2 = new Partida2("Partida 2", "Inglés", false, 3, 5, 3, Estado.FINALIZADA);
-        Partida2 partidaEnCurso = new Partida2("Partida 3", "Francés", true, 2, 5, 1, Estado.EN_CURSO);
+        Partida partidaEnEspera1 = new Partida("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
+        Partida partidaEnEspera2 = new Partida("Partida 2", "Inglés", false, 3, 5, 3, Estado.FINALIZADA);
+        Partida partidaEnCurso = new Partida("Partida 3", "Francés", true, 2, 5, 1, Estado.EN_CURSO);
 
         lobbyRepository.guardar(partidaEnEspera1);
         lobbyRepository.guardar(partidaEnEspera2);
         lobbyRepository.guardar(partidaEnCurso);
 
         // Llamar al método que se está probando
-        List<Partida2> partidasEnEspera = lobbyRepository.obtenerPartidasFinalizadas();
+        List<Partida> partidasEnEspera = lobbyRepository.obtenerPartidasFinalizadas();
 
         // Verificar que solo se devuelven partidas en estado EN_ESPERA
         assertNotNull(partidasEnEspera);
@@ -115,16 +115,16 @@ public class LobbyRepositoryTest {
     @Test
     public void queSoloDevuelvaPartidasCanceladas() {
         // Configurar el repositorio con datos de prueba
-        Partida2 partidaEnEspera1 = new Partida2("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
-        Partida2 partidaEnEspera2 = new Partida2("Partida 2", "Inglés", false, 3, 5, 3, Estado.CANCELADA);
-        Partida2 partidaEnCurso = new Partida2("Partida 3", "Francés", true, 2, 5, 1, Estado.CANCELADA);
+        Partida partidaEnEspera1 = new Partida("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
+        Partida partidaEnEspera2 = new Partida("Partida 2", "Inglés", false, 3, 5, 3, Estado.CANCELADA);
+        Partida partidaEnCurso = new Partida("Partida 3", "Francés", true, 2, 5, 1, Estado.CANCELADA);
 
         lobbyRepository.guardar(partidaEnEspera1);
         lobbyRepository.guardar(partidaEnEspera2);
         lobbyRepository.guardar(partidaEnCurso);
 
         // Llamar al método que se está probando
-        List<Partida2> partidasEnEspera = lobbyRepository.obtenerPartidasCanceladas();
+        List<Partida> partidasEnEspera = lobbyRepository.obtenerPartidasCanceladas();
 
         // Verificar que solo se devuelven partidas en estado EN_ESPERA
         assertNotNull(partidasEnEspera);
@@ -135,11 +135,11 @@ public class LobbyRepositoryTest {
     @Test
     public void testGuardarPartida() {
 
-        Partida2 nuevaPartida = new Partida2("Partida nueva", "Alemán", false, 4,5, 1, Estado.EN_ESPERA);
+        Partida nuevaPartida = new Partida("Partida nueva", "Alemán", false, 4,5, 1, Estado.EN_ESPERA);
 
         lobbyRepository.guardar(nuevaPartida);
 
-        List<Partida2> partidasEnEspera = lobbyRepository.obtenerPartidasEnEspera();
+        List<Partida> partidasEnEspera = lobbyRepository.obtenerPartidasEnEspera();
 
         assertNotNull(partidasEnEspera);
         assertEquals(1, partidasEnEspera.size());
@@ -149,21 +149,34 @@ public class LobbyRepositoryTest {
     @Test
     public void testEliminarTodasLasPartidas() {
         // Crear y guardar partidas en la base de datos
-        Partida2 partida1 = new Partida2("Partida 1", "Español", true, 5,5, 2, Estado.EN_ESPERA);
-        Partida2 partida2 = new Partida2("Partida 2", "Inglés", false, 3,5, 4, Estado.EN_ESPERA);
+        Partida partida1 = new Partida("Partida 1", "Español", true, 5,5, 2, Estado.EN_ESPERA);
+        Partida partida = new Partida("Partida 2", "Inglés", false, 3,5, 4, Estado.EN_ESPERA);
 
         lobbyRepository.guardar(partida1);
-        lobbyRepository.guardar(partida2);
+        lobbyRepository.guardar(partida);
 
         // Verificar que las partidas fueron guardadas
-        List<Partida2> partidasAntesDeEliminar = lobbyRepository.obtenerPartidasEnEspera();
+        List<Partida> partidasAntesDeEliminar = lobbyRepository.obtenerPartidasEnEspera();
         assertEquals(2, partidasAntesDeEliminar.size());
 
         // Eliminar todas las partidas
         lobbyRepository.eliminarTodasLasPartidas();
 
         // Verificar que no quedan partidas en el repositorio
-        List<Partida2> partidasDespuesDeEliminar = lobbyRepository.obtenerPartidasEnEspera();
+        List<Partida> partidasDespuesDeEliminar = lobbyRepository.obtenerPartidasEnEspera();
         assertEquals(0, partidasDespuesDeEliminar.size());
+    }
+    @Test
+    public void QueSeObtenganListaDePartidasPorNombre(){
+        Partida partida1 = new Partida("Partida 1", "Español", true, 5,5, 2, Estado.EN_ESPERA);
+        Partida partida = new Partida("Partida 2", "Inglés", false, 3,5, 4, Estado.EN_ESPERA);
+        Partida partida3 = new Partida("asd", "Inglés", false, 3,5, 4, Estado.EN_ESPERA);
+
+        lobbyRepository.guardar(partida1);
+        lobbyRepository.guardar(partida);
+        lobbyRepository.guardar(partida3);
+        List<Partida> partidasEncontradasPorNombre= lobbyRepository.obtenerPartidasPorNombre("Partida");
+        assertEquals(2, partidasEncontradasPorNombre.size());
+
     }
 }

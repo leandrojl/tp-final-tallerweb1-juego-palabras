@@ -1,5 +1,9 @@
 package com.tallerwebi.dominio.interfaceService;
 
+import com.tallerwebi.dominio.model.EstadoJugadorDTO;
+import com.tallerwebi.dominio.model.MensajeDto;
+import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
+
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +15,11 @@ public interface SalaDeEsperaService {
     List<Long> verificarSiHayJugadoresQueNoEstenListos(Map<Long, Boolean> jugadores);
 
 
-    void irAlJuego();
+    void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala, Long idPartida);
 
-    void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala);
+    Boolean redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO);
+
+    Boolean actualizarElEstadoDeUnUsuario(EstadoJugadorDTO estadoJugadorDTO, String nombreUsuarioDelPrincipal);
+
+    MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuarioDelPrincipal);
 }

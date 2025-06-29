@@ -1,12 +1,14 @@
 package com.tallerwebi.dominio.interfaceService;
 
-import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.model.Partida;
 
 import java.util.List;
 
 public interface LobbyService {
 
-    List<Partida2> obtenerPartidasEnEspera();
+    List<Partida> obtenerPartidasEnEspera();
 
-    void guardar(Partida2 ingles);
+    void guardar(Partida ingles);
+
+    List<Partida> buscarPartidasPorNombre(String nombre);
 }

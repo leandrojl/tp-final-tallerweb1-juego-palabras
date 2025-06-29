@@ -1,16 +1,26 @@
 package com.tallerwebi.dominio.model;
 
 public class EstadoJugadorDTO {
+    private Long idPartida;
     private String username;
     private boolean estaListo;
 
-    public EstadoJugadorDTO(String username, boolean estaListo) {
+    public EstadoJugadorDTO(Long idPartida,String username, boolean estaListo) {
+        this.idPartida = idPartida;
         this.username = username;
         this.estaListo = estaListo;
     }
 
     public EstadoJugadorDTO() {
 
+    }
+
+    public Long getIdPartida() {
+        return idPartida;
+    }
+
+    public void setIdPartida(Long idPartida) {
+        this.idPartida = idPartida;
     }
 
     // Getters y setters

@@ -1,85 +1,116 @@
 package com.tallerwebi.dominio.model;
 
-import javax.persistence.Id;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import com.tallerwebi.dominio.Enum.Estado;
 
+import javax.persistence.*;
+import java.util.*;
+@Entity
 public class Partida {
 
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombrePartida;
-    private Map<String, Integer> puntajes = new HashMap<>();
-    private Map<String, String> nombres = new HashMap<>();
-
-    private int rondaActual;
-    private boolean partidaTerminada;
-    private String palabraActual;
-    private String definicionActual;
-
-    private static final int MAX_RONDAS = 5;
+    private String nombre;
+    private String idioma;
+    private boolean permiteComodin;
+    private int rondasTotales;
+    private int maximoJugadores;
+    private int minimoJugadores;
+    @Enumerated(EnumType.STRING)
+    private Estado estado;
 
     public Partida() {
 
     }
 
-    public Partida(String nombrePartida) {
-        this.nombrePartida = nombrePartida;
-        this.rondaActual = 1;
-        this.partidaTerminada = false;
-        this.palabraActual = "";
-        this.definicionActual = "";
+
+    public Partida(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int maximoJugadores, int minimoJugadores, Estado estado) {
+        this.nombre = nombre;
+        this.idioma = idioma;
+        this.permiteComodin = permiteComodin;
+        this.rondasTotales = rondasTotales;
+        this.maximoJugadores = maximoJugadores;
+        this.minimoJugadores = minimoJugadores;
+        this.estado = estado;
     }
 
-    public void agregarJugador(String jugadorId, String nombre) {
-        puntajes.putIfAbsent(jugadorId, 0);
-        nombres.putIfAbsent(jugadorId, nombre);
+    public Partida(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int minimoJugadores) {
+        this.nombre = nombre;
+        this.idioma = idioma;
+        this.permiteComodin = permiteComodin;
+        this.rondasTotales = rondasTotales;
+        this.minimoJugadores = minimoJugadores;
     }
 
-    /**
-     * Avanza la ronda y actualiza palabra y definición.
-     * @return true si hay siguiente ronda, false si terminó.
-     */
-
-    public boolean avanzarRonda(String nuevaPalabra, String nuevaDefinicion) {
-        if (rondaActual < MAX_RONDAS) {
-            rondaActual++;
-            this.palabraActual = nuevaPalabra;
-            this.definicionActual = nuevaDefinicion;
-
-            if (rondaActual == MAX_RONDAS) {
-                partidaTerminada = true;
-            }
-
-            return true;
-        } else {
-            partidaTerminada = true;
-            return false;
-        }
+    public Long getId() {
+        return id;
     }
 
-    public String getNombrePartida() {
-        return nombrePartida;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setNombrePartida(String nombrePartida) {
-        this.nombrePartida = nombrePartida;
+    public String getNombre() {
+        return nombre;
     }
 
-    public boolean isPartidaTerminada() { return partidaTerminada; }
-
-    public int getRondaActual() { return rondaActual; }
-
-    public String getPalabraActual() { return palabraActual; }
-
-    public String getDefinicionActual() { return definicionActual; }
-
-    public Set<String> getJugadorIds() {
-        return nombres.keySet();
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    public String getNombre(String jugadorId) {
-        return nombres.getOrDefault(jugadorId, "Jugador_" + jugadorId);
+    public String getIdioma() {
+        return idioma;
+    }
+
+    public void setIdioma(String idioma) {
+        this.idioma = idioma;
+    }
+
+    public boolean isPermiteComodin() {
+        return permiteComodin;
+    }
+
+    public void setPermiteComodin(boolean permiteComodin) {
+        this.permiteComodin = permiteComodin;
+    }
+
+    public int getRondasTotales() {
+        return rondasTotales;
+    }
+
+    public void setRondasTotales(int rondasTotales) {
+        this.rondasTotales = rondasTotales;
+    }
+
+    public void setMinimoJugadores(int minimoJugadores) {
+        this.minimoJugadores = minimoJugadores;
+    }
+
+    public int getMaximoJugadores() {
+        return maximoJugadores;
+    }
+
+    public void setMaximoJugadores(int maximoJugadores) {
+        this.maximoJugadores = maximoJugadores;
+    }
+
+    public int getMinimoJugadores() {
+        return minimoJugadores;
+    }
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
+
+    public Arrays getUsuariosPartida() {
+        return null;
+    }
+
+    public Object getRondaActual() {return null;
     }
 }

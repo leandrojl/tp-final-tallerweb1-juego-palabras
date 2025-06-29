@@ -1,8 +1,6 @@
 package com.tallerwebi.infraestructura;
 
-import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
-import com.tallerwebi.dominio.model.Partida2;
 import com.tallerwebi.dominio.model.Usuario;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -63,6 +61,16 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
         Session session = sessionFactory.getCurrentSession();
         return session.createQuery("FROM Usuario u ", Usuario.class)
                 .getResultList();
+    }
+
+    @Override
+    public String obtenerNombrePorId(Long usuarioId) {
+
+        Usuario usuario = buscarPorId(usuarioId);
+        if (usuario != null) {
+            return usuario.getNombreUsuario();
+        }
+        return null;
     }
 
 }

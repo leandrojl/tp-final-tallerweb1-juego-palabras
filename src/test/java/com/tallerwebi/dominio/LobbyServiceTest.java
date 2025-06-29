@@ -2,7 +2,6 @@ package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceService.LobbyService;
-import com.tallerwebi.dominio.model.Partida2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,12 +26,12 @@ public class LobbyServiceTest {
     public void testObtenerPartidasEnEsperaConMock() {
 
         when(lobbyServiceMock.obtenerPartidasEnEspera()).thenReturn(List.of(
-                new Partida2("Partida en espera 1", "Ingles", true, 5,5, 2, Estado.EN_ESPERA),
-                new Partida2("Partida en espera 2", "Ingles", false, 3,5, 4, Estado.EN_ESPERA),
-                new Partida2("Partida en espera 3", "Ingles", true, 7,5, 3, Estado.EN_ESPERA)
+                new Partida("Partida en espera 1", "Ingles", true, 5,5, 2, Estado.EN_ESPERA),
+                new Partida("Partida en espera 2", "Ingles", false, 3,5, 4, Estado.EN_ESPERA),
+                new Partida("Partida en espera 3", "Ingles", true, 7,5, 3, Estado.EN_ESPERA)
         ));
 
-        List<Partida2> partidas = lobbyServiceMock.obtenerPartidasEnEspera();
+        List<Partida> partidas = lobbyServiceMock.obtenerPartidasEnEspera();
 
         Assertions.assertEquals(3, partidas.size());
         Assertions.assertEquals("Partida en espera 1", partidas.get(0).getNombre());
@@ -50,11 +49,12 @@ public class LobbyServiceTest {
     public void queSePuedanObtenerPartidasDesdeElServicioMock() {
 
         // Dado que tengo una lista de partidas mockeada
-        List<Partida2> partidasMock = List.of(new Partida2(), new Partida2(), new Partida2());
+        List<Partida> partidasMock = List.of(new Partida(), new Partida(), new Partida());
 
         when(lobbyServiceMock.obtenerPartidasEnEspera()).thenReturn(partidasMock);
 
         assertNotNull(partidasMock);
         assertEquals(3, partidasMock.size());
     }
+
 }

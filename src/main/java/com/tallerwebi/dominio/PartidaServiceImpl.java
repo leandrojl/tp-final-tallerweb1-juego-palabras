@@ -3,26 +3,39 @@ package com.tallerwebi.dominio;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
+import com.tallerwebi.dominio.interfaceService.PuntajeService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.*;
-import com.tallerwebi.infraestructura.PartidaRepository;
+import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import com.tallerwebi.infraestructura.RondaRepository;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 import java.util.stream.Collectors;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 
 @Service
+@Transactional
 public class PartidaServiceImpl implements PartidaService {
+
     SimpMessagingTemplate simpMessagingTemplate;
+
+    private final ScheduledExecutorService timerRonda;
+
+    private ScheduledFuture<?> finalizarRondaPorTimer;
 
     @Autowired
     private final PartidaRepository partidaRepository;
@@ -37,38 +50,23 @@ public class PartidaServiceImpl implements PartidaService {
 
     @Autowired
     private SessionFactory sessionFactory2;
-
-
+    @Autowired
+    private PuntajeService puntajeService;
 
     @Autowired
-    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate, PartidaRepository partidaRepository, RondaService rondaService, RondaRepository rondaRepositorio, UsuarioPartidaRepository usuarioPartidaRepository) {
+    public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
+                              PartidaRepository partidaRepository,
+                              RondaService rondaService,
+                              RondaRepository rondaRepositorio,
+                              UsuarioPartidaRepository usuarioPartidaRepository) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.partidaRepository = partidaRepository;
         this.rondaService = rondaService;
         this.rondaRepositorio = rondaRepositorio;
         this.usuarioPartidaRepository = usuarioPartidaRepository;
-    }
+        // 👇 Inicializamos DIRECTAMENTE aquí
+        this.timerRonda = Executors.newSingleThreadScheduledExecutor();
 
-
-
-    private final Map<String, Partida> partidas = new HashMap<>();
-
-    @Override
-    public Partida iniciarNuevaPartida(String jugadorId, String nombre) {
-        Partida nueva = new Partida();
-        nueva.agregarJugador(jugadorId, nombre);
-        partidas.put(jugadorId, nueva);
-        return nueva;
-    }
-
-    @Override
-    public Partida obtenerPartida(String jugadorId) {
-        return partidas.get(jugadorId);
-    }
-
-    @Override
-    public void eliminarPartida(String jugadorId) {
-        partidas.remove(jugadorId);
     }
 
     @Override
@@ -83,7 +81,7 @@ public class PartidaServiceImpl implements PartidaService {
         String textoIntentado = intento.getIntentoTexto();
 
         // 1. Obtener la partida
-        Partida2 partida = partidaRepository.buscarPorId(partidaId);
+        Partida partida = partidaRepository.buscarPorId(partidaId);
         if (partida == null) {
             throw new IllegalArgumentException("Partida no encontrada con ID: " + partidaId);
         }
@@ -101,6 +99,7 @@ public class PartidaServiceImpl implements PartidaService {
         // 4. Comparar
         boolean esCorrecto = palabraCorrecta.getDescripcion().equalsIgnoreCase(textoIntentado.trim());
 
+
         // 5. Armar resultado
         ResultadoIntentoDto resultado = new ResultadoIntentoDto();
         resultado.setCorrecto(esCorrecto);
@@ -113,8 +112,7 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public DefinicionDto iniciarNuevaRonda(Long partidaId) {
         // Obtener la partida (usando el repositorio, o el método que tengas para acceder a la partida)
-        Partida2 partida = partidaRepository.buscarPorId(partidaId);
-
+        Partida partida = partidaRepository.buscarPorId(partidaId);
         if (partida == null) {
             throw new IllegalArgumentException("No existe la partida con ID: " + partidaId);
         }
@@ -132,6 +130,8 @@ public class PartidaServiceImpl implements PartidaService {
                 .map(Definicion::getDefinicion)
                 .orElse("Definición no disponible");
 
+
+
         //verificarRonda - actualizarPuntajeRepo al finalizarRonda//
         //traer lista de jugadores con puntaje 0
 
@@ -142,7 +142,16 @@ public class PartidaServiceImpl implements PartidaService {
         dto.setNumeroDeRonda(ronda.getNumeroDeRonda());
 
         simpMessagingTemplate.convertAndSend("/topic/juego/"+partidaId, dto);
-        return null;
+        this.finalizarRondaPorTimer = timerRonda.schedule(
+                () -> finalizarRonda(ronda),
+                60, TimeUnit.SECONDS
+        );
+
+
+        return dto;
+    }
+
+    public void finalizarRonda(Ronda ronda) {
     }
 
     @Override
@@ -150,7 +159,7 @@ public class PartidaServiceImpl implements PartidaService {
         Long partidaId = dto.getIdPartida();
         Long rondaId = dto.getIdRonda();
 
-        Partida2 partida = partidaRepository.buscarPorId(partidaId);
+        Partida partida = partidaRepository.buscarPorId(partidaId);
         Ronda rondaActual = rondaRepositorio.obtenerUltimaRondaDePartida(partidaId);
 
         // Marcar ronda anterior como terminada
@@ -160,7 +169,7 @@ public class PartidaServiceImpl implements PartidaService {
         // ¿Terminó la partida?
         if (esUltimaRonda(partidaId)) {
             partida.setEstado(Estado.FINALIZADA);
-            partidaRepository.actualizar(partida);
+            partidaRepository.actualizarEstado(partidaId, Estado.FINALIZADA);
             return null;
         }
 
@@ -184,7 +193,7 @@ public class PartidaServiceImpl implements PartidaService {
 
     @Override
     public boolean esUltimaRonda(Long idPartida) {
-        Partida2 partida = partidaRepository.buscarPorId(idPartida);
+        Partida partida = partidaRepository.buscarPorId(idPartida);
         Ronda ultimaRonda = rondaRepositorio.obtenerUltimaRondaDePartida(idPartida);
         return ultimaRonda.getNumeroDeRonda() >= partida.getRondasTotales();
     }
@@ -215,9 +224,14 @@ public class PartidaServiceImpl implements PartidaService {
     }
 
     @Override
-    public Serializable crearPartida(Partida2 nuevaPartida) {
+    public Serializable crearPartida(Partida nuevaPartida) {
         return partidaRepository.crearPartida(nuevaPartida);
     }
 
+
+
+    public ScheduledFuture<?> getFinalizarRondaPorTimer() {
+        return finalizarRondaPorTimer;
+    }
 
 }

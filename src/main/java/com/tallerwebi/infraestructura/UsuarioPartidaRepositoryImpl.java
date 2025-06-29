@@ -1,7 +1,9 @@
 package com.tallerwebi.infraestructura;
 
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
+import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Usuario;
 import com.tallerwebi.dominio.model.UsuarioPartida;
 import org.hibernate.Session;
@@ -87,6 +89,81 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .createQuery(hql, UsuarioPartida.class)
                 .setParameter("idPartida", idPartida)
                 .getResultList();
+    }
+
+    public List<Usuario> obtenerUsuariosDeUnaPartida(Long idPartida) {
+        Session session = this.sessionFactory.getCurrentSession();
+        return session.createQuery(
+                        "SELECT up.usuario FROM UsuarioPartida up WHERE up.partida.id = :idPartida",
+                        Usuario.class
+                ).setParameter("idPartida", idPartida)
+                .getResultList();
+    }
+
+    @Override
+    public UsuarioPartida obtenerUsuarioPartida(Usuario usuario, Partida partida) {
+        Session session = this.sessionFactory.getCurrentSession();
+
+        return session.createQuery(
+                        "FROM UsuarioPartida up WHERE up.usuario = :usuario AND up.partida = :partida",
+                        UsuarioPartida.class
+                )
+                .setParameter("usuario", usuario)
+                .setParameter("partida", partida)
+                .uniqueResult();
+    }
+
+    @Override
+    public void borrarUsuarioPartidaAsociadaAlUsuario(Long idPartida, Long idUsuario) {
+        Session session = this.sessionFactory.getCurrentSession();
+        session.createQuery("DELETE FROM UsuarioPartida u " +
+                "WHERE u.partida = :idPartida AND u.usuario = :idUsuario")
+                .setParameter("idPartida", idPartida)
+                .setParameter("idUsuario", idUsuario);
+    }
+
+    @Override
+    public Partida obtenerPartida(Long idPartida) {
+        Session session = this.sessionFactory.getCurrentSession();
+        return (Partida) session.createQuery(
+                        "SELECT p FROM UsuarioPartida up JOIN up.partida p WHERE p.id = :idPartida"
+                )
+                .setParameter("idPartida", idPartida)
+                .uniqueResult();
+    }
+
+
+    @Override
+    public void agregarUsuarioAPartida(Long idUsuario,
+                                       Long idPartida,
+                                       int puntaje,
+                                       boolean gano,
+                                       Estado estado) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Usuario usuario = session.get(Usuario.class, idUsuario);
+        Partida partida = session.get(Partida.class, idPartida);
+
+        if (usuario != null && partida != null) {
+            UsuarioPartida usuarioPartida = new UsuarioPartida();
+            usuarioPartida.setUsuario(usuario);
+            usuarioPartida.setPartida(partida);
+            usuarioPartida.setGano(gano);
+            usuarioPartida.setPuntaje(puntaje);
+            usuarioPartida.setEstado(estado);
+
+            session.save(usuarioPartida);
+        }
+    }
+
+    @Override
+    public String obtenerNombreDeUsuarioEnLaPartida(Long usuarioId, Long idPartida) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("SELECT up.usuario.nombreUsuario FROM UsuarioPartida up WHERE up.usuario.id = :usuarioId AND up.partida.id = :idPartida", String.class)
+                .setParameter("usuarioId", usuarioId)
+                .setParameter("idPartida", idPartida)
+                .uniqueResult();
     }
 
 

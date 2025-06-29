@@ -1,19 +1,44 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
+import com.tallerwebi.dominio.model.*;
+import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class SalaDeEsperaServiceTest {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     //se prueba la implementacion del ServicioSalaDeEspera(interfaz)
-    private final SalaDeEsperaService servicioSalaDeEspera = new SalaDeEsperaServiceImpl(simpMessagingTemplate);
+    private SalaDeEsperaService servicioSalaDeEspera;
+    private UsuarioPartidaRepository usuarioPartidaRepo;
+    private PartidaRepository partidaRepo;
+
+    @BeforeEach
+    public void setUp() {
+        usuarioPartidaRepo = Mockito.mock(UsuarioPartidaRepository.class);
+        simpMessagingTemplate = Mockito.mock(SimpMessagingTemplate.class);
+        partidaRepo = mock(PartidaRepository.class);
+        this.servicioSalaDeEspera = new SalaDeEsperaServiceImpl(simpMessagingTemplate,usuarioPartidaRepo,partidaRepo);
+        ReflectionTestUtils.setField(servicioSalaDeEspera, "simpMessagingTemplate", simpMessagingTemplate);
+    }
 
     @Test
     public void deberiaObtenerJugadoresDelFormularioCorrectamente() {
@@ -78,4 +103,134 @@ public class SalaDeEsperaServiceTest {
         // entonces no hay jugadores listos
         assertEquals(0, resultado.size());
     }
+
+
+    //DE WEBSOCKETS
+
+    @Test
+    public void queSePuedanRedireccionarAUsuariosAUnaPartida() {
+        Long idPartida = 1L;
+        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
+
+        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
+        Partida partida = new Partida("partida","español",true,5,5,2,Estado.EN_ESPERA);
+
+        doNothing().when(partidaRepo).actualizarEstado(idPartida, Estado.EN_CURSO);
+        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
+        when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
+
+        whenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
+
+        thenRedireccionExitosa(usuarios);
+    }
+
+    @Test
+    public void siSeRedireccionaALosUsuariosAUnaPartidaQueSeActualiceElEstadoDeLaPartidaAEnCurso() {
+        Long idPartida = 1L;
+        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
+        Partida partida = new Partida("partida","español",true,5,5,2,Estado.EN_ESPERA);
+
+        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
+        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
+        when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
+
+        whenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
+        verify(partidaRepo).actualizarEstado(any(Long.class), any(Estado.class));
+    }
+    //ESTOS SON LOS MIOS PARA EL SPRINT 4
+
+    @Test
+    public void SiNoSeCumpleConElMinimoDeUsuariosEstablecidoNoSePuedeRedireccionarAUnaPartida(){
+        Long idPartida = 1L;
+        Partida partida = new Partida("partida","español",true,5,5,3,Estado.EN_ESPERA);
+        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
+        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
+
+        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
+        when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
+
+        assertThrows(CantidadDeUsuariosInsuficientesException.class,
+                () -> servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje));
+    }
+    @Test
+    public void siAlguienAbandonaLaSalaDeEsperaQueSeLeCanceleLaPartidaAsociada(){
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "pepe";
+        MensajeDto mensaje = new MensajeDto(idUsuario,idPartida,"abandona sala");
+
+        whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
+
+        verify(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(Long.class),any(Long.class));
+    }
+
+    @Test
+    public void siAlguienAbandonaLaSalaDeEsperaQueSeLeRedireccioneAlLobby(){
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "pepe";
+        MensajeDto mensaje = new MensajeDto(idUsuario,idPartida,"abandona sala");
+        doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(Long.class),any(Long.class));
+
+        MensajeRecibidoDTO mensajeDelServidor = whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
+
+        thenAbandonoLaSala(mensajeDelServidor);
+    }
+
+    @Test
+    public void siAlguienAbandonaLaSalaSeLeNotificaALosDemas(){
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "lucas";
+        MensajeDto mensaje = new MensajeDto(idUsuario,idPartida,"abandona sala");
+        //List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose")); PARA DESPUES DEL MERGE
+        //when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
+        List<String> usuarios = List.of("pepe","jose");
+        doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
+
+        Set<String> usuariosEnSala = new HashSet<>(List.of("pepe", "jose"));//ESTO DESPUES  VUELA
+        ReflectionTestUtils.setField(servicioSalaDeEspera, "usuariosEnSala", usuariosEnSala); //IDEM
+
+        whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
+
+        thenNotificaALosOtrosUsuariosQueAbandonaLaSala(usuarios);
+    }
+
+    private void thenNotificaALosOtrosUsuariosQueAbandonaLaSala(List<String> usuarios) {
+        for(String usuario : usuarios) {
+            verify(simpMessagingTemplate).convertAndSendToUser(
+                    eq(usuario),
+                    eq("/queue/jugadoresExistentes"),
+                    argThat(dto -> dto instanceof ListaUsuariosDTO &&
+                            new HashSet<>(((ListaUsuariosDTO) dto).getUsuarios()).equals(new HashSet<>(usuarios))
+                    )
+            );
+        }
+    }
+
+    private MensajeRecibidoDTO whenSeAbandonaLaSalaDeEspera(MensajeDto mensaje, String nombreUsuario) {
+        return this.servicioSalaDeEspera.abandonarSala(mensaje,nombreUsuario);
+    }
+
+
+    private void thenAbandonoLaSala(MensajeRecibidoDTO mensaje) {
+        assertEquals("http://localhost:8080/spring/lobby",mensaje.getMessage());
+    }
+
+    private void thenRedireccionExitosa(List<Usuario> usuarios) {
+        for (Usuario usuario : usuarios) {
+            verify(simpMessagingTemplate).convertAndSendToUser(
+                    eq(usuario.getNombreUsuario()),
+                    eq("/queue/irAPartida"),
+                    argThat(dto -> dto instanceof MensajeRecibidoDTO &&
+                            ((MensajeRecibidoDTO) dto).getMessage().equals("http://localhost:8080/spring/lobby"))
+            );
+        }
+    }
+
+    private void whenSeRedireccionaALosUsuariosAUnaPartida(MensajeRecibidoDTO mensaje) {
+        servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje);
+    }
+
+
 }

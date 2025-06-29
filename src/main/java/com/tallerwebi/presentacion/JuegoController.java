@@ -1,24 +1,6 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.interfaceService.PartidaService;
-import com.tallerwebi.dominio.interfaceService.PuntajeService;
-import com.tallerwebi.dominio.interfaceService.RondaService;
-import com.tallerwebi.dominio.model.Jugador;
-import com.tallerwebi.dominio.model.Partida2;
-
-import com.tallerwebi.dominio.model.Usuario;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+/*
 @Controller
 @RequestMapping("/juego")
 public class JuegoController {
@@ -146,4 +128,4 @@ public class JuegoController {
 //
 //        return "vistaFinalJuego";
 //    }
-}
+}*/
