@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
@@ -85,17 +86,6 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         );
     }
 
-    @Override
-    public void redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
-        Long idPartida = mensajeRecibidoDTO.getNumber();
-        this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
-        List<Usuario> usuarios = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
-            for (Usuario usuario : usuarios) {
-                simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
-                        new MensajeRecibidoDTO(
-                        "http://localhost:8080/spring/lobby")); // PROVISIONAL PARA QUE  FUNCIONE
-            }
-    }
 
     @Override
     public Boolean actualizarElEstadoDeUnUsuario(EstadoJugadorDTO estadoJugadorDTO, String nombreUsuarioDelPrincipal) {
@@ -107,8 +97,26 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         return false;
     }
 
+    //PARA SPRINT 4
     @Override
-    public void abandonarSala(MensajeDto mensaje,String nombreUsuario) {
+    public Boolean redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
+        Long idPartida = mensajeRecibidoDTO.getNumber();
+        Partida2 partida = usuarioPartida.obtenerPartida(idPartida);
+        List<Usuario> usuarios = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
+        if(partida.getMinimoJugadores() > usuarios.size()) {
+            return false;
+        } // PARA SPRINT 4
+        this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
+            for (Usuario usuario : usuarios) {
+                simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
+                        new MensajeRecibidoDTO(
+                        "http://localhost:8080/spring/lobby")); // PROVISIONAL PARA QUE  FUNCIONE
+            }
+            return true;
+    }
+
+    @Override
+    public MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuario) {
         Long idUsuario = mensaje.getIdUsuario();
         Long idPartida = mensaje.getIdPartida();
         usuariosEnSala.remove(nombreUsuario);
@@ -121,7 +129,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
                     new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
             );
         }
-        this.simpMessagingTemplate.convertAndSendToUser(nombreUsuario, "/queue/irAlLobby", new MensajeRecibidoDTO("http://localhost:8080/spring/lobby"));
+        return new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
     }
 
 }

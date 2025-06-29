@@ -17,9 +17,9 @@ public interface SalaDeEsperaService {
 
     void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala, Long idPartida);
 
-    void redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO);
+    Boolean redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO);
 
     Boolean actualizarElEstadoDeUnUsuario(EstadoJugadorDTO estadoJugadorDTO, String nombreUsuarioDelPrincipal);
 
-    void abandonarSala(MensajeDto mensaje,String nombreUsuarioDelPrincipal);
+    MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuarioDelPrincipal);
 }

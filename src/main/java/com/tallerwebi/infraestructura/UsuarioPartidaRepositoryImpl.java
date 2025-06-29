@@ -101,5 +101,15 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .setParameter("idUsuario", idUsuario);
     }
 
+    @Override
+    public Partida2 obtenerPartida(Long idPartida) {
+        Session session = this.sessionFactory.getCurrentSession();
+        return (Partida2) session.createQuery(
+                        "SELECT p FROM UsuarioPartida up JOIN up.partida p WHERE p.id = :idPartida"
+                )
+                .setParameter("idPartida", idPartida)
+                .uniqueResult();
+    }
+
 
 }

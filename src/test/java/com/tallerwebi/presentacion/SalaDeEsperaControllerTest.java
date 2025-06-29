@@ -1,6 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.PartidaServiceImpl;
+import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.*;
@@ -26,8 +27,7 @@ import java.util.concurrent.TimeoutException;
 import static net.bytebuddy.matcher.ElementMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -247,17 +247,37 @@ public class SalaDeEsperaControllerTest {
         CompletableFuture<MensajeRecibidoDTO> elQueInicioLaPartida = givenUsuarioConectado("pepe","/user/queue" +
                 "/irAPartida",true,mensajeParaIniciarPartida , MensajeRecibidoDTO.class);
         MensajeRecibidoDTO mensaje = elQueInicioLaPartida.get(2, TimeUnit.SECONDS);
-        thenIniciarLaPartida(mensaje);
+        thenIniciarLaPartida(mensaje,"http://localhost:8080/spring/lobby");
     }
 
     //ESTOS SON LOS MIOS PARA EL SPRINT 4
 
 
+    @Test
+    public void siAlTratarDeIniciarLaPartidaNoSeCumpleConElRequisitoDeUsuariosMinimosQueSeLesEnvieUnMensajeDeDenegacion() {
+        MensajeRecibidoDTO dto = new MensajeRecibidoDTO("mensaje", 1L);
+
+        when(salaDeEsperaService.redireccionarUsuariosAPartida(any())).thenReturn(false);
+
+        assertThrows(CantidadDeUsuariosInsuficientesException.class, () -> {
+            salaDeEsperaController.enviarUsuariosALaPartida(dto);
+        });
+
+        // Opcional: llamar al handler de excepción y verificar respuesta
+        CantidadDeUsuariosInsuficientesException ex = new CantidadDeUsuariosInsuficientesException("error");
+        MensajeRecibidoDTO respuesta = salaDeEsperaController.enviarMensajeDeDenegacionDeAvanceAPartida(ex);
+        assertEquals("error", respuesta.getMessage());
+    }
 
 
 
-    private void thenIniciarLaPartida(MensajeRecibidoDTO mensajeDelServidor) {
-        assertEquals("http://localhost:8080/spring/lobby", mensajeDelServidor.getMessage());
+
+
+
+
+
+    private void thenIniciarLaPartida(MensajeRecibidoDTO mensajeDelServidor,String mensajeEsperado) {
+        assertEquals(mensajeEsperado, mensajeDelServidor.getMessage());
     }
 
 

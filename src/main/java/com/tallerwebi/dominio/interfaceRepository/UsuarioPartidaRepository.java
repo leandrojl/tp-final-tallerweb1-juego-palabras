@@ -20,4 +20,6 @@ public interface UsuarioPartidaRepository {
     UsuarioPartida obtenerUsuarioPartida(Usuario usuario, Partida2 partida);
 
     void borrarUsuarioPartidaAsociadaAlUsuario(Long idPartida, Long idUsuario);
+
+    Partida2 obtenerPartida(Long idPartida);
 }

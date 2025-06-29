@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
@@ -81,7 +82,18 @@ public class SalaDeEsperaController {
 
     @MessageMapping("/inicioPartida")
     public void enviarUsuariosALaPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
+        Boolean redireccionamientoCorrecto = this.salaDeEsperaService.redireccionarUsuariosAPartida(mensajeRecibidoDTO);
+        if(!redireccionamientoCorrecto){
+            throw new CantidadDeUsuariosInsuficientesException("error");
+        }
+    }
 
-        this.salaDeEsperaService.redireccionarUsuariosAPartida(mensajeRecibidoDTO);
+    //PARA SPRINT 4
+
+    @MessageExceptionHandler(CantidadDeUsuariosInsuficientesException.class)
+    @SendTo("/topic/noSePuedeIrALaPartida")
+    public MensajeRecibidoDTO enviarMensajeDeDenegacionDeAvanceAPartida(CantidadDeUsuariosInsuficientesException ex) {
+        System.out.println("ENTRE EN EL MANEJADOR DE EXCEPCION DEL CONTROLADOOOOOOOOOR");
+        return new MensajeRecibidoDTO(ex.getMessage());
     }
 }
