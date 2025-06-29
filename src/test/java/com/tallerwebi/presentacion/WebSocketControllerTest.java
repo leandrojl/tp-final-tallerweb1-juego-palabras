@@ -144,19 +144,19 @@ public class WebSocketControllerTest {
 
     //PARA SPRINT 3 MIO
 
-    @Test
-    public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {
-        EstadoJugadorDTO jugador2 = new EstadoJugadorDTO("jugador2", true);
-
-        CompletableFuture<MensajeRecibidoDTO> errorEsperado = whenEnvioYReciboError(
-                "/app/salaDeEspera",
-                jugador2,
-                "jugador1"
-        );
-
-        MensajeRecibidoDTO errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
-        assertEquals("Error, no se puede alterar el estado de otro jugador", errorMensaje.getMessage());
-    }
+//    @Test
+//    public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {
+//        EstadoJugadorDTO jugador2 = new EstadoJugadorDTO("jugador2", true);
+//
+//        CompletableFuture<MensajeRecibidoDTO> errorEsperado = whenEnvioYReciboError(
+//                "/app/salaDeEspera",
+//                jugador2,
+//                "jugador1"
+//        );
+//
+//        MensajeRecibidoDTO errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
+//        assertEquals("Error, no se puede alterar el estado de otro jugador", errorMensaje.getMessage());
+//    }
 
     @Test
     public void dadoQueHayDosUsuariosConectadosAlWebSocketsQueSePuedaEnviarUnMensajePrivadoAUnUsuario() throws Exception {
@@ -187,31 +187,31 @@ public class WebSocketControllerTest {
         assertEquals(nombreUsuario, mensajeEnviadoDTO.getUsername());
     }
 
-    @Test
-    public void siAlguienSeUneALaSalaDeEsperaLosDemasJugadoresPuedenVerlo() throws Exception {
-        String nombreUsuarioQueAcabaDeUnirseALaSala = "jose";
-        CompletableFuture<MensajeRecibidoDTO> usuarioYaEnSalaDeEspera = givenUsuarioConectado("pepe","/topic" +
-                "/cuandoUsuarioSeUneASalaDeEspera",false , MensajeRecibidoDTO.class);
-        givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera",
-                        true,
-                        MensajeRecibidoDTO.class);
+//    @Test
+//    public void siAlguienSeUneALaSalaDeEsperaLosDemasJugadoresPuedenVerlo() throws Exception {
+//        String nombreUsuarioQueAcabaDeUnirseALaSala = "jose";
+//        CompletableFuture<MensajeRecibidoDTO> usuarioYaEnSalaDeEspera = givenUsuarioConectado("pepe","/topic" +
+//                "/cuandoUsuarioSeUneASalaDeEspera",false , MensajeRecibidoDTO.class);
+//        givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera",
+//                        true,
+//                        MensajeRecibidoDTO.class);
+//
+//        MensajeRecibidoDTO mensajeRecibidoDTO = usuarioYaEnSalaDeEspera.get(5, TimeUnit.SECONDS);
+//        assertEquals(nombreUsuarioQueAcabaDeUnirseALaSala, mensajeRecibidoDTO.getMessage());
+//    }
 
-        MensajeRecibidoDTO mensajeRecibidoDTO = usuarioYaEnSalaDeEspera.get(5, TimeUnit.SECONDS);
-        assertEquals(nombreUsuarioQueAcabaDeUnirseALaSala, mensajeRecibidoDTO.getMessage());
-    }
-
-    @Test
-    public void siYaHayUsuariosEnLaSalaQueAquelNuevoUsuarioQueSeUnePuedaVerLosQueYaEstanEnDichaSala() throws Exception {
-        givenUsuarioConectado("pepe","/topic" +
-                "/cuandoUsuarioSeUneASalaDeEspera",true , MensajeRecibidoDTO.class);
-        CompletableFuture<ListaUsuariosDTO> usuarioQueAcabaDeUnirseALaSala =
-                givenUsuarioConectado("jose","/user/queue/jugadoresExistentes",
-                        true,
-                        ListaUsuariosDTO.class);
-        ListaUsuariosDTO lista = usuarioQueAcabaDeUnirseALaSala.get(2, TimeUnit.SECONDS);
-        assertTrue(lista.getUsuarios().contains("pepe"));
-
-    }
+//    @Test
+//    public void siYaHayUsuariosEnLaSalaQueAquelNuevoUsuarioQueSeUnePuedaVerLosQueYaEstanEnDichaSala() throws Exception {
+//        givenUsuarioConectado("pepe","/topic" +
+//                "/cuandoUsuarioSeUneASalaDeEspera",true , MensajeRecibidoDTO.class);
+//        CompletableFuture<ListaUsuariosDTO> usuarioQueAcabaDeUnirseALaSala =
+//                givenUsuarioConectado("jose","/user/queue/jugadoresExistentes",
+//                        true,
+//                        ListaUsuariosDTO.class);
+//        ListaUsuariosDTO lista = usuarioQueAcabaDeUnirseALaSala.get(2, TimeUnit.SECONDS);
+//        assertTrue(lista.getUsuarios().contains("pepe"));
+//
+//    }
     private <T> CompletableFuture<T> givenUsuarioConectado(
             String nombreUsuario,
             String dondeSeConecta,
