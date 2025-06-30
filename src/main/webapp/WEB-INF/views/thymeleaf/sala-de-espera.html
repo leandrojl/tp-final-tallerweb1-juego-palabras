@@ -57,13 +57,11 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
 <script th:inline="javascript">
-    var nombreUsuario = /*[[${usuario}]]*/ "anonimo";
-    var idPartida = /*[[${idPartida}]]*/ 0;
-    sessionStorage.setItem("usuario", nombreUsuario);
-    sessionStorage.setItem("idPartida", idPartida);
-    console.log("nombreUsuario:", nombreUsuario);
-    console.log("idPartida:", idPartida);
+    sessionStorage.setItem("usuario", /*[[${usuario}]]*/ "anonimo");
+    sessionStorage.setItem("idPartida", /*[[${idPartida}]]*/ 0);
+    sessionStorage.setItem("usuarioId", /*[[${usuarioId}]]*/ 0);
 </script>
+
 <script th:src="@{/js/salaDeEsperaSocket.js}"></script>
 </body>
 </html>

@@ -151,9 +151,10 @@
                                 <td th:text="${partida.minimoJugadores}"></td>
                                 <td th:text="${partida.estado}"></td>
                                 <td>
-                                    <a class="btn btn-sm btn-orange">
-                                        Unirse
-                                    </a>
+                                    <form th:action="@{/sala-de-espera}" method="post">
+                                        <input type="hidden" name="idPartida" th:value="${partida.id}" />
+                                        <button type="submit" class="btn btn-sm btn-orange">Unirse</button>
+                                    </form>
                                 </td>
                             </tr>
                             </tbody>

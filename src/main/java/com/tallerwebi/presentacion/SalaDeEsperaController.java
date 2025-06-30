@@ -100,13 +100,21 @@ public class SalaDeEsperaController {
         return "sala-de-espera";
     }
 
-    @RequestMapping(value = "/sala-de-espera", method = RequestMethod.GET)
-    public String armarLaSalaDeEspera(Model model, HttpSession session) {
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
-        Long idPartida = (Long) session.getAttribute("idPartida");
+    @RequestMapping(value = "/sala-de-espera", method = {RequestMethod.GET, RequestMethod.POST})
+    public String manejarSalaDeEspera(
+            @RequestParam(required = false) Long idPartida,
+            Model model,
+            HttpSession session
+    ) {
+        // Si vino por POST, lo guardamos
+        if (idPartida != null) {
+            session.setAttribute("idPartida", idPartida);
+        } else {
+            idPartida = (Long) session.getAttribute("idPartida");
+        }
 
-        String nombreUsuario = usuarioPartidaService.obtenerNombreDeUsuarioEnLaPartida(usuarioId,idPartida);
-        System.out.println(nombreUsuario);
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        String nombreUsuario = usuarioPartidaService.obtenerNombreDeUsuarioEnLaPartida(usuarioId, idPartida);
 
         model.addAttribute("usuarioId", usuarioId);
         model.addAttribute("usuario", nombreUsuario);
@@ -115,11 +123,6 @@ public class SalaDeEsperaController {
         return "sala-de-espera";
     }
 
-    @PostMapping("/sala-de-espera")
-    public String recibirIdPartida(@RequestParam Long idPartida, HttpSession session) {
-        session.setAttribute("idPartida", idPartida);
-        return "redirect:/sala-de-espera";
-    }
 
 
 

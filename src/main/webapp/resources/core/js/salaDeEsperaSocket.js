@@ -2,8 +2,9 @@ const stompClient = new StompJs.Client({
     brokerURL: 'ws://localhost:8080/spring/wschat'
 });
 
-var idPartida = sessionStorage.getItem("idPartida");
-var usuario = sessionStorage.getItem("usuario");
+const idPartida = Number(sessionStorage.getItem("idPartida"));
+const usuario = sessionStorage.getItem("usuario");
+const usuarioId = Number(sessionStorage.getItem("usuarioId"));
 
 
 
