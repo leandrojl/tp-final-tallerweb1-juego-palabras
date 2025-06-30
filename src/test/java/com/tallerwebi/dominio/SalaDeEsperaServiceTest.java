@@ -16,9 +16,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -149,8 +149,7 @@ public class SalaDeEsperaServiceTest {
         when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
         when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
 
-        assertThrows(CantidadDeUsuariosInsuficientesException.class,
-                () -> servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje));
+        assertFalse(servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje));
     }
     @Test
     public void siAlguienAbandonaLaSalaDeEsperaQueSeLeCanceleLaPartidaAsociada(){
@@ -183,26 +182,25 @@ public class SalaDeEsperaServiceTest {
         Long idUsuario = 1L;
         String nombreUsuario = "lucas";
         MensajeDto mensaje = new MensajeDto(idUsuario,idPartida,"abandona sala");
-        //List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose")); PARA DESPUES DEL MERGE
-        //when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
-        List<String> usuarios = List.of("pepe","jose");
+        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
+        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
         doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
-
-        Set<String> usuariosEnSala = new HashSet<>(List.of("pepe", "jose"));//ESTO DESPUES  VUELA
-        ReflectionTestUtils.setField(servicioSalaDeEspera, "usuariosEnSala", usuariosEnSala); //IDEM
 
         whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
 
         thenNotificaALosOtrosUsuariosQueAbandonaLaSala(usuarios);
     }
 
-    private void thenNotificaALosOtrosUsuariosQueAbandonaLaSala(List<String> usuarios) {
-        for(String usuario : usuarios) {
+    private void thenNotificaALosOtrosUsuariosQueAbandonaLaSala(List<Usuario> usuarios) {
+        List<String> nombresEsperados = usuarios.stream()
+                .map(Usuario::getNombreUsuario)
+                .collect(Collectors.toList());
+        for(Usuario usuario : usuarios) {
             verify(simpMessagingTemplate).convertAndSendToUser(
-                    eq(usuario),
+                    eq(usuario.getNombreUsuario()),
                     eq("/queue/jugadoresExistentes"),
                     argThat(dto -> dto instanceof ListaUsuariosDTO &&
-                            new HashSet<>(((ListaUsuariosDTO) dto).getUsuarios()).equals(new HashSet<>(usuarios))
+                            new HashSet<>(((ListaUsuariosDTO) dto).getUsuarios()).equals(new HashSet<>(nombresEsperados))
                     )
             );
         }

@@ -11,14 +11,13 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service("servicioSalaDeEspera")
 @Transactional
 public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     SimpMessagingTemplate simpMessagingTemplate;
-    private final Set<String> usuariosEnSala = ConcurrentHashMap.newKeySet();
     private UsuarioPartidaRepository usuarioPartida;
     private PartidaRepository partidaRepo;
 
@@ -70,18 +69,25 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     @Override
     public void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala, Long idPartida) {
-        usuariosEnSala.add(nombreUsuarioQueAcabaDeUnirseALaSala);
-        for (String usuario : usuariosEnSala) {
-            this.simpMessagingTemplate.convertAndSendToUser(
-                    usuario,
-                    "/queue/jugadoresExistentes",
-                    new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
-            );
-        }
+        notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         this.simpMessagingTemplate.convertAndSend(
                 "/topic/cuandoUsuarioSeUneASalaDeEspera/" + idPartida
                 ,new MensajeRecibidoDTO(nombreUsuarioQueAcabaDeUnirseALaSala)
         );
+    }
+
+    private void notificarAUsuariosLosQueEstanEnLaSala(Long idPartida) {
+        List<Usuario> usuariosEnSala = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
+        List<String> nombres = usuariosEnSala.stream()
+                .map(Usuario::getNombreUsuario)
+                .collect(Collectors.toList());
+        for (Usuario usuario : usuariosEnSala) {
+            this.simpMessagingTemplate.convertAndSendToUser(
+                    usuario.getNombreUsuario(),
+                    "/queue/jugadoresExistentes",
+                    new ListaUsuariosDTO(nombres)
+            );
+        }
     }
 
 
@@ -103,13 +109,13 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         Partida partida = usuarioPartida.obtenerPartida(idPartida);
         //cambiar el estado de usuarioPartida a EN_CURSO DE Todos los usuarios de la partid
 
-        List<Usuario> usuarios = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
-        if(partida.getMinimoJugadores() > usuarios.size()) {
+        List<Usuario> usuariosEnSala = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
+        if(partida.getMinimoJugadores() > usuariosEnSala.size()) {
             return false;
         } // PARA SPRINT 4
         this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
-            for (String usuario : usuariosEnSala) {
-                simpMessagingTemplate.convertAndSendToUser(usuario, "/queue/irAPartida",
+            for (Usuario usuario : usuariosEnSala) {
+                simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
                         new MensajeRecibidoDTO(
                         "http://localhost:8080/spring/lobby")); // PROVISIONAL PARA QUE  FUNCIONE
             }
@@ -120,16 +126,8 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     public MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuario) {
         Long idUsuario = mensaje.getIdUsuario();
         Long idPartida = mensaje.getIdPartida();
-        usuariosEnSala.remove(nombreUsuario);
         this.usuarioPartida.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
-        //List<Usuario> usuarios = this.usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida); PARA DESPUES DEL MERGE
-        for (String usuario : usuariosEnSala) {
-            this.simpMessagingTemplate.convertAndSendToUser(
-                    usuario,
-                    "/queue/jugadoresExistentes",
-                    new ListaUsuariosDTO(new ArrayList<>(usuariosEnSala))
-            );
-        }
+        notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         return new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
     }
 
