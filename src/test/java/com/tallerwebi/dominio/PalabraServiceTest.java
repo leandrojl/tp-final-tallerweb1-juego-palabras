@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import com.tallerwebi.dominio.PalabraServicio;
+import com.tallerwebi.dominio.interfaceService.PalabraServicio;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 

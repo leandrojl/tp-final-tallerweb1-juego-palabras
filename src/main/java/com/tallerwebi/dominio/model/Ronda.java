@@ -19,7 +19,7 @@ public class Ronda {
     private Estado estado;
     private LocalDateTime fechaHora; //LocalDateTime es una clase que se mapea a datetime con huibernate, con .now() genera el horario actual.
 
-    public Ronda(Partida2 partida) {
+    public Ronda(Partida partida) {
         this.partida = partida;
     }
 

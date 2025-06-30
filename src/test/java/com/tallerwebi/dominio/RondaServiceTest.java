@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import com.tallerwebi.dominio.interfaceService.PalabraServicio;
 import com.tallerwebi.dominio.model.Palabra;
 import com.tallerwebi.dominio.model.Partida;

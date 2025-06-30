@@ -1,8 +1,9 @@
 package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import com.tallerwebi.dominio.interfaceRepository.RondaRepository;
-import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Ronda;
 import com.tallerwebi.integracion.config.HibernateTestConfig;
 import com.tallerwebi.integracion.config.SimpMessagingMockConfigTest;
@@ -42,7 +43,7 @@ public class RondaRepositoryTest {
     @Rollback
     public void queSePuedaObtenerCantidadDeRondasPorPartida() {
         // Crear una partida
-        Partida2 partida = new Partida2("Sala Test", "Español", true, 5, 6, 2, Estado.EN_ESPERA);
+        Partida partida = new Partida("Sala Test", "Español", true, 5, 6, 2, Estado.EN_ESPERA);
         sessionFactory.getCurrentSession().save(partida);
 
         // Crear 3 rondas asociadas a la partida
