@@ -155,7 +155,8 @@ public class SalaDeEsperaController {
     @MessageMapping("/inicioPartida")
     public void enviarUsuariosALaPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
         Boolean redireccionamientoCorrecto = this.salaDeEsperaService.redireccionarUsuariosAPartida(mensajeRecibidoDTO);
-        if(!redireccionamientoCorrecto){
+        if(!redireccionamientoCorrecto){ //FUNCIONALIDAD PARA SPRINT 4 DE MINIMA CANT DE JUGADORES PARA INICIAR
+            // PARTIDA REQUERIDA
             throw new CantidadDeUsuariosInsuficientesException("error");
         }
     }
@@ -167,5 +168,11 @@ public class SalaDeEsperaController {
     public MensajeRecibidoDTO enviarMensajeDeDenegacionDeAvanceAPartida(CantidadDeUsuariosInsuficientesException ex) {
         System.out.println("ENTRE EN EL MANEJADOR DE EXCEPCION DEL CONTROLADOOOOOOOOOR");
         return new MensajeRecibidoDTO(ex.getMessage());
+    }
+
+    @MessageMapping("/abandonarSala")
+    @SendToUser("/queue/alAbandonarSala")
+    public MensajeRecibidoDTO abandonarSala(MensajeDto mensajeDto, Principal principal) {
+        return this.salaDeEsperaService.abandonarSala(mensajeDto,principal.getName());
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.lang.reflect.Type;
+import java.security.Principal;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -260,10 +261,23 @@ public class SalaDeEsperaControllerTest {
             salaDeEsperaController.enviarUsuariosALaPartida(dto);
         });
 
-        // Opcional: llamar al handler de excepción y verificar respuesta
         CantidadDeUsuariosInsuficientesException ex = new CantidadDeUsuariosInsuficientesException("error");
         MensajeRecibidoDTO respuesta = salaDeEsperaController.enviarMensajeDeDenegacionDeAvanceAPartida(ex);
         assertEquals("error", respuesta.getMessage());
+    }
+
+    @Test
+    public void queUnJugadorPuedaAbandonarLaSalaDeEspera(){
+        MensajeDto mensajeDto = new MensajeDto(1L,1L,"me voy");
+        MensajeRecibidoDTO msgEsperado = new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
+        when(salaDeEsperaService.abandonarSala(mensajeDto,"pepe")).thenReturn(msgEsperado);
+
+
+        Principal principal = () -> "pepe";
+        MensajeRecibidoDTO resultado = salaDeEsperaController.abandonarSala(mensajeDto, principal);
+
+        assertEquals(msgEsperado, resultado);
+        verify(salaDeEsperaService).abandonarSala(mensajeDto, "pepe");
     }
 
 
