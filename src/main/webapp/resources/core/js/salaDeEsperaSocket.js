@@ -5,7 +5,9 @@ const stompClient = new StompJs.Client({
 const idPartida = Number(sessionStorage.getItem("idPartida"));
 const usuario = sessionStorage.getItem("usuario");
 const usuarioId = Number(sessionStorage.getItem("usuarioId"));
-
+console.log("GUARDADO EN SESION EL USUARIO ID: " + usuarioId);
+console.log("GUARDADO EN SESION EL USAURIO: " + usuario);
+console.log("GUARDADO EN SESION EL ID DE LA PARTIDA: " + idPartida);
 
 
 stompClient.debug = function(str) {
@@ -103,24 +105,24 @@ function modificarBotonDeEstadoJugador(estadoJugador) {
 }
 
 
-function agregarJugador(usuario) {
+function agregarJugador(usuarioQueLlegaDePrincipal) {
+    console.log("USUARIO DEL PRINCIPAL: " + usuarioQueLlegaDePrincipal);
     const contenedor = document.getElementById("jugadores-container");
-    const usuarioActual = sessionStorage.getItem("usuario");
 
     const jugadorDiv = document.createElement("div");
-    jugadorDiv.id = `jugador-${usuario}`;
+    jugadorDiv.id = `jugador-${usuarioQueLlegaDePrincipal}`;
     jugadorDiv.className = "d-flex justify-content-between align-items-center bg-light text-dark p-3 rounded-3 mb-3 shadow-sm";
 
     const nombreSpan = document.createElement("span");
     nombreSpan.className = "fw-bold fs-5";
-    nombreSpan.textContent = usuario;
+    nombreSpan.textContent = usuarioQueLlegaDePrincipal;
 
     const boton = document.createElement("div");
-    boton.id = `ready-button-${usuario}`;
+    boton.id = `ready-button-${usuarioQueLlegaDePrincipal}`;
     boton.className = "btn btn-danger";
     boton.textContent = "NO ESTOY LISTO";
 
-    if (usuario === usuarioActual) {
+    if (usuarioQueLlegaDePrincipal === usuario) {
         let estaListo = false;
 
         boton.style.cursor = "pointer";

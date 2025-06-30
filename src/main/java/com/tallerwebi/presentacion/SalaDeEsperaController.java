@@ -114,8 +114,9 @@ public class SalaDeEsperaController {
         }
 
         Long usuarioId = (Long) session.getAttribute("usuarioId");
-        String nombreUsuario = usuarioPartidaService.obtenerNombreDeUsuarioEnLaPartida(usuarioId, idPartida);
-
+        usuarioPartidaService.agregarUsuarioAPartida(usuarioId,idPartida,0,false,Estado.EN_ESPERA);
+        //String nombreUsuario = usuarioPartidaService.obtenerNombreDeUsuarioEnLaPartida(usuarioId, idPartida);
+        String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
         model.addAttribute("usuarioId", usuarioId);
         model.addAttribute("usuario", nombreUsuario);
         model.addAttribute("idPartida", idPartida);

@@ -108,8 +108,8 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
             return false;
         } // PARA SPRINT 4
         this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
-            for (Usuario usuario : usuarios) {
-                simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
+            for (String usuario : usuariosEnSala) {
+                simpMessagingTemplate.convertAndSendToUser(usuario, "/queue/irAPartida",
                         new MensajeRecibidoDTO(
                         "http://localhost:8080/spring/lobby")); // PROVISIONAL PARA QUE  FUNCIONE
             }
