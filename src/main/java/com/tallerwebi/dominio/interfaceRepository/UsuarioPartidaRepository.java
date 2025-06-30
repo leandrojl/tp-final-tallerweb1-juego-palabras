@@ -16,7 +16,6 @@ public interface UsuarioPartidaRepository {
     List<Object[]> obtenerRanking();
 
 
-
     void guardarUsuarioPartida(UsuarioPartida usuarioPartida);
 
     void actualizarPuntaje(Long usuarioId, Long partidaId, int nuevoPuntaje);
@@ -28,4 +27,9 @@ public interface UsuarioPartidaRepository {
     void sumarPuntaje(Long usuarioId, Long partidaId, int puntos);
 
     Usuario obtenerUsuarioPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId);
+
+    UsuarioPartida obtenerUsuarioEspecificoPorPartida(Long usuarioId, Long partidaId);
+
+    void actualizar(UsuarioPartida relacion);
+
 }

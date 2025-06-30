@@ -67,11 +67,16 @@ public class WebSocketController {
         return new MensajeRecibidoDTO(nombreUsuario);
     }
 
+
+
     @MessageMapping("/juego/iniciar")
-    public void iniciarRonda(MensajeInicioRonda mensaje){
-        Long partidaId = mensaje.getId();
-        partidaService.iniciarNuevaRonda(partidaId);
+    public void iniciarRonda(MensajeInicioRonda mensaje) {
+        Long partidaId = mensaje.getPartidaId();
+
+        RondaDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
+
     }
+
 
     @MessageMapping("/juego/intento")
     public void procesarIntento(DtoIntento intento, Principal principal){
@@ -110,9 +115,6 @@ public class WebSocketController {
     //verificar tablaacriertos
     //verificarTiempo
     //FinalizarPartida -> vistaFinal con puntajes
-
-
-
 
 
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {

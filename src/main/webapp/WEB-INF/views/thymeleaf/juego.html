@@ -262,11 +262,11 @@
 
                 <p class="lead mb-4" id="definicionActual" th:text="${definicion}">Definición</p>
 
-                <div class="palabra-inputs mb-4" id="contenedor-palabra">
-                    <input type="hidden" id="palabraOculta" th:value="${palabra}"/>
-                    <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
-                          th:id="'letra-' + ${iterStat.index}"></span>
-                </div>
+                    <div class="palabra-inputs mb-4" id="contenedor-palabra">
+                        <input type="hidden" id="palabraOculta" th:value="${palabra}" />
+                        <span th:each="letra, iterStat : ${palabra.toCharArray()}" class="bloque-letra oculto"
+                              th:id="'letra-' + ${iterStat.index}"></span>
+                    </div>
             </section>
         </div>
 
@@ -281,33 +281,57 @@
     </div>
 </main>
 
-<!-- Ranking (ahora lo llenamos con JS) -->
-<div class="ranking-horizontal d-flex justify-content-center gap-4 flex-wrap mt-4"></div>
 
-<!-- Modal abandonar -->
-<div class="modal fade" id="modalAbandonar" tabindex="-1" aria-labelledby="modalAbandonarLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">¿Estás seguro?</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                ¿Querés abandonar la partida? Vas a perder tu progreso.
-            </div>
-            <div class="modal-footer">
-                <a href="/spring/lobby" class="btn btn-danger">Sí, abandonar</a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    <!-- Ranking (ahora lo llenamos con JS) -->
+    <div class="ranking-horizontal d-flex justify-content-center gap-4 flex-wrap mt-4"></div>
+    <input type="hidden" id="usuarioNombre" th:value="${usuario}" />
+
+    <!-- Modal abandonar -->
+    <div class="modal fade" id="modalAbandonar" tabindex="-1" aria-labelledby="modalAbandonarLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">¿Estás seguro?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Querés abandonar la partida? Vas a perder tu progreso.
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-danger" onclick="return abandonarYSalir()">Sí, abandonar</a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-<script th:src="@{/resources/core/js/juego.js}"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script th:src="@{/resources/core/js/juego.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const contextPath = /*[[${#httpServletRequest.contextPath}]]*/ '';
+        /*]]>*/
+    </script>
+    <script>
+        function abandonarYSalir() {
+            const usuarioId = document.getElementById("usuarioId").value;
+            const partidaId = document.getElementById("partidaId").value;
+
+            navigator.sendBeacon(contextPath + "/abandonarPartida", new URLSearchParams({
+                usuarioId: usuarioId,
+                partidaId: partidaId
+            }));
+
+            window.location.href = contextPath + "/lobby";
+            return false;
+        }
+    </script>
+
 </body>
 
 </html>

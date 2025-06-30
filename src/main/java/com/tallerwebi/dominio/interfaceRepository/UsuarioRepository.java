@@ -12,7 +12,7 @@ public interface UsuarioRepository {
     Usuario buscar(String email);
     void modificar(Usuario usuario);
 
-    Usuario buscarPorId(long i);
+    Usuario buscarPorId(Long i);
 
     List<Usuario> obtenerTodosLosUsuariosLogueados();
 }

@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio.model;
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida2;
 
 import javax.persistence.*;
@@ -20,16 +21,19 @@ public class UsuarioPartida {
     private Partida2 partida;
     private boolean gano;
     private int puntaje;
+    private Estado estado;
 
     public UsuarioPartida (){
 
     }
 
-
-    public UsuarioPartida(Usuario usuario, Partida2 partida, boolean gano) {
-    this.usuario=usuario;
-    this.partida=partida;
-    this.gano=gano;
+    public UsuarioPartida(Long id, Usuario usuario, Partida2 partida, boolean gano, int puntaje, Estado estado) {
+        this.id = id;
+        this.usuario = usuario;
+        this.partida = partida;
+        this.gano = gano;
+        this.puntaje = puntaje;
+        this.estado = estado;
     }
 
     // Getters y setters
@@ -75,5 +79,14 @@ public class UsuarioPartida {
 
     public int getPuntaje() {
         return puntaje;
+    }
+
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
     }
 }

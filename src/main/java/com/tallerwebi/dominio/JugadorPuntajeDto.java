@@ -4,6 +4,11 @@ public class JugadorPuntajeDto {
     private String nombre;
     private int puntaje;
 
+
+    public JugadorPuntajeDto(){
+
+    }
+
     // Constructor
     public JugadorPuntajeDto(String nombre, int puntaje) {
         this.nombre = nombre;

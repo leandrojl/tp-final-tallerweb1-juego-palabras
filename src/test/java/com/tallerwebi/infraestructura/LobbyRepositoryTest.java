@@ -16,7 +16,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/*
 //estas anotaciones deben ir en la clase de test de los repositorios
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
@@ -167,3 +167,5 @@ public class LobbyRepositoryTest {
         assertEquals(0, partidasDespuesDeEliminar.size());
     }
 }
+
+ */

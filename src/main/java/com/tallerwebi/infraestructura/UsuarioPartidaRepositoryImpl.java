@@ -17,9 +17,7 @@ import java.util.List;
 public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
 
     @Autowired
-    private SessionFactory sessionFactory;
-
-
+    SessionFactory sessionFactory;
 
 
 
@@ -140,6 +138,23 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .setParameter("usuarioId", usuarioId)
                 .setParameter("partidaId", partidaId)
                 .uniqueResult();
+    }
+
+    @Override
+    public UsuarioPartida obtenerUsuarioEspecificoPorPartida(Long usuarioId, Long partidaId) {
+        Session session = sessionFactory.getCurrentSession();
+
+        return (UsuarioPartida) session.createCriteria(UsuarioPartida.class)
+                .add(Restrictions.eq("usuario.id", usuarioId))
+                .add(Restrictions.eq("partida.id", partidaId))
+                .uniqueResult();  // único resultado esperado
+    }
+
+    @Override
+    public void actualizar(UsuarioPartida relacion) {
+        Session session = sessionFactory.getCurrentSession();
+        session.update(relacion);
+
     }
 
 }

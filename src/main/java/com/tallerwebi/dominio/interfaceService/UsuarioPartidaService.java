@@ -10,9 +10,16 @@ public interface UsuarioPartidaService {
     void asociarUsuarioConPartida(Usuario usuario, Partida2 partida);
     void actualizarPuntaje(Long usuarioId, Long partidaId, int nuevoPuntaje);
     int obtenerPuntaje(Long usuarioId, Long partidaId);
+
     List<UsuarioPartida> obtenerPorPartida(Long partidaId);
 
     void sumarPuntos(Long usuarioId, Long partidaId, int puntos);
 
     Usuario obtenerUsuarioPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId);
+
+
+    void marcarComoPerdedor(Long usuarioId, Long partidaId);
+
+    UsuarioPartida obtenerUsuarioEspecificoPorPartida(Long usuarioId, Long partidaId);
+
 }

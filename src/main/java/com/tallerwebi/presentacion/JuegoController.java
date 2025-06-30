@@ -3,20 +3,18 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.DefinicionDto;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.RondaDto;
-import com.tallerwebi.dominio.interfaceService.PartidaService;
-import com.tallerwebi.dominio.interfaceService.PuntajeService;
-import com.tallerwebi.dominio.interfaceService.RondaService;
-import com.tallerwebi.dominio.model.Jugador;
-import com.tallerwebi.dominio.model.Partida2;
+import com.tallerwebi.dominio.interfaceService.*;
+import com.tallerwebi.dominio.model.*;
 
-import com.tallerwebi.dominio.model.Ronda;
-import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import com.tallerwebi.dominio.JugadorPuntajeDto;
 
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
@@ -32,12 +30,18 @@ public class JuegoController {
     private final RondaService rondaServicio;
     private final PuntajeService puntajeServicio;
     private final PartidaService partidaServicio;
+    private final UsuarioPartidaService usuarioPartidaService;
+    private final UsuarioService usuarioService;
 
     @Autowired
-    public JuegoController(RondaService rondaServicio, PuntajeService puntajeServicio, PartidaService partidaServicio) {
+    public JuegoController(RondaService rondaServicio, PuntajeService puntajeServicio, PartidaService partidaServicio,
+                           UsuarioPartidaService usuarioPartidaService,
+                           UsuarioService usuarioService) {
         this.rondaServicio = rondaServicio;
         this.puntajeServicio = puntajeServicio;
         this.partidaServicio = partidaServicio;
+        this.usuarioPartidaService = usuarioPartidaService;
+        this.usuarioService = usuarioService;
     }
     @GetMapping
     public ModelAndView mostrarVistaJuego(HttpSession session) {
@@ -50,50 +54,106 @@ public class JuegoController {
 
         Long partidaId = (Long) session.getAttribute("partidaID");
 
-        // Si no hay partida en sesión, la creo ahora
-        if (partidaId == null) {
-            Partida2 nuevaPartida = new Partida2();
-            nuevaPartida.setNombre("Partida de " + nombreUsuario);
+        if (partidaId != null) {
+            Partida2 partida = partidaServicio.obtenerPartidaPorId(partidaId);
 
-            // Ejemplo idioma aleatorio
-            String idioma = Math.random() < 0.5 ? "Castellano" : "Ingles";
-            nuevaPartida.setIdioma(idioma);
-            nuevaPartida.setPermiteComodin(false);
-            nuevaPartida.setRondasTotales(5);
-            nuevaPartida.setMaximoJugadores(1);
-            nuevaPartida.setMinimoJugadores(1);
-            nuevaPartida.setEstado(Estado.EN_CURSO);
+            if (partida == null) {
+                session.removeAttribute("partidaID");
+                partidaId = null;
+            } else if (partida.getEstado() == Estado.FINALIZADA) {
+                session.removeAttribute("partidaID");
+                partidaId = null;
+            }
+        }
+
+        ModelMap model = new ModelMap();
+        model.put("usuarioId", usuarioId);
+        model.put("usuario", nombreUsuario);
+
+        if (partidaId == null) {
+            // Crear nueva partida
+            Partida2 nuevaPartida = generarPartida(nombreUsuario);
 
             Serializable id = partidaServicio.crearPartida(nuevaPartida);
             nuevaPartida.setId((Long) id);
-
-            // Guardar id en sesión para próximas peticiones
             session.setAttribute("partidaID", nuevaPartida.getId());
 
-            // Crear primera ronda y obtener datos para la vista
+            Usuario usuario = usuarioService.obtenerUsuarioPorId(usuarioId);
+            usuarioPartidaService.asociarUsuarioConPartida(usuario, nuevaPartida);
+
             RondaDto dto = partidaServicio.iniciarNuevaRonda(nuevaPartida.getId());
 
-            ModelMap model = new ModelMap();
-            model.put("usuarioId", usuarioId);
             model.put("partidaId", nuevaPartida.getId());
             model.put("palabra", dto.getPalabra());
             model.put("definicion", dto.getDefinicionTexto());
             model.put("rondaActual", dto.getNumeroDeRonda());
 
+            int puntaje = dto.getJugadores().stream()
+                    .filter(j -> j.getNombre().equals(nombreUsuario))
+                    .map(JugadorPuntajeDto::getPuntaje)
+                    .findFirst()
+                    .orElse(0);
+            model.put("puntaje", puntaje);
+
             return new ModelAndView("juego", model);
         }
 
-        // Si ya existe partida en sesión, solo busco datos para mostrar
+        // Si ya hay partida válida, cargo info actual
         RondaDto definicion = partidaServicio.obtenerPalabraYDefinicionDeRondaActual(partidaId);
 
-        ModelMap model = new ModelMap();
-        model.put("usuarioId", usuarioId);
+        if (definicion == null) {
+            System.out.println("No se pudo obtener la ronda actual para partidaId=" + partidaId);
+            session.removeAttribute("partidaID");
+            return new ModelAndView("redirect:/juego");
+        }
+
         model.put("partidaId", partidaId);
         model.put("palabra", definicion.getPalabra());
         model.put("definicion", definicion.getDefinicionTexto());
         model.put("rondaActual", definicion.getNumeroDeRonda());
 
+        int puntaje = definicion.getJugadores().stream()
+                .filter(j -> j.getNombre().equals(nombreUsuario))
+                .map(JugadorPuntajeDto::getPuntaje)
+                .findFirst()
+                .orElse(0);
+        model.put("puntaje", puntaje);
+
         return new ModelAndView("juego", model);
+    }
+
+
+
+
+    @PostMapping("/abandonarPartida")
+    @ResponseBody
+    public ResponseEntity<String> abandonarPartida(@RequestParam Long usuarioId,
+                                                   @RequestParam Long partidaId,
+                                                   HttpSession session) {
+        UsuarioPartida relacion = usuarioPartidaService.obtenerUsuarioEspecificoPorPartida(usuarioId, partidaId);
+
+        if (relacion != null) {
+            usuarioPartidaService.marcarComoPerdedor(usuarioId, partidaId);
+
+            session.removeAttribute("partidaID");
+
+            return ResponseEntity.ok("OK");
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No encontrado");
+    }
+
+
+    private static Partida2 generarPartida(String nombreUsuario) {
+        Partida2 nuevaPartida = new Partida2();
+        nuevaPartida.setNombre("Partida de " + nombreUsuario);
+        nuevaPartida.setIdioma(Math.random() < 0.5 ? "Castellano" : "Ingles");
+        nuevaPartida.setPermiteComodin(false);
+        nuevaPartida.setRondasTotales(5);
+        nuevaPartida.setMaximoJugadores(1);
+        nuevaPartida.setMinimoJugadores(1);
+        nuevaPartida.setEstado(Estado.EN_CURSO);
+        return nuevaPartida;
     }
 
 
