@@ -7,9 +7,8 @@ import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.Palabra;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Ronda;
-import com.tallerwebi.helpers.HelperPalabra;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
-import com.tallerwebi.infraestructura.RondaRepository;
+import com.tallerwebi.dominio.interfaceRepository.RondaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +19,7 @@ import java.time.LocalDateTime;
 @Transactional
 public class RondaServiceImpl implements RondaService {
 
-    private final int MAX_RONDAS = 5;
-    private int rondaActual = 1;
-    private final HelperPalabra helperPalabra = new HelperPalabra();
+
 
 
 
@@ -44,7 +41,6 @@ public class RondaServiceImpl implements RondaService {
 
         int numeroDeRonda = rondaRepositorio.obtenerCantidadDeRondasPorPartida(partidaId) + 1;
 
-        // ✅ Usamos palabra que ya tiene sus definiciones asociadas
         Palabra palabra = palabraServicio.obtenerPalabraConDefinicionesDesdeHelper(idioma);
 
         Ronda nuevaRonda = new Ronda();
@@ -59,6 +55,10 @@ public class RondaServiceImpl implements RondaService {
         return nuevaRonda;
     }
 
+    @Override
+    public Ronda obtenerUltimaRondaDePartida(Long partidaId) {
+        return rondaRepositorio.obtenerUltimaRondaDePartida(partidaId);
+    }
 
 
 }

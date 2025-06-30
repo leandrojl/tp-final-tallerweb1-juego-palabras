@@ -1,104 +1,189 @@
 //package com.tallerwebi.presentacion;
 //
-//import com.tallerwebi.dominio.*;
-//import com.tallerwebi.dominio.interfaceService.PartidaService;
-//import com.tallerwebi.dominio.interfaceService.PuntajeService;
-//import com.tallerwebi.dominio.interfaceService.RondaService;
-//import com.tallerwebi.dominio.model.Jugador;
+//import static org.mockito.Mockito.*;
+//import static org.junit.jupiter.api.Assertions.*;
+//
+//import com.tallerwebi.dominio.Enum.Estado;
+//import com.tallerwebi.dominio.JugadorPuntajeDto;
+//import com.tallerwebi.dominio.RondaDto;
+//import com.tallerwebi.dominio.interfaceService.*;
+//import com.tallerwebi.dominio.model.Partida;
+//import com.tallerwebi.dominio.model.Partida2;
+//import com.tallerwebi.dominio.model.Usuario;
+//import com.tallerwebi.dominio.model.UsuarioPartida;
+//import com.tallerwebi.presentacion.JuegoController;
+//import org.springframework.web.servlet.ModelAndView;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
-//import org.springframework.messaging.simp.SimpMessagingTemplate;
-//import org.springframework.ui.ExtendedModelMap;
-//import org.springframework.ui.Model;
-//import org.springframework.web.servlet.ModelAndView;
-//
-//import java.util.Map;
-//
-//import static org.hamcrest.MatcherAssert.assertThat;
-//import static org.hamcrest.Matchers.equalToIgnoringCase;
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
+//import javax.servlet.http.HttpSession;
+//import java.io.Serializable;
+//import java.util.List;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.http.HttpStatus;
 //
 //public class JuegoControllerTest {
 //
+//    private RondaService rondaServicio;
 //    private PuntajeService puntajeServicio;
 //    private PartidaService partidaServicio;
-//    private RondaService rondaServicio;
-//    private JuegoController controladorJuego;
-//    private SimpMessagingTemplate simpMessagingTemplate;
+//    private UsuarioPartidaService usuarioPartidaService;
+//    private UsuarioService usuarioService;
+//    private JuegoController juegoController;
 //
 //    @BeforeEach
 //    public void setUp() {
 //        rondaServicio = mock(RondaService.class);
-//        puntajeServicio = new PuntajeServiceImpl();
-//        partidaServicio = new PartidaServiceImpl(simpMessagingTemplate);
-//        controladorJuego = new JuegoController(rondaServicio, puntajeServicio, partidaServicio);
+//        puntajeServicio = mock(PuntajeService.class);
+//        partidaServicio = mock(PartidaService.class);
+//        usuarioPartidaService = mock(UsuarioPartidaService.class);
+//        usuarioService = mock(UsuarioService.class);
+//
+//        juegoController = new JuegoController(rondaServicio, puntajeServicio, partidaServicio, usuarioPartidaService, usuarioService);
 //    }
 //
 //    @Test
-//    public void queSeMuestreLaVistaJuego() {
-//        ModelAndView mov = controladorJuego.mostrarVistaJuego("1");
-//        assertThat(mov.getViewName(), equalToIgnoringCase("juego"));
+//    public void dadoSesionConUsuarioYPartidaNulaCreaPartidaNuevaYAsociaUsuario() {
+//        HttpSession session = sesionConUsuarioSinPartida(1L, "usuario1");
+//        Partida2 partidaGenerada = generarPartidaDummy("usuario1");
+//        when(partidaServicio.crearPartida(any())).thenReturn(100L);
+//        when(usuarioService.obtenerUsuarioPorId(1L)).thenReturn(new Usuario());
+//        when(partidaServicio.iniciarNuevaRonda(100L)).thenReturn(crearRondaDto("palabraTest", "definicionTest", 1, "usuario1", 10));
+//
+//        ModelAndView mav = mostrarVistaJuego(session);
+//
+//        verificarVistaJuegoConDatos(mav, "usuario1", 100L, "palabraTest", "definicionTest", 1, 10);
+//        verificarSesionContienePartidaId(session, 100L);
+//        verificarUsuarioAsociadoConPartida(usuarioPartidaService);
 //    }
 //
 //    @Test
-//    public void queSeRecibaElIdJugadorAlCargarElJuego() {
-//        String idJugador = "1";
-//        ModelAndView mov = controladorJuego.mostrarVistaJuego(idJugador);
-//        assertThat(mov.getViewName(), equalToIgnoringCase("juego"));
-//        assertThat((String) mov.getModel().get("jugadorId"), equalToIgnoringCase(idJugador));
+//    public void dadoSesionConUsuarioYPartidaValidaCargaDatosDePartidaExistente() {
+//        HttpSession session = sesionConUsuarioConPartida(1L, "usuario1", 200L);
+//        Partida partidaMock = new Partida();
+//        partidaMock.setId(200L);
+//        partidaMock.setEstado(Estado.EN_CURSO);
+//        when(partidaServicio.obtenerPartidaPorId(200L)).thenReturn(partidaMock);
+//
+//        RondaDto rondaDto = crearRondaDto("palabraExistente", "definicionExistente", 2, "usuario1", 20);
+//        when(partidaServicio.obtenerPalabraYDefinicionDeRondaActual(200L)).thenReturn(rondaDto);
+//
+//        ModelAndView mav = mostrarVistaJuego(session);
+//
+//        verificarVistaJuegoConDatos(mav, "usuario1", 200L, "palabraExistente", "definicionExistente", 2, 20);
 //    }
 //
 //    @Test
-//    public void queSeAgregueElJugadorALaPartida() {
-//        String idJugador = "1";
-//        controladorJuego.mostrarVistaJuego(idJugador);
-//        assertEquals("Jugador_1", partidaServicio.obtenerPartida(idJugador).getNombre(idJugador));
+//    public void dadoSesionSinUsuarioRedirigeALogin() {
+//        HttpSession session = mock(HttpSession.class);
+//        when(session.getAttribute("usuarioID")).thenReturn(null);
+//        when(session.getAttribute("usuario")).thenReturn(null);
+//
+//        ModelAndView mav = mostrarVistaJuego(session);
+//
+//        assertEquals("redirect:/login", mav.getViewName());
 //    }
 //
 //    @Test
-//    public void queSeRecibaElIntentoAlIntentarAcertar() {
-//        String intento = "example";
-//        String idJugador = "1";
-//        int tiempoRestante = 50;
+//    public void dadoUsuarioYPartidaAbandonaPartidaYLimpiaSesion() {
+//        Long usuarioId = 1L;
+//        Long partidaId = 2L;
+//        HttpSession session = mock(HttpSession.class);
+//        UsuarioPartida relacion = new UsuarioPartida();
 //
-//        partidaServicio.iniciarNuevaPartida(idJugador, "Gian");
-//        partidaServicio.obtenerPartida(idJugador).avanzarRonda("example", "Definicion ejemplo");
+//        when(usuarioPartidaService.obtenerUsuarioEspecificoPorPartida(usuarioId, partidaId)).thenReturn(relacion);
 //
-//        Map<String, Object> resultado = controladorJuego.procesarIntentoAjax(intento, idJugador, tiempoRestante);
+//        ResponseEntity<String> response = juegoController.abandonarPartida(usuarioId, partidaId, session);
 //
-//        assertEquals(true, resultado.get("correcto"));
-//        assertEquals(100, resultado.get("puntaje"));
+//        assertEquals(200, response.getStatusCodeValue());
+//        assertEquals("OK", response.getBody());
+//        verify(usuarioPartidaService).marcarComoPerdedor(usuarioId, partidaId);
+//        verify(session).removeAttribute("partidaID");
 //    }
 //
 //    @Test
-//    public void queFinaliceLaPartidaAlLlegarALaUltimaRonda() {
-//        String jugadorId = "1";
-//        partidaServicio.iniciarNuevaPartida(jugadorId, "july3p");
+//    public void dadoUsuarioNoRelacionadoConPartidaDevuelveNotFound() {
+//        Long usuarioId = 1L;
+//        Long partidaId = 2L;
+//        HttpSession session = mock(HttpSession.class);
+//        when(usuarioPartidaService.obtenerUsuarioEspecificoPorPartida(usuarioId, partidaId)).thenReturn(null);
 //
-//        for (int i = 0; i < 5; i++) {
-//            partidaServicio.obtenerPartida(jugadorId).avanzarRonda("palabra" + i, "definición" + i);
-//        }
+//        ResponseEntity<String> response = juegoController.abandonarPartida(usuarioId, partidaId, session);
 //
-//        assertTrue(partidaServicio.obtenerPartida(jugadorId).isPartidaTerminada());
+//        assertEquals(404, response.getStatusCodeValue());
+//        assertEquals("No encontrado", response.getBody());
+//        verify(session, never()).removeAttribute("partidaID");
+//        verify(usuarioPartidaService, never()).marcarComoPerdedor(anyLong(), anyLong());
 //    }
 //
-//    @Test
-//    public void queSeMuestreVistaFinalConRankingYGanador() {
-//        String jugadorId = "1";
-//        String nombre = "July3p";
+//    // Métodos privados Given
 //
-//        Jugador jugador = new Jugador(jugadorId, nombre, "july3p@hotmail.com", "pass");
-//        partidaServicio.iniciarNuevaPartida(jugadorId, nombre);
-//        puntajeServicio.registrarJugador(jugadorId, jugador);
-//        puntajeServicio.registrarPuntos(jugadorId, 500);
+//    private HttpSession sesionConUsuarioSinPartida(Long usuarioId, String nombreUsuario) {
+//        HttpSession session = mock(HttpSession.class);
+//        when(session.getAttribute("usuarioID")).thenReturn(usuarioId);
+//        when(session.getAttribute("usuario")).thenReturn(nombreUsuario);
+//        when(session.getAttribute("partidaID")).thenReturn(null);
+//        return session;
+//    }
 //
-//        Model model = new ExtendedModelMap();
-//        String viewName = controladorJuego.mostrarVistaFinal(jugadorId, model);
+//    private HttpSession sesionConUsuarioConPartida(Long usuarioId, String nombreUsuario, Long partidaId) {
+//        HttpSession session = mock(HttpSession.class);
+//        when(session.getAttribute("usuarioID")).thenReturn(usuarioId);
+//        when(session.getAttribute("usuario")).thenReturn(nombreUsuario);
+//        when(session.getAttribute("partidaID")).thenReturn(partidaId);
+//        return session;
+//    }
 //
-//        assertEquals("vistaFinalJuego", viewName);
-//        assertNotNull(model.getAttribute("ranking"));
-//        assertEquals(nombre, model.getAttribute("ganador"));
-//        assertEquals(nombre, model.getAttribute("jugadorActual"));
+//    private Partida2 generarPartidaDummy(String nombreUsuario) {
+//        Partida2 partida = new Partida2();
+//        partida.setNombre("Partida de " + nombreUsuario);
+//        partida.setIdioma("Castellano");
+//        partida.setPermiteComodin(false);
+//        partida.setRondasTotales(5);
+//        partida.setMaximoJugadores(1);
+//        partida.setMinimoJugadores(1);
+//        partida.setEstado(Estado.EN_CURSO);
+//        return partida;
+//    }
+//
+//    private RondaDto crearRondaDto(String palabra, String definicion, int rondaNum, String nombreJugador, int puntaje) {
+//        RondaDto rondaDto = new RondaDto();
+//        rondaDto.setPalabra(palabra);
+//        rondaDto.setDefinicionTexto(definicion);
+//        rondaDto.setNumeroDeRonda(rondaNum);
+//
+//        JugadorPuntajeDto jugador = new JugadorPuntajeDto();
+//        jugador.setNombre(nombreJugador);
+//        jugador.setPuntaje(puntaje);
+//
+//        rondaDto.setJugadores(List.of(jugador));
+//        return rondaDto;
+//    }
+//
+//    // Métodos privados When
+//
+//    private ModelAndView mostrarVistaJuego(HttpSession session) {
+//        return juegoController.mostrarVistaJuego(session);
+//    }
+//
+//    // Métodos privados Then
+//
+//    private void verificarVistaJuegoConDatos(ModelAndView mav, String usuarioEsperado, Long partidaEsperada,
+//                                             String palabraEsperada, String definicionEsperada, int rondaEsperada, int puntajeEsperado) {
+//        assertEquals("juego", mav.getViewName());
+//        assertNotNull(mav.getModel());
+//        assertEquals(usuarioEsperado, mav.getModel().get("usuario"));
+//        assertEquals(partidaEsperada, mav.getModel().get("partidaId"));
+//        assertEquals(palabraEsperada, mav.getModel().get("palabra"));
+//        assertEquals(definicionEsperada, mav.getModel().get("definicion"));
+//        assertEquals(rondaEsperada, mav.getModel().get("rondaActual"));
+//        assertEquals(puntajeEsperado, mav.getModel().get("puntaje"));
+//    }
+//
+//    private void verificarSesionContienePartidaId(HttpSession session, Long partidaIdEsperado) {
+//        verify(session).setAttribute("partidaID", partidaIdEsperado);
+//    }
+//
+//    private void verificarUsuarioAsociadoConPartida(UsuarioPartidaService usuarioPartidaServiceMock) {
+//        verify(usuarioPartidaServiceMock, times(1)).asociarUsuarioConPartida(any(Usuario.class), any(Partida.class));
 //    }
 //}

@@ -12,7 +12,7 @@ public class Usuario {
     private Long id;
     private String email;
     private String fotoPerfil;
-    private String nombreUsuario ="";
+    private String nombreUsuario;
     private int moneda;
     private String password;
     @Enumerated(EnumType.STRING)

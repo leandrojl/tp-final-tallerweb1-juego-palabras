@@ -1,14 +1,20 @@
 package com.tallerwebi.infraestructura;
 
+
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import com.tallerwebi.dominio.model.Partida;
+
+import org.hibernate.Criteria;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Repository
 public class PartidaRepositoryImpl implements PartidaRepository {
@@ -41,4 +47,5 @@ public class PartidaRepositoryImpl implements PartidaRepository {
                 .executeUpdate();
 
     }
+
 }

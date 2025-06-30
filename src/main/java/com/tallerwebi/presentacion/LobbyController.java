@@ -1,8 +1,12 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.Enum.Estado;
+
 import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.Partida;
+import com.tallerwebi.dominio.interfaceService.LobbyService;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
+import com.tallerwebi.dominio.model.Jugador;
 import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -99,6 +103,7 @@ public class LobbyController {
             Usuario usuario = usuarioService.buscarPorId(usuarioId); // Asegúrate de tener este servicio inyectado
             if (usuario != null) {
                 model.addAttribute("usuarioNombre", usuario.getNombreUsuario());
+
             }
         }
 

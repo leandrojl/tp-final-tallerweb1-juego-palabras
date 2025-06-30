@@ -1,5 +1,6 @@
 package com.tallerwebi.infraestructura;
 
+import com.tallerwebi.dominio.interfaceRepository.PalabraRepository;
 import com.tallerwebi.dominio.model.Palabra;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

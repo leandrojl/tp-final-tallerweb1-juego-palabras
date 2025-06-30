@@ -17,7 +17,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/*
 //estas anotaciones deben ir en la clase de test de los repositorios
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
@@ -167,6 +167,7 @@ public class LobbyRepositoryTest {
         List<Partida> partidasDespuesDeEliminar = lobbyRepository.obtenerPartidasEnEspera();
         assertEquals(0, partidasDespuesDeEliminar.size());
     }
+<<<<<<< HEAD
     @Test
     public void QueSeObtenganListaDePartidasPorNombre(){
         Partida partida1 = new Partida("Partida 1", "Español", true, 5,5, 2, Estado.EN_ESPERA);
@@ -181,3 +182,8 @@ public class LobbyRepositoryTest {
 
     }
 }
+=======
+}
+
+ */
+

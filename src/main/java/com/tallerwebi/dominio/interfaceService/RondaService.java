@@ -11,7 +11,9 @@ public interface RondaService {
 
     Ronda crearRonda(Long partidaId, String idioma);
 
-   // Map<String, List<String>> obtenerPalabraYDefinicion(String idioma);
+    Ronda obtenerUltimaRondaDePartida(Long partidaId);
+
+    // Map<String, List<String>> obtenerPalabraYDefinicion(String idioma);
 
 
 }

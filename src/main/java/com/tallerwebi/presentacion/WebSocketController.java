@@ -10,6 +10,10 @@ import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.model.MensajeEnviadoDTO;
 import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
+
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
@@ -20,7 +24,7 @@ import java.util.List;
 @Controller
 public class WebSocketController {
 
-
+    @Qualifier("partidaServiceImpl")
     private PartidaService partidaService;
 
     private SalaDeEsperaService salaDeEsperaService;
@@ -34,7 +38,6 @@ public class WebSocketController {
         this.salaDeEsperaService = salaDeEsperaService;
         this.aciertoService = aciertoService;
     }
-
 
 
     @MessageMapping("/chat")
@@ -51,19 +54,27 @@ public class WebSocketController {
 
 
     @MessageMapping("/juego/iniciar")
-    public void iniciarRonda(MensajeInicioRonda mensaje){
-        Long partidaId = mensaje.getId();
+    public void iniciarRonda(MensajeInicioRonda mensaje) {
+        Long partidaId = mensaje.getPartidaId();
 
-        // Acá generás la ronda - INICIAR CHAT
-        DefinicionDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
+        RondaDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
 
     }
 
-    @MessageMapping("/juego/intento")
-    @SendTo("/topic/mostrarIntento")
-    public ResultadoIntentoDto procesarIntento(DtoIntento intento, Principal principal){
 
-        return partidaService.procesarIntento(intento, principal.getName());
+    @MessageMapping("/juego/intento")
+    public void procesarIntento(DtoIntento intento, Principal principal){
+        String nombre = principal.getName();
+        if (principal == null) {
+            System.out.println("Principal es NULL");
+            nombre = "Anónimo";
+        } else {
+            System.out.println("Principal name: " + principal.getName());
+        }
+        System.out.println("Intento recibido: " + intento.getIntentoPalabra());
+        //partidaService.procesarIntento(intento, principal.getName());
+        partidaService.procesarIntento(intento, nombre);
+    }
         //si acierta pepi acerto.. sino mostrarenchat palabra prueba..
         //verificar que ronda no este terminada
         //bloquearChat
@@ -73,7 +84,7 @@ public class WebSocketController {
         //mandarIndividualmente a/c.usuario los puntajes y almacenarPuntajesDeTodos en un array
         //ir actualizando los putajes
         // (usar ListaUsuariosDto) y hacer topic que envie ese array
-    } //hacer tdd
+        //hacer tdd
 
 
     // == PASAR DE RONDA ==

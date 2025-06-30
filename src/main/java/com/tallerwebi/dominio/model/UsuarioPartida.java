@@ -2,6 +2,10 @@ package com.tallerwebi.dominio.model;
 
 import com.tallerwebi.dominio.Enum.Estado;
 
+import com.tallerwebi.dominio.RankingDTO;
+import com.tallerwebi.dominio.model.Partida;
+
+
 import javax.persistence.*;
 
 @Entity
@@ -22,10 +26,10 @@ public class UsuarioPartida {
     private boolean gano;
     private Estado estado;
 
-
-    public UsuarioPartida (){
+    public UsuarioPartida() {
 
     }
+
 
     public UsuarioPartida(Usuario usuario, Partida partida, int puntaje, boolean gano, Estado estado) {
         this.usuario = usuario;
@@ -35,32 +39,7 @@ public class UsuarioPartida {
         this.estado = estado;
     }
 
-    public Estado getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Estado estado) {
-        this.estado = estado;
-    }
-
-    public int getPuntaje() {
-        return puntaje;
-    }
-
-    public void setPuntaje(int puntaje) {
-        this.puntaje = puntaje;
-    }
-
-    // Getters y setters
-    public boolean getGano() {
-        return gano;
-    }
-
-    public void setGano(boolean gano) {
-        this.gano = gano;
-    }
-
-        public Long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -84,7 +63,28 @@ public class UsuarioPartida {
         this.partida = partida;
     }
 
+    public int getPuntaje() {
+        return puntaje;
+    }
+
+    public void setPuntaje(int puntaje) {
+        this.puntaje = puntaje;
+    }
+
     public boolean isGano() {
         return gano;
     }
+
+    public void setGano(boolean gano) {
+        this.gano = gano;
+    }
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
 }
+

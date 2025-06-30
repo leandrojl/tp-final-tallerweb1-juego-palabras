@@ -1,5 +1,6 @@
 package com.tallerwebi.infraestructura;
 
+import com.tallerwebi.dominio.interfaceRepository.RondaRepository;
 import com.tallerwebi.dominio.model.Ronda;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +56,12 @@ public class RondaRepositoryImpl implements RondaRepository {
         sessionFactory.getCurrentSession().update(ronda);
     }
 
+
+    public Ronda buscarPorId(Long rondaId) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("FROM Ronda r WHERE r.id = :rondaId", Ronda.class)
+                .setParameter("rondaId", rondaId)
+                .uniqueResult();
+    }
 
 }

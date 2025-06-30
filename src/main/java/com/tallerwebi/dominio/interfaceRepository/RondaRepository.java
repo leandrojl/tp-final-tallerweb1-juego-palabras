@@ -1,4 +1,4 @@
-package com.tallerwebi.infraestructura;
+package com.tallerwebi.dominio.interfaceRepository;
 
 import com.tallerwebi.dominio.model.Ronda;
 
@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface RondaRepository {
     void guardar(Ronda ronda);
-
 
     List<Ronda> buscarPorPartidaConPalabra(Long partidaId);
 
@@ -16,5 +15,6 @@ public interface RondaRepository {
 
     void actualizar(Ronda ronda);
 
+    Ronda buscarPorId(Long rondaId);
 
 }

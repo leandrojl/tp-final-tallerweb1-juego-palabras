@@ -5,6 +5,7 @@ import org.hibernate.annotations.Generated;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Palabra {
@@ -62,4 +63,21 @@ public class Palabra {
     public String getIdioma() {
         return idioma;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Palabra)) return false;
+        Palabra palabra = (Palabra) o;
+        return Objects.equals(descripcion, palabra.descripcion) &&
+                Objects.equals(idioma, palabra.idioma);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(descripcion, idioma);
+    }
+
+
+
 }

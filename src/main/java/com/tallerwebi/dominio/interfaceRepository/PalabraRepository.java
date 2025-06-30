@@ -1,4 +1,4 @@
-package com.tallerwebi.infraestructura;
+package com.tallerwebi.dominio.interfaceRepository;
 
 import com.tallerwebi.dominio.model.Palabra;
 

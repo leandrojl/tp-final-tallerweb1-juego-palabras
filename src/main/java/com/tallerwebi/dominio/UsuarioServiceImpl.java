@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
 import com.tallerwebi.dominio.interfaceService.UsuarioService;
 import com.tallerwebi.dominio.model.Usuario;
@@ -17,7 +18,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
-
     @Override
     @Transactional
     public Usuario buscarPorId(Long id) {
@@ -28,5 +28,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public String obtenerNombrePorId(Long usuarioId) {
         return usuarioRepository.obtenerNombrePorId(usuarioId);
+    }
+
+    @Override
+    public Usuario obtenerUsuarioPorId(Long usuarioId) {
+        return usuarioRepository.buscarPorId(usuarioId);
     }
 }

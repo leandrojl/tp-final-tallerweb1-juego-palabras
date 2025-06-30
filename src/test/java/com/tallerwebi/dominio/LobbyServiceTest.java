@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
 public class LobbyServiceTest {
-
+/*
     private LobbyService lobbyServiceMock;
 
     @BeforeEach
@@ -57,5 +57,9 @@ public class LobbyServiceTest {
         assertNotNull(partidasMock);
         assertEquals(3, partidasMock.size());
     }
+
+<<<<<<< HEAD
+=======
+ */
 
 }

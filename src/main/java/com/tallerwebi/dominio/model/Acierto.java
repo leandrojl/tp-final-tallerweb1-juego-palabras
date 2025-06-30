@@ -9,11 +9,11 @@ public class Acierto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_id_ronda", nullable = false)
     private Ronda ronda;
-
-    @ManyToOne
+    // Este LAZY es para evitar que Hibernate cargue automáticamente los objetos completos cuando no los necesitamos
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_id_usuario", nullable = false)
     private Usuario usuario;
 

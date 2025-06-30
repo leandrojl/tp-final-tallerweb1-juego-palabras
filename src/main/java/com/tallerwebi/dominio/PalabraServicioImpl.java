@@ -4,7 +4,7 @@ import com.tallerwebi.dominio.interfaceService.PalabraServicio;
 import com.tallerwebi.dominio.model.Definicion;
 import com.tallerwebi.dominio.model.Palabra;
 import com.tallerwebi.helpers.HelperPalabra;
-import com.tallerwebi.infraestructura.PalabraRepository;
+import com.tallerwebi.dominio.interfaceRepository.PalabraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

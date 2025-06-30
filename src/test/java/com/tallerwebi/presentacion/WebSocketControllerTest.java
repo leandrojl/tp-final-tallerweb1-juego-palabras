@@ -1,3 +1,4 @@
+
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.DefinicionDto;
@@ -6,9 +7,10 @@ import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.AciertoService;
 import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
+import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
-import com.tallerwebi.infraestructura.RondaRepository;
+import com.tallerwebi.dominio.interfaceRepository.RondaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -42,6 +44,7 @@ public class WebSocketControllerTest {
     private SalaDeEsperaService salaDeEsperaService;
     private WebSocketController webSocketController;
     private WebSocketStompClient stompClient;
+    private UsuarioPartidaService usuarioPartidaService;
 
     @BeforeEach
     public void setUp() {
@@ -50,15 +53,20 @@ public class WebSocketControllerTest {
         rondaRepository = mock(RondaRepository.class);
         messagingTemplate = mock(SimpMessagingTemplate.class);
         rondaService = mock(RondaService.class);
-        partidaRepository = mock(PartidaRepository.class);
-
-        usuarioPartidaRepository = mock(UsuarioPartidaRepository.class);
         aciertoService = mock(AciertoService.class);
-
+        usuarioPartidaService= mock(UsuarioPartidaService.class);
+        partidaRepository = mock(PartidaRepository.class);
+        usuarioPartidaRepository = mock(UsuarioPartidaRepository.class);
         ScheduledExecutorService timerRonda = mock(ScheduledExecutorService.class);
-
-
-        partidaService = new PartidaServiceImpl(messagingTemplate,partidaRepository,rondaService,rondaRepository,usuarioPartidaRepository);
+        partidaService = new PartidaServiceImpl(
+                messagingTemplate,
+                partidaRepository,
+                rondaService,
+                rondaRepository,
+                usuarioPartidaRepository,
+                aciertoService,
+                usuarioPartidaService
+        );
         ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         webSocketController = new WebSocketController(partidaService,salaDeEsperaService, aciertoService);
@@ -116,7 +124,7 @@ public class WebSocketControllerTest {
     private void givenInicializarDatos() {
 
     }
-
+/*
 
     @Test
     public void queUnJugadorPuedaEstarListo() throws Exception {
@@ -126,9 +134,6 @@ public class WebSocketControllerTest {
         EstadoJugadorDTO resultado = completableFuture.get(5, TimeUnit.SECONDS);
         thenJugadorListo(resultado);
     }
-
-
-
 
     @Test
     public void siSeEstaEnUnaPartidaQueSePuedaVerLaPalabraIndicada() throws Exception {
@@ -196,6 +201,7 @@ public class WebSocketControllerTest {
         assertEquals(nombreUsuario, mensajeEnviadoDTO.getUsername());
     }
 
+<<<<<<< HEAD
 //    @Test
 //    public void siAlguienSeUneALaSalaDeEsperaLosDemasJugadoresPuedenVerlo() throws Exception {
 //        String nombreUsuarioQueAcabaDeUnirseALaSala = "jose";
@@ -221,6 +227,36 @@ public class WebSocketControllerTest {
 //        assertTrue(lista.getUsuarios().contains("pepe"));
 //
 //    }
+=======
+
+
+    @Test
+    public void siAlguienSeUneALaSalaDeEsperaLosDemasJugadoresPuedenVerlo() throws Exception {
+        String nombreUsuarioQueAcabaDeUnirseALaSala = "jose";
+        CompletableFuture<MensajeRecibidoDTO> usuarioYaEnSalaDeEspera = givenUsuarioConectado("pepe","/topic" +
+                "/cuandoUsuarioSeUneASalaDeEspera",false , MensajeRecibidoDTO.class);
+        givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera",
+                        true,
+                        MensajeRecibidoDTO.class);
+
+        MensajeRecibidoDTO mensajeRecibidoDTO = usuarioYaEnSalaDeEspera.get(5, TimeUnit.SECONDS);
+        assertEquals(nombreUsuarioQueAcabaDeUnirseALaSala, mensajeRecibidoDTO.getMessage());
+    }
+
+    @Test
+    public void siYaHayUsuariosEnLaSalaQueAquelNuevoUsuarioQueSeUnePuedaVerLosQueYaEstanEnDichaSala() throws Exception {
+        givenUsuarioConectado("pepe","/topic" +
+                "/cuandoUsuarioSeUneASalaDeEspera",true , MensajeRecibidoDTO.class);
+        CompletableFuture<ListaUsuariosDTO> usuarioQueAcabaDeUnirseALaSala =
+                givenUsuarioConectado("jose","/user/queue/jugadoresExistentes",
+                        true,
+                        ListaUsuariosDTO.class);
+        ListaUsuariosDTO lista = usuarioQueAcabaDeUnirseALaSala.get(2, TimeUnit.SECONDS);
+        assertTrue(lista.getUsuarios().contains("pepe"));
+
+    }
+
+ */
     private <T> CompletableFuture<T> givenUsuarioConectado(
             String nombreUsuario,
             String dondeSeConecta,

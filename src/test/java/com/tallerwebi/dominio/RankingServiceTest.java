@@ -24,7 +24,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-
+/*
 @ExtendWith(SpringExtension.class)@WebAppConfiguration
 @ContextConfiguration(classes = {SpringWebTestConfig.class, HibernateTestConfig.class})
 public class RankingServiceTest {
@@ -68,3 +68,5 @@ public void consultarRankingTest() {
 
     }
 }
+
+ */

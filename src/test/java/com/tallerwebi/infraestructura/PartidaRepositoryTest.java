@@ -4,6 +4,7 @@ import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.integracion.config.HibernateTestConfig;
+import com.tallerwebi.integracion.config.SimpMessagingMockConfigTest;
 import com.tallerwebi.integracion.config.SpringWebTestConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {SpringWebTestConfig.class, HibernateTestConfig.class})
+@ContextConfiguration(classes = {SpringWebTestConfig.class, HibernateTestConfig.class, SimpMessagingMockConfigTest.class})
 public class PartidaRepositoryTest {
 
     @Autowired
@@ -33,4 +34,9 @@ public class PartidaRepositoryTest {
         partidaRepository.crearPartida(partida);
         assertNotNull(partida.getId());
     }
+
+
+
+
+
 }

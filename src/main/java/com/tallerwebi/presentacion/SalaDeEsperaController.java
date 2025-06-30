@@ -1,11 +1,20 @@
 package com.tallerwebi.presentacion;
 
+
 import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import com.tallerwebi.dominio.interfaceService.UsuarioService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
+
+import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
+import com.tallerwebi.dominio.interfaceService.RondaService;
+import com.tallerwebi.dominio.model.Jugador;
+import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
+
+import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
+
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +36,10 @@ import java.util.Map;
 @Controller
 public class SalaDeEsperaController {
 
+
     private SalaDeEsperaService salaDeEsperaService;
     private UsuarioService usuarioService;
     private UsuarioPartidaService usuarioPartidaService;
-
 
     @Autowired
     public SalaDeEsperaController(SalaDeEsperaService servicioSalaDeEspera,
@@ -39,23 +50,36 @@ public class SalaDeEsperaController {
         this.usuarioPartidaService = usuarioPartidaService;
     }
 
+
     public SalaDeEsperaController() {
         // Constructor vacío
     }
 
     @RequestMapping("/iniciarPartida")
-    public ModelAndView iniciarPartida(@RequestParam Map<String, String> parametros) {
+    public ModelAndView iniciarPartida(@RequestParam Map<String, String> parametros, HttpSession session) {
 
-        ModelMap model = new ModelMap();
+        String nombreUsuario = (String) session.getAttribute("usuario");   // nombre de usuario como String
+        Long usuarioId = (Long) session.getAttribute("usuarioID");          // id usuario como Long
+
+        if (nombreUsuario == null || usuarioId == null) {
+            // Si no hay usuario en sesión, redirigir al login
+            return new ModelAndView("redirect:/login");
+        }
 
         Map<Long, Boolean> jugadores = salaDeEsperaService.obtenerJugadoresDelFormulario(parametros);
 
         List<Long> jugadoresNoListos = salaDeEsperaService.verificarSiHayJugadoresQueNoEstenListos(jugadores);
 
 
-        model.put("jugadores", jugadores);
+        if (!jugadoresNoListos.isEmpty()) {
+            ModelMap model = new ModelMap();
+            model.put("jugadores", jugadores);
+            model.put("mensajeError", "No todos los jugadores están listos");
+            return new ModelAndView("sala-de-espera", model);
+        }
 
-        return new ModelAndView("redirect:/juego?jugadorId=1"); //hardcodeado por ahora
+        // Redirigir a /juego pasando el usuarioID de sesión
+        return new ModelAndView("redirect:/juego");
     }
 
     @RequestMapping("/agregarJugadorALaSalaDeEspera")

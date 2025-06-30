@@ -15,7 +15,7 @@ public interface UsuarioRepository {
 
     void modificar(Usuario usuario);
 
-    Usuario buscarPorId(long i);
+    Usuario buscarPorId(Long i);
 
     List<Usuario> obtenerTodosLosUsuariosLogueados();
 

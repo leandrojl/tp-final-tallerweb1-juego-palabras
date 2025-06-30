@@ -7,7 +7,7 @@ import java.util.Map;
 public interface PerfilService {
     Map<String, Object> obtenerDatosDePerfil(Usuario usuario);
 
-    Usuario buscarDatosDeUsuarioPorId(int i);
+    Usuario buscarDatosDeUsuarioPorId(Long id);
 
     double obtenerWinrate(Usuario usuario);
 
