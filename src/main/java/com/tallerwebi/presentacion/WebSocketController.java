@@ -48,17 +48,17 @@ public class WebSocketController {
         return new MensajeRecibidoDTO(ex.getMessage());
     }
 
-    @MessageMapping("/chat")
-    @SendTo("/topic/messages")
-    public MensajeEnviadoDTO getMessages(MensajeRecibidoDTO mensajeRecibidoDTO, Principal principal) {
-        String nombreUsuario;
-        if (principal != null) {
-            nombreUsuario = principal.getName();
-        } else {
-            nombreUsuario = "Anónimo";
-        }
-        return new MensajeEnviadoDTO(nombreUsuario, mensajeRecibidoDTO.getMessage());
-    }
+//    @MessageMapping("/chat")
+//    @SendTo("/topic/messages")
+//    public MensajeEnviadoDTO getMessages(MensajeRecibidoDTO mensajeRecibidoDTO, Principal principal) {
+//        String nombreUsuario;
+//        if (principal != null) {
+//            nombreUsuario = principal.getName();
+//        } else {
+//            nombreUsuario = "Anónimo";
+//        }
+//        return new MensajeEnviadoDTO(nombreUsuario, mensajeRecibidoDTO.getMessage());
+//    }
     @MessageMapping("/usuarioSeUneASalaDeEspera")
     @SendTo("/topic/cuandoUsuarioSeUneASalaDeEspera")
     public MensajeRecibidoDTO usuarioSeUneASala(MensajeRecibidoDTO mensajeRecibidoDTO, Principal principal){
@@ -75,14 +75,16 @@ public class WebSocketController {
 
     @MessageMapping("/juego/intento")
     public void procesarIntento(DtoIntento intento, Principal principal){
+        String nombre = principal.getName();
         if (principal == null) {
             System.out.println("Principal es NULL");
+            nombre = "Anónimo";
         } else {
             System.out.println("Principal name: " + principal.getName());
         }
         System.out.println("Intento recibido: " + intento.getIntentoPalabra());
         //partidaService.procesarIntento(intento, principal.getName());
-        partidaService.procesarIntento1(intento);
+        partidaService.procesarIntento(intento, nombre);
     }
         //si acierta pepi acerto.. sino mostrarenchat palabra prueba..
         //verificar que ronda no este terminada

@@ -93,10 +93,11 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public void procesarIntento(DtoIntento intento, String nombre) {
         //   ---- si acerto verificar si acertaron todos y finalizar ronda timer -----  //
+        System.out.println("HOLA"+"INTENTO"+" "+intento.getIntentoPalabra());
+
         Long partidaId = intento.getPartidaId();
         Long usuarioId = intento.getUsuarioId();
         String intentoTexto = intento.getIntentoPalabra();
-
         // === Obtener Partida
         Partida2 partida = partidaRepository.buscarPorId(partidaId);
         if (partida == null) {
@@ -117,11 +118,15 @@ public class PartidaServiceImpl implements PartidaService {
         boolean esCorrecto = intentoTexto.equalsIgnoreCase(palabraCorrecta);
 
         // Armamos el ResultadoDto
-        Usuario usuario = usuarioPartidaService.obtenerUsuarioPorUsuarioIdYPartidaId(usuarioId, partidaId);
-
+        //Usuario usuario = usuarioPartidaService.obtenerUsuarioPorUsuarioIdYPartidaId(usuarioId, partidaId);
+        //System.out.println("Usuario encontrado: " + usuario + " nombreUsuario=" + (usuario != null ? usuario.getNombreUsuario() : "null"));
         ResultadoIntentoDto resultado = new ResultadoIntentoDto();
         resultado.setCorrecto(esCorrecto);
-        resultado.setJugador(usuario.getNombreUsuario());
+        System.out.println("ESCORRECTO??? = " + esCorrecto + " " + palabraCorrecta + " " + intentoTexto);
+        //System.out.println("NOMBRE JUGADOR??? = "+ usuario.getNombreUsuario() +" " + esCorrecto + " " + palabraCorrecta + " " + intentoTexto);
+
+        resultado.setJugador(nombre);
+
 
         if (esCorrecto) {
             // Verificar si ya había acertado ===
@@ -131,16 +136,16 @@ public class PartidaServiceImpl implements PartidaService {
                 int puntos = aciertoService.registrarAcierto(usuarioId, rondaId);
 
                 // Sumar puntos en UsuarioPartida ===
-                usuarioPartidaService.sumarPuntos(usuarioId, partidaId, puntos);
+               // usuarioPartidaService.sumarPuntos(usuarioId, partidaId, puntos);
                 resultado.setPalabraCorrecta(intentoTexto);
                 resultado.setPalabraIncorrecta("");
             }
-            simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/resultado", resultado);
+            simpMessagingTemplate.convertAndSendToUser(nombre, "/queue/resultado", resultado);
 
         } else {
+            System.out.println("PROCESAR INTENTO LLEGO HASTA AQUI4= " + intento.getIntentoPalabra());
             resultado.setPalabraCorrecta("");
             resultado.setPalabraIncorrecta(intento.getIntentoPalabra());
-            resultado.setJugador("pepito");
             resultado.setCorrecto(false);
             simpMessagingTemplate.convertAndSend(
                     "/topic/mostrarIntento/" + intento.getPartidaId(),

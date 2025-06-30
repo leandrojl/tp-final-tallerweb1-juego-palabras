@@ -41,7 +41,7 @@ public class JuegoController {
     }
     @GetMapping
     public ModelAndView mostrarVistaJuego(HttpSession session) {
-        Long usuarioId = (Long) session.getAttribute("usuarioID");
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
         String nombreUsuario = (String) session.getAttribute("usuario");
 
         if (usuarioId == null || nombreUsuario == null) {

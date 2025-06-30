@@ -62,8 +62,7 @@ function manejarMensajeServidor(mensaje) {
 // === RESULTADO DEL INTENTO (Privado) ===
 function mostrarResultadoIntento(mensaje) {
     const data = JSON.parse(mensaje.body);
-    console.log("Resultado intento privado:", data);
-    mostrarMensajeChat(data.palabraCorrecta, data.esCorrecto);
+    mostrarMensajeChat(data.palabraCorrecta, data.correcto);
 }
 
 // === RESULTADO DEL INTENTO INCORRECTO (Público) ===
@@ -71,9 +70,7 @@ function mostrarResultadoIntentoIncorrecto(mensaje) {
 
  console.log("MENSAJE CRUDO:", mensaje); // Esto te da el objeto recibido
     console.log("BODY CRUDO:", mensaje.body)
-
     const data = JSON.parse(mensaje.body);
-    console.log("Intento incorrecto publico:", data);
     mostrarMensajeChat(data.palabraIncorrecta, data.esCorrecto);
 }
 
@@ -157,7 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const palabra = input.value.trim();
             if (palabra !== "") {
                 enviarIntento(palabra);
-                console.log("palabra=" + palabra);
                 input.value = "";
             }
         }
