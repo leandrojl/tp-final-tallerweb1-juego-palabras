@@ -5,19 +5,22 @@ public class ResultadoIntentoDto {
     private String jugador;
     private String palabraCorrecta;
     private String palabraIncorrecta;
+    private String mensaje;
 
-    public ResultadoIntentoDto(boolean esCorrecto, String jugador, String palabraCorrecta, String palabraIncorrecta) {
+    public ResultadoIntentoDto(boolean esCorrecto, String jugador, String palabraCorrecta, String palabraIncorrecta, String mensaje) {
         this.esCorrecto = esCorrecto;
         this.jugador = jugador;
         this.palabraCorrecta = palabraCorrecta;
         this.palabraIncorrecta = palabraIncorrecta;
+        this.mensaje = mensaje;
+
     }
 
     public ResultadoIntentoDto() {
 
     }
 
-    public Boolean esCorrecto(){return esCorrecto;}
+    public Boolean getEsCorrecto(){return esCorrecto;}
 
     public String getJugador() {
         return jugador;
@@ -30,6 +33,8 @@ public class ResultadoIntentoDto {
     public String getPalabraIncorrecta() {
         return palabraIncorrecta;
     }
+
+    public String getMensaje() { return mensaje; }
 
     public void setCorrecto(boolean esCorrecto) {this.esCorrecto = esCorrecto;}
 
@@ -44,5 +49,7 @@ public class ResultadoIntentoDto {
     public void setPalabraIncorrecta(String intentoTexto) {
         this.palabraIncorrecta = intentoTexto;
     }
+
+    public void setMensaje(String mensaje) {this.mensaje = mensaje;}
 
 }
