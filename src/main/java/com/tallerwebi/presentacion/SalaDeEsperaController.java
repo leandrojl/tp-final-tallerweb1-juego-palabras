@@ -109,11 +109,11 @@ public class SalaDeEsperaController {
         }
 
         Long usuarioId = (Long) session.getAttribute("usuarioId");
-        //UsuarioPartida existeRegistro = usuarioPartidaService.buscarUsuarioPartida(idPartida,
-         //       usuarioId);
-        //if(existeRegistro == null){
+        UsuarioPartida existeRegistro = usuarioPartidaService.buscarUsuarioPartida(idPartida,
+                usuarioId);
+        if(existeRegistro == null){
             usuarioPartidaService.agregarUsuarioAPartida(usuarioId,idPartida,0,false,Estado.EN_ESPERA);
-        //}
+        }
         String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
         model.addAttribute("usuarioId", usuarioId);
         model.addAttribute("usuario", nombreUsuario);
