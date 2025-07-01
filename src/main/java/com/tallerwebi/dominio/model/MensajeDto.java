@@ -5,6 +5,10 @@ public class MensajeDto {
     private Long idPartida;
     private String texto;
 
+    public MensajeDto() {
+
+    }
+
     public MensajeDto(Long idUsuario,Long idPartida, String texto) {
         this.idUsuario = idUsuario;
         this.idPartida = idPartida;

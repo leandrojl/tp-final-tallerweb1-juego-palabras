@@ -19,14 +19,14 @@ stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
 
 
-    stompClient.subscribe('/topic/salaDeEspera/' + idPartida, (m) => { //aca iria el id de partida una vez que este
+    stompClient.subscribe('/topic/salaDeEspera/' + idPartida, (m) => {
 
         const estadoJugador = JSON.parse(m.body);
         modificarBotonDeEstadoJugador(estadoJugador);
     });
 
 
-    stompClient.subscribe('/topic/cuandoUsuarioSeUneASalaDeEspera/' + idPartida, (m) => { //aca iria el id de partida una vez que este
+    stompClient.subscribe('/topic/cuandoUsuarioSeUneASalaDeEspera/' + idPartida, (m) => {
 
         const data = JSON.parse(m.body);
         const usuario = data.message;
@@ -55,10 +55,15 @@ stompClient.onConnect = (frame) => {
         window.location.href = data.message;
     });
 
+    stompClient.subscribe('/user/queue/alAbandonarSala', (m) => {
+        const data = JSON.parse(m.body);
+        window.location.href = data.message;
+    });
+
     const message = "acabo de unirme";
     stompClient.publish({
         destination: "/app/usuarioSeUneASalaDeEspera",
-        body: JSON.stringify({message: message,number : idPartida}) //aca iria el id de partida una vez que este
+        body: JSON.stringify({message: message,number : idPartida})
     });
 
 };
@@ -85,8 +90,19 @@ function iniciarPartida(){
     stompClient.publish({
         destination: '/app/inicioPartida',
 
-        body: JSON.stringify({ message: "", number: idPartida })  //aca iria id de partida una vez que este
+        body: JSON.stringify({ message: "", number: idPartida })
 
+    });
+}
+
+function abandonarSala(){
+    stompClient.publish({
+        destination: '/app/abandonarSala',
+        body: JSON.stringify({
+            idUsuario: usuarioId,
+            idPartida: idPartida,
+            texto: "abandono no los banco mas"
+        })
     });
 }
 

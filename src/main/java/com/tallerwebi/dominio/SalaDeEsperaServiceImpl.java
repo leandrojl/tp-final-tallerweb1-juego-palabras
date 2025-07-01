@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     SimpMessagingTemplate simpMessagingTemplate;
-    private UsuarioPartidaRepository usuarioPartida;
+    private UsuarioPartidaRepository usuarioPartidaRepo;
     private PartidaRepository partidaRepo;
 
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
@@ -27,9 +27,9 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     @Autowired
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
-                                   UsuarioPartidaRepository usuarioPartida,PartidaRepository partida) {
+                                   UsuarioPartidaRepository usuarioPartidaRepo, PartidaRepository partida) {
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.usuarioPartida = usuarioPartida;
+        this.usuarioPartidaRepo = usuarioPartidaRepo;
         this.partidaRepo = partida;
     }
 
@@ -77,11 +77,15 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     }
 
     private void notificarAUsuariosLosQueEstanEnLaSala(Long idPartida) {
-        List<Usuario> usuariosEnSala = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
+        List<Usuario> usuariosEnSala = usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida);
+        System.out.println("USUARIOS EN SALA: " + usuariosEnSala.size());
+        System.out.println("USUARIOS EN SALA: " + usuariosEnSala.get(0).getNombreUsuario());
         List<String> nombres = usuariosEnSala.stream()
                 .map(Usuario::getNombreUsuario)
                 .collect(Collectors.toList());
+        System.out.println("USUARIOS EN EN ARRAY DE NOMBRES: " + nombres.size());
         for (Usuario usuario : usuariosEnSala) {
+            System.out.println("NOTIFICO A : " + usuario.getNombreUsuario());
             this.simpMessagingTemplate.convertAndSendToUser(
                     usuario.getNombreUsuario(),
                     "/queue/jugadoresExistentes",
@@ -106,14 +110,14 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     public Boolean redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
         Long idPartida = mensajeRecibidoDTO.getNumber();
 
-        Partida partida = usuarioPartida.obtenerPartida(idPartida);
-        //cambiar el estado de usuarioPartida a EN_CURSO DE Todos los usuarios de la partid
+        Partida partida = usuarioPartidaRepo.obtenerPartida(idPartida);
 
-        List<Usuario> usuariosEnSala = usuarioPartida.obtenerUsuariosDeUnaPartida(idPartida);
+        List<Usuario> usuariosEnSala = usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida);
         if(partida.getMinimoJugadores() > usuariosEnSala.size()) {
             return false;
         } // PARA SPRINT 4
         this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
+        this.usuarioPartidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO); //HACER TDD
             for (Usuario usuario : usuariosEnSala) {
                 simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
                         new MensajeRecibidoDTO(
@@ -126,7 +130,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     public MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuario) {
         Long idUsuario = mensaje.getIdUsuario();
         Long idPartida = mensaje.getIdPartida();
-        this.usuarioPartida.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
+        this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
         notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         return new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
     }

@@ -111,7 +111,7 @@ public class SalaDeEsperaController {
         Long usuarioId = (Long) session.getAttribute("usuarioId");
         UsuarioPartida existeRegistro = usuarioPartidaService.buscarUsuarioPartida(idPartida,
                 usuarioId);
-        if(existeRegistro == null){
+        if(existeRegistro == null){// DONDE SE EVITA QUE SE DUPLIQUE USUARIOPARTIDA
             usuarioPartidaService.agregarUsuarioAPartida(usuarioId,idPartida,0,false,Estado.EN_ESPERA);
         }
         String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
@@ -164,7 +164,6 @@ public class SalaDeEsperaController {
     @MessageExceptionHandler(CantidadDeUsuariosInsuficientesException.class)
     @SendTo("/topic/noSePuedeIrALaPartida")
     public MensajeRecibidoDTO enviarMensajeDeDenegacionDeAvanceAPartida(CantidadDeUsuariosInsuficientesException ex) {
-        System.out.println("ENTRE EN EL MANEJADOR DE EXCEPCION DEL CONTROLADOOOOOOOOOR");
         return new MensajeRecibidoDTO(ex.getMessage());
     }
 
@@ -172,5 +171,10 @@ public class SalaDeEsperaController {
     @SendToUser("/queue/alAbandonarSala")
     public MensajeRecibidoDTO abandonarSala(MensajeDto mensajeDto, Principal principal) {
         return this.salaDeEsperaService.abandonarSala(mensajeDto,principal.getName());
+    }
+
+    @MessageExceptionHandler(Exception.class)
+    public void paraExcepciones(Exception ex) {
+        ex.printStackTrace();
     }
 }

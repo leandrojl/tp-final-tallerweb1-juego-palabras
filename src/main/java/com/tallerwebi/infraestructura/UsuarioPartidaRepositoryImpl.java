@@ -115,9 +115,10 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
     public void borrarUsuarioPartidaAsociadaAlUsuario(Long idPartida, Long idUsuario) {
         Session session = this.sessionFactory.getCurrentSession();
         session.createQuery("DELETE FROM UsuarioPartida u " +
-                "WHERE u.partida = :idPartida AND u.usuario = :idUsuario")
+                "WHERE u.partida.id = :idPartida AND u.usuario.id = :idUsuario")
                 .setParameter("idPartida", idPartida)
-                .setParameter("idUsuario", idUsuario);
+                .setParameter("idUsuario", idUsuario)
+                .executeUpdate();
     }
 
     @Override
@@ -262,5 +263,15 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .setParameter("idUsuario", idUsuario)
                 .uniqueResult();
     } // LE TENGO QUE HACER TEST EN REPOTEST
+
+    @Override
+    public void actualizarEstado(Long idPartida, Estado estado) {
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery("UPDATE UsuarioPartida up SET up.estado = :estado " +
+                "WHERE up.partida.id = :idPartida")
+                .setParameter("idPartida", idPartida)
+                .setParameter("estado", estado)
+                .executeUpdate();
+    }
 
 }
