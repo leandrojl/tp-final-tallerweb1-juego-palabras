@@ -77,8 +77,6 @@ public class LobbyController {
 
         session.setAttribute("idPartida", idPartida);
 
-        System.out.println("SOY EL ID PARTIDA PA"+idPartida);
-
         int puntaje = 0;
         boolean gano = false;
         Estado estado = Estado.EN_ESPERA;
