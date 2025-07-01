@@ -117,7 +117,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
             for (Usuario usuario : usuariosEnSala) {
                 simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
                         new MensajeRecibidoDTO(
-                        "http://localhost:8080/spring/lobby")); // PROVISIONAL PARA QUE  FUNCIONE
+                        "http://localhost:8080/spring/juego")); // PROVISIONAL PARA QUE  FUNCIONE
             }
             return true;
     }

@@ -87,7 +87,6 @@ function iniciarPartida(){
 
         body: JSON.stringify({ message: "", number: idPartida })  //aca iria id de partida una vez que este
 
-
     });
 }
 

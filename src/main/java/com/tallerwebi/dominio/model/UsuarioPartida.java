@@ -24,6 +24,7 @@ public class UsuarioPartida {
     private Partida partida;
     private int puntaje;
     private boolean gano;
+    @Enumerated(EnumType.STRING)
     private Estado estado;
 
     public UsuarioPartida() {

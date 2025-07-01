@@ -196,6 +196,7 @@ public class PartidaServiceImpl implements PartidaService {
 
         // Validación para no crear dos rondas activas
         Ronda ultima = rondaService.obtenerUltimaRondaDePartida(partidaId);
+        System.out.println("SOY LA ULTIMA RONDA PAAA?????"+ultima);
         if (ultima != null && ultima.getEstado() == Estado.EN_CURSO) {
             System.out.println("Ya hay una ronda activa...");
 
@@ -299,7 +300,6 @@ public class PartidaServiceImpl implements PartidaService {
         Ronda ultimaRonda = rondaRepositorio.obtenerUltimaRondaDePartida(idPartida);
         return ultimaRonda.getNumeroDeRonda() >= partida.getRondasTotales();
     }
-
 
     @Override
     public void enviarRankingFinal(Long idPartida) {
