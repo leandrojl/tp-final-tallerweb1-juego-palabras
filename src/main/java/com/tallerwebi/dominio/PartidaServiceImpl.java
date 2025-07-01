@@ -122,12 +122,13 @@ public class PartidaServiceImpl implements PartidaService {
         // Armamos el ResultadoDto
         //Usuario usuario = usuarioPartidaService.obtenerUsuarioPorUsuarioIdYPartidaId(usuarioId, partidaId);
         //System.out.println("Usuario encontrado: " + usuario + " nombreUsuario=" + (usuario != null ? usuario.getNombreUsuario() : "null"));
-        ResultadoIntentoDto resultado = new ResultadoIntentoDto();
-        resultado.setCorrecto(esCorrecto);
-        System.out.println("ES CORRECTO = " + esCorrecto + " " + palabraCorrecta + " " + palabraCorrecta);
-        //System.out.println("NOMBRE JUGADOR??? = "+ usuario.getNombreUsuario() +" " + esCorrecto + " " + palabraCorrecta + " " + intentoTexto);
+        ResultadoIntentoDto resultadoPrivado = new ResultadoIntentoDto();
+        resultadoPrivado.setJugador(nombre);
 
-        resultado.setJugador(nombre);
+        System.out.println("ES CORRECTO = " + esCorrecto + " " + palabraCorrecta + " " + palabraCorrecta);
+
+        ResultadoIntentoDto resultadoPublico = new ResultadoIntentoDto();
+        resultadoPublico.setJugador(nombre);
 
         if (esCorrecto) {
             // Verificar si ya había acertado ===
@@ -138,19 +139,30 @@ public class PartidaServiceImpl implements PartidaService {
 
                 // Sumar puntos en UsuarioPartida ===
                 // usuarioPartidaService.sumarPuntos(usuarioId, partidaId, puntos);
-                resultado.setPalabraCorrecta(intentoTexto);
-                resultado.setPalabraIncorrecta("");
+
+                // Al jugador que acertó
+                resultadoPrivado.setPalabraCorrecta(intentoTexto);
+                resultadoPrivado.setCorrecto(true);
+                resultadoPrivado.setPalabraIncorrecta("");
+                simpMessagingTemplate.convertAndSendToUser(nombre, "/queue/resultado", resultadoPrivado);
+
+                // Al resto: mensaje "pepito acertó"
+                resultadoPublico.setCorrecto(true);
+                resultadoPublico.setMensaje("✅ " + nombre + " acertó la palabra");
+                simpMessagingTemplate.convertAndSend(
+                        "/topic/mostrarIntento/" + partidaId,
+                        resultadoPublico
+                );
             }
-            simpMessagingTemplate.convertAndSendToUser(nombre, "/queue/resultado", resultado);
 
         } else {
             System.out.println("PROCESAR INTENTO LLEGO HASTA AQUI4= " + intento.getIntentoPalabra());
-            resultado.setPalabraCorrecta("");
-            resultado.setPalabraIncorrecta(intento.getIntentoPalabra());
-            resultado.setCorrecto(false);
+            // A todos (incluido el que lo envió), la palabra en rojo
+            resultadoPublico.setCorrecto(false);
+            resultadoPublico.setPalabraIncorrecta(intentoTexto);
             simpMessagingTemplate.convertAndSend(
-                    "/topic/mostrarIntento/" + intento.getPartidaId(),
-                    resultado
+                    "/topic/mostrarIntento/" + partidaId,
+                    resultadoPublico
             );
         }
     }
@@ -225,11 +237,34 @@ public class PartidaServiceImpl implements PartidaService {
             throw new IllegalArgumentException("No existe la partida con ID: " + partidaId);
         }
 
-        // 🔒 Validación para no crear dos rondas activas
+        // Validación para no crear dos rondas activas
         Ronda ultima = rondaService.obtenerUltimaRondaDePartida(partidaId);
         if (ultima != null && ultima.getEstado() == Estado.EN_CURSO) {
-            System.out.println("Ya hay una ronda activa en la partida " + partidaId + ", no se crea otra.");
-            return null;
+            System.out.println("Ya hay una ronda activa...");
+
+            Palabra palabra = ultima.getPalabra();
+            String definicionTexto = palabra.getDefiniciones().stream()
+                    .findFirst()
+                    .map(Definicion::getDefinicion)
+                    .orElse("Definición no disponible");
+
+            List<UsuarioPartida> usuariosEnPartida = usuarioPartidaRepository.obtenerUsuarioPartidaPorPartida(partidaId);
+
+            List<JugadorPuntajeDto> jugadoresDto = usuariosEnPartida.stream()
+                    .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
+                    .collect(Collectors.toList());
+
+            RondaDto dto = new RondaDto();
+            dto.setPalabra(palabra.getDescripcion());
+            dto.setDefinicionTexto(definicionTexto);
+            dto.setNumeroDeRonda(ultima.getNumeroDeRonda());
+            dto.setJugadores(jugadoresDto);
+
+            simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dto);
+            simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId,
+                    new MensajeTipoRanking("actualizar-puntajes", jugadoresDto));
+
+            return dto;
         }
 
         String idioma = partida.getIdioma();

@@ -64,16 +64,20 @@ function manejarMensajeServidor(mensaje) {
 // === RESULTADO DEL INTENTO (Privado) ===
 function mostrarResultadoIntento(mensaje) {
     const data = JSON.parse(mensaje.body);
-    mostrarMensajeChat(data.palabraCorrecta, data.correcto);
+    mostrarMensajeChat(data.palabraCorrecta, data.esCorrecto); // palabra en verde
 }
+// console.log("MENSAJE CRUDO:", mensaje); // Esto te da el objeto recibido
+//    console.log("BODY CRUDO:", mensaje.body)
 
 // === RESULTADO DEL INTENTO INCORRECTO (Público) ===
 function mostrarResultadoIntentoIncorrecto(mensaje) {
-
- console.log("MENSAJE CRUDO:", mensaje); // Esto te da el objeto recibido
-    console.log("BODY CRUDO:", mensaje.body)
     const data = JSON.parse(mensaje.body);
-    mostrarMensajeChat(data.palabraIncorrecta, data.esCorrecto);
+
+    if (data.mensaje) {
+        mostrarMensajeChat(data.mensaje, data.esCorrecto); // Ej: "✅ Pepito acertó"
+    } else {
+        mostrarMensajeChat(data.palabraIncorrecta, data.esCorrecto); // palabra en rojo
+    }
 }
 
 // === RANKING ACTUALIZADO ===
@@ -156,7 +160,8 @@ function detenerTimers() {
 // === CHAT LOCAL (Palabras Mencionadas) ===
 function mostrarMensajeChat(texto, esCorrecto) {
     const div = document.createElement("div");
-    div.className = "message-bubble " + (esCorrecto ? "sent" : "received");
+    console.log("Intento:", texto, "¿Es correcto?", esCorrecto);
+    div.className = "message-bubble " + (esCorrecto ? "mensaje-correcto" : "mensaje-incorrecto");
     div.innerHTML = `<p class="message-text">${texto}</p>`;
     document.getElementById("palabras-mencionadas").appendChild(div);
 }
