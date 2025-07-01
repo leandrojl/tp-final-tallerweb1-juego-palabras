@@ -6,38 +6,59 @@ let intervaloLetras;
 let finRondaEjecutada = false;
 
 const usuarioId = Number(document.getElementById("usuarioId").value);
-const partidaId = Number(document.getElementById("partidaId").value);
+const idPartida = Number(document.getElementById("idPartida").value);
 const palabra = document.getElementById("palabraOculta").value;
 const letras = palabra.split("");
 let indexLetra = 0;
 
 // === WEBSOCKET ===
 function conectarWebSocket() {
-    const socket = new SockJS("/spring/wschat");
-    stompClient = Stomp.over(socket);
+    stompClient = new StompJs.Client({
+            brokerURL: 'ws://localhost:8080/spring/wschat', // o sin "/spring" si no tenés ese context-path
+            debug: function(str) {
+                console.log(str); // útil para ver qué pasa con el socket
+            },
+            reconnectDelay: 5000, // reconexión automática
+            onConnect: () => {
+                console.log("✅ Conectado al WebSocket");
 
-    stompClient.connect({}, () => {
-        stompClient.subscribe(`/topic/juego/${partidaId}`, manejarMensajeServidor);
-        stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
-        stompClient.subscribe(`/topic/mostrarIntento/${partidaId}`, mostrarResultadoIntentoIncorrecto);
+                stompClient.subscribe(`/topic/juego/${idPartida}`, manejarMensajeServidor);
+                stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
+                stompClient.subscribe(`/topic/mostrarIntento/${idPartida}`, mostrarResultadoIntentoIncorrecto);
 
-        iniciarRonda();
-    });
+                //iniciarRonda();
+            },
+            onStompError: (frame) => {
+                console.error('❌ Error STOMP: ', frame.headers['message']);
+                console.error('Detalles: ', frame.body);
+            },
+            onWebSocketError: (error) => {
+                console.error('❌ Error WebSocket:', error);
+            }
+        });
+
+        stompClient.activate();
 }
 
 // === INICIA LA RONDA EN EL SERVIDOR ===
 function iniciarRonda() {
-    stompClient.send("/app/juego/iniciar", {}, JSON.stringify({ partidaId }));
+    stompClient.publish({
+        destination: "/app/juego/iniciar",
+        body: JSON.stringify({ idPartida })
+    });
 }
 
 // === ENVÍA INTENTO ===
 function enviarIntento(palabra) {
-    stompClient.send("/app/juego/intento", {}, JSON.stringify({
+    stompClient.publish({
+      destination: "/app/juego/intento",
+      body: JSON.stringify({
         intentoPalabra: palabra,
         usuarioId,
-        partidaId,
+        idPartida,
         tiempoRestante
-    }));
+      })
+    });
 
 //    stompClient.send("/app/juego/verificarAvanceDeRonda", {}, JSON.stringify({
 //        usuarioId,
@@ -125,7 +146,10 @@ function iniciarTemporizador() {
     intervaloTemporizador = setInterval(() => {
         if (tiempoRestante <= 0) {
             detenerTimers();
-            stompClient.send("/app/juego/fin-ronda", {}, JSON.stringify({ partidaId }));
+           stompClient.publish({
+             destination: "/app/juego/fin-ronda",
+             body: JSON.stringify({ idPartida })
+           });
         } else {
             text.textContent = tiempoRestante;
             progress.style.strokeDashoffset = circ - (tiempoRestante / 60) * circ;
@@ -171,7 +195,7 @@ function mostrarMensajeChat(texto, esCorrecto) {
 function abandonarPartida() {
     const params = new URLSearchParams({
         usuarioId: jugadorId,
-        partidaId: partidaId
+        idPartida: idPartida
     });
     navigator.sendBeacon("/spring/abandonarPartida?" + params.toString());
 }
