@@ -253,4 +253,14 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
 
     }
 
+    @Override
+    public UsuarioPartida obtenerUsuarioPartida(Long idUsuario, Long idPartida) {
+        Session session = sessionFactory.getCurrentSession();
+        return  session.createQuery("SELECT up FROM UsuarioPartida up" +
+                " WHERE up.partida = :idpartida AND up.usuario = :idUsuario", UsuarioPartida.class)
+                .setParameter("idpartida", idPartida)
+                .setParameter("idUsuario", idUsuario)
+                .uniqueResult();
+    } // LE TENGO QUE HACER TEST EN REPOTEST
+
 }

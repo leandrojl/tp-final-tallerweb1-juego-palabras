@@ -92,6 +92,11 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
     }
 
     @Override
+    public UsuarioPartida buscarUsuarioPartida(Long idPartida, Long usuarioId) {
+        return usuarioPartidaRepository.obtenerUsuarioPartida(idPartida,usuarioId);
+    }//HACER TEST A ESTE
+
+    @Override
     public void sumarPuntos(Long usuarioId, Long partidaId, int puntos) {
         usuarioPartidaRepository.sumarPuntaje(usuarioId, partidaId,puntos);
     }

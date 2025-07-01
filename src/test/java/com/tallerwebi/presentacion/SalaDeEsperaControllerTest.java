@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
@@ -10,10 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.*;
+import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import javax.servlet.http.HttpSession;
 import java.lang.reflect.Type;
 import java.security.Principal;
 import java.util.concurrent.CompletableFuture;
@@ -42,6 +45,7 @@ public class SalaDeEsperaControllerTest {
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         usuarioPartidaService = Mockito.mock(UsuarioPartidaService.class);
+        usuarioService = Mockito.mock(UsuarioService.class);
         salaDeEsperaController = new SalaDeEsperaController(salaDeEsperaService,usuarioService, usuarioPartidaService);
     }
 
@@ -280,6 +284,28 @@ public class SalaDeEsperaControllerTest {
         verify(salaDeEsperaService).abandonarSala(mensajeDto, "pepe");
     }
 
+
+    @Test
+    public void siAlUnirseAUnaSalaYaExisteCombinacionUsuarioYPartidaQueNoSeRegistreNuevamente(){
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "lucas";
+        Usuario usuario = new Usuario("lucas");
+        Partida partida = new Partida();
+        UsuarioPartida usuarioPartida = new UsuarioPartida(usuario,partida,0, false, Estado.EN_ESPERA);
+
+        HttpSession session = mock(HttpSession.class);
+        Model model = mock(Model.class);
+
+        when(session.getAttribute("usuarioId")).thenReturn(idUsuario);
+        when(session.getAttribute("idPartida")).thenReturn(idPartida);
+        when(usuarioPartidaService.buscarUsuarioPartida(idPartida, idUsuario)).thenReturn(usuarioPartida);
+        when(usuarioService.obtenerNombrePorId(idUsuario)).thenReturn("lucas");
+
+        salaDeEsperaController.manejarSalaDeEspera(null, model, session);
+
+        verify(usuarioPartidaService, never()).agregarUsuarioAPartida(any(), any(), anyInt(), anyBoolean(), any());
+    }
 
 
 

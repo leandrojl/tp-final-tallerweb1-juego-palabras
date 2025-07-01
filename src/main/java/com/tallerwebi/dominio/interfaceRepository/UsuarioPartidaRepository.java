@@ -51,4 +51,5 @@ public interface UsuarioPartidaRepository {
     void actualizar(UsuarioPartida relacion);
 
 
+    UsuarioPartida obtenerUsuarioPartida(Long idUsuario, Long idPartida);
 }

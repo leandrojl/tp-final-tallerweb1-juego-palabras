@@ -27,4 +27,5 @@ public interface UsuarioPartidaService {
 
     UsuarioPartida obtenerUsuarioEspecificoPorPartida(Long usuarioId, Long partidaId);
 
+    UsuarioPartida buscarUsuarioPartida(Long idPartida, Long usuarioId);
 }

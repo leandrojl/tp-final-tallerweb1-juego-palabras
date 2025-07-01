@@ -9,12 +9,8 @@ import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 
 import com.tallerwebi.dominio.Enum.Estado;
-import com.tallerwebi.dominio.interfaceService.PartidaService;
-import com.tallerwebi.dominio.interfaceService.RondaService;
 import com.tallerwebi.dominio.model.Jugador;
-import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 
-import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -28,7 +24,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 
-import java.io.Serializable;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +101,6 @@ public class SalaDeEsperaController {
             Model model,
             HttpSession session
     ) {
-        // Si vino por POST, lo guardamos
         if (idPartida != null) {
             session.setAttribute("idPartida", idPartida);
         } else {
@@ -114,8 +108,11 @@ public class SalaDeEsperaController {
         }
 
         Long usuarioId = (Long) session.getAttribute("usuarioId");
-        usuarioPartidaService.agregarUsuarioAPartida(usuarioId,idPartida,0,false,Estado.EN_ESPERA);
-        //String nombreUsuario = usuarioPartidaService.obtenerNombreDeUsuarioEnLaPartida(usuarioId, idPartida);
+        UsuarioPartida existeRegistro = usuarioPartidaService.buscarUsuarioPartida(idPartida,
+                usuarioId);
+        if(existeRegistro == null){
+            usuarioPartidaService.agregarUsuarioAPartida(usuarioId,idPartida,0,false,Estado.EN_ESPERA);
+        }
         String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
         model.addAttribute("usuarioId", usuarioId);
         model.addAttribute("usuario", nombreUsuario);

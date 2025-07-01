@@ -191,6 +191,7 @@ public class SalaDeEsperaServiceTest {
         thenNotificaALosOtrosUsuariosQueAbandonaLaSala(usuarios);
     }
 
+
     private void thenNotificaALosOtrosUsuariosQueAbandonaLaSala(List<Usuario> usuarios) {
         List<String> nombresEsperados = usuarios.stream()
                 .map(Usuario::getNombreUsuario)
