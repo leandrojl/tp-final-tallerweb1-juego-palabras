@@ -60,6 +60,12 @@ stompClient.onConnect = (frame) => {
         window.location.href = data.message;
     });
 
+    stompClient.subscribe('/topic/noSePuedeIrALaPartida', (m) => {
+        const data = JSON.parse(m.body);
+        const message = data.message;
+        cantidadInsuficienteDeUsuariosParaIniciarPartida(message);
+    });
+
     const message = "acabo de unirme";
     stompClient.publish({
         destination: "/app/usuarioSeUneASalaDeEspera",
@@ -67,6 +73,47 @@ stompClient.onConnect = (frame) => {
     });
 
 };
+
+function cantidadInsuficienteDeUsuariosParaIniciarPartida(message) {
+    let alerta = document.getElementById('alerta-insuficiente-usuarios');
+    if (!alerta) {
+        alerta = document.createElement('div');
+        alerta.id = 'alerta-insuficiente-usuarios';
+
+        // Estilos para el "botón" gris redondeado grande
+        alerta.style.position = 'fixed';
+        alerta.style.bottom = '30px';
+        alerta.style.right = '30px';
+        alerta.style.backgroundColor = '#888888'; // gris medio
+        alerta.style.color = 'white';
+        alerta.style.padding = '20px 40px';
+        alerta.style.borderRadius = '15px';
+        alerta.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+        alerta.style.zIndex = '9999';
+        alerta.style.fontFamily = 'Arial, sans-serif';
+        alerta.style.fontSize = '16px';
+        alerta.style.fontWeight = '600';
+        alerta.style.textAlign = 'center';
+        alerta.style.cursor = 'default';
+        alerta.style.userSelect = 'none';
+
+        document.body.appendChild(alerta);
+    }
+
+    alerta.textContent = message;
+    alerta.style.opacity = '1';
+    alerta.style.transition = 'opacity 0.5s ease';
+    alerta.style.display = 'block';
+
+    setTimeout(() => {
+        alerta.style.opacity = '0';
+        setTimeout(() => {
+            alerta.style.display = 'none';
+        }, 500);
+    }, 5000);
+}
+
+
 
 function toggleReady(username, estaListo) {
     stompClient.publish({

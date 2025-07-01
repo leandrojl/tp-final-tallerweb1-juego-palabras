@@ -155,7 +155,8 @@ public class SalaDeEsperaController {
         Boolean redireccionamientoCorrecto = this.salaDeEsperaService.redireccionarUsuariosAPartida(mensajeRecibidoDTO);
         if(!redireccionamientoCorrecto){ //FUNCIONALIDAD PARA SPRINT 4 DE MINIMA CANT DE JUGADORES PARA INICIAR
             // PARTIDA REQUERIDA
-            throw new CantidadDeUsuariosInsuficientesException("error");
+            throw new CantidadDeUsuariosInsuficientesException("Cantidad insuficiente de usuarios para iniciar " +
+                    "partida");
         }
     }
 
