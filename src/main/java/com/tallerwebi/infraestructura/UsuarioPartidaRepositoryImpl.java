@@ -257,7 +257,7 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
     public UsuarioPartida obtenerUsuarioPartida(Long idUsuario, Long idPartida) {
         Session session = sessionFactory.getCurrentSession();
         return  session.createQuery("SELECT up FROM UsuarioPartida up" +
-                " WHERE up.partida = :idpartida AND up.usuario = :idUsuario", UsuarioPartida.class)
+                " WHERE up.partida.id = :idpartida AND up.usuario.id = :idUsuario", UsuarioPartida.class)
                 .setParameter("idpartida", idPartida)
                 .setParameter("idUsuario", idUsuario)
                 .uniqueResult();

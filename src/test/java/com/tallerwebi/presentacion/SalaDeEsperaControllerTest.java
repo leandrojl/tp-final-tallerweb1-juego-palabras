@@ -290,7 +290,7 @@ public class SalaDeEsperaControllerTest {
         Long idPartida = 1L;
         Long idUsuario = 1L;
         String nombreUsuario = "lucas";
-        Usuario usuario = new Usuario("lucas");
+        Usuario usuario = new Usuario(nombreUsuario);
         Partida partida = new Partida();
         UsuarioPartida usuarioPartida = new UsuarioPartida(usuario,partida,0, false, Estado.EN_ESPERA);
 
@@ -300,7 +300,7 @@ public class SalaDeEsperaControllerTest {
         when(session.getAttribute("usuarioId")).thenReturn(idUsuario);
         when(session.getAttribute("idPartida")).thenReturn(idPartida);
         when(usuarioPartidaService.buscarUsuarioPartida(idPartida, idUsuario)).thenReturn(usuarioPartida);
-        when(usuarioService.obtenerNombrePorId(idUsuario)).thenReturn("lucas");
+        when(usuarioService.obtenerNombrePorId(idUsuario)).thenReturn(nombreUsuario);
 
         salaDeEsperaController.manejarSalaDeEspera(null, model, session);
 

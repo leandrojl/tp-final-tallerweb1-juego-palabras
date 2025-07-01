@@ -93,7 +93,7 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
 
     @Override
     public UsuarioPartida buscarUsuarioPartida(Long idPartida, Long usuarioId) {
-        return usuarioPartidaRepository.obtenerUsuarioPartida(idPartida,usuarioId);
+        return usuarioPartidaRepository.obtenerUsuarioPartida(usuarioId,idPartida);
     }//HACER TEST A ESTE
 
     @Override
