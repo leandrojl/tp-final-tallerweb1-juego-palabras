@@ -1,16 +1,12 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.ServicioImplementacion;
 
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 
-import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
 import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
-import com.tallerwebi.dominio.interfaceService.UsuarioService;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Usuario;
 
-import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
-import com.tallerwebi.dominio.model.Usuario;
 import com.tallerwebi.dominio.model.UsuarioPartida;
 
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.interfaceService.PartidaService;
-import com.tallerwebi.dominio.RankingDTO;
+import com.tallerwebi.dominio.DTO.RankingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

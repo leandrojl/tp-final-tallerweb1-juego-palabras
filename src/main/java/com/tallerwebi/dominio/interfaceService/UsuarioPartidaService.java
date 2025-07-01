@@ -22,10 +22,11 @@ public interface UsuarioPartidaService {
 
     Usuario obtenerUsuarioPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId);
 
-
     void marcarComoPerdedor(Long usuarioId, Long partidaId);
 
     UsuarioPartida obtenerUsuarioEspecificoPorPartida(Long usuarioId, Long partidaId);
 
     UsuarioPartida buscarUsuarioPartida(Long idPartida, Long usuarioId);
+
+
 }

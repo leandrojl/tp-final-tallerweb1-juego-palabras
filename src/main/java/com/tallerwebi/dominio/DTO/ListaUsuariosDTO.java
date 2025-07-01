@@ -1,4 +1,4 @@
-package com.tallerwebi.dominio.model;
+package com.tallerwebi.dominio.DTO;
 
 import java.util.List;
 

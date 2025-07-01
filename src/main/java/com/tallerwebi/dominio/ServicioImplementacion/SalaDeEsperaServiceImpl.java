@@ -1,5 +1,9 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.ServicioImplementacion;
 
+import com.tallerwebi.dominio.DTO.EstadoJugadorDTO;
+import com.tallerwebi.dominio.DTO.ListaUsuariosDTO;
+import com.tallerwebi.dominio.DTO.MensajeDto;
+import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
@@ -123,7 +127,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     }
 
     @Override
-    public MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuario) {
+    public MensajeRecibidoDTO abandonarSala(MensajeDto mensaje, String nombreUsuario) {
         Long idUsuario = mensaje.getIdUsuario();
         Long idPartida = mensaje.getIdPartida();
         this.usuarioPartida.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);

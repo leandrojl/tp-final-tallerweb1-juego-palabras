@@ -2,9 +2,6 @@ package com.tallerwebi.dominio.model;
 
 import com.tallerwebi.dominio.Enum.Estado;
 
-import com.tallerwebi.dominio.RankingDTO;
-import com.tallerwebi.dominio.model.Partida;
-
 
 import javax.persistence.*;
 

@@ -1,5 +1,6 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.ServicioImplementacion;
 
+import com.tallerwebi.dominio.DTO.*;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.AciertoService;
@@ -346,7 +347,7 @@ public class PartidaServiceImpl implements PartidaService {
 
     }
 
-    Map<Long, RondaDto> obtenerMapaDefinicionesParaTest() {
+    public Map<Long, RondaDto> obtenerMapaDefinicionesParaTest() {
         return definicionesPorPartida;
     }
 

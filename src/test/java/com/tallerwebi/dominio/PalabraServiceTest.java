@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.ServicioImplementacion.PalabraServicioImpl;
 import com.tallerwebi.dominio.model.Palabra;
 import com.tallerwebi.helpers.HelperPalabra;
 import com.tallerwebi.dominio.interfaceRepository.PalabraRepository;
@@ -7,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import com.tallerwebi.dominio.interfaceService.PalabraServicio;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 

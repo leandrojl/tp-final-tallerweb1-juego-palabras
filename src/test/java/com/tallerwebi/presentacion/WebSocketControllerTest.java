@@ -1,8 +1,11 @@
 
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.DefinicionDto;
-import com.tallerwebi.dominio.PartidaServiceImpl;
+import com.tallerwebi.dominio.DTO.DefinicionDto;
+import com.tallerwebi.dominio.DTO.EstadoJugadorDTO;
+import com.tallerwebi.dominio.DTO.MensajeEnviadoDTO;
+import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
+import com.tallerwebi.dominio.ServicioImplementacion.PartidaServiceImpl;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.AciertoService;
 import com.tallerwebi.dominio.interfaceService.RondaService;

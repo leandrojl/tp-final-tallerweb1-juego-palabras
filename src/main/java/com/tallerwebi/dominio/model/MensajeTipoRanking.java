@@ -1,4 +1,6 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.model;
+
+import com.tallerwebi.dominio.DTO.JugadorPuntajeDto;
 
 import java.util.List;
 

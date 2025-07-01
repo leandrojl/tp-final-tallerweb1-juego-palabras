@@ -1,4 +1,4 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.ServicioImplementacion;
 
 import com.tallerwebi.dominio.interfaceService.PalabraServicio;
 import com.tallerwebi.dominio.model.Definicion;

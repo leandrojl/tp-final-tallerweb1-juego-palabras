@@ -16,25 +16,39 @@ import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-/*
+
 public class LobbyControllerTest {
-
-
+    private PartidaService partidaServiceMock;
+    private LobbyService lobbyServiceMock;
+    private UsuarioService usuarioServiceMock;
+    private UsuarioPartidaService usuarioPartidaServiceMock;
+    private LobbyController lobbyController;
+    private HttpSession sessionMock;
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setUp() {
-        PartidaService partidaService = Mockito.mock(PartidaService.class);
-        LobbyService lobbyService = Mockito.mock(LobbyService.class);
-        UsuarioService usuarioService = Mockito.mock(UsuarioService.class);
-        UsuarioPartidaService usuarioPartidaService = Mockito.mock(UsuarioPartidaService.class);
-        LobbyController lobbyController = new LobbyController(partidaService, lobbyService, usuarioService, usuarioPartidaService);
 
-        // Usar FileTemplateResolver para leer desde el sistema de archivos
+        partidaServiceMock = Mockito.mock(PartidaService.class);
+        lobbyServiceMock = Mockito.mock(LobbyService.class);
+        usuarioServiceMock = Mockito.mock(UsuarioService.class);
+        usuarioPartidaServiceMock = Mockito.mock(UsuarioPartidaService.class);
+        sessionMock = Mockito.mock(HttpSession.class);
+
+        lobbyController = new LobbyController(
+                partidaServiceMock,
+                lobbyServiceMock,
+                usuarioServiceMock,
+                usuarioPartidaServiceMock);
+
+//        Este bloque configura Thymeleaf para que los tests de MockMvc puedan
+//        renderizar las vistas HTML reales desde el sistema de archivos,
+//        usando los templates ubicados en src/main/webapp/WEB-INF/views/thymeleaf/.
+//        Así, cuando pruebas controladores que devuelven vistas, MockMvc puede procesar
+//        y verificar el contenido HTML generado, igual que en la aplicación real.
         FileTemplateResolver templateResolver = new FileTemplateResolver();
         templateResolver.setPrefix("src/main/webapp/WEB-INF/views/thymeleaf/");
         templateResolver.setSuffix(".html");
@@ -54,26 +68,28 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void deberiaCrearSalaYRedirigirASalaDeEspera() throws Exception {
-
+    public void cuandoCreoUnaPartidaEnEsperaYRedirigeASalaDeEsperaYAgregaAlUsuarioAUsuarioPartidaEnEspera() throws Exception {
+        String nombre = "Sala Test";
+        String idioma = "Español";
+        boolean permiteComodin = true;
+        int rondasTotales = 5;
+        int maximoJugadores = 4;
+        int minimoJugadores = 2;
         Long usuarioId = 1L;
         Serializable idPartida = 10L;
 
+        when(sessionMock.getAttribute("usuarioId")).thenReturn(usuarioId);
 
-        HttpSession session = mock(HttpSession.class);
-        when(session.getAttribute("usuarioId")).thenReturn(usuarioId);
+        Partida nuevaPartida = new Partida(
+                nombre,
+                idioma,
+                permiteComodin,
+                rondasTotales,
+                maximoJugadores,
+                minimoJugadores,
+                Estado.EN_ESPERA);
 
-
-        PartidaService partidaService = Mockito.mock(PartidaService.class);
-        LobbyService lobbyService = Mockito.mock(LobbyService.class);
-        UsuarioService usuarioService = Mockito.mock(UsuarioService.class);
-        UsuarioPartidaService usuarioPartidaService = Mockito.mock(UsuarioPartidaService.class);
-
-
-        LobbyController lobbyController = new LobbyController(partidaService, lobbyService, usuarioService, usuarioPartidaService);
-
-
-        Mockito.when(partidaService.crearPartida(Mockito.any(Partida.class))).thenReturn(idPartida);
+        Mockito.when(partidaServiceMock.crearPartida(nuevaPartida)).thenReturn(idPartida);
 
         MockMvc mockMvc = MockMvcBuilders.standaloneSetup(lobbyController).build();
 
@@ -91,13 +107,17 @@ public class LobbyControllerTest {
                 .andExpect(redirectedUrl("/sala-de-espera"));
 
 
-        Mockito.verify(partidaService).crearPartida(Mockito.any(Partida.class));
-        Mockito.verify(usuarioPartidaService).agregarUsuarioAPartida(usuarioId, (Long) idPartida, 0, false, Estado.EN_ESPERA);
+
+        doNothing().when(usuarioPartidaServiceMock).agregarUsuarioAPartida(usuarioId, (Long) idPartida, 0, false, Estado.EN_ESPERA);
+
+        Mockito.verify(partidaServiceMock).crearPartida(Mockito.any(Partida.class));
+        Mockito.verify(usuarioPartidaServiceMock).agregarUsuarioAPartida(usuarioId, (Long) idPartida, 0, false, Estado.EN_ESPERA);
     }
 
 
     @Test
     public void deberiaRedirigirASalaDeEsperaTrasCrearSala() throws Exception {
+
         Long usuarioId = 1L;
         Serializable idPartida = 10L;
 
@@ -222,12 +242,7 @@ public class LobbyControllerTest {
 
 
 
-
-
-<<<<<<< HEAD
-
-}
-=======
 }
 
- */
+
+

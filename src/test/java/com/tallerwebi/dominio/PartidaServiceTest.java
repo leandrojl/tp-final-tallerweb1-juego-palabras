@@ -1,4 +1,7 @@
 package com.tallerwebi.dominio;
+import com.tallerwebi.dominio.DTO.JugadorPuntajeDto;
+import com.tallerwebi.dominio.DTO.RondaDto;
+import com.tallerwebi.dominio.ServicioImplementacion.PartidaServiceImpl;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.AciertoService;
 import com.tallerwebi.dominio.model.*;

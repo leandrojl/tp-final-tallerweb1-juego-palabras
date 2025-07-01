@@ -1,5 +1,9 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.DTO.EstadoJugadorDTO;
+import com.tallerwebi.dominio.DTO.ListaUsuariosDTO;
+import com.tallerwebi.dominio.DTO.MensajeDto;
+import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;

@@ -1,8 +1,8 @@
 package com.tallerwebi.dominio.interfaceService;
 
-import com.tallerwebi.dominio.model.EstadoJugadorDTO;
-import com.tallerwebi.dominio.model.MensajeDto;
-import com.tallerwebi.dominio.model.MensajeRecibidoDTO;
+import com.tallerwebi.dominio.DTO.EstadoJugadorDTO;
+import com.tallerwebi.dominio.DTO.MensajeDto;
+import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 
 import java.util.List;
 import java.util.Map;

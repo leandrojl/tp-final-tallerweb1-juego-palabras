@@ -1,4 +1,4 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.model;
 
 public class MensajeInicioRonda {
     private Long partidaId;

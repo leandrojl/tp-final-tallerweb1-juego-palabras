@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.ServicioImplementacion.RegistroServiceImpl;
 import com.tallerwebi.dominio.excepcion.PasswordMenorAOchoCaracteresException;
 import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;

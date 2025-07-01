@@ -4,8 +4,8 @@
 //import static org.junit.jupiter.api.Assertions.*;
 //
 //import com.tallerwebi.dominio.Enum.Estado;
-//import com.tallerwebi.dominio.JugadorPuntajeDto;
-//import com.tallerwebi.dominio.RondaDto;
+//import com.tallerwebi.dominio.DTO.JugadorPuntajeDto;
+//import com.tallerwebi.dominio.DTO.RondaDto;
 //import com.tallerwebi.dominio.interfaceService.*;
 //import com.tallerwebi.dominio.model.Partida;
 //import com.tallerwebi.dominio.model.Partida2;

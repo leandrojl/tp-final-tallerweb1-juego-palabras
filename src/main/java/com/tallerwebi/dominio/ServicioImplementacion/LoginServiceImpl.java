@@ -1,4 +1,4 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.ServicioImplementacion;
 
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;

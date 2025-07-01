@@ -113,4 +113,16 @@ public class Partida {
 
     public Object getRondaActual() {return null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Partida partida = (Partida) o;
+        return permiteComodin == partida.permiteComodin && rondasTotales == partida.rondasTotales && maximoJugadores == partida.maximoJugadores && minimoJugadores == partida.minimoJugadores && Objects.equals(id, partida.id) && Objects.equals(nombre, partida.nombre) && Objects.equals(idioma, partida.idioma) && estado == partida.estado;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, nombre, idioma, permiteComodin, rondasTotales, maximoJugadores, minimoJugadores, estado);
+    }
 }

@@ -1,4 +1,4 @@
-package com.tallerwebi.dominio;
+package com.tallerwebi.dominio.DTO;
 
 public class JugadorPuntajeDto {
     private String nombre;
