@@ -210,7 +210,7 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
             sessionFactory.getCurrentSession().update(up);
         } else {
             // Podés lanzar una excepción si se espera que siempre exista
-            throw new IllegalArgumentException("No se encontró UsuarioPartida para el usuarioId " + usuarioId + " y partidaId " + partidaId);
+            throw new IllegalArgumentException("No se encontró UsuarioPartida para el idUsuario " + usuarioId + " y partidaId " + partidaId);
 
         }
     }

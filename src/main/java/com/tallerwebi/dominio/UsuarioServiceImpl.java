@@ -34,4 +34,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     public Usuario obtenerUsuarioPorId(Long usuarioId) {
         return usuarioRepository.buscarPorId(usuarioId);
     }
+
+    @Override
+    public Usuario obtenerUsuarioPorNombre(String name) {
+        return usuarioRepository.obtenerUsuarioPorNombre(name);
+    }
 }

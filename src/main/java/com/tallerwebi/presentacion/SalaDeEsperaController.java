@@ -86,7 +86,7 @@ public class SalaDeEsperaController {
 
     @GetMapping("/sala-de-espera/{idPartida}")
     public String salaDeEspera(@PathVariable Long idPartida, Model model, HttpSession session) {
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        Long usuarioId = (Long) session.getAttribute("idUsuario");
         String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
 
         model.addAttribute("usuario", nombreUsuario);
@@ -108,14 +108,14 @@ public class SalaDeEsperaController {
             idPartida = (Long) session.getAttribute("idPartida");
         }
 
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        Long idUsuario = (Long) session.getAttribute("idUsuario");
         UsuarioPartida existeRegistro = usuarioPartidaService.buscarUsuarioPartida(idPartida,
-                usuarioId);
+                idUsuario);
         if(existeRegistro == null){// DONDE SE EVITA QUE SE DUPLIQUE USUARIOPARTIDA
-            usuarioPartidaService.agregarUsuarioAPartida(usuarioId,idPartida,0,false,Estado.EN_ESPERA);
+            usuarioPartidaService.agregarUsuarioAPartida(idUsuario,idPartida,0,false,Estado.EN_ESPERA);
         }
-        String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
-        model.addAttribute("usuarioId", usuarioId);
+        String nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
+        model.addAttribute("idUsuario", idUsuario);
         model.addAttribute("usuario", nombreUsuario);
         model.addAttribute("idPartida", idPartida);
 

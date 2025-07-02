@@ -20,4 +20,6 @@ public interface UsuarioRepository {
     List<Usuario> obtenerTodosLosUsuariosLogueados();
 
     String obtenerNombrePorId(Long usuarioId);
+
+    Usuario obtenerUsuarioPorNombre(String name);
 }

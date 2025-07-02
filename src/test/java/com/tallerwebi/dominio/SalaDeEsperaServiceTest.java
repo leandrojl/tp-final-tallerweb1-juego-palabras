@@ -3,6 +3,7 @@ package com.tallerwebi.dominio;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
@@ -30,13 +31,14 @@ public class SalaDeEsperaServiceTest {
     private SalaDeEsperaService servicioSalaDeEspera;
     private UsuarioPartidaRepository usuarioPartidaRepo;
     private PartidaRepository partidaRepo;
-
+    private UsuarioRepository usuarioRepository;
     @BeforeEach
     public void setUp() {
         usuarioPartidaRepo = Mockito.mock(UsuarioPartidaRepository.class);
         simpMessagingTemplate = Mockito.mock(SimpMessagingTemplate.class);
         partidaRepo = mock(PartidaRepository.class);
-        this.servicioSalaDeEspera = new SalaDeEsperaServiceImpl(simpMessagingTemplate,usuarioPartidaRepo,partidaRepo);
+        usuarioRepository = mock(UsuarioRepository.class);
+        this.servicioSalaDeEspera = new SalaDeEsperaServiceImpl(simpMessagingTemplate,usuarioPartidaRepo,partidaRepo,usuarioRepository);
         ReflectionTestUtils.setField(servicioSalaDeEspera, "simpMessagingTemplate", simpMessagingTemplate);
     }
 
@@ -164,7 +166,7 @@ public class SalaDeEsperaServiceTest {
     }
 
     @Test
-    public void siAlguienAbandonaLaSalaDeEsperaQueSeLeRedireccioneAlLobby(){
+    public void siAlguienAbandonaLaSalaDeEsperaQueSeLeEnvieUnMensajeDeIrAlLobby(){
         Long idPartida = 1L;
         Long idUsuario = 1L;
         String nombreUsuario = "pepe";
@@ -189,6 +191,22 @@ public class SalaDeEsperaServiceTest {
         whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
 
         thenNotificaALosOtrosUsuariosQueAbandonaLaSala(usuarios);
+    }
+
+    @Test
+    public void siAlIntentarAbandonarLaSalaDeEsperaElIdDelUsuarioEsCeroQueSeObtengaElIdAlmacenadoEnRepositorio(){
+        Long idPartida = 1L;
+        Long idUsuario = 0L;
+        String nombreUsuario = "lucas";
+        Usuario usuario = new Usuario(nombreUsuario);
+        MensajeDto mensajeDto = new MensajeDto(idUsuario,idPartida,"");
+
+        when(this.usuarioRepository.obtenerUsuarioPorNombre(nombreUsuario)).thenReturn(usuario);
+        doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
+
+        servicioSalaDeEspera.abandonarSala(mensajeDto,nombreUsuario);
+
+        verify(usuarioRepository).obtenerUsuarioPorNombre(nombreUsuario);
     }
 
 
@@ -222,7 +240,7 @@ public class SalaDeEsperaServiceTest {
                     eq(usuario.getNombreUsuario()),
                     eq("/queue/irAPartida"),
                     argThat(dto -> dto instanceof MensajeRecibidoDTO &&
-                            ((MensajeRecibidoDTO) dto).getMessage().equals("http://localhost:8080/spring/lobby"))
+                            ((MensajeRecibidoDTO) dto).getMessage().equals("http://localhost:8080/spring/juego"))
             );
         }
     }

@@ -56,12 +56,12 @@ public class LobbyControllerTest {
     @Test
     public void deberiaCrearSalaYRedirigirASalaDeEspera() throws Exception {
 
-        Long usuarioId = 1L;
+        Long idUsuario = 1L;
         Serializable idPartida = 10L;
 
 
         HttpSession session = mock(HttpSession.class);
-        when(session.getAttribute("usuarioId")).thenReturn(usuarioId);
+        when(session.getAttribute("idUsuario")).thenReturn(idUsuario);
 
 
         PartidaService partidaService = Mockito.mock(PartidaService.class);
@@ -85,20 +85,20 @@ public class LobbyControllerTest {
                                 .param("rondasTotales", "5")
                                 .param("maximoJugadores", "4")
                                 .param("minimoJugadores", "2")
-                                .sessionAttr("usuarioId", usuarioId)
+                                .sessionAttr("idUsuario", idUsuario)
                 )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/sala-de-espera"));
 
 
         Mockito.verify(partidaService).crearPartida(Mockito.any(Partida.class));
-        Mockito.verify(usuarioPartidaService).agregarUsuarioAPartida(usuarioId, (Long) idPartida, 0, false, Estado.EN_ESPERA);
+        Mockito.verify(usuarioPartidaService).agregarUsuarioAPartida(idUsuario, (Long) idPartida, 0, false, Estado.EN_ESPERA);
     }
 
 
     @Test
     public void deberiaRedirigirASalaDeEsperaTrasCrearSala() throws Exception {
-        Long usuarioId = 1L;
+        Long idUsuario = 1L;
         Serializable idPartida = 10L;
 
         PartidaService partidaService = Mockito.mock(PartidaService.class);
@@ -119,7 +119,7 @@ public class LobbyControllerTest {
                                 .param("rondasTotales", "5")
                                 .param("maximoJugadores", "4")
                                 .param("minimoJugadores", "2")
-                                .sessionAttr("usuarioId", usuarioId)
+                                .sessionAttr("idUsuario", idUsuario)
                 )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/sala-de-espera"));
@@ -128,7 +128,7 @@ public class LobbyControllerTest {
 
     @Test
     public void deberiaLlamarCrearPartidaConDatosCorrectos() throws Exception {
-        Long usuarioId = 2L;
+        Long idUsuario = 2L;
         Serializable idPartida = 20L;
 
         PartidaService partida2Service = Mockito.mock(PartidaService.class);
@@ -149,7 +149,7 @@ public class LobbyControllerTest {
                         .param("rondasTotales", "3")
                         .param("maximoJugadores", "6")
                         .param("minimoJugadores", "3")
-                        .sessionAttr("usuarioId", usuarioId)
+                        .sessionAttr("idUsuario", idUsuario)
         );
 
         Mockito.verify(partida2Service).crearPartida(Mockito.argThat(partida ->
@@ -166,7 +166,7 @@ public class LobbyControllerTest {
     // Test: Se agrega el usuario a la partida correctamente
     @Test
     public void deberiaAgregarUsuarioAPartidaConValoresIniciales() throws Exception {
-        Long usuarioId = 3L;
+        Long idUsuario = 3L;
         Serializable idPartida = 30L;
 
         PartidaService partidaService = Mockito.mock(PartidaService.class);
@@ -187,10 +187,10 @@ public class LobbyControllerTest {
                         .param("rondasTotales", "4")
                         .param("maximoJugadores", "5")
                         .param("minimoJugadores", "2")
-                        .sessionAttr("usuarioId", usuarioId)
+                        .sessionAttr("idUsuario", idUsuario)
         );
 
-        Mockito.verify(usuarioPartidaService).agregarUsuarioAPartida(usuarioId, (Long) idPartida, 0, false, Estado.EN_ESPERA);
+        Mockito.verify(usuarioPartidaService).agregarUsuarioAPartida(idUsuario, (Long) idPartida, 0, false, Estado.EN_ESPERA);
     }
 
 

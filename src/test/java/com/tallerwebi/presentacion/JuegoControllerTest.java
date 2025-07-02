@@ -85,29 +85,29 @@
 //
 //    @Test
 //    public void dadoUsuarioYPartidaAbandonaPartidaYLimpiaSesion() {
-//        Long usuarioId = 1L;
+//        Long idUsuario = 1L;
 //        Long partidaId = 2L;
 //        HttpSession session = mock(HttpSession.class);
 //        UsuarioPartida relacion = new UsuarioPartida();
 //
-//        when(usuarioPartidaService.obtenerUsuarioEspecificoPorPartida(usuarioId, partidaId)).thenReturn(relacion);
+//        when(usuarioPartidaService.obtenerUsuarioEspecificoPorPartida(idUsuario, partidaId)).thenReturn(relacion);
 //
-//        ResponseEntity<String> response = juegoController.abandonarPartida(usuarioId, partidaId, session);
+//        ResponseEntity<String> response = juegoController.abandonarPartida(idUsuario, partidaId, session);
 //
 //        assertEquals(200, response.getStatusCodeValue());
 //        assertEquals("OK", response.getBody());
-//        verify(usuarioPartidaService).marcarComoPerdedor(usuarioId, partidaId);
+//        verify(usuarioPartidaService).marcarComoPerdedor(idUsuario, partidaId);
 //        verify(session).removeAttribute("partidaID");
 //    }
 //
 //    @Test
 //    public void dadoUsuarioNoRelacionadoConPartidaDevuelveNotFound() {
-//        Long usuarioId = 1L;
+//        Long idUsuario = 1L;
 //        Long partidaId = 2L;
 //        HttpSession session = mock(HttpSession.class);
-//        when(usuarioPartidaService.obtenerUsuarioEspecificoPorPartida(usuarioId, partidaId)).thenReturn(null);
+//        when(usuarioPartidaService.obtenerUsuarioEspecificoPorPartida(idUsuario, partidaId)).thenReturn(null);
 //
-//        ResponseEntity<String> response = juegoController.abandonarPartida(usuarioId, partidaId, session);
+//        ResponseEntity<String> response = juegoController.abandonarPartida(idUsuario, partidaId, session);
 //
 //        assertEquals(404, response.getStatusCodeValue());
 //        assertEquals("No encontrado", response.getBody());
@@ -117,17 +117,17 @@
 //
 //    // Métodos privados Given
 //
-//    private HttpSession sesionConUsuarioSinPartida(Long usuarioId, String nombreUsuario) {
+//    private HttpSession sesionConUsuarioSinPartida(Long idUsuario, String nombreUsuario) {
 //        HttpSession session = mock(HttpSession.class);
-//        when(session.getAttribute("usuarioID")).thenReturn(usuarioId);
+//        when(session.getAttribute("usuarioID")).thenReturn(idUsuario);
 //        when(session.getAttribute("usuario")).thenReturn(nombreUsuario);
 //        when(session.getAttribute("partidaID")).thenReturn(null);
 //        return session;
 //    }
 //
-//    private HttpSession sesionConUsuarioConPartida(Long usuarioId, String nombreUsuario, Long partidaId) {
+//    private HttpSession sesionConUsuarioConPartida(Long idUsuario, String nombreUsuario, Long partidaId) {
 //        HttpSession session = mock(HttpSession.class);
-//        when(session.getAttribute("usuarioID")).thenReturn(usuarioId);
+//        when(session.getAttribute("usuarioID")).thenReturn(idUsuario);
 //        when(session.getAttribute("usuario")).thenReturn(nombreUsuario);
 //        when(session.getAttribute("partidaID")).thenReturn(partidaId);
 //        return session;

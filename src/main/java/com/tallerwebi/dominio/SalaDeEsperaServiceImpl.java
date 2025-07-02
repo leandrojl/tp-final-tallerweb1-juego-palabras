@@ -2,6 +2,7 @@ package com.tallerwebi.dominio;
 
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
+import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
@@ -20,6 +21,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     SimpMessagingTemplate simpMessagingTemplate;
     private UsuarioPartidaRepository usuarioPartidaRepo;
     private PartidaRepository partidaRepo;
+    private UsuarioRepository usuarioRepo;
 
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -27,10 +29,12 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     @Autowired
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
-                                   UsuarioPartidaRepository usuarioPartidaRepo, PartidaRepository partida) {
+                                   UsuarioPartidaRepository usuarioPartidaRepo, PartidaRepository partida,
+                                   UsuarioRepository usuarioRepository) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.usuarioPartidaRepo = usuarioPartidaRepo;
         this.partidaRepo = partida;
+        this.usuarioRepo = usuarioRepository;
     }
 
 
@@ -79,11 +83,13 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     private void notificarAUsuariosLosQueEstanEnLaSala(Long idPartida) {
         List<Usuario> usuariosEnSala = usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida);
         System.out.println("USUARIOS EN SALA: " + usuariosEnSala.size());
-        System.out.println("USUARIOS EN SALA: " + usuariosEnSala.get(0).getNombreUsuario());
+        if (!usuariosEnSala.isEmpty()) {
+            System.out.println("USUARIO[0]: " + usuariosEnSala.get(0).getId() + " - " + usuariosEnSala.get(0).getNombreUsuario());
+        }
         List<String> nombres = usuariosEnSala.stream()
                 .map(Usuario::getNombreUsuario)
                 .collect(Collectors.toList());
-        System.out.println("USUARIOS EN EN ARRAY DE NOMBRES: " + nombres.size());
+        usuariosEnSala.forEach(u -> System.out.println(" - ID: " + u.getId() + " Nombre: " + u.getNombreUsuario()));
         for (Usuario usuario : usuariosEnSala) {
             System.out.println("NOTIFICO A : " + usuario.getNombreUsuario());
             this.simpMessagingTemplate.convertAndSendToUser(
@@ -128,8 +134,13 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     @Override
     public MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuario) {
-        Long idUsuario = mensaje.getIdUsuario();
         Long idPartida = mensaje.getIdPartida();
+        Long idUsuario = mensaje.getIdUsuario();
+        if(idUsuario == null || idUsuario == 0){
+            Usuario usuario = this.usuarioRepo.obtenerUsuarioPorNombre(nombreUsuario);
+            idUsuario = usuario.getId();
+        }
+        System.out.println("USUARIO LLAMADO: " + "("+idUsuario+")" + nombreUsuario + " ABANDONA LA SALA CON ID DE PARTIDA: " + idPartida);
         this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
         notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         return new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");

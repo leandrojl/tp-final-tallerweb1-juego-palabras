@@ -10,4 +10,5 @@ public interface UsuarioService {
 
     Usuario obtenerUsuarioPorId(Long usuarioId);
 
+    Usuario obtenerUsuarioPorNombre(String name);
 }

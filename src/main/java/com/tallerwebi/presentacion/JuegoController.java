@@ -1,7 +1,5 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.DefinicionDto;
-import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.RondaDto;
 import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.*;
@@ -10,18 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import com.tallerwebi.dominio.JugadorPuntajeDto;
 
 import javax.servlet.http.HttpSession;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/juego")
@@ -48,12 +40,12 @@ public class JuegoController {
     @GetMapping
     public ModelAndView mostrarVistaJuego(HttpSession session) {
 
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        Long usuarioId = (Long) session.getAttribute("idUsuario");
 
         String nombreUsuario = (String) session.getAttribute("usuario");
 
         Long partidaId = (Long) session.getAttribute("idPartida");
-        System.out.println("Datos de sesión: usuarioId=" +
+        System.out.println("Datos de sesión: idUsuario=" +
                 usuarioId + ", nombreUsuario=" + nombreUsuario + ", partidaId=" + partidaId);
 
         if (usuarioId == null || nombreUsuario == null || partidaId == null) {

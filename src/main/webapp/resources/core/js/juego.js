@@ -5,7 +5,7 @@ let intervaloTemporizador;
 let intervaloLetras;
 let finRondaEjecutada = false;
 
-const usuarioId = Number(document.getElementById("usuarioId").value);
+const usuarioId = Number(document.getElementById("idUsuario").value);
 const partidaId = Number(document.getElementById("partidaId").value);
 const palabra = document.getElementById("palabraOculta").value;
 const letras = palabra.split("");
@@ -40,7 +40,7 @@ function enviarIntento(palabra) {
     }));
 
 //    stompClient.send("/app/juego/verificarAvanceDeRonda", {}, JSON.stringify({
-//        usuarioId,
+//        idUsuario,
 //        partidaId,
 //        tiempoRestante
 //    }));

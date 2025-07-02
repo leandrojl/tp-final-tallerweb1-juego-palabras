@@ -4,8 +4,8 @@ const stompClient = new StompJs.Client({
 
 const idPartida = Number(sessionStorage.getItem("idPartida"));
 const usuario = sessionStorage.getItem("usuario");
-const usuarioId = Number(sessionStorage.getItem("usuarioId"));
-console.log("GUARDADO EN SESION EL USUARIO ID: " + usuarioId);
+const idUsuario = Number(sessionStorage.getItem("idUsuario"));
+console.log("GUARDADO EN SESION EL USUARIO ID: " + idUsuario);
 console.log("GUARDADO EN SESION EL USAURIO: " + usuario);
 console.log("GUARDADO EN SESION EL ID DE LA PARTIDA: " + idPartida);
 
@@ -74,44 +74,7 @@ stompClient.onConnect = (frame) => {
 
 };
 
-function cantidadInsuficienteDeUsuariosParaIniciarPartida(message) {
-    let alerta = document.getElementById('alerta-insuficiente-usuarios');
-    if (!alerta) {
-        alerta = document.createElement('div');
-        alerta.id = 'alerta-insuficiente-usuarios';
 
-        // Estilos para el "botón" gris redondeado grande
-        alerta.style.position = 'fixed';
-        alerta.style.bottom = '30px';
-        alerta.style.right = '30px';
-        alerta.style.backgroundColor = '#888888'; // gris medio
-        alerta.style.color = 'white';
-        alerta.style.padding = '20px 40px';
-        alerta.style.borderRadius = '15px';
-        alerta.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
-        alerta.style.zIndex = '9999';
-        alerta.style.fontFamily = 'Arial, sans-serif';
-        alerta.style.fontSize = '16px';
-        alerta.style.fontWeight = '600';
-        alerta.style.textAlign = 'center';
-        alerta.style.cursor = 'default';
-        alerta.style.userSelect = 'none';
-
-        document.body.appendChild(alerta);
-    }
-
-    alerta.textContent = message;
-    alerta.style.opacity = '1';
-    alerta.style.transition = 'opacity 0.5s ease';
-    alerta.style.display = 'block';
-
-    setTimeout(() => {
-        alerta.style.opacity = '0';
-        setTimeout(() => {
-            alerta.style.display = 'none';
-        }, 500);
-    }, 5000);
-}
 
 
 
@@ -146,7 +109,7 @@ function abandonarSala(){
     stompClient.publish({
         destination: '/app/abandonarSala',
         body: JSON.stringify({
-            idUsuario: usuarioId,
+            idUsuario: idUsuario,
             idPartida: idPartida,
             texto: "abandono no los banco mas"
         })
@@ -236,5 +199,42 @@ function mostrarError(message) {
         }, 500);
     }, 3000);
 }
+function cantidadInsuficienteDeUsuariosParaIniciarPartida(message) {
+    let alerta = document.getElementById('alerta-insuficiente-usuarios');
+    if (!alerta) {
+        alerta = document.createElement('div');
+        alerta.id = 'alerta-insuficiente-usuarios';
 
+        alerta.style.position = 'fixed';
+        alerta.style.bottom = '30px';
+        alerta.style.right = '30px';
+        alerta.style.backgroundColor = '#888888'; // gris medio
+        alerta.style.color = 'white';
+        alerta.style.padding = '20px 40px';
+        alerta.style.borderRadius = '15px';
+        alerta.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+        alerta.style.zIndex = '9999';
+        alerta.style.fontFamily = 'Arial, sans-serif';
+        alerta.style.fontSize = '16px';
+        alerta.style.fontWeight = '600';
+        alerta.style.textAlign = 'center';
+        alerta.style.cursor = 'default';
+        alerta.style.userSelect = 'none';
+        alerta.style.zIndex = '9999';
+
+        document.body.appendChild(alerta);
+    }
+
+    alerta.textContent = message;
+    alerta.style.opacity = '1';
+    alerta.style.transition = 'opacity 0.5s ease';
+    alerta.style.display = 'block';
+
+    setTimeout(() => {
+        alerta.style.opacity = '0';
+        setTimeout(() => {
+            alerta.style.display = 'none';
+        }, 500);
+    }, 5000);
+}
 

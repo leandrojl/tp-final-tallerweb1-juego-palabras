@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.List;
@@ -71,6 +72,14 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
             return usuario.getNombreUsuario();
         }
         return null;
+    }
+
+    @Override
+    public Usuario obtenerUsuarioPorNombre(String nombreUsuario) {
+        Session session = sessionFactory.getCurrentSession();
+        return (Usuario) session.createQuery("SELECT u FROM Usuario u WHERE u.nombreUsuario = :nombreUsuario")
+                .setParameter("nombreUsuario", nombreUsuario)
+                .uniqueResult();
     }
 
 }
