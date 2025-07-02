@@ -28,7 +28,6 @@ import java.util.List;
 
 public class HelperRAEApi {
 
-    private static final String BASE_URL = "https://rae-api.com/api/words/";
     private static final String RANDOM_URL = "https://rae-api.com/api/random";
 
     public String obtenerPalabraAleatoria() {
