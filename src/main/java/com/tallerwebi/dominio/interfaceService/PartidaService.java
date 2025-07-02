@@ -38,5 +38,7 @@ public interface PartidaService {
     RondaDto  obtenerPalabraYDefinicionDeRondaActual(Long partidaId);
 
     void finalizarRonda(Ronda ronda);
+
+    void cancelarPartidaDeUsuario(Long idUsuario, Long idPartida);
 }
 

@@ -29,4 +29,5 @@ public interface UsuarioPartidaService {
     UsuarioPartida buscarUsuarioPartida(Long idPartida, Long usuarioId);
 
 
+    void cancelarPartidaDeUsuario(Long idUsuario, Long idPartida);
 }

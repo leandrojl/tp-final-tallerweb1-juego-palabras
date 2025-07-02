@@ -52,4 +52,6 @@ public interface UsuarioPartidaRepository {
 
 
     UsuarioPartida obtenerUsuarioPartida(Long idUsuario, Long idPartida);
+
+    void cancelarPartidaDeUsuario(Long idUsuario, Long idPartida);
 }

@@ -263,4 +263,20 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .uniqueResult();
     } // LE TENGO QUE HACER TEST EN REPOTEST
 
+    @Override
+    public void cancelarPartidaDeUsuario(Long idUsuario, Long idPartida) {
+        Session session = sessionFactory.getCurrentSession();
+        int updated = session.createQuery(
+                        "UPDATE UsuarioPartida up SET up.estado = :estado " +
+                                "WHERE up.usuario.id = :idUsuario AND up.partida.id = :idPartida")
+                .setParameter("estado", Estado.CANCELADA)
+                .setParameter("idUsuario", idUsuario)
+                .setParameter("idPartida", idPartida)
+                .executeUpdate();
+
+        if (updated == 0) {
+            throw new IllegalArgumentException("No se encontró UsuarioPartida para el usuarioId " + idUsuario + " y partidaId " + idPartida);
+        }
+    }
+
 }

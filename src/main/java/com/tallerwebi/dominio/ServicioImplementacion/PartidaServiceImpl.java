@@ -347,6 +347,11 @@ public class PartidaServiceImpl implements PartidaService {
 
     }
 
+    @Override
+    public void cancelarPartidaDeUsuario(Long idUsuario, Long idPartida) {
+        partidaRepository.cancelarPartidaDeUsuario(idUsuario, idPartida);
+    }
+
     public Map<Long, RondaDto> obtenerMapaDefinicionesParaTest() {
         return definicionesPorPartida;
     }

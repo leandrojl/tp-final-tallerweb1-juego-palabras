@@ -48,4 +48,18 @@ public class PartidaRepositoryImpl implements PartidaRepository {
 
     }
 
+    @Override
+    public void cancelarPartidaDeUsuario(Long idUsuario, Long idPartida) {
+        Session session = sessionFactory.getCurrentSession();
+        int updated = session.createQuery(
+                        "UPDATE Partida p SET p.estado = :estado WHERE p.id = :idPartida")
+                .setParameter("estado", Estado.CANCELADA)
+                .setParameter("idPartida", idPartida)
+                .executeUpdate();
+
+        if (updated == 0) {
+            throw new IllegalArgumentException("No se encontró la partida con id " + idPartida);
+        }
+    }
+
 }

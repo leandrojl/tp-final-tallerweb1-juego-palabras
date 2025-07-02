@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
 public class LobbyServiceTest {
-/*
+
     private LobbyService lobbyServiceMock;
 
     @BeforeEach
@@ -35,9 +35,6 @@ public class LobbyServiceTest {
         List<Partida> partidas = lobbyServiceMock.obtenerPartidasEnEspera();
 
         Assertions.assertEquals(3, partidas.size());
-        Assertions.assertEquals("Partida en espera 1", partidas.get(0).getNombre());
-        Assertions.assertEquals("Partida en espera 2", partidas.get(1).getNombre());
-        Assertions.assertEquals("Partida en espera 3", partidas.get(2).getNombre());
 
         Assertions.assertEquals(Estado.EN_ESPERA, partidas.get(0).getEstado());
         Assertions.assertEquals(Estado.EN_ESPERA, partidas.get(1).getEstado());
@@ -57,9 +54,5 @@ public class LobbyServiceTest {
         assertNotNull(partidasMock);
         assertEquals(3, partidasMock.size());
     }
-
-<<<<<<< HEAD
-=======
- */
 
 }

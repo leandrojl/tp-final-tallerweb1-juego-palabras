@@ -21,6 +21,8 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
 
     @Autowired
     private final UsuarioPartidaRepository usuarioPartidaRepository;
+    @Autowired
+    private UsuarioPartidaService usuarioPartidaService;
 
     @Autowired
     public UsuarioPartidaServiceImpl(UsuarioPartidaRepository usuarioPartidaRepository) {
@@ -91,6 +93,11 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
     public UsuarioPartida buscarUsuarioPartida(Long idPartida, Long usuarioId) {
         return usuarioPartidaRepository.obtenerUsuarioPartida(idPartida,usuarioId);
     }//HACER TEST A ESTE
+
+    @Override
+    public void cancelarPartidaDeUsuario(Long idUsuario, Long idPartida) {
+        usuarioPartidaRepository.cancelarPartidaDeUsuario(idUsuario, idPartida);
+    }
 
     @Override
     public void sumarPuntos(Long usuarioId, Long partidaId, int puntos) {

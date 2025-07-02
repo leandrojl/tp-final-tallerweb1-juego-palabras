@@ -50,7 +50,6 @@ public class RegistroControllerTest {
     }
 
 
-
     @Test
     public void queAlSeleccionarVolverAlLoginSePuedaRedireccionarADichaVista(){
 

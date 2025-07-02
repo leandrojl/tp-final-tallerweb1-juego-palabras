@@ -69,7 +69,6 @@ public class LobbyControllerTest {
     }
 
 
-
     @Test
     public void deberiaRetornarVistaCrearSalaAlAccederACrearSala() throws Exception {
         mockMvc.perform(get("/crear-sala"))

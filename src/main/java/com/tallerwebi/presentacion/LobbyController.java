@@ -45,6 +45,22 @@ public class LobbyController {
         return lobbyService.buscarPartidasPorNombre(nombre);
     }
 
+    @GetMapping("/cerrarSalaDeEspera")
+    public String cerrarSalaDeEspera(HttpSession session) {
+        // Aquí puedes limpiar atributos de sesión o realizar lógica de cierre
+        Long idUsuario = (Long) session.getAttribute("usuarioId");
+        Long idPartida = (Long) session.getAttribute("idPartida");
+
+        // Por ejemplo, si tienes un servicio para cancelar la partida, podrías llamarlo aquí
+        usuarioPartidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
+        partidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
+
+        session.removeAttribute("idPartida");
+
+        // Redirige al lobby o a donde corresponda
+        return "redirect:/lobby";
+    }
+
 
     @GetMapping("/crear-sala")
     public String mostrarFormularioCrearSala() {
@@ -123,11 +139,6 @@ public class LobbyController {
     public ModelAndView Ranking() {
         return new ModelAndView("ranking");    }
 
-
-    @RequestMapping("/Perfil")
-    public ModelAndView Perfil() {
-        return new ModelAndView("perfil");
-    }
 
     @RequestMapping("/Partida")
     public ModelAndView Partida() {

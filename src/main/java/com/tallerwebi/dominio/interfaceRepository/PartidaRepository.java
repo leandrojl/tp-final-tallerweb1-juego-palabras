@@ -15,4 +15,5 @@ public interface PartidaRepository {
 
     void actualizarEstado(Long idPartida,Estado estado);
 
+    void cancelarPartidaDeUsuario(Long idUsuario, Long idPartida);
 }
