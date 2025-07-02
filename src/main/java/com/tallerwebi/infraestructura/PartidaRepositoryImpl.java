@@ -62,4 +62,22 @@ public class PartidaRepositoryImpl implements PartidaRepository {
         }
     }
 
+    @Override
+    public boolean verificarSiEsElCreadorDePartida(Long idUsuario, Long idPartida) {
+        Partida partida = sessionFactory.getCurrentSession().get(Partida.class, idPartida);
+        if (partida == null) {
+            return false;
+        }
+        return idUsuario != null && idUsuario.equals(partida.getCreadorId());
+    }
+
+    @Override
+    public Estado verificarEstadoDeLaPartida(Long idPartida) {
+        Partida partida = sessionFactory.getCurrentSession().get(Partida.class, idPartida);
+        if (partida == null) {
+            throw new IllegalArgumentException("No se encontró la partida con id " + idPartida);
+        }
+        return partida.getEstado();
+    }
+
 }

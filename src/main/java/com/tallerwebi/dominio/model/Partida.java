@@ -18,6 +18,7 @@ public class Partida {
     private int minimoJugadores;
     @Enumerated(EnumType.STRING)
     private Estado estado;
+    private Long creadorId=null;
 
     public Partida() {
 
@@ -32,6 +33,7 @@ public class Partida {
         this.maximoJugadores = maximoJugadores;
         this.minimoJugadores = minimoJugadores;
         this.estado = estado;
+        this.creadorId = null;
     }
 
     public Partida(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int minimoJugadores) {
@@ -40,6 +42,18 @@ public class Partida {
         this.permiteComodin = permiteComodin;
         this.rondasTotales = rondasTotales;
         this.minimoJugadores = minimoJugadores;
+        this.creadorId = null;
+    }
+
+    public Partida(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int maximoJugadores, int minimoJugadores, Estado estado, Long creadorId) {
+        this.nombre = nombre;
+        this.idioma = idioma;
+        this.permiteComodin = permiteComodin;
+        this.rondasTotales = rondasTotales;
+        this.maximoJugadores = maximoJugadores;
+        this.minimoJugadores = minimoJugadores;
+        this.estado = estado;
+        this.creadorId = creadorId;
     }
 
     public Long getId() {
@@ -124,5 +138,13 @@ public class Partida {
     @Override
     public int hashCode() {
         return Objects.hash(id, nombre, idioma, permiteComodin, rondasTotales, maximoJugadores, minimoJugadores, estado);
+    }
+
+    public Long getCreadorId() {
+        return creadorId;
+    }
+
+    public void setCreadorId(Long creadorId) {
+        this.creadorId = creadorId;
     }
 }

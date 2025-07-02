@@ -47,20 +47,30 @@ public class LobbyController {
 
     @GetMapping("/cerrarSalaDeEspera")
     public String cerrarSalaDeEspera(HttpSession session) {
-        // Aquí puedes limpiar atributos de sesión o realizar lógica de cierre
-        Long idUsuario = (Long) session.getAttribute("usuarioId");
         Long idPartida = (Long) session.getAttribute("idPartida");
+        if (idPartida == null) {
+            // No hay partida activa en la sesión
+            return "redirect:/lobby";
+        }
+        Long idUsuario = (Long) session.getAttribute("usuarioId");
+        if (idUsuario == null) {
+            // El usuario no está autenticado o la sesión expiró
+            return "redirect:/login";
+        }
 
-        // Por ejemplo, si tienes un servicio para cancelar la partida, podrías llamarlo aquí
-        usuarioPartidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
-        partidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
+        if(partidaService.verificarSiEsElCreadorDePartida(idUsuario, idPartida)){
 
-        session.removeAttribute("idPartida");
+            partidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
+            usuarioPartidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
+            session.removeAttribute("idPartida");
+        } else {
 
-        // Redirige al lobby o a donde corresponda
+            usuarioPartidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
+            session.removeAttribute("idPartida");
+        }
+
         return "redirect:/lobby";
     }
-
 
     @GetMapping("/crear-sala")
     public String mostrarFormularioCrearSala() {
@@ -80,6 +90,8 @@ public class LobbyController {
 
         Long idUsuario = (Long) session.getAttribute("usuarioId");
 
+        Long creadorDePartida = idUsuario;
+
         Partida nuevaPartida = new Partida(
                 nombre,
                 idioma,
@@ -87,7 +99,8 @@ public class LobbyController {
                 rondasTotales,
                 maximoJugadores,
                 minimoJugadores,
-                Estado.EN_ESPERA);
+                Estado.EN_ESPERA,
+                creadorDePartida);
 
         Serializable idPartida = partidaService.crearPartida(nuevaPartida);
 

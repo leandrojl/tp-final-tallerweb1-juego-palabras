@@ -6,6 +6,7 @@ import com.tallerwebi.dominio.DTO.MensajeDto;
 import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import com.tallerwebi.dominio.interfaceService.UsuarioService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
@@ -37,14 +38,16 @@ public class SalaDeEsperaController {
     private SalaDeEsperaService salaDeEsperaService;
     private UsuarioService usuarioService;
     private UsuarioPartidaService usuarioPartidaService;
+    private PartidaService partidaService;
 
     @Autowired
     public SalaDeEsperaController(SalaDeEsperaService servicioSalaDeEspera,
                                   UsuarioService usuarioService,
-                                  UsuarioPartidaService usuarioPartidaService) {
+                                  UsuarioPartidaService usuarioPartidaService, PartidaService partidaService) {
         this.salaDeEsperaService = servicioSalaDeEspera;
         this.usuarioService = usuarioService;
         this.usuarioPartidaService = usuarioPartidaService;
+        this.partidaService = partidaService;
     }
 
 
@@ -114,14 +117,23 @@ public class SalaDeEsperaController {
         //UsuarioPartida existeRegistro = usuarioPartidaService.buscarUsuarioPartida(idPartida,
          //       usuarioId);
         //if(existeRegistro == null){
-            usuarioPartidaService.agregarUsuarioAPartida(usuarioId,idPartida,0,false,Estado.EN_ESPERA);
-        //}
-        String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
-        model.addAttribute("usuarioId", usuarioId);
-        model.addAttribute("usuario", nombreUsuario);
-        model.addAttribute("idPartida", idPartida);
 
-        return "sala-de-espera";
+            Estado estadoDeLaPartida = partidaService.verificarEstadoDeLaPartida(idPartida);
+
+            if (estadoDeLaPartida == Estado.EN_ESPERA) {
+
+                usuarioPartidaService.agregarUsuarioAPartida(usuarioId,idPartida,0,false,Estado.EN_ESPERA);
+                //}
+                String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
+                model.addAttribute("usuarioId", usuarioId);
+                model.addAttribute("usuario", nombreUsuario);
+                model.addAttribute("idPartida", idPartida);
+
+                return "sala-de-espera";
+
+            }
+
+            return "redirect:/lobby"; // Redirigir a la página de juego si la partida ya está en curso
     }
 
 

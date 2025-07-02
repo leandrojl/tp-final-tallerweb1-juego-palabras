@@ -6,6 +6,7 @@ import com.tallerwebi.dominio.DTO.MensajeDto;
 import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import com.tallerwebi.dominio.interfaceService.UsuarioService;
@@ -41,6 +42,7 @@ public class SalaDeEsperaControllerTest {
     private UsuarioPartidaService usuarioPartidaService;
     private SalaDeEsperaController salaDeEsperaController;
     private UsuarioService usuarioService;
+    private PartidaService partidaService;
     private WebSocketStompClient stompClient;
 
     @BeforeEach
@@ -50,7 +52,11 @@ public class SalaDeEsperaControllerTest {
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         usuarioPartidaService = Mockito.mock(UsuarioPartidaService.class);
         usuarioService = Mockito.mock(UsuarioService.class);
-        salaDeEsperaController = new SalaDeEsperaController(salaDeEsperaService,usuarioService, usuarioPartidaService);
+        salaDeEsperaController = new SalaDeEsperaController(
+                salaDeEsperaService,
+                usuarioService,
+                usuarioPartidaService,
+                partidaService);
     }
 
 

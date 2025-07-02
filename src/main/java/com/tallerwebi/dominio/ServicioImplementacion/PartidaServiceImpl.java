@@ -352,6 +352,16 @@ public class PartidaServiceImpl implements PartidaService {
         partidaRepository.cancelarPartidaDeUsuario(idUsuario, idPartida);
     }
 
+    @Override
+    public boolean verificarSiEsElCreadorDePartida(Long idUsuario, Long idPartida) {
+        return partidaRepository.verificarSiEsElCreadorDePartida(idUsuario, idPartida);
+    }
+
+    @Override
+    public Estado verificarEstadoDeLaPartida(Long idPartida) {
+        return partidaRepository.verificarEstadoDeLaPartida(idPartida);
+    }
+
     public Map<Long, RondaDto> obtenerMapaDefinicionesParaTest() {
         return definicionesPorPartida;
     }
