@@ -226,10 +226,13 @@ public class PartidaServiceImpl implements PartidaService {
         }
 
         String idioma = partida.getIdioma();
+        System.out.println(idioma);
+
+        System.out.println("IDIOMA DE PARTIDA AAAAAAA: "+idioma);
         Ronda ronda = rondaService.crearRonda(partidaId, idioma);
         Palabra palabra = ronda.getPalabra();
         String definicionTexto = palabra.getDefiniciones().stream()
-                .findFirst()
+                .findAny()
                 .map(Definicion::getDefinicion)
                 .orElse("Definición no disponible");
 
