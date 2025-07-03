@@ -2,6 +2,7 @@ package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.interfaceRepository.RondaRepository;
 import com.tallerwebi.dominio.model.Ronda;
+import org.hibernate.LockMode;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -41,14 +42,19 @@ public class RondaRepositoryImpl implements RondaRepository {
 
     @Override
     public Ronda obtenerUltimaRondaDePartida(Long partidaId) {
-        return sessionFactory.getCurrentSession()
-                .createQuery("SELECT r FROM Ronda r " +
-                        "JOIN FETCH r.palabra " + // opcional, si querés la palabra cargada
-                        "WHERE r.partida.id = :partidaId " +
-                        "ORDER BY r.numeroDeRonda DESC", Ronda.class)
-                .setParameter("partidaId", partidaId)
-                .setMaxResults(1)
-                .uniqueResult();
+
+            return sessionFactory.getCurrentSession()
+                    .createQuery(
+                            "SELECT r FROM Ronda r " +
+                                    "JOIN FETCH r.palabra p " +
+                                    "LEFT JOIN FETCH p.definiciones " +
+                                    "WHERE r.partida.id = :partidaId " +
+                                    "ORDER BY r.numeroDeRonda DESC", Ronda.class)
+                    .setParameter("partidaId", partidaId)
+                    .setMaxResults(1)
+                    .setLockMode("r", LockMode.PESSIMISTIC_WRITE)
+                    .uniqueResult();
+
     }
 
     @Override

@@ -45,5 +45,8 @@ public interface PartidaService {
     boolean verificarSiEsElCreadorDePartida(Long idUsuario, Long idPartida);
 
     Estado verificarEstadoDeLaPartida(Long idPartida);
+
+    RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId);
+
 }
 

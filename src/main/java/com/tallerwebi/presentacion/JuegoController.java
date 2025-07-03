@@ -58,25 +58,16 @@ public class JuegoController {
         if (partidaId != null) {
             Partida partida = partidaServicio.obtenerPartidaPorId(partidaId);
 
-            /*
-            if (partida == null) {
-                session.removeAttribute("idPartida");
-
-                partidaId = null;
-            } else if (partida.getEstado() == Estado.FINALIZADA) {
-                session.removeAttribute("idPartida");
-                partidaId = null;
-            }*/
         }
 
         ModelMap model = new ModelMap();
         model.put("usuarioId", usuarioId);
         model.put("usuario", nombreUsuario);
-        System.out.println("SOY PARTIDA ID ANTES DE RondaDto definicion"+partidaId);
-        // Si ya hay partida válida, cargo info actual
-        //RondaDto definicion = partidaServicio.obtenerPalabraYDefinicionDeRondaActual(partidaId);
+
+
          RondaDto definicion = partidaServicio.iniciarNuevaRonda(partidaId);
-        System.out.println("SOY DEFINICION===="+definicion);
+
+
 
         if (definicion == null) {
             System.out.println("No se pudo obtener la ronda actual para partidaId=" + partidaId);
