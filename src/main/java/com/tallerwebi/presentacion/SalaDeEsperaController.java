@@ -14,6 +14,7 @@ import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Jugador;
 
+import com.tallerwebi.dominio.model.UsuarioPartida;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -91,7 +92,7 @@ public class SalaDeEsperaController {
 
     @GetMapping("/sala-de-espera/{idPartida}")
     public String salaDeEspera(@PathVariable Long idPartida, Model model, HttpSession session) {
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        Long usuarioId = (Long) session.getAttribute("idUsuario");
         String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
 
         model.addAttribute("usuario", nombreUsuario);
@@ -113,19 +114,27 @@ public class SalaDeEsperaController {
             idPartida = (Long) session.getAttribute("idPartida");
         }
 
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
-        //UsuarioPartida existeRegistro = usuarioPartidaService.buscarUsuarioPartida(idPartida,
-         //       usuarioId);
-        //if(existeRegistro == null){
+
+        Long idUsuario = (Long) session.getAttribute("idUsuario");
+        UsuarioPartida existeRegistro = usuarioPartidaService.buscarUsuarioPartida(idPartida,
+                idUsuario);
+        if(existeRegistro == null){// DONDE SE EVITA QUE SE DUPLIQUE USUARIOPARTIDA
+            usuarioPartidaService.agregarUsuarioAPartida(idUsuario,idPartida,0,false,Estado.EN_ESPERA);
+        }
+        String nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
+        model.addAttribute("idUsuario", idUsuario);
+        model.addAttribute("usuario", nombreUsuario);
+        model.addAttribute("idPartida", idPartida);
+
 
             Estado estadoDeLaPartida = partidaService.verificarEstadoDeLaPartida(idPartida);
 
             if (estadoDeLaPartida == Estado.EN_ESPERA) {
 
-                usuarioPartidaService.agregarUsuarioAPartida(usuarioId,idPartida,0,false,Estado.EN_ESPERA);
+                usuarioPartidaService.agregarUsuarioAPartida(idUsuario,idPartida,0,false,Estado.EN_ESPERA);
                 //}
-                String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
-                model.addAttribute("usuarioId", usuarioId);
+                nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
+                model.addAttribute("usuarioId", idUsuario);
                 model.addAttribute("usuario", nombreUsuario);
                 model.addAttribute("idPartida", idPartida);
 
@@ -169,7 +178,8 @@ public class SalaDeEsperaController {
         Boolean redireccionamientoCorrecto = this.salaDeEsperaService.redireccionarUsuariosAPartida(mensajeRecibidoDTO);
         if(!redireccionamientoCorrecto){ //FUNCIONALIDAD PARA SPRINT 4 DE MINIMA CANT DE JUGADORES PARA INICIAR
             // PARTIDA REQUERIDA
-            throw new CantidadDeUsuariosInsuficientesException("error");
+            throw new CantidadDeUsuariosInsuficientesException("Cantidad insuficiente de usuarios para iniciar " +
+                    "partida");
         }
     }
 
@@ -178,7 +188,6 @@ public class SalaDeEsperaController {
     @MessageExceptionHandler(CantidadDeUsuariosInsuficientesException.class)
     @SendTo("/topic/noSePuedeIrALaPartida")
     public MensajeRecibidoDTO enviarMensajeDeDenegacionDeAvanceAPartida(CantidadDeUsuariosInsuficientesException ex) {
-        System.out.println("ENTRE EN EL MANEJADOR DE EXCEPCION DEL CONTROLADOOOOOOOOOR");
         return new MensajeRecibidoDTO(ex.getMessage());
     }
 
@@ -186,5 +195,10 @@ public class SalaDeEsperaController {
     @SendToUser("/queue/alAbandonarSala")
     public MensajeRecibidoDTO abandonarSala(MensajeDto mensajeDto, Principal principal) {
         return this.salaDeEsperaService.abandonarSala(mensajeDto,principal.getName());
+    }
+
+    @MessageExceptionHandler(Exception.class)
+    public void paraExcepciones(Exception ex) {
+        ex.printStackTrace();
     }
 }

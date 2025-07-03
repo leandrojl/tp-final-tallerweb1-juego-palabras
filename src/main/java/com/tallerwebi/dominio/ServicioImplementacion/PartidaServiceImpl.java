@@ -118,7 +118,7 @@ public class PartidaServiceImpl implements PartidaService {
         boolean esCorrecto = intentoTexto.equalsIgnoreCase(palabraCorrecta);
 
         // Armamos el ResultadoDto
-        //Usuario usuario = usuarioPartidaService.obtenerUsuarioPorUsuarioIdYPartidaId(usuarioId, partidaId);
+        //Usuario usuario = usuarioPartidaService.obtenerUsuarioPorUsuarioIdYPartidaId(idUsuario, partidaId);
         //System.out.println("Usuario encontrado: " + usuario + " nombreUsuario=" + (usuario != null ? usuario.getNombreUsuario() : "null"));
         ResultadoIntentoDto resultadoPrivado = new ResultadoIntentoDto();
         resultadoPrivado.setJugador(nombre);
@@ -136,7 +136,7 @@ public class PartidaServiceImpl implements PartidaService {
                 int puntos = aciertoService.registrarAcierto(usuarioId, rondaId);
 
                 // Sumar puntos en UsuarioPartida ===
-                // usuarioPartidaService.sumarPuntos(usuarioId, partidaId, puntos);
+                // usuarioPartidaService.sumarPuntos(idUsuario, partidaId, puntos);
 
                 // Al jugador que acertó
                 resultadoPrivado.setPalabraCorrecta(intentoTexto);

@@ -62,7 +62,7 @@ public class UsuarioPartidaServiceTest {
         boolean gano = false;
         Estado estado = Estado.EN_ESPERA;
 
-        doThrow(new IllegalArgumentException("usuarioId no puede ser null"))
+        doThrow(new IllegalArgumentException("idUsuario no puede ser null"))
                 .when(usuarioPartidaServiceMock)
                 .agregarUsuarioAPartida(isNull(), eq(partidaId), anyInt(), anyBoolean(), any(Estado.class));
 

@@ -115,9 +115,10 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
     public void borrarUsuarioPartidaAsociadaAlUsuario(Long idPartida, Long idUsuario) {
         Session session = this.sessionFactory.getCurrentSession();
         session.createQuery("DELETE FROM UsuarioPartida u " +
-                "WHERE u.partida = :idPartida AND u.usuario = :idUsuario")
+                "WHERE u.partida.id = :idPartida AND u.usuario.id = :idUsuario")
                 .setParameter("idPartida", idPartida)
-                .setParameter("idUsuario", idUsuario);
+                .setParameter("idUsuario", idUsuario)
+                .executeUpdate();
     }
 
     @Override
@@ -209,7 +210,7 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
             sessionFactory.getCurrentSession().update(up);
         } else {
             // Podés lanzar una excepción si se espera que siempre exista
-            throw new IllegalArgumentException("No se encontró UsuarioPartida para el usuarioId " + usuarioId + " y partidaId " + partidaId);
+            throw new IllegalArgumentException("No se encontró UsuarioPartida para el idUsuario " + usuarioId + " y partidaId " + partidaId);
 
         }
     }
@@ -257,7 +258,7 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
     public UsuarioPartida obtenerUsuarioPartida(Long idUsuario, Long idPartida) {
         Session session = sessionFactory.getCurrentSession();
         return  session.createQuery("SELECT up FROM UsuarioPartida up" +
-                " WHERE up.partida = :idpartida AND up.usuario = :idUsuario", UsuarioPartida.class)
+                " WHERE up.partida.id = :idpartida AND up.usuario.id = :idUsuario", UsuarioPartida.class)
                 .setParameter("idpartida", idPartida)
                 .setParameter("idUsuario", idUsuario)
                 .uniqueResult();
@@ -277,6 +278,16 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
         if (updated == 0) {
             throw new IllegalArgumentException("No se encontró UsuarioPartida para el usuarioId " + idUsuario + " y partidaId " + idPartida);
         }
+    }
+
+    public void actualizarEstado(Long idPartida, Estado estado) {
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery("UPDATE UsuarioPartida up SET up.estado = :estado " +
+                "WHERE up.partida.id = :idPartida")
+                .setParameter("idPartida", idPartida)
+                .setParameter("estado", estado)
+                .executeUpdate();
+
     }
 
 }

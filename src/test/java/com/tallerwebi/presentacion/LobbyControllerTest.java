@@ -68,6 +68,147 @@ public class LobbyControllerTest {
                 .build();
     }
 
+    @Test
+    public void deberiaCrearSalaYRedirigirASalaDeEspera() throws Exception {
+
+        Long idUsuario = 1L;
+        Serializable idPartida = 10L;
+
+
+        HttpSession session = mock(HttpSession.class);
+        when(session.getAttribute("idUsuario")).thenReturn(idUsuario);
+
+
+        PartidaService partidaService = Mockito.mock(PartidaService.class);
+        LobbyService lobbyService = Mockito.mock(LobbyService.class);
+        UsuarioService usuarioService = Mockito.mock(UsuarioService.class);
+        UsuarioPartidaService usuarioPartidaService = Mockito.mock(UsuarioPartidaService.class);
+
+
+        LobbyController lobbyController = new LobbyController(partidaService, lobbyService, usuarioService, usuarioPartidaService);
+
+
+        Mockito.when(partidaService.crearPartida(Mockito.any(Partida.class))).thenReturn(idPartida);
+
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(lobbyController).build();
+
+        mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/crear-sala")
+                                .param("nombre", "Sala Test")
+                                .param("idioma", "Español")
+                                .param("permiteComodin", "true")
+                                .param("rondasTotales", "5")
+                                .param("maximoJugadores", "4")
+                                .param("minimoJugadores", "2")
+                                .sessionAttr("idUsuario", idUsuario)
+                )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/sala-de-espera"));
+
+
+        Mockito.verify(partidaService).crearPartida(Mockito.any(Partida.class));
+        Mockito.verify(usuarioPartidaService).agregarUsuarioAPartida(idUsuario, (Long) idPartida, 0, false, Estado.EN_ESPERA);
+    }
+
+
+    @Test
+    public void deberiaRedirigirASalaDeEsperaTrasCrearSala() throws Exception {
+        Long idUsuario = 1L;
+        Serializable idPartida = 10L;
+
+        PartidaService partidaService = Mockito.mock(PartidaService.class);
+        LobbyService lobbyService = Mockito.mock(LobbyService.class);
+        UsuarioService usuarioService = Mockito.mock(UsuarioService.class);
+        UsuarioPartidaService usuarioPartidaService = Mockito.mock(UsuarioPartidaService.class);
+
+        Mockito.when(partidaService.crearPartida(Mockito.any(Partida.class))).thenReturn(idPartida);
+
+        LobbyController lobbyController = new LobbyController(partidaService, lobbyService, usuarioService, usuarioPartidaService);
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(lobbyController).build();
+
+        mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/crear-sala")
+                                .param("nombre", "Sala Test")
+                                .param("idioma", "Español")
+                                .param("permiteComodin", "true")
+                                .param("rondasTotales", "5")
+                                .param("maximoJugadores", "4")
+                                .param("minimoJugadores", "2")
+                                .sessionAttr("idUsuario", idUsuario)
+                )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/sala-de-espera"));
+    }
+
+
+    @Test
+    public void deberiaLlamarCrearPartidaConDatosCorrectos() throws Exception {
+        Long idUsuario = 2L;
+        Serializable idPartida = 20L;
+
+        PartidaService partida2Service = Mockito.mock(PartidaService.class);
+        LobbyService lobbyService = Mockito.mock(LobbyService.class);
+        UsuarioService usuarioService = Mockito.mock(UsuarioService.class);
+        UsuarioPartidaService usuarioPartidaService = Mockito.mock(UsuarioPartidaService.class);
+
+        Mockito.when(partida2Service.crearPartida(Mockito.any(Partida.class))).thenReturn(idPartida);
+
+        LobbyController lobbyController = new LobbyController(partida2Service, lobbyService, usuarioService, usuarioPartidaService);
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(lobbyController).build();
+
+        mockMvc.perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/crear-sala")
+                        .param("nombre", "Sala Test 2")
+                        .param("idioma", "Inglés")
+                        .param("permiteComodin", "false")
+                        .param("rondasTotales", "3")
+                        .param("maximoJugadores", "6")
+                        .param("minimoJugadores", "3")
+                        .sessionAttr("idUsuario", idUsuario)
+        );
+
+        Mockito.verify(partida2Service).crearPartida(Mockito.argThat(partida ->
+                partida.getNombre().equals("Sala Test 2") &&
+                        partida.getIdioma().equals("Inglés") &&
+                        !partida.isPermiteComodin() &&
+                        partida.getRondasTotales() == 3 &&
+                        partida.getMaximoJugadores() == 6 &&
+                        partida.getMinimoJugadores() == 3 &&
+                        partida.getEstado() == Estado.EN_ESPERA
+        ));
+    }
+
+    // Test: Se agrega el usuario a la partida correctamente
+    @Test
+    public void deberiaAgregarUsuarioAPartidaConValoresIniciales() throws Exception {
+        Long idUsuario = 3L;
+        Serializable idPartida = 30L;
+
+        PartidaService partidaService = Mockito.mock(PartidaService.class);
+        LobbyService lobbyService = Mockito.mock(LobbyService.class);
+        UsuarioService usuarioService = Mockito.mock(UsuarioService.class);
+        UsuarioPartidaService usuarioPartidaService = Mockito.mock(UsuarioPartidaService.class);
+
+        Mockito.when(partidaService.crearPartida(Mockito.any(Partida.class))).thenReturn(idPartida);
+
+        LobbyController lobbyController = new LobbyController(partidaService, lobbyService, usuarioService, usuarioPartidaService);
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(lobbyController).build();
+
+        mockMvc.perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/crear-sala")
+                        .param("nombre", "Sala Test 3")
+                        .param("idioma", "Francés")
+                        .param("permiteComodin", "true")
+                        .param("rondasTotales", "4")
+                        .param("maximoJugadores", "5")
+                        .param("minimoJugadores", "2")
+                        .sessionAttr("idUsuario", idUsuario)
+        );
+
+        Mockito.verify(usuarioPartidaService).agregarUsuarioAPartida(idUsuario, (Long) idPartida, 0, false, Estado.EN_ESPERA);
+    }
+
+
 
     @Test
     public void deberiaRetornarVistaCrearSalaAlAccederACrearSala() throws Exception {
@@ -87,73 +228,6 @@ public class LobbyControllerTest {
                 .andExpect(content().string(containsString("name=\"minimoJugadores\"")));
     }
 
-    @Test
-    public void deberiaRedirigirASalaDeEsperaTrasCrearSala() throws Exception {
-        Long usuarioId = 1L;
-        Serializable idPartida = 10L;
-        Mockito.when(partidaServiceMock.crearPartida(Mockito.any(Partida.class))).thenReturn(idPartida);
-
-        mockMvc.perform(
-                        post("/crear-sala")
-                                .param("nombre", "Sala Test")
-                                .param("idioma", "Español")
-                                .param("permiteComodin", "true")
-                                .param("rondasTotales", "5")
-                                .param("maximoJugadores", "4")
-                                .param("minimoJugadores", "2")
-                                .sessionAttr("usuarioId", usuarioId)
-                )
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/sala-de-espera"));
-    }
-
-    @Test
-    public void deberiaLlamarCrearPartidaConDatosCorrectos() throws Exception {
-        Long usuarioId = 2L;
-        Serializable idPartida = 20L;
-        Mockito.when(partidaServiceMock.crearPartida(Mockito.any(Partida.class))).thenReturn(idPartida);
-
-        mockMvc.perform(
-                post("/crear-sala")
-                        .param("nombre", "Sala Test 2")
-                        .param("idioma", "Inglés")
-                        .param("permiteComodin", "false")
-                        .param("rondasTotales", "3")
-                        .param("maximoJugadores", "6")
-                        .param("minimoJugadores", "3")
-                        .sessionAttr("usuarioId", usuarioId)
-        );
-
-        Mockito.verify(partidaServiceMock).crearPartida(Mockito.argThat(partida ->
-                partida.getNombre().equals("Sala Test 2") &&
-                        partida.getIdioma().equals("Inglés") &&
-                        !partida.isPermiteComodin() &&
-                        partida.getRondasTotales() == 3 &&
-                        partida.getMaximoJugadores() == 6 &&
-                        partida.getMinimoJugadores() == 3 &&
-                        partida.getEstado() == Estado.EN_ESPERA
-        ));
-    }
-
-    @Test
-    public void deberiaAgregarUsuarioAPartidaConValoresIniciales() throws Exception {
-        Long usuarioId = 3L;
-        Serializable idPartida = 30L;
-        Mockito.when(partidaServiceMock.crearPartida(Mockito.any(Partida.class))).thenReturn(idPartida);
-
-        mockMvc.perform(
-                post("/crear-sala")
-                        .param("nombre", "Sala Test 3")
-                        .param("idioma", "Francés")
-                        .param("permiteComodin", "true")
-                        .param("rondasTotales", "4")
-                        .param("maximoJugadores", "5")
-                        .param("minimoJugadores", "2")
-                        .sessionAttr("usuarioId", usuarioId)
-        );
-
-        Mockito.verify(usuarioPartidaServiceMock).agregarUsuarioAPartida(usuarioId, (Long) idPartida, 0, false, Estado.EN_ESPERA);
-    }
 
 
     @Test

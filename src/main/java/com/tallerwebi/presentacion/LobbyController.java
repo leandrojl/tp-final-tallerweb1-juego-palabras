@@ -6,7 +6,6 @@ import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.interfaceService.LobbyService;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
-import com.tallerwebi.dominio.model.Jugador;
 import com.tallerwebi.dominio.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -88,7 +87,7 @@ public class LobbyController {
             HttpSession session
     ) {
 
-        Long idUsuario = (Long) session.getAttribute("usuarioId");
+        Long idUsuario = (Long) session.getAttribute("idUsuario");
 
         Long creadorDePartida = idUsuario;
 
@@ -127,7 +126,7 @@ public class LobbyController {
 
     @RequestMapping("/lobby")
     public ModelAndView Lobby(HttpSession session, Model model) {
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        Long usuarioId = (Long) session.getAttribute("idUsuario");
         if (usuarioId != null) {
             Usuario usuario = usuarioService.buscarPorId(usuarioId); // Asegúrate de tener este servicio inyectado
             if (usuario != null) {

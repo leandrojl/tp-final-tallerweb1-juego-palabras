@@ -1,6 +1,8 @@
 package com.tallerwebi.presentacion;
 
+
 import com.tallerwebi.dominio.DTO.RondaDto;
+
 import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.*;
 
@@ -40,12 +42,12 @@ public class JuegoController {
     @GetMapping
     public ModelAndView mostrarVistaJuego(HttpSession session) {
 
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        Long usuarioId = (Long) session.getAttribute("idUsuario");
 
         String nombreUsuario = (String) session.getAttribute("usuario");
 
         Long partidaId = (Long) session.getAttribute("idPartida");
-        System.out.println("Datos de sesión: usuarioId=" +
+        System.out.println("Datos de sesión: idUsuario=" +
                 usuarioId + ", nombreUsuario=" + nombreUsuario + ", partidaId=" + partidaId);
 
         if (usuarioId == null || nombreUsuario == null || partidaId == null) {

@@ -73,4 +73,12 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
         return null;
     }
 
+    @Override
+    public Usuario obtenerUsuarioPorNombre(String nombreUsuario) {
+        Session session = sessionFactory.getCurrentSession();
+        return (Usuario) session.createQuery("SELECT u FROM Usuario u WHERE u.nombreUsuario = :nombreUsuario")
+                .setParameter("nombreUsuario", nombreUsuario)
+                .uniqueResult();
+    }
+
 }
