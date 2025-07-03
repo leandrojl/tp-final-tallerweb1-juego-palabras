@@ -94,7 +94,7 @@ public class HelperPalabra {
     }
 
     private boolean esPalabraValida(String palabra) {
-        return palabra.matches("^[\\p{L} '\\-]+$"); // Letras unicode, espacio, apóstrofe y guión
+        return palabra.matches("^[\\p{L}']+$"); // Letras unicode y apostrofes
     }
 
     private String getCodigoIdioma(String idioma) {
