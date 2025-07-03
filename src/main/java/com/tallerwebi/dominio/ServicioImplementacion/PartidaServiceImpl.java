@@ -95,12 +95,23 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public void procesarIntento(DtoIntento intento, String nombre) {
         //   ---- si acerto verificar si acertaron todos y finalizar ronda timer -----  //
+        System.out.println("procesar intento aqui estoy ");
 
-        Long partidaId = intento.getPartidaId();
+        Long partidaId = intento.getIdPartida();
+        System.out.println("partida: "+partidaId);
+
         Long usuarioId = intento.getUsuarioId();
+        System.out.println("usuarioId "+usuarioId);
+
         String intentoTexto = intento.getIntentoPalabra();
+        System.out.println("intentoTexto "+intentoTexto);
+
         // === Obtener Partida
+        System.out.println("procesar intento aqui estoy3 ");
+
         Partida partida = partidaRepository.buscarPorId(partidaId);
+        System.out.println("PARTIDA NULA ");
+
         if (partida == null) {
             throw new IllegalArgumentException("Partida no encontrada con ID: " + partidaId);
         }
@@ -109,6 +120,7 @@ public class PartidaServiceImpl implements PartidaService {
         Ronda ronda = rondaService.obtenerUltimaRondaDePartida(partidaId);
         Long rondaId = ronda.getId();
         if (ronda == null) {
+            System.out.println("Ronda NULA ");
             throw new IllegalStateException("No hay una ronda activa.");
         } else if (ronda.getEstado().equals(Estado.FINALIZADA)) {
             throw new IllegalStateException("Ronda finalizada.");
@@ -186,7 +198,7 @@ public class PartidaServiceImpl implements PartidaService {
             resultado.setJugador("pepito");
             resultado.setCorrecto(false);
             simpMessagingTemplate.convertAndSend(
-                    "/topic/mostrarIntento/" + intento.getPartidaId(),
+                    "/topic/mostrarIntento/" + intento.getIdPartida(),
                     resultado);
         }
     }
@@ -196,6 +208,7 @@ public class PartidaServiceImpl implements PartidaService {
     public RondaDto iniciarNuevaRonda(Long partidaId) {
         Object lock = locks.computeIfAbsent(partidaId, id -> new Object());
         synchronized (lock) {
+
         Partida partida = partidaRepository.buscarPorId(partidaId);
         if (partida == null) {
             throw new IllegalArgumentException("No existe la partida con ID: " + partidaId);

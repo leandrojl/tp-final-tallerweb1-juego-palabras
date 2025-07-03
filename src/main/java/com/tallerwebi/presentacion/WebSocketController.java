@@ -64,6 +64,8 @@ public class WebSocketController {
 
     @MessageMapping("/juego/intento")
     public void procesarIntento(DtoIntento intento, Principal principal){
+        System.out.println("INTENTO ====== " + intento.getIntentoPalabra());
+
         String nombre = principal.getName();
         if (principal == null) {
             System.out.println("Principal es NULL");
