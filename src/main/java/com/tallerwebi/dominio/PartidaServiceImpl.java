@@ -11,6 +11,7 @@ import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 
 import com.tallerwebi.dominio.interfaceRepository.RondaRepository;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
@@ -22,6 +23,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -57,7 +59,7 @@ public class PartidaServiceImpl implements PartidaService {
     private final RondaRepository rondaRepositorio;
 
     private final Map<Long, RondaDto> definicionesPorPartida = new HashMap<>();
-
+    private final ConcurrentHashMap<Long, Object> locks = new ConcurrentHashMap<>();
     @Autowired
     public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
                               PartidaRepository partidaRepository,
@@ -75,6 +77,7 @@ public class PartidaServiceImpl implements PartidaService {
         this.usuarioPartidaRepository = usuarioPartidaRepository;
         this.rondaRepositorio = rondaRepositorio;
         this.timerRonda = Executors.newSingleThreadScheduledExecutor();
+
     }
 
     @Override
@@ -187,8 +190,11 @@ public class PartidaServiceImpl implements PartidaService {
         }
     }
 
+    @Transactional
     @Override
     public RondaDto iniciarNuevaRonda(Long partidaId) {
+        Object lock = locks.computeIfAbsent(partidaId, id -> new Object());
+        synchronized (lock) {
         Partida partida = partidaRepository.buscarPorId(partidaId);
         if (partida == null) {
             throw new IllegalArgumentException("No existe la partida con ID: " + partidaId);
@@ -196,65 +202,20 @@ public class PartidaServiceImpl implements PartidaService {
 
         // Validación para no crear dos rondas activas
         Ronda ultima = rondaService.obtenerUltimaRondaDePartida(partidaId);
-        System.out.println("SOY LA ULTIMA RONDA PAAA?????"+ultima);
-        if (ultima != null && ultima.getEstado() == Estado.EN_CURSO) {
-            System.out.println("Ya hay una ronda activa...");
 
-            Palabra palabra = ultima.getPalabra();
-            String definicionTexto = palabra.getDefiniciones().stream()
-                    .findFirst()
-                    .map(Definicion::getDefinicion)
-                    .orElse("Definición no disponible");
+        if (ultima != null ) {
+            if (ultima.getEstado() == Estado.EN_CURSO) {
+                System.out.println("Ya hay una ronda activa...");
+                return construirDtoDesdeRondaExistente(ultima, partidaId);
+            }
+        }
+            String idioma = partida.getIdioma();
+            Ronda nueva = rondaService.crearRonda(partidaId, idioma);
 
-            List<UsuarioPartida> usuariosEnPartida = usuarioPartidaRepository.obtenerUsuarioPartidaPorPartida(partidaId);
-
-            List<JugadorPuntajeDto> jugadoresDto = usuariosEnPartida.stream()
-                    .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
-                    .collect(Collectors.toList());
-
-            RondaDto dto = new RondaDto();
-            dto.setPalabra(palabra.getDescripcion());
-            dto.setDefinicionTexto(definicionTexto);
-            dto.setNumeroDeRonda(ultima.getNumeroDeRonda());
-            dto.setJugadores(jugadoresDto);
-
-            simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dto);
-            simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId,
-                    new MensajeTipoRanking("actualizar-puntajes", jugadoresDto));
-
-            return dto;
+            return construirDtoDesdeRondaExistente(nueva, partidaId);
         }
 
-        String idioma = partida.getIdioma();
-        Ronda ronda = rondaService.crearRonda(partidaId, idioma);
-        Palabra palabra = ronda.getPalabra();
-        String definicionTexto = palabra.getDefiniciones().stream()
-                .findFirst()
-                .map(Definicion::getDefinicion)
-                .orElse("Definición no disponible");
 
-        List<UsuarioPartida> usuariosEnPartida = usuarioPartidaRepository.obtenerUsuarioPartidaPorPartida(partidaId);
-
-        List<JugadorPuntajeDto> jugadoresDto = usuariosEnPartida.stream()
-                .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
-                .collect(Collectors.toList());
-
-        RondaDto dto = new RondaDto();
-        dto.setPalabra(palabra.getDescripcion());
-        dto.setDefinicionTexto(definicionTexto);
-        dto.setNumeroDeRonda(ronda.getNumeroDeRonda());
-        dto.setJugadores(jugadoresDto);
-        System.out.println("palabra== " + palabra.getDescripcion());
-        System.out.println("Definicion== " + definicionTexto);
-        System.out.println("Ronda== " + ronda.getId());
-
-
-        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dto);
-
-        MensajeTipoRanking mensaje = new MensajeTipoRanking("actualizar-puntajes", jugadoresDto);
-        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, mensaje);
-
-        return dto;
     }
 
     @Override
@@ -344,6 +305,37 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public void finalizarRonda(Ronda ronda) {
 
+    }
+
+    @Override
+    public RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId) {
+        System.out.println(ronda);
+        Palabra palabra = ronda.getPalabra();
+        String definicionTexto;
+        Hibernate.initialize(palabra.getDefiniciones());
+
+            definicionTexto = palabra.getDefiniciones().stream()
+                    .findFirst()
+                    .map(Definicion::getDefinicion)
+                    .orElse("Definición no disponible");
+
+        List<UsuarioPartida> usuariosEnPartida = usuarioPartidaRepository.obtenerUsuarioPartidaPorPartida(partidaId);
+
+        List<JugadorPuntajeDto> jugadoresDto = usuariosEnPartida.stream()
+                .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
+                .collect(Collectors.toList());
+
+        RondaDto dto = new RondaDto();
+        dto.setPalabra(palabra.getDescripcion());
+        dto.setDefinicionTexto(definicionTexto);
+        dto.setNumeroDeRonda(ronda.getNumeroDeRonda());
+        dto.setJugadores(jugadoresDto);
+
+        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dto);
+        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId,
+                new MensajeTipoRanking("actualizar-puntajes", jugadoresDto));
+
+        return dto;
     }
 
     Map<Long, RondaDto> obtenerMapaDefinicionesParaTest() {

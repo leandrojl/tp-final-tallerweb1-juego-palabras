@@ -36,5 +36,6 @@ public interface PartidaService {
     RondaDto  obtenerPalabraYDefinicionDeRondaActual(Long partidaId);
 
     void finalizarRonda(Ronda ronda);
+    RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId);
 }
 
