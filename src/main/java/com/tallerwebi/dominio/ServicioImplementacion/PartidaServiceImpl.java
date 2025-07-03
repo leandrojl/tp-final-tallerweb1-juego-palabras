@@ -228,8 +228,6 @@ public class PartidaServiceImpl implements PartidaService {
 
             return construirDtoDesdeRondaExistente(nueva, partidaId);
         }
-
-
     }
 
     @Override
@@ -338,13 +336,14 @@ public class PartidaServiceImpl implements PartidaService {
 
 
     public RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId) {
+
         System.out.println(ronda);
         Palabra palabra = ronda.getPalabra();
         String definicionTexto;
         Hibernate.initialize(palabra.getDefiniciones());
 
             definicionTexto = palabra.getDefiniciones().stream()
-                    .findFirst()
+                    .findAny()
                     .map(Definicion::getDefinicion)
                     .orElse("Definición no disponible");
 
@@ -353,6 +352,7 @@ public class PartidaServiceImpl implements PartidaService {
         List<JugadorPuntajeDto> jugadoresDto = usuariosEnPartida.stream()
                 .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
                 .collect(Collectors.toList());
+
 
         RondaDto dto = new RondaDto();
         dto.setPalabra(palabra.getDescripcion());

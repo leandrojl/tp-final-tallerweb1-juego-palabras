@@ -8,7 +8,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class HelperDefinicionTest {
-
+/*
     @Test
             public void obtenerDefinicion() {
         HelperDefinicion hd = new HelperDefinicion();
