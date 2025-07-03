@@ -109,13 +109,6 @@ public class LobbyController {
         boolean gano = false;
         Estado estado = Estado.EN_ESPERA;
 
-        usuarioPartidaService.agregarUsuarioAPartida(
-                idUsuario,
-                (Long) idPartida,
-                puntaje,
-                gano,
-                estado);
-
         System.out.println("ID de la partida creada: " + idPartida);
         System.out.println("ID del usuario: " + idUsuario);
 

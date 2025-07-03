@@ -113,28 +113,17 @@ public class SalaDeEsperaController {
         } else {
             idPartida = (Long) session.getAttribute("idPartida");
         }
-
-
         Long idUsuario = (Long) session.getAttribute("idUsuario");
-        UsuarioPartida existeRegistro = usuarioPartidaService.buscarUsuarioPartida(idPartida,
-                idUsuario);
-        if(existeRegistro == null){// DONDE SE EVITA QUE SE DUPLIQUE USUARIOPARTIDA
-            usuarioPartidaService.agregarUsuarioAPartida(idUsuario,idPartida,0,false,Estado.EN_ESPERA);
-        }
-        String nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
-        model.addAttribute("idUsuario", idUsuario);
-        model.addAttribute("usuario", nombreUsuario);
-        model.addAttribute("idPartida", idPartida);
-
-
             Estado estadoDeLaPartida = partidaService.verificarEstadoDeLaPartida(idPartida);
-
             if (estadoDeLaPartida == Estado.EN_ESPERA) {
-
+                UsuarioPartida existeRegistro = usuarioPartidaService.buscarUsuarioPartida(idPartida,
+                idUsuario);
+                if(existeRegistro == null){// DONDE SE EVITA QUE SE DUPLIQUE USUARIOPARTIDA
                 usuarioPartidaService.agregarUsuarioAPartida(idUsuario,idPartida,0,false,Estado.EN_ESPERA);
+                }
                 //}
-                nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
-                model.addAttribute("usuarioId", idUsuario);
+                String nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
+                model.addAttribute("idUsuario", idUsuario);
                 model.addAttribute("usuario", nombreUsuario);
                 model.addAttribute("idPartida", idPartida);
 
