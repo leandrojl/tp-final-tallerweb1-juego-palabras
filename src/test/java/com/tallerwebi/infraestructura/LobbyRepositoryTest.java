@@ -18,7 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//estas anotaciones deben ir en la clase de test de los repositorios
+
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = {SpringWebTestConfig.class, HibernateTestConfig.class, TestConfig.class})
@@ -57,7 +57,7 @@ public class LobbyRepositoryTest {
 
     @Test
     public void queSoloDevuelvaPartidasEnEspera() {
-        // Configurar el repositorio con datos de prueba
+
         Partida partidaEnEspera1 = new Partida("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
         Partida partidaEnEspera2 = new Partida("Partida 2", "Inglés", false, 3, 5, 3, Estado.EN_ESPERA);
         Partida partidaEnCurso = new Partida("Partida 3", "Francés", true, 2, 5, 1, Estado.EN_CURSO);
@@ -95,7 +95,7 @@ public class LobbyRepositoryTest {
 
     @Test
     public void queSoloDevuelvaPartidasFinalizadas() {
-        // Configurar el repositorio con datos de prueba
+
         Partida partidaEnEspera1 = new Partida("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
         Partida partidaEnEspera2 = new Partida("Partida 2", "Inglés", false, 3, 5, 3, Estado.FINALIZADA);
         Partida partidaEnCurso = new Partida("Partida 3", "Francés", true, 2, 5, 1, Estado.EN_CURSO);
@@ -104,10 +104,10 @@ public class LobbyRepositoryTest {
         lobbyRepository.guardar(partidaEnEspera2);
         lobbyRepository.guardar(partidaEnCurso);
 
-        // Llamar al método que se está probando
+
         List<Partida> partidasEnEspera = lobbyRepository.obtenerPartidasFinalizadas();
 
-        // Verificar que solo se devuelven partidas en estado EN_ESPERA
+
         assertNotNull(partidasEnEspera);
         assertEquals(1, partidasEnEspera.size());
         assertTrue(partidasEnEspera.stream().allMatch(p -> p.getEstado() == Estado.FINALIZADA));
@@ -115,7 +115,7 @@ public class LobbyRepositoryTest {
 
     @Test
     public void queSoloDevuelvaPartidasCanceladas() {
-        // Configurar el repositorio con datos de prueba
+
         Partida partidaEnEspera1 = new Partida("Partida 1", "Español", true, 4, 5, 2, Estado.EN_ESPERA);
         Partida partidaEnEspera2 = new Partida("Partida 2", "Inglés", false, 3, 5, 3, Estado.CANCELADA);
         Partida partidaEnCurso = new Partida("Partida 3", "Francés", true, 2, 5, 1, Estado.CANCELADA);
@@ -124,10 +124,10 @@ public class LobbyRepositoryTest {
         lobbyRepository.guardar(partidaEnEspera2);
         lobbyRepository.guardar(partidaEnCurso);
 
-        // Llamar al método que se está probando
+
         List<Partida> partidasEnEspera = lobbyRepository.obtenerPartidasCanceladas();
 
-        // Verificar que solo se devuelven partidas en estado EN_ESPERA
+
         assertNotNull(partidasEnEspera);
         assertEquals(2, partidasEnEspera.size());
         assertTrue(partidasEnEspera.stream().allMatch(p -> p.getEstado() == Estado.CANCELADA));
@@ -149,21 +149,20 @@ public class LobbyRepositoryTest {
 
     @Test
     public void testEliminarTodasLasPartidas() {
-        // Crear y guardar partidas en la base de datos
+
         Partida partida1 = new Partida("Partida 1", "Español", true, 5,5, 2, Estado.EN_ESPERA);
         Partida partida = new Partida("Partida 2", "Inglés", false, 3,5, 4, Estado.EN_ESPERA);
 
         lobbyRepository.guardar(partida1);
         lobbyRepository.guardar(partida);
 
-        // Verificar que las partidas fueron guardadas
+
         List<Partida> partidasAntesDeEliminar = lobbyRepository.obtenerPartidasEnEspera();
         assertEquals(2, partidasAntesDeEliminar.size());
 
-        // Eliminar todas las partidas
+
         lobbyRepository.eliminarTodasLasPartidas();
 
-        // Verificar que no quedan partidas en el repositorio
         List<Partida> partidasDespuesDeEliminar = lobbyRepository.obtenerPartidasEnEspera();
         assertEquals(0, partidasDespuesDeEliminar.size());
     }

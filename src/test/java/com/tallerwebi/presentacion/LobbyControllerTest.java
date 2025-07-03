@@ -48,7 +48,7 @@ public class LobbyControllerTest {
 //        Este bloque configura Thymeleaf para que los tests de MockMvc puedan
 //        renderizar las vistas HTML reales desde el sistema de archivos,
 //        usando los templates ubicados en src/main/webapp/WEB-INF/views/thymeleaf/.
-//        Así, cuando pruebas controladores que devuelven vistas, MockMvc puede procesar
+//        Asi cuando prueben controladores que devuelven vistas, MockMvc puede procesar
 //        y verificar el contenido HTML generado, igual que en la aplicación real.
         FileTemplateResolver templateResolver = new FileTemplateResolver();
         templateResolver.setPrefix("src/main/webapp/WEB-INF/views/thymeleaf/");
@@ -154,9 +154,6 @@ public class LobbyControllerTest {
 
         Mockito.verify(usuarioPartidaServiceMock).agregarUsuarioAPartida(usuarioId, (Long) idPartida, 0, false, Estado.EN_ESPERA);
     }
-
-
-
 
 
     @Test

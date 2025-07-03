@@ -28,13 +28,13 @@ public class PerfilControllerTest {
         sessionMock = mock(HttpSession.class);
     }
 
-    // 1. El controlador se instancia correctamente
+
     @Test
     void sePuedeInstanciarElControlador() {
         assertNotNull(perfilControllerMock);
     }
 
-    // 2. Llama al servicio con el ID correcto
+
     @Test
     void llamaAlServicioConElIdDeSesion() {
         Long usuarioId = 42L;

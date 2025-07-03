@@ -108,7 +108,7 @@ public class SalaDeEsperaController {
     ) {
         if (idPartida != null) {
             session.setAttribute("idPartida", idPartida);
-            System.out.println("SOY EL ID PARTIDA PA del qe SEUNA A LA SALA PAAAAA"+idPartida);
+
         } else {
             idPartida = (Long) session.getAttribute("idPartida");
         }
