@@ -2,6 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.Enum.Estado;
 
+import com.tallerwebi.dominio.excepcion.PartidaAleatoriaNoDisponibleException;
 import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.interfaceService.LobbyService;
@@ -13,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
@@ -71,11 +73,6 @@ public class LobbyController {
         return "redirect:/lobby";
     }
 
-    @GetMapping("/crear-sala")
-    public String mostrarFormularioCrearSala() {
-        return "crear-sala";
-    }
-
     @PostMapping("/crear-sala")
     public String crearSala(
             @RequestParam String nombre,
@@ -124,11 +121,16 @@ public class LobbyController {
     }
 
     @RequestMapping("/partidaAleatoria")
-    public String partidaAleatoria(HttpSession session) {
+    public String partidaAleatoria(HttpSession session, RedirectAttributes redirectAttributes) {
+        try{
+            Long idPartida = lobbyService.obtenerUnaPartidaAleatoria();
+            session.setAttribute("idPartida", idPartida);
+            return "redirect:/sala-de-espera";
+        }catch(PartidaAleatoriaNoDisponibleException ex){
+            redirectAttributes.addFlashAttribute("partidaAleatoriaNoDisponible", ex.getMessage());
+        }
 
-        Long idPartida = lobbyService.obtenerUnaPartidaAleatoria();
-        session.setAttribute("idPartida", idPartida);
-        return "redirect:/sala-de-espera";
+        return "redirect:/lobby";
     }
 
 

@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.PartidaAleatoriaNoDisponibleException;
 import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.Partida;
 import org.junit.jupiter.api.BeforeEach;
@@ -302,6 +303,11 @@ public class LobbyControllerTest {
 
 
         verificarQueViajaALaUrlIndicada(mvcResult.getModelAndView(),"redirect:/sala-de-espera");
+    }
+
+    @Test
+    public void siNoHayPartidasAleatoriasDisponiblesFalla(){
+        when(lobbyServiceMock.obtenerUnaPartidaAleatoria()).thenThrow(new PartidaAleatoriaNoDisponibleException("saraza"));
     }
 
     private void verificarQueViajaALaUrlIndicada(ModelAndView mav, String url) {

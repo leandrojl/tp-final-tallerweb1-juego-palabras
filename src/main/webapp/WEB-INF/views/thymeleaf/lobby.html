@@ -301,6 +301,12 @@
                 </a>
             </div>
         </div>
+        <div th:if="${partidaAleatoriaNoDisponible}"
+             id="mensaje-error"
+             class="alert alert-warning text-center mx-auto"
+             style="width: fit-content; max-width: 90%; padding: 0.5rem 1rem; margin-top: 1rem; border-radius: 0.5rem;">
+            <p th:text="${partidaAleatoriaNoDisponible}" style="margin: 0;"></p>
+        </div>
         <!-- Tabla de partidas y búsqueda -->
         <div class="container mt-5">
             <div class="row justify-content-center">
@@ -382,5 +388,17 @@
     /*]]>*/
 </script>
 <script th:src="@{/js/buscarPartidas.js}"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const mensaje = document.getElementById('mensaje-error');
+        if (mensaje) {
+            setTimeout(() => {
+                mensaje.style.transition = 'opacity 0.5s ease-out';
+                mensaje.style.opacity = '0';
+                setTimeout(() => mensaje.remove(), 500);
+            }, 5000);
+        }
+    });
+</script>
 </body>
 </html>
