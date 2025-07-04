@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
@@ -19,7 +20,7 @@ import javax.servlet.http.HttpSession;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @Transactional
 @Rollback
@@ -30,12 +31,14 @@ public class LoginControllerTest {
     private String password = "12151gdsf";
     private MockMvc mockMvc;
     private LoginService loginService;
+    private HttpSession session;
 
     @BeforeEach
     public void init(){
-        this.loginService = Mockito.mock(LoginService.class);
+        this.loginService = mock(LoginService.class);
         this.loginController = new LoginController(loginService);
         this.mockMvc = MockMvcBuilders.standaloneSetup(loginController).build();
+        session = mock(HttpSession.class);
     }
 
     @Test
@@ -60,51 +63,39 @@ public class LoginControllerTest {
 
     @Test
     public void siElCampoUsuarioEstaVacioFallaElLogin() throws Exception {
-        MvcResult mvcResult = whenLoguearse("",password);
-        thenLoginFalla(mvcResult,"El campo de usuario no puede estar vacio");
+        when(loginService.login("",password)).thenThrow(DatosLoginIncorrectosException.class);
+        ModelAndView mav = loginController.login(new Usuario("","123132"),session);
+        thenLoginFalla(mav,"El campo de usuario no puede estar vacio");
     }
 
-/*
+
     @Test
     public void siElCampoPasswordEstaVacioFallaElLogin() throws Exception {
-        MvcResult mvcResult = whenLoguearse(nombreUsuario,"");
-
-        thenLoginFalla(mvcResult,"El campo de contraseña no puede estar vacio");
-    }
-
- */
-
-    @Test
-    public void siAlgunCampoEsIncorrectoElLoginFalla() throws Exception {
-        when(loginService.login("saraza","123132")).thenThrow(new DatosLoginIncorrectosException());
-    }
-/*
-    @Test
-    public void siLosDatosDeLoginSonCorrectosSeRedireccionaAlLobby() throws Exception {
-        MvcResult mvcResult = whenLoguearse(nombreUsuario,password);
-
-        thenLoginExitoso(mvcResult,"lobby");
+        when(loginService.login(nombreUsuario,"")).thenThrow(DatosLoginIncorrectosException.class);
+        ModelAndView mav = loginController.login(new Usuario(nombreUsuario,""),session);
+        thenLoginFalla(mav,"El campo de contraseña no puede estar vacio");
     }
 
     @Test
-    public void siLosDatosDeLoginSonCorrectosSeGuardaElUsuarioEnSesion() throws Exception {
-        Usuario usuarioLogueado = new Usuario(nombreUsuario, "lucas@gmail.com", password);
-        when(loginService.login(nombreUsuario, password)).thenReturn(usuarioLogueado);
-        MvcResult mvcResult = whenLoguearse(nombreUsuario,password);
+    public void siAlgunCampoEsIncorrectoElLoginFalla() {
+        DatosLoginIncorrectosException datosLoginIncorrectos = new DatosLoginIncorrectosException("Hubo un error al iniciar sesion");
+        when(loginService.login("saraza","123132")).thenThrow(datosLoginIncorrectos);
+        ModelAndView mav = loginController.login(new Usuario("saraza","123132"),session);
 
-
-        HttpSession httpSession = mvcResult.getRequest().getSession(false);
-
-        assertNotNull(httpSession);
-        Usuario usuarioEsperado = (Usuario) httpSession.getAttribute("usuario");
-        assertEquals(nombreUsuario,usuarioEsperado.getNombreUsuario());
+        assertEquals(mav.getModel().get("error"),datosLoginIncorrectos.getMessage());
     }
 
- */
+    @Test
+    public void siLosDatosDeLoginSonCorrectosSeRedireccionaAlLobby() {
+        Usuario usuario = new Usuario(nombreUsuario,password);
+        when(loginService.login(nombreUsuario,password)).thenReturn(usuario);
+        ModelAndView mav = loginController.login(usuario,session);
+
+        thenLoginExitoso(mav,"redirect:/lobby");
+    }
 
 
-    private void thenLoginExitoso(MvcResult mvcResult, String vista) {
-        ModelAndView mav = mvcResult.getModelAndView();
+    private void thenLoginExitoso(ModelAndView mav, String vista) {
         assertThat(mav.getViewName(),equalToIgnoringCase(vista));
     }
 
@@ -121,15 +112,7 @@ public class LoginControllerTest {
         return this.loginController.redireccionarAVistaRegistro();
     }
 
-    private void thenLoginFalla(MvcResult mvcResult, String mensaje) {
-        ModelAndView mav = mvcResult.getModelAndView();
-        assertThat(mav.getModel().get("error").toString(), equalToIgnoringCase(mensaje));
-    }
-
-    private MvcResult whenLoguearse(String nombreUsuario, String password) throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/procesarLogin")
-                .param("usuario",nombreUsuario)
-                .param("password",password)).andExpect(status().isOk()).andReturn();
-        return mvcResult;
+    private void thenLoginFalla(ModelAndView mav, String mensaje) {
+        assertEquals(mav.getModel().get("error").toString(), mensaje);
     }
 }

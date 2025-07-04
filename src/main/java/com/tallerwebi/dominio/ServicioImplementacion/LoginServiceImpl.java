@@ -23,10 +23,10 @@ public class LoginServiceImpl implements LoginService {
     public Usuario login(String nombreUsuario, String password) {
         Usuario usuarioEncontrado = buscarUsuario(nombreUsuario);
         if(usuarioEncontrado == null) {
-            throw new DatosLoginIncorrectosException();
+            throw new DatosLoginIncorrectosException("Hubo un error al iniciar sesion");
         }
         if(!usuarioEncontrado.getPassword().equals(password)) {
-            throw new DatosLoginIncorrectosException();
+            throw new DatosLoginIncorrectosException("Hubo un error al iniciar sesion");
         }
         this.repositorioUsuario.guardar(usuarioEncontrado);
         return usuarioEncontrado;
