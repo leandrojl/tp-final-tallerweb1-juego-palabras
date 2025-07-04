@@ -7,7 +7,9 @@ import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
+import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     private UsuarioPartidaRepository usuarioPartidaRepo;
     private PartidaRepository partidaRepo;
     private UsuarioRepository usuarioRepo;
+    private PartidaService partidaService;
+    private UsuarioPartidaService usuarioPartidaService;
 
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -33,12 +37,17 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     @Autowired
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
-                                   UsuarioPartidaRepository usuarioPartidaRepo, PartidaRepository partida,
-                                   UsuarioRepository usuarioRepository) {
+                                   UsuarioPartidaRepository usuarioPartidaRepo,
+                                   PartidaRepository partida,
+                                   UsuarioRepository usuarioRepository,
+                                   PartidaService partidaService,
+                                   UsuarioPartidaService usuarioPartidaService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.usuarioPartidaRepo = usuarioPartidaRepo;
         this.partidaRepo = partida;
         this.usuarioRepo = usuarioRepository;
+        this.partidaService = partidaService;
+        this.usuarioPartidaService = usuarioPartidaService;
     }
 
 
@@ -147,8 +156,19 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
             idUsuario = usuario.getId();
         }
 
+        if(partidaService.verificarSiEsElCreadorDePartida(idUsuario, idPartida)){
+
+            partidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
+            usuarioPartidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
+            //session.removeAttribute("idPartida");
+        } else {
+
+            usuarioPartidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
+            //session.removeAttribute("idPartida");
+        }
+
         System.out.println("USUARIO LLAMADO: " + "("+idUsuario+")" + nombreUsuario + " ABANDONA LA SALA CON ID DE PARTIDA: " + idPartida);
-        this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
+       // this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
         notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         return new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
     }

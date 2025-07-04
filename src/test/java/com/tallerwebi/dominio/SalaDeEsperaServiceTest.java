@@ -7,7 +7,9 @@ import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.ServicioImplementacion.SalaDeEsperaServiceImpl;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
+import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,13 +36,21 @@ public class SalaDeEsperaServiceTest {
     private UsuarioPartidaRepository usuarioPartidaRepo;
     private PartidaRepository partidaRepo;
     private UsuarioRepository usuarioRepository;
+    private PartidaService partidaService;
+    private UsuarioPartidaService usuarioPartidaService;
     @BeforeEach
     public void setUp() {
         usuarioPartidaRepo = Mockito.mock(UsuarioPartidaRepository.class);
         simpMessagingTemplate = Mockito.mock(SimpMessagingTemplate.class);
         partidaRepo = mock(PartidaRepository.class);
         usuarioRepository = mock(UsuarioRepository.class);
-        this.servicioSalaDeEspera = new SalaDeEsperaServiceImpl(simpMessagingTemplate,usuarioPartidaRepo,partidaRepo,usuarioRepository);
+        this.servicioSalaDeEspera = new SalaDeEsperaServiceImpl(
+                simpMessagingTemplate,
+                usuarioPartidaRepo,
+                partidaRepo,
+                usuarioRepository,
+                partidaService,
+                usuarioPartidaService);
         ReflectionTestUtils.setField(servicioSalaDeEspera, "simpMessagingTemplate", simpMessagingTemplate);
     }
 
