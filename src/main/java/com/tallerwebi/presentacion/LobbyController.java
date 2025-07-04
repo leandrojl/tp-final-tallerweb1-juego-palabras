@@ -105,15 +105,30 @@ public class LobbyController {
 
         session.setAttribute("idPartida", idPartida);
 
-        int puntaje = 0;
-        boolean gano = false;
-        Estado estado = Estado.EN_ESPERA;
+//        int puntaje = 0;
+//        boolean gano = false;
+//        Estado estado = Estado.EN_ESPERA;
+//
+//        usuarioPartidaService.agregarUsuarioAPartida(
+//                idUsuario,
+//                (Long) idPartida,
+//                puntaje,
+//                gano,
+//                estado);ACA GENERA DOBLE REGISTRO
 
         System.out.println("ID de la partida creada: " + idPartida);
         System.out.println("ID del usuario: " + idUsuario);
 
 
         return "redirect:/sala-de-espera"; //peticion http a @RequestMapping("/sala-de-espera") que redirige a la sala de espera
+    }
+
+    @RequestMapping("/partidaAleatoria")
+    public String partidaAleatoria(HttpSession session) {
+
+        Long idPartida = lobbyService.obtenerUnaPartidaAleatoria();
+        session.setAttribute("idPartida", idPartida);
+        return "redirect:/sala-de-espera";
     }
 
 

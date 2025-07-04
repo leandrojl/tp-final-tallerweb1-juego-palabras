@@ -11,4 +11,6 @@ public interface LobbyService {
     void guardar(Partida ingles);
 
     List<Partida> buscarPartidasPorNombre(String nombre);
+
+    Long obtenerUnaPartidaAleatoria();
 }

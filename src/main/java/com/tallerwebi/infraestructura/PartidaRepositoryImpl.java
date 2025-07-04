@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Repository
 public class PartidaRepositoryImpl implements PartidaRepository {
@@ -75,5 +76,25 @@ public class PartidaRepositoryImpl implements PartidaRepository {
         }
         return partida.getEstado();
     }
+
+    @Override
+    public Partida obtenerPartidaAleatoria() {
+        Session session = sessionFactory.getCurrentSession();
+
+        return session.createQuery(
+                        "SELECT p FROM Partida p " +
+                                "WHERE p.id IN (" +
+                                "   SELECT up.partida.id FROM UsuarioPartida up " +
+                                "   GROUP BY up.partida.id " +
+                                "   HAVING COUNT(up.id) < (" +
+                                "       SELECT p2.maximoJugadores FROM Partida p2 WHERE p2.id = up.partida.id" +
+                                "   )" +
+                                ")",
+                        Partida.class
+                )
+                .setMaxResults(1)
+                .uniqueResult();
+    }
+
 
 }

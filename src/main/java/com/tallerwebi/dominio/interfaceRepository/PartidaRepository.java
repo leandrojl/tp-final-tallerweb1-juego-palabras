@@ -4,6 +4,7 @@ import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida;
 
 import java.io.Serializable;
+import java.util.List;
 
 public interface PartidaRepository {
     Partida buscarPorId(Long id);
@@ -20,4 +21,6 @@ public interface PartidaRepository {
     boolean verificarSiEsElCreadorDePartida(Long idUsuario, Long idPartida);
 
     Estado verificarEstadoDeLaPartida(Long idPartida);
+
+    Partida obtenerPartidaAleatoria();
 }

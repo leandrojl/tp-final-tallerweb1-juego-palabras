@@ -4,9 +4,13 @@ import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.Partida;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.ui.Model;
+import org.springframework.web.servlet.ModelAndView;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
@@ -15,7 +19,9 @@ import javax.servlet.http.HttpSession;
 
 import java.io.Serializable;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -284,6 +290,23 @@ public class LobbyControllerTest {
     }
 
 
+    //Tests de eric
+    @Test
+    public void siSeleccionoPartidaAleatoriaQueElControladorRedirijaALControladorSalaDeEspera() throws Exception {
+        Long idPartida = 1L;
+        when(lobbyServiceMock.obtenerUnaPartidaAleatoria()).thenReturn(idPartida);
+
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(lobbyController).build();
+        MvcResult mvcResult = mockMvc.perform(get("/partidaAleatoria"))
+                .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/sala-de-espera")).andReturn();
+
+
+        verificarQueViajaALaUrlIndicada(mvcResult.getModelAndView(),"redirect:/sala-de-espera");
+    }
+
+    private void verificarQueViajaALaUrlIndicada(ModelAndView mav, String url) {
+        assertThat(mav.getViewName(), equalToIgnoringCase(url));
+    }
 
 }
 

@@ -199,6 +199,48 @@
             }
         }
         /*HASTA ACA TABLA DE PARTIDAS EN ESPERA*/
+
+        /*BOTON PARTIDA ALEATORIA*/
+        .btn-partida-aleatoria {
+            background: linear-gradient(90deg, #00bfff 0%, #ff6347 100%);
+            color: #fff;
+            border: none;
+            border-radius: 2.5rem;
+            box-shadow: 0 6px 32px 0 rgba(0,191,255,0.25), 0 1.5px 0 #fff4 inset;
+            font-size: 1.7rem;
+            font-family: 'Segoe UI', 'Comic Sans MS', cursive, sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.3s;
+            position: relative;
+            min-width: 270px;
+            min-height: 70px;
+            animation: partidaAleatoriaPulse 1.7s infinite alternate;
+        }
+
+        .btn-partida-aleatoria:hover, .btn-partida-aleatoria:focus {
+            background: linear-gradient(90deg, #00bfff 10%, #ff6347 90%);
+            transform: scale(1.04);
+            box-shadow: 0 10px 40px 0 rgba(0,191,255,0.25), 0 2px 0 #fff6 inset;
+            text-shadow: 0 2px 12px #ffb86c44;
+        }
+
+        @keyframes partidaAleatoriaPulse {
+            0% { box-shadow: 0 6px 32px 0 rgba(0,191,255,0.25);}
+            100% { box-shadow: 0 12px 48px 0 rgba(0,191,255,0.32);}
+        }
+
+        .partida-aleatoria-icon {
+            font-size: 2.5rem;
+            color: #fff;
+            filter: drop-shadow(0 2px 8px #00bfff88);
+            animation: iconBounce 1.2s infinite alternate;
+        }
+
+        @keyframes iconBounce {
+            0% { transform: translateY(0);}
+            100% { transform: translateY(-6px);}
+        }
     </style>
 </head>
 <body>
@@ -248,6 +290,14 @@
                 <a th:href="@{/crear-sala}" class="btn btn-crear-sala d-flex align-items-center px-5 py-3">
                     <i class="bi bi-play-circle-fill me-3 crear-sala-icon"></i>
                     <span class="fw-bold fs-4">Crear Sala</span>
+                </a>
+            </div>
+        </div>
+        <div class="row mt-5 justify-content-center">
+            <div class="col-auto">
+                <a th:href="@{/partidaAleatoria}" class="btn btn-partida-aleatoria d-flex align-items-center px-5 py-3">
+                    <i class="bi bi-dice-5-fill me-3 partida-aleatoria-icon"></i>
+                    <span class="fw-bold fs-4">Partida Aleatoria</span>
                 </a>
             </div>
         </div>

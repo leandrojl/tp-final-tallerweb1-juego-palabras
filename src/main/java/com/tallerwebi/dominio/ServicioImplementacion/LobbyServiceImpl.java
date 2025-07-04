@@ -1,6 +1,8 @@
 package com.tallerwebi.dominio.ServicioImplementacion;
 
+import com.tallerwebi.dominio.excepcion.PartidaAleatoriaNoDisponibleException;
 import com.tallerwebi.dominio.interfaceRepository.LobbyRepository;
+import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import com.tallerwebi.dominio.interfaceService.LobbyService;
 import com.tallerwebi.dominio.model.Partida;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +15,12 @@ import java.util.List;
 public class LobbyServiceImpl implements LobbyService {
 
     private final LobbyRepository lobbyRepository;
+    private PartidaRepository partidaRepo;
 
     @Autowired
-    public LobbyServiceImpl(LobbyRepository lobbyRepository) {
+    public LobbyServiceImpl(LobbyRepository lobbyRepository, PartidaRepository partidaRepo) {
         this.lobbyRepository = lobbyRepository;
+        this.partidaRepo = partidaRepo;
     }
 
     @Override
@@ -32,5 +36,14 @@ public class LobbyServiceImpl implements LobbyService {
     @Override
     public List<Partida> buscarPartidasPorNombre(String nombre) {
         return lobbyRepository.obtenerPartidasPorNombre(nombre);
+    }
+
+    @Override
+    public Long obtenerUnaPartidaAleatoria() {
+        Partida partida = partidaRepo.obtenerPartidaAleatoria();
+        if(partida == null){
+            throw new PartidaAleatoriaNoDisponibleException("No hay partidas disponibles en este momento");
+        }
+        return partida.getId();
     }
 }
