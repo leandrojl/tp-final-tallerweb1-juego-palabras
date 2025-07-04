@@ -115,36 +115,66 @@
         }
         /*HASTA ACA BOTON DE CREAR SALA EN EL LOBBY*/
 
-        /*TABLA DE PARTIDAS EN ESPERAS*/
-        /*
+
+        /*ESTILOS DE LA TABLA DE PARTIDAS*/
         .partidas-card {
-            background: linear-gradient(120deg, #fff 0%, #e0e0e0 100%);
-            border-radius: 1.5rem;
-            border: 1.5px solid #222;
-            color: #222;
-            box-shadow: 0 4px 24px 0 #0002;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 2rem; /* Bordes más redondeados */
+            box-shadow: 0 8px 40px rgba(31, 0, 92, 0.25);
+            border: none;
+            overflow: hidden; /* Asegura que el contenido respete los bordes redondeados */
+            color: #333;
         }
-        .partidas-table {
-            background: transparent;
+
+        .partidas-card .card-header-custom {
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
         }
-        .partidas-table thead th {
-            background: linear-gradient(90deg, #f5f5f5 0%, #bdbdbd 100%);
-            color: #111;
+
+        .partidas-card .card-header-custom h3 {
+            color: #5f0a87; /* Color del título a juego con la paleta */
             font-weight: 700;
-            border-bottom: 2px solid #222;
-            font-size: 1.05rem;
-            vertical-align: middle;
-            white-space: nowrap;
         }
-        .partidas-table tbody td {
-            background: rgba(255,255,255,0.95);
-            color: #222;
-            vertical-align: middle;
-            font-size: 1rem;
+
+        .partidas-card .btn-actualizar {
+            background: linear-gradient(145deg, #5f0a87, #a4508b);
+            color: #fff;
+            border: none;
+            border-radius: 1.5rem;
+            font-weight: 600;
+            padding: 0.5rem 1.2rem;
+            box-shadow: 0 4px 15px rgba(95, 10, 135, 0.2);
+            transition: all 0.2s ease;
         }
-        .partidas-table tr {
-            border-radius: 0.5rem;
-        }*/
+
+        .partidas-card .btn-actualizar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(95, 10, 135, 0.3);
+        }
+
+        .partidas-card .table {
+            border-radius: 1.5rem;
+            box-shadow: none; /* Se quita la sombra de la tabla para que la tenga la tarjeta */
+        }
+
+        .partidas-card .buscador-input {
+            border-radius: 1.5rem;
+            border: 2px solid #ddd;
+            background: #fff;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .partidas-card .buscador-btn {
+            border-radius: 1.5rem;
+            background: #ff6347;
+            font-weight: 600;
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 99, 71, 0.25);
+        }
+        /*HASTA ACA ESTILOS DE LA TABLA DE PARTIDAS*/
+
+        /*TABLA DE PARTIDAS EN ESPERAS*/
+
         .btn-actualizar {
             background: linear-gradient(90deg, #222 0%, #555 100%);
             color: #fff;
@@ -200,6 +230,51 @@
             }
         }
         /*HASTA ACA TABLA DE PARTIDAS EN ESPERA*/
+
+        /*BOTON DE PERFIL*/
+        .circle-btn {
+            width: 70px; /* Aumentado de 60px */
+            height: 70px; /* Aumentado de 60px */
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ffffff, #f5e9ff);
+            color: #5f0a87;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem; /* Aumentado de 1.9rem */
+            border: 3px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 6px 20px rgba(31, 0, 92, 0.22);
+            transition: all 0.2s ease-in-out;
+        }
+        .circle-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(31, 0, 92, 0.28);
+            color: #a4508b;
+            background: #fff;
+        }
+        /*HASTA ACA BOTON DE PERFIL*/
+        /*BOTON DE RANKING Y RECOMPENSA*/
+        .btn-outline {
+            background: rgba(255, 184, 108, 0.15); /* Tinte naranja/amarillo */
+            border: 2px solid rgba(255, 184, 108, 0.5); /* Borde más visible */
+            color: #fff;
+            border-radius: 2rem;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+            transition: all 0.2s ease-in-out;
+            backdrop-filter: blur(5px);
+            font-size: 1.1rem;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 184, 108, 0.25); /* Más opaco al pasar el cursor */
+            border-color: rgba(255, 184, 108, 0.8);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        /**/
     </style>
 </head>
 <body>
@@ -256,22 +331,25 @@
         <div class="container mt-5">
             <div class="row justify-content-center">
                 <div class="col-12 col-md-10 col-lg-8">
-                    <div class="card partidas-card shadow">
-                        <div class="d-flex justify-content-between align-items-center px-4 pt-4 pb-2 flex-wrap gap-2">
-                            <h3 class="mb-0 fw-bold text-dark">Partidas Disponibles</h3>
+                    <div class="card partidas-card">
+                        <!-- Cabecera con Título y Botón Actualizar -->
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 card-header-custom">
+                            <h3 class="mb-0">Partidas Disponibles</h3>
                             <button id="actualizarPartidasBtn" class="btn btn-actualizar">
                                 <i class="bi bi-arrow-clockwise"></i> Actualizar
                             </button>
                         </div>
-                        <div class="card-body px-2 px-md-4">
+
+                        <!-- Tabla de Partidas -->
+                        <div class="card-body pt-0 px-2 px-md-3">
                             <div class="table-responsive">
-                                <table class="table text-center mb-0 shadow-lg rounded-4 overflow-hidden" style="background: linear-gradient(120deg, #fff 0%, #ffe0d2 100%); border: 2.5px solid #ffb86c44;">
+                                <table class="table text-center mb-0">
                                     <thead style="background: linear-gradient(90deg, #ffb86c 0%, #a4508b 100%); color: #fff; font-size: 1.1rem;">
                                     <tr>
                                         <th><i class="bi bi-hash"></i></th>
                                         <th><i class="bi bi-card-text"></i> Nombre</th>
                                         <th><i class="bi bi-translate"></i> Idioma</th>
-                                        <th><i class="bi bi-stars"></i> Comodin</th>
+                                        <th><i class="bi bi-stars"></i> Comodín</th>
                                         <th><i class="bi bi-arrow-repeat"></i> Rondas</th>
                                         <th><i class="bi bi-people-fill"></i> Max</th>
                                         <th><i class="bi bi-person"></i> Min</th>
@@ -280,9 +358,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr th:each="partida, iterStat : ${partidas}" style="transition: background 0.2s;"
-                                        onmouseover="this.style.background='#ffb86c22';"
-                                        onmouseout="this.style.background='rgba(255,255,255,0.95)';">
+                                    <tr th:each="partida, iterStat : ${partidas}" style="transition: background 0.2s;" onmouseover="this.style.background='#ffb86c22';" onmouseout="this.style.background='transparent';">
                                         <td th:text="${iterStat.index + 1}" class="fw-bold"></td>
                                         <td th:text="${partida.nombre}" class="fw-semibold"></td>
                                         <td th:text="${partida.idioma}"></td>
@@ -310,17 +386,26 @@
                                 </table>
                             </div>
                         </div>
-                        <div th:if="${#lists.isEmpty(partidas)}" class="text-center px-4" style="margin-top:-0.5rem;">
-                            <p class="text-dark font-weight-bold">No hay partidas disponibles en curso.</p>
+
+                        <!-- Mensaje si no hay partidas -->
+                        <div th:if="${#lists.isEmpty(partidas)}" class="text-center px-4 pb-3">
+                            <p class="fw-bold mb-0">No hay partidas disponibles en curso.</p>
                         </div>
-                        <div class="card-header text-center bg-transparent border-0 pt-3 pb-1">
-                            <h4 class="mb-0 text-dark">Buscar Partidas</h4>
+
+
+                        <!-- Sección de Búsqueda -->
+                        <div class="px-4 pb-4">
+                            <!-- Título -->
+                            <div class="text-center border-top pt-4 pb-2 mb-3">
+                                <h4 class="mb-0" style="color: #5f0a87;">Buscar Partidas</h4>
+                            </div>
+                            <!-- Controles de Búsqueda -->
+                            <div class="d-flex justify-content-center align-items-center flex-wrap gap-2">
+                                <input id="nombrePartida" class="form-control buscador-input mb-2 mb-md-0" placeholder="Ingrese el nombre de la partida" />
+                                <button id="buscarPartidaBtn" class="btn buscador-btn">Buscar</button>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-center align-items-center flex-wrap gap-2 px-4 pb-4">
-                            <input id="nombrePartida" class="form-control buscador-input mb-2 mb-md-0" placeholder="Ingrese el nombre de la partida" />
-                            <button id="buscarPartidaBtn" class="btn btn-orange buscador-btn">Buscar</button>
-                        </div>
-                        <div id="resultadoBusqueda" class="mt-3 px-4"></div>
+                        <div id="resultadoBusqueda" class="px-3 pb-3"></div>
                     </div>
                 </div>
             </div>
