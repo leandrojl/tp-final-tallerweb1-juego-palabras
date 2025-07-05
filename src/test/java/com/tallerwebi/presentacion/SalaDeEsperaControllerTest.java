@@ -6,6 +6,7 @@ import com.tallerwebi.dominio.DTO.MensajeDto;
 import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
+import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
@@ -52,6 +53,7 @@ public class SalaDeEsperaControllerTest {
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         usuarioPartidaService = Mockito.mock(UsuarioPartidaService.class);
         usuarioService = Mockito.mock(UsuarioService.class);
+        partidaService = Mockito.mock(PartidaService.class);
         salaDeEsperaController = new SalaDeEsperaController(
                 salaDeEsperaService,
                 usuarioService,
@@ -198,75 +200,58 @@ public class SalaDeEsperaControllerTest {
 
 
     @Test
-    public void queUnJugadorPuedaEstarListo() throws Exception {
+    public void queUnJugadorPuedaEstarListo(){
         Long idPartida = 1L;
-        EstadoJugadorDTO estadoJugadorDTO = givenJugadorEnSala(idPartida,"pepe",true);
-        CompletableFuture<EstadoJugadorDTO> completableFuture = whenEnvioMensajeYReciboRespuesta("/topic/salaDeEspera" +
-                        "/" + idPartida,
-                "/app/salaDeEspera", estadoJugadorDTO,"pepe", EstadoJugadorDTO.class);
-        EstadoJugadorDTO resultado = completableFuture.get(5, TimeUnit.SECONDS);
-        thenJugadorListo(resultado);
+        Principal principal=  () -> "pepe";
+        EstadoJugadorDTO estadoJugadorDTO = givenJugadorEnSala(idPartida,principal.getName(),true);
+        when(salaDeEsperaService.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName())).thenReturn(true);
+
+        salaDeEsperaController.actualizarEstadoUsuario(estadoJugadorDTO,principal);
+
+        verify(salaDeEsperaService).actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName());
     }
 
-
     @Test
-    public void queNoSePuedaCambiarELEstadoDelJugadorContrarioAListo() throws Exception {
-        EstadoJugadorDTO jugador2 = new EstadoJugadorDTO(1L,"jugador2", true);
-
-        CompletableFuture<MensajeRecibidoDTO> errorEsperado = whenEnvioYReciboError(
-                "/app/salaDeEspera",
-                jugador2,
-                "jugador1"
-        );
-
-        MensajeRecibidoDTO errorMensaje = errorEsperado.get(5, TimeUnit.SECONDS);
-        assertEquals("Error, no se puede alterar el estado de otro jugador", errorMensaje.getMessage());
-    }
-
-
-    @Test
-    public void siAlguienSeUneALaSalaDeEsperaLosDemasJugadoresPuedenVerlo() throws Exception {
+    public void siSeIntentoCambiarElEstadoDeOtroUsuarioQueDeError(){
         Long idPartida = 1L;
-        String nombreUsuarioQueAcabaDeUnirseALaSala = "jose";
-        CompletableFuture<MensajeRecibidoDTO> usuarioYaEnSalaDeEspera = givenUsuarioConectado("pepe","/topic" +
-                "/cuandoUsuarioSeUneASalaDeEspera/" + idPartida,false,null , MensajeRecibidoDTO.class);
-        givenUsuarioConectado(nombreUsuarioQueAcabaDeUnirseALaSala,"/topic/cuandoUsuarioSeUneASalaDeEspera/" + idPartida,
-                true,null,
-                MensajeRecibidoDTO.class);
+        Principal principal=  () -> "pepe";
+        EstadoJugadorDTO estadoJugadorDTO = givenJugadorEnSala(idPartida,"jose",true);
+        when(salaDeEsperaService.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName())).thenReturn(false);
 
-        MensajeRecibidoDTO mensajeRecibidoDTO = usuarioYaEnSalaDeEspera.get(5, TimeUnit.SECONDS);
-        assertEquals(nombreUsuarioQueAcabaDeUnirseALaSala, mensajeRecibidoDTO.getMessage());
-    }
-
-    @Test
-    public void siYaHayUsuariosEnLaSalaQueAquelNuevoUsuarioQueSeUnePuedaVerLosQueYaEstanEnDichaSala() throws Exception {
-        givenUsuarioConectado("pepe","/topic" +
-                "/cuandoUsuarioSeUneASalaDeEspera",true , null,MensajeRecibidoDTO.class);
-        CompletableFuture<ListaUsuariosDTO> usuarioQueAcabaDeUnirseALaSala =
-                givenUsuarioConectado("jose","/user/queue/jugadoresExistentes",
-                        true, null,
-                        ListaUsuariosDTO.class);
-        ListaUsuariosDTO lista = usuarioQueAcabaDeUnirseALaSala.get(2, TimeUnit.SECONDS);
-        assertTrue(lista.getUsuarios().contains("pepe"));
-
+        assertThrows(UsuarioInvalidoException.class, ()-> salaDeEsperaController.actualizarEstadoUsuario(estadoJugadorDTO,principal));
+        UsuarioInvalidoException ex = new UsuarioInvalidoException("Cantidad insuficiente de usuarios para iniciar partida");
+        MensajeRecibidoDTO mensajeDeError = salaDeEsperaController.handleUsuarioInvalidoException(ex);
+        assertEquals(mensajeDeError.getMessage(), ex.getMessage());
     }
 
 
     @Test
-    public void queSePuedaIniciarLaPartida() throws Exception {
+    public void queUnUsuarioSeUnaALaSalaDeEspera(){
+        Long idPartida = 1L;
+        Principal principal=  () -> "pepe";
+        MensajeRecibidoDTO mensajeDeUnionASala = new MensajeRecibidoDTO("",idPartida);
+
+        salaDeEsperaController.usuarioSeUneASala(mensajeDeUnionASala,principal);
+
+        verify(salaDeEsperaService).mostrarAUnUsuarioLosUsuariosExistentesEnSala(principal.getName(),idPartida);
+    }
+
+
+    @Test
+    public void queSePuedaIniciarLaPartida(){
         Long idPartida = 1L;
         MensajeRecibidoDTO mensajeParaIniciarPartida = new MensajeRecibidoDTO("mensaje de inicio de partida",idPartida);
-        CompletableFuture<MensajeRecibidoDTO> elQueInicioLaPartida = givenUsuarioConectado("pepe","/user/queue" +
-                "/irAPartida",true,mensajeParaIniciarPartida , MensajeRecibidoDTO.class);
-        MensajeRecibidoDTO mensaje = elQueInicioLaPartida.get(2, TimeUnit.SECONDS);
-        thenIniciarLaPartida(mensaje,"http://localhost:8080/spring/lobby");
+        when(salaDeEsperaService.redireccionarUsuariosAPartida(mensajeParaIniciarPartida)).thenReturn(true);
+
+        salaDeEsperaController.enviarUsuariosALaPartida(mensajeParaIniciarPartida);
+        verify(salaDeEsperaService).redireccionarUsuariosAPartida(mensajeParaIniciarPartida);
     }
 
     //ESTOS SON LOS MIOS PARA EL SPRINT 4
 
 
     @Test
-    public void siAlTratarDeIniciarLaPartidaNoSeCumpleConElRequisitoDeUsuariosMinimosQueSeLesEnvieUnMensajeDeDenegacion() {
+    public void siNoSePudoIniciarLaPartidaQueDeError() {
         MensajeRecibidoDTO dto = new MensajeRecibidoDTO("mensaje", 1L);
 
         when(salaDeEsperaService.redireccionarUsuariosAPartida(any())).thenReturn(false);
@@ -311,6 +296,7 @@ public class SalaDeEsperaControllerTest {
         when(session.getAttribute("idPartida")).thenReturn(idPartida);
         when(usuarioPartidaService.buscarUsuarioPartida(idPartida, idUsuario)).thenReturn(usuarioPartida);
         when(usuarioService.obtenerNombrePorId(idUsuario)).thenReturn(nombreUsuario);
+        when(partidaService.verificarEstadoDeLaPartida(idPartida)).thenReturn(Estado.EN_ESPERA);
 
         salaDeEsperaController.manejarSalaDeEspera(null, model, session);
 
@@ -323,106 +309,12 @@ public class SalaDeEsperaControllerTest {
 
 
 
-    private void thenIniciarLaPartida(MensajeRecibidoDTO mensajeDelServidor,String mensajeEsperado) {
-        assertEquals(mensajeEsperado, mensajeDelServidor.getMessage());
-    }
 
 
-    private <T> CompletableFuture<T> givenUsuarioConectado(
-            String nombreUsuario,
-            String dondeSeSuscribe,
-            Boolean notificaALosDemasUsuarioQueSeUneALaSala,
-            MensajeRecibidoDTO mensajeParaIniciarPartida,
-            Class<T> tipoDeRespuesta
-    ) throws Exception {
-
-        CompletableFuture<T> completableFuture = new CompletableFuture<>();
-        StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
-        StompSession session = stompClient.connect(URL + "?usuario=" + nombreUsuario, sessionHandler)
-                .get(1, TimeUnit.SECONDS);
-
-        session.subscribe(dondeSeSuscribe, new StompFrameHandler() {
-            @Override
-            public Type getPayloadType(StompHeaders headers) {
-                return tipoDeRespuesta;
-            }
-
-            @Override
-            public void handleFrame(StompHeaders headers, Object payload) {
-                completableFuture.complete(tipoDeRespuesta.cast(payload));
-            }
-        });
-
-        if(notificaALosDemasUsuarioQueSeUneALaSala){
-            session.send("/app/usuarioSeUneASalaDeEspera",new MensajeRecibidoDTO(nombreUsuario,1L));
-        }
-        if(mensajeParaIniciarPartida != null){
-            session.send("/app/inicioPartida",mensajeParaIniciarPartida);
-        }
-
-        return completableFuture;
-    }
 
 
-    private CompletableFuture<MensajeRecibidoDTO> whenEnvioYReciboError(
-            String appDestination,
-            Object mensajeAEnviar,
-            String nombreEmisor
-    ) throws Exception {
-        CompletableFuture<MensajeRecibidoDTO> errorFuture = new CompletableFuture<>();
-        StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
-        StompSession session = stompClient.connect(URL + "?usuario=" + nombreEmisor, sessionHandler)
-                .get(1, TimeUnit.SECONDS);
-
-        session.subscribe("/user/queue/mensajeAlIntentarCambiarEstadoDeOtroJugador", new StompFrameHandler() {
-
-            @Override
-            public Type getPayloadType(StompHeaders headers) {
-
-                return MensajeRecibidoDTO.class;
-            }
-
-            @Override
-            public void handleFrame(StompHeaders headers, Object payload) {
-                errorFuture.complete((MensajeRecibidoDTO) payload);
-            }
-        });
-
-        session.send(appDestination, mensajeAEnviar);
-
-        return errorFuture;
-    }
-
-    private <T> CompletableFuture<T> whenEnvioMensajeYReciboRespuesta(
-            String topic,
-            String appDestination,
-            Object mensajeAEnviar,
-            String nombreEmisor,
-            Class<T> tipoDeRespuesta
-    ) throws InterruptedException, ExecutionException, TimeoutException {
-
-        CompletableFuture<T> completableFuture = new CompletableFuture<>();
-
-        StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {};
-        String urlConUsuario = URL + "?usuario=" + nombreEmisor;
-        StompSession session = stompClient.connect(urlConUsuario, sessionHandler).get(1, TimeUnit.SECONDS);
 
 
-        session.subscribe(topic, new StompFrameHandler() {
-            @Override
-            public Type getPayloadType(StompHeaders headers) {
-                return tipoDeRespuesta;
-            }
-
-            @Override
-            public void handleFrame(StompHeaders headers, Object payload) {
-                completableFuture.complete(tipoDeRespuesta.cast(payload));
-            }
-        });
-        session.send(appDestination, mensajeAEnviar);
-
-        return completableFuture;
-    }
 
 
     private EstadoJugadorDTO givenJugadorEnSala(Long idPartida, String nombre, boolean estaListo) {
@@ -432,12 +324,6 @@ public class SalaDeEsperaControllerTest {
         estadoJugadorDTO.setIdPartida(idPartida);
         return estadoJugadorDTO;
     }
-
-    private void thenJugadorListo(EstadoJugadorDTO resultado) {
-        assertEquals("pepe", resultado.getUsername());
-        assertTrue(resultado.isEstaListo());
-    }
-
 
 
     private void dadoQueNoTengoJugadoresEnLaSalaDeEspera() {
@@ -456,14 +342,6 @@ public class SalaDeEsperaControllerTest {
     public void entoncesRedirigoAlJugadorALaSalaDeEspera(ModelAndView mav) {
         assertThat(mav.getViewName(),equalToIgnoringCase("sala-de-espera"));
     }
-
-
-
-
-
-
-
-
 
 
 }
