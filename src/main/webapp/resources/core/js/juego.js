@@ -28,6 +28,8 @@ function conectarWebSocket() {
                 stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
                 stompClient.subscribe(`/topic/mostrarIntento/${idPartida}`, mostrarResultadoIntentoIncorrecto);
 
+
+                stompClient.subscribe(`/topic/verRanking/${idPartida}`,actualizarRanking);
                 //iniciarRonda();
             },
             onStompError: (frame) => {
@@ -72,14 +74,10 @@ function enviarIntento(palabra) {
 // === RECIBE MENSAJE DEL SERVIDOR ===
 function manejarMensajeServidor(mensaje) {
     const data = JSON.parse(mensaje.body);
-
-    if (data.tipo === "actualizar-puntajes" || data.tipo === "inicio-ronda") {
-        actualizarRanking(data.jugadores);
         if (data.tipo === "inicio-ronda") {
             document.getElementById("palabraOculta").value = data.palabra;
             document.getElementById("definicionActual").textContent = data.definicion;
-        }
-    } else if (data.tipo === "fin-ronda") {
+        } else if (data.tipo === "fin-ronda") {
         detenerTimers();
         window.location.href = `/juego?ronda=${data.siguienteRonda}&usuarioId=${usuarioId}`;
     }
@@ -105,7 +103,9 @@ function mostrarResultadoIntentoIncorrecto(mensaje) {
 }
 
 // === RANKING ACTUALIZADO ===
-function actualizarRanking(jugadores) {
+function actualizarRanking(mensaje) {
+    const data = json.parse(mensaje.body);
+    const jugadores = data.jugadores;
     const contenedor = document.querySelector(".ranking-horizontal");
     contenedor.innerHTML = "";
 
