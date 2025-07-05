@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.security.Principal;
 
@@ -55,10 +56,15 @@ public class WebSocketController {
 
     @MessageMapping("/juego/iniciar")
     public void iniciarRonda(MensajeInicioRonda mensaje) {
-        Long partidaId = mensaje.getPartidaId();
+        Long partidaId = mensaje.getIdPartida();
 
         RondaDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
 
+    }
+
+    @ExceptionHandler(Exception.class)
+    public void handleException(Exception e) {
+        e.printStackTrace();
     }
 
 

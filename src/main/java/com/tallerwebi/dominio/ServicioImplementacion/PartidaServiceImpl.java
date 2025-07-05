@@ -339,7 +339,7 @@ public class PartidaServiceImpl implements PartidaService {
 
 
     public RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId) {
-
+        System.out.println("construirDtoDesdeRondaExistente");
         System.out.println(ronda);
         Palabra palabra = ronda.getPalabra();
         String definicionTexto;

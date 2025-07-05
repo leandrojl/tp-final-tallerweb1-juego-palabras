@@ -5,9 +5,12 @@ let intervaloTemporizador;
 let intervaloLetras;
 let finRondaEjecutada = false;
 
+const idUsuario = sessionStorage.getItem('idUsuario');
+const idPartida = sessionStorage.getItem('idPartida');
 
-const usuarioId = Number(document.getElementById("usuarioId").value);
-const idPartida = Number(document.getElementById("idPartida").value);
+
+//const idUsuario = Number(document.getElementById("usuarioId").value);
+//const idPartida = Number(document.getElementById("idPartida").value);
 
 const palabra = document.getElementById("palabraOculta").value;
 const letras = palabra.split("");
@@ -30,7 +33,7 @@ function conectarWebSocket() {
 
 
                 stompClient.subscribe(`/topic/verRanking/${idPartida}`,actualizarRanking);
-                //iniciarRonda();
+                iniciarRonda();
             },
             onStompError: (frame) => {
                 console.error('❌ Error STOMP: ', frame.headers['message']);
@@ -58,7 +61,7 @@ function enviarIntento(palabra) {
       destination: "/app/juego/intento",
       body: JSON.stringify({
         intentoPalabra: palabra,
-        usuarioId,
+        idUsuario,
         idPartida,
         tiempoRestante
       })
@@ -79,7 +82,7 @@ function manejarMensajeServidor(mensaje) {
             document.getElementById("definicionActual").textContent = data.definicion;
         } else if (data.tipo === "fin-ronda") {
         detenerTimers();
-        window.location.href = `/juego?ronda=${data.siguienteRonda}&usuarioId=${usuarioId}`;
+        window.location.href = `/juego?ronda=${data.siguienteRonda}&idUsuario=${idUsuario}`;
     }
 }
 
@@ -104,7 +107,8 @@ function mostrarResultadoIntentoIncorrecto(mensaje) {
 
 // === RANKING ACTUALIZADO ===
 function actualizarRanking(mensaje) {
-    const data = json.parse(mensaje.body);
+    const data = JSON.parse(mensaje.body);
+    console.log("Ranking recibido:", data);
     const jugadores = data.jugadores;
     const contenedor = document.querySelector(".ranking-horizontal");
     contenedor.innerHTML = "";
@@ -196,7 +200,7 @@ function mostrarMensajeChat(texto, esCorrecto) {
 // === ABANDONAR PARTIDA ===
 function abandonarPartida() {
     const params = new URLSearchParams({
-        usuarioId: jugadorId,
+        idUsuario: jugadorId,
         idPartida: idPartida
     });
     navigator.sendBeacon("/spring/abandonarPartida?" + params.toString());
