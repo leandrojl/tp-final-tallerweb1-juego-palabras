@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
@@ -23,6 +24,8 @@ import java.io.Serializable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,6 +39,7 @@ public class LobbyControllerTest {
     private LobbyController lobbyController;
     private HttpSession sessionMock;
     private MockMvc mockMvc;
+    private RedirectAttributes redirectAttributes;
 
     @BeforeEach
     public void setUp() {
@@ -45,6 +49,7 @@ public class LobbyControllerTest {
         usuarioServiceMock = Mockito.mock(UsuarioService.class);
         usuarioPartidaServiceMock = Mockito.mock(UsuarioPartidaService.class);
         sessionMock = Mockito.mock(HttpSession.class);
+        redirectAttributes = mock(RedirectAttributes.class);
 
         lobbyController = new LobbyController(
                 partidaServiceMock,
@@ -293,25 +298,27 @@ public class LobbyControllerTest {
 
     //Tests de eric
     @Test
-    public void siSeleccionoPartidaAleatoriaQueElControladorRedirijaALControladorSalaDeEspera() throws Exception {
+    public void siSeleccionoPartidaAleatoriaQueElControladorRedirijaALControladorSalaDeEspera() {
         Long idPartida = 1L;
         when(lobbyServiceMock.obtenerUnaPartidaAleatoria()).thenReturn(idPartida);
 
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(lobbyController).build();
-        MvcResult mvcResult = mockMvc.perform(get("/partidaAleatoria"))
-                .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/sala-de-espera")).andReturn();
+        String aDondeRetorna = lobbyController.partidaAleatoria(sessionMock,redirectAttributes);
 
-
-        verificarQueViajaALaUrlIndicada(mvcResult.getModelAndView(),"redirect:/sala-de-espera");
+        assertEquals("redirect:/sala-de-espera",aDondeRetorna);
     }
 
     @Test
     public void siNoHayPartidasAleatoriasDisponiblesFalla(){
-        when(lobbyServiceMock.obtenerUnaPartidaAleatoria()).thenThrow(new PartidaAleatoriaNoDisponibleException("saraza"));
-    }
+        PartidaAleatoriaNoDisponibleException ex = new PartidaAleatoriaNoDisponibleException("No hay partidas " +
+                "disponibles en este momento");
+        when(lobbyServiceMock.obtenerUnaPartidaAleatoria()).thenThrow(new PartidaAleatoriaNoDisponibleException("No " +
+                "hay partidas disponibles en este momento"));
 
-    private void verificarQueViajaALaUrlIndicada(ModelAndView mav, String url) {
-        assertThat(mav.getViewName(), equalToIgnoringCase(url));
+
+        String aDondeRetorna = lobbyController.partidaAleatoria(sessionMock,redirectAttributes);
+
+        verify(redirectAttributes).addFlashAttribute( "partidaAleatoriaNoDisponible", ex.getMessage());
+        assertThat("redirect:/lobby",equalToIgnoringCase(aDondeRetorna));
     }
 
 }
