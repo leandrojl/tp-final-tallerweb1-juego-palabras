@@ -73,6 +73,11 @@ public class LobbyController {
         return "redirect:/lobby";
     }
 
+    @GetMapping("/crear-sala")
+    public String mostrarFormularioCrearSala(){
+        return "crear-sala";
+    }
+
     @PostMapping("/crear-sala")
     public String crearSala(
             @RequestParam String nombre,
