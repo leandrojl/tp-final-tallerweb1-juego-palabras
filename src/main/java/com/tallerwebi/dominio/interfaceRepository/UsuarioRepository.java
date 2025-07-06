@@ -22,4 +22,6 @@ public interface UsuarioRepository {
     String obtenerNombrePorId(Long usuarioId);
 
     Usuario obtenerUsuarioPorNombre(String name);
+
+    void actualizarEstado(Long idUsuario, boolean estado);
 }

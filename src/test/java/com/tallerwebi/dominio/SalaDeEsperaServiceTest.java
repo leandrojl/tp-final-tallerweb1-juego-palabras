@@ -1,10 +1,13 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.DTO.EstadoJugadorDTO;
 import com.tallerwebi.dominio.DTO.ListaUsuariosDTO;
 import com.tallerwebi.dominio.DTO.MensajeDto;
 import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.ServicioImplementacion.SalaDeEsperaServiceImpl;
+import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
+import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosListosInsuficientesException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
@@ -150,11 +153,41 @@ public class SalaDeEsperaServiceTest {
         MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
         List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
 
-        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
         when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
+        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
 
-        assertFalse(servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje));
+        assertThrows(CantidadDeUsuariosInsuficientesException.class, () -> servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje));
     }
+    @Test
+    public void siUnUsuarioSeleccionaEstoyListoQueSeLlameAlRepositorioParaActualizarSuEstado(){
+        Long idPartida = 1L;
+        String nombreUsuario = "pepe";
+        EstadoJugadorDTO estadoJugadorDTO = new EstadoJugadorDTO(idPartida,nombreUsuario,true);
+        Usuario usuario = new Usuario("pepe");
+        usuario.setEstaListo(true);
+        when(usuarioPartidaRepo.obtenerUsuarioPorNombre(nombreUsuario,idPartida)).thenReturn(usuario);
+
+        servicioSalaDeEspera.actualizarElEstadoDeUnUsuario(estadoJugadorDTO,nombreUsuario);
+        verify(usuarioRepository).actualizarEstado(usuario.getId(),estadoJugadorDTO.isEstaListo());
+    }
+
+    @Test
+    public void siNoHaySuficientesUsuariosListosNoSePuedeRedireccionarAUnaPartida(){
+        Long idPartida = 1L;
+        Partida partida = new Partida("partida","español",true,5,5,3,Estado.EN_ESPERA);
+        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
+        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"), new Usuario("lucas"));
+        List<Usuario> usuariosListos = List.of(new Usuario("pepe"), new Usuario("lucas"));
+
+        when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
+        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
+        when(usuarioPartidaRepo.obtenerUsuariosListosDeUnaPartida(idPartida)).thenReturn(usuariosListos);
+
+
+        assertThrows(CantidadDeUsuariosListosInsuficientesException.class, () -> servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje));
+    }
+
+
     @Test
     public void siAlguienAbandonaLaSalaDeEsperaQueSeLeCanceleLaPartidaAsociada(){
         Long idPartida = 1L;

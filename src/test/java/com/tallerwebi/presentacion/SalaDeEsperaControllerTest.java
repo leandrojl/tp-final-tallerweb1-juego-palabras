@@ -204,7 +204,7 @@ public class SalaDeEsperaControllerTest {
         Long idPartida = 1L;
         Principal principal=  () -> "pepe";
         EstadoJugadorDTO estadoJugadorDTO = givenJugadorEnSala(idPartida,principal.getName(),true);
-        when(salaDeEsperaService.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName())).thenReturn(true);
+        //when(salaDeEsperaService.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName())).thenReturn(true);
 
         salaDeEsperaController.actualizarEstadoUsuario(estadoJugadorDTO,principal);
 
@@ -216,7 +216,7 @@ public class SalaDeEsperaControllerTest {
         Long idPartida = 1L;
         Principal principal=  () -> "pepe";
         EstadoJugadorDTO estadoJugadorDTO = givenJugadorEnSala(idPartida,"jose",true);
-        when(salaDeEsperaService.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName())).thenReturn(false);
+        //when(salaDeEsperaService.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName())).thenReturn(false);
 
         assertThrows(UsuarioInvalidoException.class, ()-> salaDeEsperaController.actualizarEstadoUsuario(estadoJugadorDTO,principal));
         UsuarioInvalidoException ex = new UsuarioInvalidoException("Cantidad insuficiente de usuarios para iniciar partida");
@@ -241,7 +241,7 @@ public class SalaDeEsperaControllerTest {
     public void queSePuedaIniciarLaPartida(){
         Long idPartida = 1L;
         MensajeRecibidoDTO mensajeParaIniciarPartida = new MensajeRecibidoDTO("mensaje de inicio de partida",idPartida);
-        when(salaDeEsperaService.redireccionarUsuariosAPartida(mensajeParaIniciarPartida)).thenReturn(true);
+        //when(salaDeEsperaService.redireccionarUsuariosAPartida(mensajeParaIniciarPartida));
 
         salaDeEsperaController.enviarUsuariosALaPartida(mensajeParaIniciarPartida);
         verify(salaDeEsperaService).redireccionarUsuariosAPartida(mensajeParaIniciarPartida);
@@ -254,7 +254,7 @@ public class SalaDeEsperaControllerTest {
     public void siNoSePudoIniciarLaPartidaQueDeError() {
         MensajeRecibidoDTO dto = new MensajeRecibidoDTO("mensaje", 1L);
 
-        when(salaDeEsperaService.redireccionarUsuariosAPartida(any())).thenReturn(false);
+        //when(salaDeEsperaService.redireccionarUsuariosAPartida(any())).thenReturn(false);
 
         assertThrows(CantidadDeUsuariosInsuficientesException.class, () -> {
             salaDeEsperaController.enviarUsuariosALaPartida(dto);

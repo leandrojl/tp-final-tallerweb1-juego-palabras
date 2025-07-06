@@ -5,6 +5,7 @@ import com.tallerwebi.dominio.DTO.EstadoJugadorDTO;
 import com.tallerwebi.dominio.DTO.MensajeDto;
 import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
+import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosListosInsuficientesException;
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
@@ -141,11 +142,7 @@ public class SalaDeEsperaController {
 
     @MessageMapping("/salaDeEspera")
     public void actualizarEstadoUsuario(EstadoJugadorDTO estadoJugadorDTO, Principal principal) {
-        //Si un usuario intenta cambiar el estado que no es suyo se valida
-        Boolean correcto = this.salaDeEsperaService.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName());
-        if(!correcto){
-            throw new UsuarioInvalidoException("Error, no se puede alterar el estado de otro jugador");
-        }
+        this.salaDeEsperaService.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName());
     }
 
     @MessageExceptionHandler(UsuarioInvalidoException.class)
@@ -164,21 +161,27 @@ public class SalaDeEsperaController {
 
     @MessageMapping("/inicioPartida")
     public void enviarUsuariosALaPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
-        Boolean redireccionamientoCorrecto = this.salaDeEsperaService.redireccionarUsuariosAPartida(mensajeRecibidoDTO);
-        if(!redireccionamientoCorrecto){ //FUNCIONALIDAD PARA SPRINT 4 DE MINIMA CANT DE JUGADORES PARA INICIAR
-            // PARTIDA REQUERIDA
-            throw new CantidadDeUsuariosInsuficientesException("Cantidad insuficiente de usuarios para iniciar " +
-                    "partida");
-        }
+        this.salaDeEsperaService.redireccionarUsuariosAPartida(mensajeRecibidoDTO);
     }
 
     //PARA SPRINT 4
 
-    @MessageExceptionHandler(CantidadDeUsuariosInsuficientesException.class)
+    @MessageExceptionHandler({CantidadDeUsuariosInsuficientesException.class, CantidadDeUsuariosListosInsuficientesException.class})
     @SendTo("/topic/noSePuedeIrALaPartida")
-    public MensajeRecibidoDTO enviarMensajeDeDenegacionDeAvanceAPartida(CantidadDeUsuariosInsuficientesException ex) {
-        return new MensajeRecibidoDTO(ex.getMessage());
+    public MensajeRecibidoDTO enviarMensajeDeDenegacionDeAvanceAPartida(RuntimeException ex) {
+        String mensaje;
+
+        if (ex instanceof CantidadDeUsuariosInsuficientesException) {
+            mensaje = ex.getMessage();
+        } else if (ex instanceof CantidadDeUsuariosListosInsuficientesException) {
+            mensaje = ex.getMessage();
+        } else {
+            mensaje = "error inesperado";
+        }
+
+        return new MensajeRecibidoDTO(mensaje);
     }
+
 
     @MessageMapping("/abandonarSala")
     @SendToUser("/queue/alAbandonarSala")

@@ -17,6 +17,7 @@ public class Usuario {
     private String password;
     @Enumerated(EnumType.STRING)
     private Tipo_Usuario rol;
+    private Boolean estaListo;
 
     public Usuario() {
 
@@ -37,6 +38,10 @@ public class Usuario {
     public Usuario(String nombreUsuario,String password) {
         this.nombreUsuario = nombreUsuario;
         this.password = password;
+        this.email = "";
+        this.fotoPerfil = "";
+        this.moneda = 0;
+        this.estaListo = false;
     }
 
     public Usuario(String nombreUsuario) {
@@ -92,6 +97,11 @@ public class Usuario {
         this.rol = rol;
     }
 
+    public Boolean getEstaListo() {
+        return estaListo;
+    }
 
-
+    public void setEstaListo(Boolean estaListo) {
+        this.estaListo = estaListo;
+    }
 }

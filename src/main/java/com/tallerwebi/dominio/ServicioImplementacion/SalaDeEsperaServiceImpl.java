@@ -5,6 +5,9 @@ import com.tallerwebi.dominio.DTO.ListaUsuariosDTO;
 import com.tallerwebi.dominio.DTO.MensajeDto;
 import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosInsuficientesException;
+import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosListosInsuficientesException;
+import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
@@ -26,6 +29,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     private UsuarioPartidaRepository usuarioPartidaRepo;
     private PartidaRepository partidaRepo;
     private UsuarioRepository usuarioRepo;
+    private List<String> usuariosListos = new ArrayList<>();
 
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -86,16 +90,10 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     private void notificarAUsuariosLosQueEstanEnLaSala(Long idPartida) {
         List<Usuario> usuariosEnSala = usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida);
-        System.out.println("USUARIOS EN SALA: " + usuariosEnSala.size());
-        if (!usuariosEnSala.isEmpty()) {
-            System.out.println("USUARIO[0]: " + usuariosEnSala.get(0).getId() + " - " + usuariosEnSala.get(0).getNombreUsuario());
-        }
         List<String> nombres = usuariosEnSala.stream()
                 .map(Usuario::getNombreUsuario)
                 .collect(Collectors.toList());
-        usuariosEnSala.forEach(u -> System.out.println(" - ID: " + u.getId() + " Nombre: " + u.getNombreUsuario()));
         for (Usuario usuario : usuariosEnSala) {
-            System.out.println("NOTIFICO A : " + usuario.getNombreUsuario());
             this.simpMessagingTemplate.convertAndSendToUser(
                     usuario.getNombreUsuario(),
                     "/queue/jugadoresExistentes",
@@ -106,48 +104,48 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
 
     @Override
-    public Boolean actualizarElEstadoDeUnUsuario(EstadoJugadorDTO estadoJugadorDTO, String nombreUsuarioDelPrincipal) {
+    public void actualizarElEstadoDeUnUsuario(EstadoJugadorDTO estadoJugadorDTO, String nombreUsuarioDelPrincipal) {
         Long idPartida = estadoJugadorDTO.getIdPartida();
-        if(estadoJugadorDTO.getUsername().equals(nombreUsuarioDelPrincipal)){
-            this.simpMessagingTemplate.convertAndSend("/topic/salaDeEspera/" + idPartida, estadoJugadorDTO);
-            return true;
-        }
-        return false;
+        if(!estadoJugadorDTO.getUsername().equals(nombreUsuarioDelPrincipal)) throw new UsuarioInvalidoException("Error, no se puede alterar el estado de otro jugador");
+        Usuario usuario = usuarioPartidaRepo.obtenerUsuarioPorNombre(nombreUsuarioDelPrincipal,idPartida); //TDD
+        usuarioRepo.actualizarEstado(usuario.getId(), estadoJugadorDTO.isEstaListo());//TDD
+        this.simpMessagingTemplate.convertAndSend("/topic/salaDeEspera/" + idPartida, estadoJugadorDTO);
     }
 
     //PARA SPRINT 4
     @Override
-    public Boolean redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
+    public void redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
         Long idPartida = mensajeRecibidoDTO.getNumber();
-
         Partida partida = usuarioPartidaRepo.obtenerPartida(idPartida);
-
-        List<Usuario> usuariosEnSala = usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida);
-        if(partida.getMinimoJugadores() > usuariosEnSala.size()) {
-            return false;
-        } // PARA SPRINT 4
+        List<Usuario> usuariosEnSala = validarRedireccionamiento(idPartida, partida);
         this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
         this.usuarioPartidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO); //HACER TDD
             for (Usuario usuario : usuariosEnSala) {
                 simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
                         new MensajeRecibidoDTO(
-                        "http://localhost:8080/spring/juego")); // PROVISIONAL PARA QUE  FUNCIONE
+                        "http://localhost:8080/spring/juego"));
+                usuarioRepo.actualizarEstado(usuario.getId(),false); //AGREGAR A LOS TESTS DE SERVICIO COMO MOCK
             }
-            return true;
     }
+
+    private List<Usuario> validarRedireccionamiento(Long idPartida, Partida partida) {
+        List<Usuario> usuariosEnSala = usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida);
+        List<Usuario> usuariosListos = usuarioPartidaRepo.obtenerUsuariosListosDeUnaPartida(idPartida); //TDD
+        if(usuariosEnSala.size() < partida.getMinimoJugadores()) throw new CantidadDeUsuariosInsuficientesException(
+                "Cantidad insuficiente de usuarios para iniciar partida");// PARA SPRINT 4
+        if(usuariosListos.size() < Math.ceil(usuariosEnSala.size() * 0.50)) throw new CantidadDeUsuariosListosInsuficientesException(
+                "No hay suficientes usuarios listos para iniciar la partida"); //PARA SPRINT 4
+        return usuariosEnSala;
+    } //METELO AL METODO EN LOS TESTS CON VERIFY
 
     @Override
     public MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuario) {
-
         Long idPartida = mensaje.getIdPartida();
         Long idUsuario = mensaje.getIdUsuario();
-
         if(idUsuario == null || idUsuario == 0){
             Usuario usuario = this.usuarioRepo.obtenerUsuarioPorNombre(nombreUsuario);
             idUsuario = usuario.getId();
         }
-
-        System.out.println("USUARIO LLAMADO: " + "("+idUsuario+")" + nombreUsuario + " ABANDONA LA SALA CON ID DE PARTIDA: " + idPartida);
         this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
         notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         return new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
