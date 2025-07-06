@@ -17,9 +17,6 @@ let indexLetra = 0;
 function conectarWebSocket() {
     stompClient = new StompJs.Client({
             brokerURL: 'ws://localhost:8080/spring/wschat', // o sin "/spring" si no tenés ese context-path
-            debug: function(str) {
-                console.log(str); // útil para ver qué pasa con el socket
-            },
             reconnectDelay: 5000, // reconexión automática
             onConnect: () => {
                 console.log("✅ Conectado al WebSocket");
@@ -30,13 +27,6 @@ function conectarWebSocket() {
 
                 //iniciarRonda();
             },
-            onStompError: (frame) => {
-                console.error('❌ Error STOMP: ', frame.headers['message']);
-                console.error('Detalles: ', frame.body);
-            },
-            onWebSocketError: (error) => {
-                console.error('❌ Error WebSocket:', error);
-            }
         });
 
         stompClient.activate();
@@ -90,17 +80,17 @@ function mostrarResultadoIntento(mensaje) {
     const data = JSON.parse(mensaje.body);
     mostrarMensajeChat(data.palabraCorrecta, data.esCorrecto); // palabra en verde
 }
-// console.log("MENSAJE CRUDO:", mensaje); // Esto te da el objeto recibido
-//    console.log("BODY CRUDO:", mensaje.body)
 
 // === RESULTADO DEL INTENTO INCORRECTO (Público) ===
 function mostrarResultadoIntentoIncorrecto(mensaje) {
     const data = JSON.parse(mensaje.body);
 
-    if (data.mensaje) {
-        mostrarMensajeChat(data.mensaje, data.esCorrecto); // Ej: "✅ Pepito acertó"
+    let textoIncorrecto = `<strong>${data.jugador}</strong>: ${data.palabraIncorrecta}`;
+    let textoCorrecto = `<strong>${data.jugador}</strong> ha acertado la palabra`
+    if (data.esCorrecto) {
+        mostrarMensajeChat(textoCorrecto, data.esCorrecto); // Ej: "Pepito acerto"
     } else {
-        mostrarMensajeChat(data.palabraIncorrecta, data.esCorrecto); // palabra en rojo
+        mostrarMensajeChat(textoIncorrecto, data.esCorrecto); // palabra en rojo
     }
 }
 
@@ -190,7 +180,9 @@ function mostrarMensajeChat(texto, esCorrecto) {
     console.log("Intento:", texto, "¿Es correcto?", esCorrecto);
     div.className = "message-bubble " + (esCorrecto ? "mensaje-correcto" : "mensaje-incorrecto");
     div.innerHTML = `<p class="message-text">${texto}</p>`;
-    document.getElementById("palabras-mencionadas").appendChild(div);
+    const contenedorChat =  document.getElementById("palabras-mencionadas");
+    contenedorChat.appendChild(div);
+    contenedorChat.scrollTop = contenedorChat.scrollHeight; // scroll automático
 }
 
 // === ABANDONAR PARTIDA ===

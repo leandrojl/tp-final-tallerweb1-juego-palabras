@@ -43,7 +43,6 @@ public class PartidaServiceImpl implements PartidaService {
     SimpMessagingTemplate simpMessagingTemplate;
 
     private final ScheduledExecutorService timerRonda;
-
     private ScheduledFuture<?> finalizarRondaPorTimer;
 
     @Autowired
@@ -95,7 +94,7 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public void procesarIntento(DtoIntento intento, String nombre) {
         //   ---- si acerto verificar si acertaron todos y finalizar ronda timer -----  //
-        System.out.println("procesar intento aqui estoy ");
+        System.out.println("procesar intento aqui estoy "+nombre);
 
         Long partidaId = intento.getIdPartida();
         System.out.println("partida: "+partidaId);
@@ -151,17 +150,17 @@ public class PartidaServiceImpl implements PartidaService {
                 int puntos = aciertoService.registrarAcierto(usuarioId, rondaId);
 
                 // Sumar puntos en UsuarioPartida ===
-                // usuarioPartidaService.sumarPuntos(idUsuario, partidaId, puntos);
+                 usuarioPartidaService.sumarPuntos(usuarioId, partidaId, puntos);
 
                 // Al jugador que acertó
-                resultadoPrivado.setPalabraCorrecta(intentoTexto);
-                resultadoPrivado.setCorrecto(true);
-                resultadoPrivado.setPalabraIncorrecta("");
-                simpMessagingTemplate.convertAndSendToUser(nombre, "/queue/resultado", resultadoPrivado);
+//                resultadoPrivado.setPalabraCorrecta(intentoTexto);
+//                resultadoPrivado.setCorrecto(true);
+//                resultadoPrivado.setPalabraIncorrecta("");
+//                simpMessagingTemplate.convertAndSendToUser(nombre, "/queue/resultado", resultadoPrivado);
 
                 // Al resto: mensaje "pepito acertó"
                 resultadoPublico.setCorrecto(true);
-                resultadoPublico.setMensaje("✅ " + nombre + " acertó la palabra");
+                resultadoPublico.setMensaje(nombre + " acertó la palabra");
                 simpMessagingTemplate.convertAndSend(
                         "/topic/mostrarIntento/" + partidaId,
                         resultadoPublico
@@ -174,6 +173,9 @@ public class PartidaServiceImpl implements PartidaService {
             // A todos (incluido el que lo envió), la palabra en rojo
             resultadoPublico.setCorrecto(false);
             resultadoPublico.setPalabraIncorrecta(intentoTexto);
+            resultadoPublico.setJugador(nombre);
+            resultadoPublico.setMensaje(null);
+            System.out.println("Jugador seteado en resultadoPublico: " + resultadoPublico.getJugador());
             simpMessagingTemplate.convertAndSend(
                     "/topic/mostrarIntento/" + partidaId,
                     resultadoPublico
