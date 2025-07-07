@@ -99,8 +99,8 @@ public class PartidaServiceImpl implements PartidaService {
         Long partidaId = intento.getIdPartida();
         System.out.println("partida: "+partidaId);
 
-        Long usuarioId = intento.getUsuarioId();
-        System.out.println("usuarioId "+usuarioId);
+        Long idUsuario = intento.getIdUsuario();
+        System.out.println("usuarioId "+idUsuario);
 
         String intentoTexto = intento.getIntentoPalabra();
         System.out.println("intentoTexto "+intentoTexto);
@@ -144,13 +144,13 @@ public class PartidaServiceImpl implements PartidaService {
 
         if (esCorrecto) {
             // Verificar si ya había acertado ===
-            boolean yaAcerto = aciertoService.jugadorYaAcerto(usuarioId, rondaId);
+            boolean yaAcerto = aciertoService.jugadorYaAcerto(idUsuario, rondaId);
             if (!yaAcerto) {
                 // Registrar acierto y calcular puntos ===
-                int puntos = aciertoService.registrarAcierto(usuarioId, rondaId);
+                int puntos = aciertoService.registrarAcierto(idUsuario, rondaId);
 
                 // Sumar puntos en UsuarioPartida ===
-                 usuarioPartidaService.sumarPuntos(usuarioId, partidaId, puntos);
+                 usuarioPartidaService.sumarPuntos(idUsuario, partidaId, puntos);
 
                 // Al jugador que acertó
 //                resultadoPrivado.setPalabraCorrecta(intentoTexto);
