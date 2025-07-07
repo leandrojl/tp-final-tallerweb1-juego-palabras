@@ -24,6 +24,9 @@ public class UsuarioPartida {
     @Enumerated(EnumType.STRING)
     private Estado estado;
 
+    @Column(name = "comodin_usado")
+    private boolean comodinUsado = false;
+
     public UsuarioPartida() {
 
     }
@@ -83,6 +86,14 @@ public class UsuarioPartida {
 
     public void setEstado(Estado estado) {
         this.estado = estado;
+    }
+
+    public boolean isComodinUsado() {
+        return comodinUsado;
+    }
+
+    public void setComodinUsado(boolean comodinUsado) {
+        this.comodinUsado = comodinUsado;
     }
 }
 

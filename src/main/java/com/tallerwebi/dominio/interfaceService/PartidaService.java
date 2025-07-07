@@ -48,5 +48,6 @@ public interface PartidaService {
 
     RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId);
 
+    void activarComodin(Long idPartida, Long idUsuario, String nombreUsuario);
 }
 

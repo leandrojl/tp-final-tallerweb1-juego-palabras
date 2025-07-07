@@ -24,6 +24,8 @@ function conectarWebSocket() {
                 stompClient.subscribe(`/topic/juego/${idPartida}`, manejarMensajeServidor);
                 stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
                 stompClient.subscribe(`/topic/mostrarIntento/${idPartida}`, mostrarResultadoIntentoIncorrecto);
+                stompClient.subscribe("/user/queue/comodin", manejarLetraComodin);
+
 
                 //iniciarRonda();
             },
@@ -91,6 +93,22 @@ function mostrarResultadoIntentoIncorrecto(mensaje) {
         mostrarMensajeChat(textoCorrecto, data.esCorrecto); // Ej: "Pepito acerto"
     } else {
         mostrarMensajeChat(textoIncorrecto, data.esCorrecto); // palabra en rojo
+    }
+}
+
+// == MANEJO DE COMODIN (MOSTRAR LETRA)
+function manejarLetraComodin(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    const indice = data.indice;
+    const letra = data.letra;
+
+    console.log("Letra recibida por comodín:", letra, "en índice", indice);
+
+    const letraSpan = document.getElementById(`letra-${indice}`);
+    if (letraSpan) {
+        letraSpan.textContent = letra;
+        letraSpan.classList.remove("oculto");
+        letraSpan.classList.add("comodin-letra"); // opcional, para estilo visual
     }
 }
 
@@ -211,6 +229,20 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+
+    document.getElementById("btn-comodin").addEventListener("click", () => {
+        stompClient.publish({
+            destination: "/app/juego/activarComodin",
+            body: JSON.stringify({
+                idPartida,
+                idUsuario: usuarioId
+            })
+        });
+
+        document.getElementById("btn-comodin").disabled = true;
+    });
+
+
 
     // Detectar cuando el usuario cierra la pestaña o se va
     window.addEventListener("beforeunload", function () {

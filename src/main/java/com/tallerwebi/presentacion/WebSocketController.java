@@ -1,15 +1,10 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.DTO.DefinicionDto;
-import com.tallerwebi.dominio.DTO.DtoIntento;
-import com.tallerwebi.dominio.DTO.MensajeAvanzarRondaDTO;
-import com.tallerwebi.dominio.DTO.RondaDto;
+import com.tallerwebi.dominio.DTO.*;
 import com.tallerwebi.dominio.interfaceService.AciertoService;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 
-import com.tallerwebi.dominio.DTO.MensajeEnviadoDTO;
-import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.model.MensajeInicioRonda;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -59,6 +54,12 @@ public class WebSocketController {
 
         RondaDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
 
+    }
+
+    @MessageMapping("/juego/activarComodin")
+    public void activarComodin(DtoComodin dto, Principal principal) {
+        String nombreUsuario = principal.getName();
+        partidaService.activarComodin(dto.getIdPartida(), dto.getIdUsuario(), nombreUsuario);
     }
 
 

@@ -21,18 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 @Service
@@ -370,6 +365,32 @@ public class PartidaServiceImpl implements PartidaService {
                 new MensajeTipoRanking("actualizar-puntajes", jugadoresDto));
 
         return dto;
+    }
+
+
+
+    @Override
+    public void activarComodin(Long idPartida, Long idUsuario, String nombreUsuario) {
+        UsuarioPartida usuarioPartida = usuarioPartidaRepository.obtenerUsuarioPartida(idUsuario, idPartida);
+
+        if (usuarioPartida == null) return;
+        if (usuarioPartida.isComodinUsado()) return;
+
+        Ronda rondaActual = rondaRepositorio.obtenerUltimaRondaDePartida(idPartida);
+        if (rondaActual == null || rondaActual.getEstado() == Estado.FINALIZADA) return;
+
+        String palabra = rondaActual.getPalabra().getDescripcion();
+        Random random = new Random();
+        int indiceLetra = random.nextInt(palabra.length());
+        char letra = palabra.charAt(indiceLetra);
+
+        // Marcar comodín como usado
+        usuarioPartida.setComodinUsado(true);
+        usuarioPartidaRepository.actualizar(usuarioPartida);
+
+        // Enviar al jugador solo la letra descubierta
+        LetraComodinDto letraDto = new LetraComodinDto(indiceLetra, String.valueOf(letra));
+        simpMessagingTemplate.convertAndSendToUser(nombreUsuario, "/queue/comodin", letraDto);
     }
 
 
