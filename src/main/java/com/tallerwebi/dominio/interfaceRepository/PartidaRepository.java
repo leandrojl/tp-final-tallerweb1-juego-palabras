@@ -20,4 +20,8 @@ public interface PartidaRepository {
     boolean verificarSiEsElCreadorDePartida(Long idUsuario, Long idPartida);
 
     Estado verificarEstadoDeLaPartida(Long idPartida);
+
+    Partida buscarPartidaPorId(Long idPartida);
+
+    void modificarEstadoPartida(Partida partida, Estado estado);
 }

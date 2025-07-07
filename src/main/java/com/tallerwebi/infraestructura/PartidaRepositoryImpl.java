@@ -76,4 +76,15 @@ public class PartidaRepositoryImpl implements PartidaRepository {
         return partida.getEstado();
     }
 
+    @Override
+    public Partida buscarPartidaPorId(Long idPartida) {
+        return sessionFactory.getCurrentSession().get(Partida.class, idPartida);
+    }
+
+    @Override
+    public void modificarEstadoPartida(Partida partida, Estado estado) {
+        partida.setEstado(estado);
+        sessionFactory.getCurrentSession().update(partida);
+    }
+
 }

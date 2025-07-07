@@ -19,6 +19,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 
 import java.util.Comparator;
@@ -368,6 +369,27 @@ public class PartidaServiceImpl implements PartidaService {
                 new MensajeTipoRanking("actualizar-puntajes", jugadoresDto));
 
         return dto;
+    }
+
+    // En la clase PartidaServiceImpl.java
+
+    @Override
+    @Transactional // La operación debe ser atómica.
+    public void cancelarPartidaSiEsCreador(Long idUsuario, Long idPartida) {
+        // 1. Se verifica que el usuario sea el creador.
+        if (verificarSiEsElCreadorDePartida(idUsuario, idPartida)) {
+            Partida partida = partidaRepository.buscarPartidaPorId(idPartida);
+
+            // 2. Se cambia el estado de la Partida a CANCELADA.
+            if (partida != null && partida.getEstado() == Estado.EN_ESPERA) {
+
+                partidaRepository.modificarEstadoPartida(partida, Estado.CANCELADA);
+
+                // 3. Se actualiza el estado en UsuarioPartida para el creador.
+                // (Asumiendo que tienes un método para esto en usuarioPartidaService)
+                usuarioPartidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
+            }
+        }
     }
 
 

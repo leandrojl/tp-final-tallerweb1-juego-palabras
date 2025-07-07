@@ -16,6 +16,7 @@ import com.tallerwebi.dominio.model.Jugador;
 
 import com.tallerwebi.dominio.model.UsuarioPartida;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -122,10 +123,13 @@ public class SalaDeEsperaController {
                 usuarioPartidaService.agregarUsuarioAPartida(idUsuario,idPartida,0,false,Estado.EN_ESPERA);
                 }
                 //}
+                boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idUsuario, idPartida);
+
                 String nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
                 model.addAttribute("idUsuario", idUsuario);
                 model.addAttribute("usuario", nombreUsuario);
                 model.addAttribute("idPartida", idPartida);
+                model.addAttribute("esCreador", esCreador);
 
                 return "sala-de-espera";
 
@@ -134,10 +138,35 @@ public class SalaDeEsperaController {
             return "redirect:/lobby"; // Redirigir a la página de juego si la partida ya está en curso
     }
 
+    @PostMapping("/partida/cancelar-por-cierre")
+    @ResponseStatus(HttpStatus.NO_CONTENT) // Responde 204 No Content, ya que no se devuelve cuerpo.
+    public void cancelarPartidaPorCierre(HttpSession session) {
+        Long idUsuario = (Long) session.getAttribute("idUsuario");
+        Long idPartida = (Long) session.getAttribute("idPartida");
+
+        if (idUsuario != null && idPartida != null) {
+            // Se delega toda la lógica de negocio al servicio.
+            partidaService.cancelarPartidaSiEsCreador(idUsuario, idPartida);
+        }
+    }
+
 
 
 
     //WEBSOCKETS EN SALA DE ESPERA
+
+    @MessageMapping("/expulsarDeSala")
+    @SendTo("/topic/expulsados")
+    public MensajeRecibidoDTO expulsarDeSala(MensajeDto mensajeDto, Principal principal) {
+        // Validar si quien expulsa es el creador de la partida
+        boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idUsuarioDe(principal), mensajeDto.getIdPartida());
+        if (esCreador) {
+            // Actualizar usuarioPartida a CANCELADA
+            usuarioPartidaService.cambiarEstado(mensajeDto.getIdUsuario(), mensajeDto.getIdPartida(), Estado.CANCELADA);
+            return new MensajeRecibidoDTO(mensajeDto.getIdUsuario().toString()); // Notificar expulsión
+        }
+        throw new RuntimeException("No autorizado");
+    }
 
     @MessageMapping("/salaDeEspera")
     public void actualizarEstadoUsuario(EstadoJugadorDTO estadoJugadorDTO, Principal principal) {
