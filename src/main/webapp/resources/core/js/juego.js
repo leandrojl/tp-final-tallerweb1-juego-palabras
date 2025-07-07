@@ -5,9 +5,12 @@ let intervaloTemporizador;
 let intervaloLetras;
 let finRondaEjecutada = false;
 
+const idUsuario = sessionStorage.getItem('idUsuario');
+const idPartida = sessionStorage.getItem('idPartida');
 
-const usuarioId = Number(document.getElementById("usuarioId").value);
-const idPartida = Number(document.getElementById("idPartida").value);
+
+//const idUsuario = Number(document.getElementById("usuarioId").value);
+//const idPartida = Number(document.getElementById("idPartida").value);
 
 const palabra = document.getElementById("palabraOculta").value;
 const letras = palabra.split("");
@@ -25,7 +28,9 @@ function conectarWebSocket() {
                 stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
                 stompClient.subscribe(`/topic/mostrarIntento/${idPartida}`, mostrarResultadoIntentoIncorrecto);
 
-                //iniciarRonda();
+
+                stompClient.subscribe(`/topic/verRanking/${idPartida}`,actualizarRanking);
+                iniciarRonda();
             },
         });
 
@@ -46,7 +51,7 @@ function enviarIntento(palabra) {
       destination: "/app/juego/intento",
       body: JSON.stringify({
         intentoPalabra: palabra,
-        usuarioId,
+        idUsuario,
         idPartida,
         tiempoRestante
       })
@@ -62,16 +67,12 @@ function enviarIntento(palabra) {
 // === RECIBE MENSAJE DEL SERVIDOR ===
 function manejarMensajeServidor(mensaje) {
     const data = JSON.parse(mensaje.body);
-
-    if (data.tipo === "actualizar-puntajes" || data.tipo === "inicio-ronda") {
-        actualizarRanking(data.jugadores);
         if (data.tipo === "inicio-ronda") {
             document.getElementById("palabraOculta").value = data.palabra;
             document.getElementById("definicionActual").textContent = data.definicion;
-        }
-    } else if (data.tipo === "fin-ronda") {
+        } else if (data.tipo === "fin-ronda") {
         detenerTimers();
-        window.location.href = `/juego?ronda=${data.siguienteRonda}&usuarioId=${usuarioId}`;
+        window.location.href = `/juego?ronda=${data.siguienteRonda}&idUsuario=${idUsuario}`;
     }
 }
 
@@ -95,7 +96,10 @@ function mostrarResultadoIntentoIncorrecto(mensaje) {
 }
 
 // === RANKING ACTUALIZADO ===
-function actualizarRanking(jugadores) {
+function actualizarRanking(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    console.log("Ranking recibido:", data);
+    const jugadores = data.jugadores;
     const contenedor = document.querySelector(".ranking-horizontal");
     contenedor.innerHTML = "";
 
@@ -188,7 +192,7 @@ function mostrarMensajeChat(texto, esCorrecto) {
 // === ABANDONAR PARTIDA ===
 function abandonarPartida() {
     const params = new URLSearchParams({
-        usuarioId: jugadorId,
+        idUsuario: jugadorId,
         idPartida: idPartida
     });
     navigator.sendBeacon("/spring/abandonarPartida?" + params.toString());

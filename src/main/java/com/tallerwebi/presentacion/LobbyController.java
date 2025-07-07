@@ -177,13 +177,4 @@ public class LobbyController {
         return new ModelAndView("recompensas");
     }
 
-    @RequestMapping("/irASalaDeEspera")
-    public ModelAndView irASalaDeEspera(HttpSession session) {
-        ModelMap modelMap = new ModelMap();
-        String nombreUsuario = (String) session.getAttribute("usuario");
-        modelMap.addAttribute("usuario",nombreUsuario);
-        return new ModelAndView("sala-de-espera",modelMap);
-    }
-
-
 }

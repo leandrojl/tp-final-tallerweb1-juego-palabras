@@ -341,7 +341,7 @@ public class PartidaServiceImpl implements PartidaService {
 
 
     public RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId) {
-
+        System.out.println("construirDtoDesdeRondaExistente");
         System.out.println(ronda);
         Palabra palabra = ronda.getPalabra();
         String definicionTexto;
@@ -366,7 +366,7 @@ public class PartidaServiceImpl implements PartidaService {
         dto.setJugadores(jugadoresDto);
 
         simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dto);
-        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId,
+        simpMessagingTemplate.convertAndSend("/topic/verRanking/" + partidaId,
                 new MensajeTipoRanking("actualizar-puntajes", jugadoresDto));
 
         return dto;
