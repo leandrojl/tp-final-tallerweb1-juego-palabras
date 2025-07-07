@@ -166,6 +166,17 @@ public class PartidaServiceImpl implements PartidaService {
                         resultadoPublico
                 );
 
+                // Enviar ranking actualizado a todos los jugadores
+                List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(partidaId);
+                List<JugadorPuntajeDto> jugadoresDto = jugadores.stream()
+                        .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
+                        .collect(Collectors.toList());
+
+                simpMessagingTemplate.convertAndSend(
+                        "/topic/verRanking/" + partidaId,
+                        new MensajeTipoRanking("actualizar-puntajes", jugadoresDto)
+                );
+
             }
 
         } else {
