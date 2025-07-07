@@ -125,6 +125,7 @@ public class SalaDeEsperaServiceTest {
         doNothing().when(partidaRepo).actualizarEstado(idPartida, Estado.EN_CURSO);
         when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
         when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
+        when(usuarioPartidaRepo.obtenerUsuariosListosDeUnaPartida(idPartida)).thenReturn(usuarios);
 
         whenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
 
@@ -140,11 +141,13 @@ public class SalaDeEsperaServiceTest {
         List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
         when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
         when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
+        when(usuarioPartidaRepo.obtenerUsuariosListosDeUnaPartida(idPartida)).thenReturn(usuarios);
 
         whenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
         verify(partidaRepo).actualizarEstado(any(Long.class), any(Estado.class));
     }
     //ESTOS SON LOS MIOS PARA EL SPRINT 4
+    //############################################################################################
 
     @Test
     public void SiNoSeCumpleConElMinimoDeUsuariosEstablecidoNoSePuedeRedireccionarAUnaPartida(){
@@ -165,7 +168,7 @@ public class SalaDeEsperaServiceTest {
         EstadoJugadorDTO estadoJugadorDTO = new EstadoJugadorDTO(idPartida,nombreUsuario,true);
         Usuario usuario = new Usuario("pepe");
         usuario.setEstaListo(true);
-        when(usuarioPartidaRepo.obtenerUsuarioPorNombre(nombreUsuario,idPartida)).thenReturn(usuario);
+        when(usuarioPartidaRepo.obtenerUsuarioDeUnaPartidaPorSuNombreUsuario(nombreUsuario,idPartida)).thenReturn(usuario);
 
         servicioSalaDeEspera.actualizarElEstadoDeUnUsuario(estadoJugadorDTO,nombreUsuario);
         verify(usuarioRepository).actualizarEstado(usuario.getId(),estadoJugadorDTO.isEstaListo());
@@ -174,10 +177,10 @@ public class SalaDeEsperaServiceTest {
     @Test
     public void siNoHaySuficientesUsuariosListosNoSePuedeRedireccionarAUnaPartida(){
         Long idPartida = 1L;
-        Partida partida = new Partida("partida","español",true,5,5,3,Estado.EN_ESPERA);
+        Partida partida = new Partida("partida","español",true,5,5,2,Estado.EN_ESPERA);
         MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
-        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"), new Usuario("lucas"));
-        List<Usuario> usuariosListos = List.of(new Usuario("pepe"), new Usuario("lucas"));
+        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
+        List<Usuario> usuariosListos = List.of();
 
         when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
         when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
@@ -243,6 +246,20 @@ public class SalaDeEsperaServiceTest {
 
         verify(usuarioRepository).obtenerUsuarioPorNombre(nombreUsuario);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     private void thenNotificaALosOtrosUsuariosQueAbandonaLaSala(List<Usuario> usuarios) {

@@ -20,6 +20,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = {
@@ -90,6 +92,34 @@ public class UsuarioRepositoryTest {
         assertFalse(usuarios.isEmpty());
         assertTrue(usuarios.size() >= 2);
     }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void queSeActualizarElEstadoDeUnUsuario(){
+
+        Usuario usuario = givenExisteUsuario();
+
+        assertFalse(usuario.getEstaListo());
+        Usuario usuarioConEstadoActualizado = whenActualizoEstadoDeUnUsuario(usuario);
+
+        assertTrue(usuarioConEstadoActualizado.getEstaListo());
+    }
+
+    private Usuario whenActualizoEstadoDeUnUsuario(Usuario usuario) {
+        repositorioUsuario.actualizarEstado(usuario.getId(),true);
+        this.sessionFactory.getCurrentSession().refresh(usuario);
+        return repositorioUsuario.buscarPorId(usuario.getId());
+    }
+
+    private Usuario givenExisteUsuario() {
+        Usuario usuario = new Usuario("pepe","123456");
+        usuario.setEstaListo(false);
+        this.sessionFactory.getCurrentSession().save(usuario);
+        return repositorioUsuario.buscarPorId(usuario.getId());
+    }
+
 
     // --- Métodos auxiliares ---
     private Usuario crearUsuario(String nombre, String mail, String clave) {

@@ -89,6 +89,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
                 .setParameter("estado", estado)
                 .setParameter("id", idUsuario)
                 .executeUpdate();
+        session.flush();
     }
 
 }

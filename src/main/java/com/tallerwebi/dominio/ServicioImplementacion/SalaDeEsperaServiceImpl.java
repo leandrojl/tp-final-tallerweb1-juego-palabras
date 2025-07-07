@@ -29,7 +29,6 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     private UsuarioPartidaRepository usuarioPartidaRepo;
     private PartidaRepository partidaRepo;
     private UsuarioRepository usuarioRepo;
-    private List<String> usuariosListos = new ArrayList<>();
 
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -107,8 +106,8 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     public void actualizarElEstadoDeUnUsuario(EstadoJugadorDTO estadoJugadorDTO, String nombreUsuarioDelPrincipal) {
         Long idPartida = estadoJugadorDTO.getIdPartida();
         if(!estadoJugadorDTO.getUsername().equals(nombreUsuarioDelPrincipal)) throw new UsuarioInvalidoException("Error, no se puede alterar el estado de otro jugador");
-        Usuario usuario = usuarioPartidaRepo.obtenerUsuarioPorNombre(nombreUsuarioDelPrincipal,idPartida); //TDD
-        usuarioRepo.actualizarEstado(usuario.getId(), estadoJugadorDTO.isEstaListo());//TDD
+        Usuario usuario = usuarioPartidaRepo.obtenerUsuarioDeUnaPartidaPorSuNombreUsuario(nombreUsuarioDelPrincipal,idPartida); //TDD
+        usuarioRepo.actualizarEstado(usuario.getId(), estadoJugadorDTO.isEstaListo());
         this.simpMessagingTemplate.convertAndSend("/topic/salaDeEspera/" + idPartida, estadoJugadorDTO);
     }
 
@@ -116,10 +115,9 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     @Override
     public void redireccionarUsuariosAPartida(MensajeRecibidoDTO mensajeRecibidoDTO) {
         Long idPartida = mensajeRecibidoDTO.getNumber();
-        Partida partida = usuarioPartidaRepo.obtenerPartida(idPartida);
-        List<Usuario> usuariosEnSala = validarRedireccionamiento(idPartida, partida);
+        List<Usuario> usuariosEnSala = validarRedireccionamiento(idPartida);
         this.partidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
-        this.usuarioPartidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO); //HACER TDD
+        this.usuarioPartidaRepo.actualizarEstado(idPartida,Estado.EN_CURSO);
             for (Usuario usuario : usuariosEnSala) {
                 simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
                         new MensajeRecibidoDTO(
@@ -128,15 +126,6 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
             }
     }
 
-    private List<Usuario> validarRedireccionamiento(Long idPartida, Partida partida) {
-        List<Usuario> usuariosEnSala = usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida);
-        List<Usuario> usuariosListos = usuarioPartidaRepo.obtenerUsuariosListosDeUnaPartida(idPartida); //TDD
-        if(usuariosEnSala.size() < partida.getMinimoJugadores()) throw new CantidadDeUsuariosInsuficientesException(
-                "Cantidad insuficiente de usuarios para iniciar partida");// PARA SPRINT 4
-        if(usuariosListos.size() < Math.ceil(usuariosEnSala.size() * 0.50)) throw new CantidadDeUsuariosListosInsuficientesException(
-                "No hay suficientes usuarios listos para iniciar la partida"); //PARA SPRINT 4
-        return usuariosEnSala;
-    } //METELO AL METODO EN LOS TESTS CON VERIFY
 
     @Override
     public MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuario) {
@@ -149,6 +138,16 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
         notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         return new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
+    }
+    private List<Usuario> validarRedireccionamiento(Long idPartida) {
+        Partida partida = usuarioPartidaRepo.obtenerPartida(idPartida);
+        List<Usuario> usuariosEnSala = usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida);
+        List<Usuario> usuariosListos = usuarioPartidaRepo.obtenerUsuariosListosDeUnaPartida(idPartida);
+        if(usuariosEnSala.size() < partida.getMinimoJugadores()) throw new CantidadDeUsuariosInsuficientesException(
+                "Cantidad insuficiente de usuarios para iniciar partida");// PARA SPRINT 4
+        if(usuariosListos.size() < Math.ceil(usuariosEnSala.size() * 0.50)) throw new CantidadDeUsuariosListosInsuficientesException(
+                "No hay suficientes usuarios listos para iniciar la partida"); //PARA SPRINT 4
+        return usuariosEnSala;
     }
 
 }

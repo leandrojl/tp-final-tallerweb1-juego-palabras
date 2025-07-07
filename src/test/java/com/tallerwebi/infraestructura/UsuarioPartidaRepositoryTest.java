@@ -187,6 +187,173 @@ public class UsuarioPartidaRepositoryTest {
         assertEquals(usuario.getId(), encontrado.getUsuario().getId());
     }
 
+
+    @Test
+    @Transactional
+    @Rollback
+    public void queSePuedanObtenerUsuariosDeUnaPartida() {
+        Usuario usuario = new Usuario("pepe");
+        Partida partida = givenExistenUsuariosEnPartida(usuario);
+
+        List<Usuario> usuariosEnPartidaObtenidos = whenObtengoUsuariosDeUnaPartida(partida);
+
+        assertNotNull(usuariosEnPartidaObtenidos);
+        assertEquals(usuario.getId(), usuariosEnPartidaObtenidos.get(0).getId());
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void queSePuedaObtenerUnUsuarioEnUnaPartidaPorSuNombreUsuario() {
+        Usuario usuario = new Usuario("pepe");
+        Partida partida = givenExistenUsuariosEnPartida(usuario);
+
+        Usuario usuarioObtenido = whenObtengoUnUsuarioEnUnaPartidaPorSuNombreUsuario(usuario.getNombreUsuario(), partida.getId());
+
+        assertEquals(usuario.getId(), usuarioObtenido.getId());
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void queSePuedaActualizarElEstadoDeUsuarioPartida() {
+        UsuarioPartida usuarioPartida = givenExisteUsuarioPartida();
+
+        assertTrue(usuarioPartida.getEstado().equals(Estado.EN_ESPERA));
+        UsuarioPartida usuarioPartidaActualizada = whenActualizoEstadoDeUsuarioPartida(usuarioPartida);
+
+        assertTrue(usuarioPartidaActualizada.getEstado().equals(Estado.EN_CURSO));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void queSePuedaObtenerUnaPartidaPorSuId() {
+        UsuarioPartida usuarioPartida = givenExisteUsuarioPartida();
+        Partida partida = usuarioPartida.getPartida();
+
+        Partida partidaObtenida = usuarioPartidaRepository.obtenerPartida(partida.getId());
+
+        assertEquals(partida.getId(), partidaObtenida.getId());
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void queSePuedanObtenerLosUsuariosListosDeUnaPartida() {
+        Partida partida = givenExisteUsuarioPartidaConUsuariosListos();
+
+        List<Usuario> usuariosListos = usuarioPartidaRepository.obtenerUsuariosListosDeUnaPartida(partida.getId());
+
+        assertNotNull(usuariosListos);
+        assertEquals(2, usuariosListos.size());
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void queSePuedaBorrarUsuarioPartidaAsociadaAUnUsuario() {
+        UsuarioPartida usuarioPartida = givenExisteUsuarioPartida();
+
+        assertNotNull(usuarioPartida);
+        UsuarioPartida usuarioPartidaObtenido = whenBorroUsuarioPartidaAsociadaAUnUsuario(usuarioPartida);
+
+        assertNull(usuarioPartidaObtenido);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private UsuarioPartida whenBorroUsuarioPartidaAsociadaAUnUsuario(UsuarioPartida usuarioPartida) {
+        Usuario usuario = usuarioPartida.getUsuario();
+        Partida partida = usuarioPartida.getPartida();
+        usuarioPartidaRepository.borrarUsuarioPartidaAsociadaAlUsuario(partida.getId(), usuario.getId());
+        return usuarioPartidaRepository.obtenerUsuarioPartida(usuario.getId(), partida.getId());
+    }
+
+
+
+    private Partida givenExisteUsuarioPartidaConUsuariosListos() {
+        Usuario usuario = new Usuario("pepe");
+        usuario.setEstaListo(true);
+        sessionFactory.getCurrentSession().save(usuario);
+        Usuario usuario2 = new Usuario("jose");
+        usuario2.setEstaListo(true);
+        sessionFactory.getCurrentSession().save(usuario2);
+        Usuario usuario3 = new Usuario("lucas");
+        usuario3.setEstaListo(false);
+        sessionFactory.getCurrentSession().save(usuario3);
+        Partida partida = new Partida();
+        sessionFactory.getCurrentSession().save(partida);
+
+
+        UsuarioPartida usuarioPartida = new UsuarioPartida(usuario, partida, 0, false, null);
+        sessionFactory.getCurrentSession().save(usuarioPartida);
+        UsuarioPartida usuarioPartida2 = new UsuarioPartida(usuario2, partida, 0, false, null);
+        sessionFactory.getCurrentSession().save(usuarioPartida2);
+        UsuarioPartida usuarioPartida3 = new UsuarioPartida(usuario3, partida, 0, false, null);
+        sessionFactory.getCurrentSession().save(usuarioPartida3);
+        return partida;
+    }
+
+
+    private UsuarioPartida whenActualizoEstadoDeUsuarioPartida(UsuarioPartida usuarioPartida) {
+        usuarioPartidaRepository.actualizarEstado(usuarioPartida.getPartida().getId(),Estado.EN_CURSO);
+        sessionFactory.getCurrentSession().refresh(usuarioPartida);
+        return usuarioPartidaRepository.obtenerUsuarioPartida(usuarioPartida.getUsuario().getId(),usuarioPartida.getPartida().getId());
+    }
+
+    private UsuarioPartida givenExisteUsuarioPartida() {
+        Usuario usuario = new Usuario("pepe");
+        Partida partida = new Partida();
+        sessionFactory.getCurrentSession().save(partida);
+
+        sessionFactory.getCurrentSession().save(usuario);
+        UsuarioPartida usuarioPartida = new UsuarioPartida(usuario, partida, 0, false, Estado.EN_ESPERA);
+        sessionFactory.getCurrentSession().save(usuarioPartida);
+        return usuarioPartida;
+    }
+
+    private Usuario whenObtengoUnUsuarioEnUnaPartidaPorSuNombreUsuario(String nombreUsuario, Long idUsuario) {
+        return usuarioPartidaRepository.obtenerUsuarioDeUnaPartidaPorSuNombreUsuario(nombreUsuario, idUsuario);
+    }
+
+    private List<Usuario> whenObtengoUsuariosDeUnaPartida(Partida partida) {
+        return usuarioPartidaRepository.obtenerUsuariosDeUnaPartida(partida.getId());
+    }
+
+    private Partida givenExistenUsuariosEnPartida(Usuario usuario) {
+        Partida partida = new Partida();
+        sessionFactory.getCurrentSession().save(partida);
+
+        sessionFactory.getCurrentSession().save(usuario);
+        UsuarioPartida usuarioPartida = new UsuarioPartida(usuario, partida, 0, false, null);
+        sessionFactory.getCurrentSession().save(usuarioPartida);
+        return partida;
+    }
+
+
+
+
     private Usuario givenDiferentesPartidasPorJugador() {
         Usuario usuario1 = new Usuario("juan");
         Usuario usuario2 = new Usuario("pedro");

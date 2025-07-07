@@ -301,7 +301,7 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
     }
 
     @Override
-    public Usuario obtenerUsuarioPorNombre(String nombreUsuarioDelPrincipal,Long idPartida) {
+    public Usuario obtenerUsuarioDeUnaPartidaPorSuNombreUsuario(String nombreUsuarioDelPrincipal, Long idPartida) {
         Session session = sessionFactory.getCurrentSession();
         return session.createQuery("SELECT up.usuario FROM UsuarioPartida up" +
                         " WHERE up.partida.id = :idPartida AND up.usuario.nombreUsuario = :nombreUsuario", Usuario.class)

@@ -216,7 +216,7 @@ public class SalaDeEsperaControllerTest {
         Long idPartida = 1L;
         Principal principal=  () -> "pepe";
         EstadoJugadorDTO estadoJugadorDTO = givenJugadorEnSala(idPartida,"jose",true);
-        //when(salaDeEsperaService.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName())).thenReturn(false);
+        doThrow(UsuarioInvalidoException.class).when(salaDeEsperaService).actualizarElEstadoDeUnUsuario(estadoJugadorDTO, principal.getName());
 
         assertThrows(UsuarioInvalidoException.class, ()-> salaDeEsperaController.actualizarEstadoUsuario(estadoJugadorDTO,principal));
         UsuarioInvalidoException ex = new UsuarioInvalidoException("Cantidad insuficiente de usuarios para iniciar partida");
@@ -248,14 +248,13 @@ public class SalaDeEsperaControllerTest {
     }
 
     //ESTOS SON LOS MIOS PARA EL SPRINT 4
-
+    //############################################################################################
 
     @Test
     public void siNoSePudoIniciarLaPartidaQueDeError() {
         MensajeRecibidoDTO dto = new MensajeRecibidoDTO("mensaje", 1L);
 
-        //when(salaDeEsperaService.redireccionarUsuariosAPartida(any())).thenReturn(false);
-
+        doThrow(CantidadDeUsuariosInsuficientesException.class).when(salaDeEsperaService).redireccionarUsuariosAPartida(dto);
         assertThrows(CantidadDeUsuariosInsuficientesException.class, () -> {
             salaDeEsperaController.enviarUsuariosALaPartida(dto);
         });

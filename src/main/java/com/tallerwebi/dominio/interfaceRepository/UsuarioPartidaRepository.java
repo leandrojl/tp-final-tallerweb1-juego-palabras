@@ -60,5 +60,5 @@ public interface UsuarioPartidaRepository {
 
     List<Usuario> obtenerUsuariosListosDeUnaPartida(Long idPartida);
 
-    Usuario obtenerUsuarioPorNombre(String nombreUsuarioDelPrincipal, Long idPartida);
+    Usuario obtenerUsuarioDeUnaPartidaPorSuNombreUsuario(String nombreUsuarioDelPrincipal, Long idPartida);
 }
