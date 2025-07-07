@@ -30,7 +30,7 @@ function conectarWebSocket() {
 
 
                 stompClient.subscribe(`/topic/verRanking/${idPartida}`,actualizarRanking);
-                iniciarRonda();
+                //iniciarRonda();
             },
         });
 
@@ -176,6 +176,11 @@ function detenerTimers() {
     finRondaEjecutada = true;
     clearInterval(intervaloTemporizador);
     clearInterval(intervaloLetras);
+     // Desactivar el input
+        const input = document.getElementById("input-intento");
+        input.disabled = true;
+        input.placeholder = "Tiempo agotado";
+        input.classList.add("input-desactivado");
 }
 
 // === CHAT LOCAL (Palabras Mencionadas) ===

@@ -42,40 +42,34 @@ public class JuegoController {
     @GetMapping
     public ModelAndView mostrarVistaJuego(HttpSession session) {
 
-        Long usuarioId = (Long) session.getAttribute("idUsuario");
-
+        Long idUsuario = (Long) session.getAttribute("idUsuario");
         String nombreUsuario = (String) session.getAttribute("usuario");
 
-        Long partidaId = (Long) session.getAttribute("idPartida");
+        Long idPartida = (Long) session.getAttribute("idPartida");
         System.out.println("Datos de sesión: idUsuario=" +
-                usuarioId + ", nombreUsuario=" + nombreUsuario + ", partidaId=" + partidaId);
+                idUsuario + ", nombreUsuario=" + nombreUsuario + ", idPartida=" + idPartida);
 
-        if (usuarioId == null || nombreUsuario == null || partidaId == null) {
+        if (idUsuario == null || nombreUsuario == null || idPartida == null) {
             return new ModelAndView("redirect:/login");
         }
 
-
-        if (partidaId != null) {
-            Partida partida = partidaServicio.obtenerPartidaPorId(partidaId);
-
+        if (idPartida != null) {
+            Partida partida = partidaServicio.obtenerPartidaPorId(idPartida);
         }
 
         ModelMap model = new ModelMap();
-        model.put("usuarioId", usuarioId);
+        model.put("idUsuario", idUsuario);
         model.put("usuario", nombreUsuario);
 
-
-         RondaDto definicion = partidaServicio.iniciarNuevaRonda(partidaId);
-
-
+        RondaDto definicion = partidaServicio.iniciarNuevaRonda(idPartida);
 
         if (definicion == null) {
-            System.out.println("No se pudo obtener la ronda actual para partidaId=" + partidaId);
+            System.out.println("No se pudo obtener la ronda actual para partidaId=" + idPartida);
             session.removeAttribute("idPartida");
             return new ModelAndView("redirect:/juego");
         }
 
-        model.put("idPartida", partidaId);
+        model.put("idPartida", idPartida);
         model.put("palabra", definicion.getPalabra());
         model.put("definicion", definicion.getDefinicionTexto());
         model.put("rondaActual", definicion.getNumeroDeRonda());

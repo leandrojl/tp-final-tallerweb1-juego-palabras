@@ -94,22 +94,22 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public void procesarIntento(DtoIntento intento, String nombre) {
         //   ---- si acerto verificar si acertaron todos y finalizar ronda timer -----  //
-        System.out.println("procesar intento aqui estoy "+nombre);
+        //System.out.println("procesar intento aqui estoy "+nombre);
 
         Long partidaId = intento.getIdPartida();
-        System.out.println("partida: "+partidaId);
+        //System.out.println("partida: "+partidaId);
 
         Long idUsuario = intento.getIdUsuario();
-        System.out.println("usuarioId "+idUsuario);
+        //System.out.println("usuarioId "+idUsuario);
 
         String intentoTexto = intento.getIntentoPalabra();
-        System.out.println("intentoTexto "+intentoTexto);
+        //System.out.println("intentoTexto "+intentoTexto);
 
         // === Obtener Partida
-        System.out.println("procesar intento aqui estoy3 ");
+        //System.out.println("procesar intento aqui estoy3 ");
 
         Partida partida = partidaRepository.buscarPorId(partidaId);
-        System.out.println("PARTIDA NULA ");
+        //System.out.println("PARTIDA NULA ");
 
         if (partida == null) {
             throw new IllegalArgumentException("Partida no encontrada con ID: " + partidaId);
@@ -124,7 +124,7 @@ public class PartidaServiceImpl implements PartidaService {
         } else if (ronda.getEstado().equals(Estado.FINALIZADA)) {
             throw new IllegalStateException("Ronda finalizada.");
         }
-        System.out.println("Ronda== " + rondaId);
+        //System.out.println("Ronda== " + rondaId);
 
         // === Comparar intento con palabra correcta
         String palabraCorrecta = ronda.getPalabra().getDescripcion();
