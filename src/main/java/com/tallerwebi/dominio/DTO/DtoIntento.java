@@ -7,10 +7,10 @@ public class DtoIntento {
     private Long idPartida;
     private int tiempoRestante;
 
-    public DtoIntento(String intentoPalabra, Long usuarioId, Long partidaId, int tiempoRestante) {
+    public DtoIntento(String intentoPalabra, Long idUsuario, Long idPartida, int tiempoRestante) {
         this.intentoPalabra = intentoPalabra;
-        this.idUsuario = usuarioId;
-        this.idPartida = partidaId;
+        this.idUsuario = idUsuario;
+        this.idPartida = idPartida;
         this.tiempoRestante = tiempoRestante;
     }
 
@@ -38,8 +38,8 @@ public class DtoIntento {
         return idPartida;
     }
 
-    public void setIdPartida(Long partidaId) {
-        this.idPartida = partidaId;
+    public void setIdPartida(Long idPartida) {
+        this.idPartida = idPartida;
     }
 
     public int getTiempoRestante() {

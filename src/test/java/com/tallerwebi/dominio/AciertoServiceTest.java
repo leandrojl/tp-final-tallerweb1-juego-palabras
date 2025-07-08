@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.ServicioImplementacion.AciertoServiceImpl;
 import com.tallerwebi.dominio.interfaceRepository.AciertoRepository;
 import com.tallerwebi.dominio.interfaceRepository.RondaRepository;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
