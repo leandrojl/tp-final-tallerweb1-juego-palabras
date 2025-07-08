@@ -1,7 +1,15 @@
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const host = window.location.host; // esto agarra localhost:8080 o eric-chatapp.trycloudflare.com
+const host = window.location.host;
 const stompClient = new StompJs.Client({
-    brokerURL: `${protocol}://${host}/spring/wschat`
+    brokerURL: `${protocol}://${host}/spring/wschat`,
+    reconnectDelay: 5000,
+    onConnect: () => {
+        console.log("✅ Conectado correctamente al WebSocket");
+        // tus suscripciones...
+    },
+    onWebSocketError: (error) => {
+        console.error("❌ Error con WebSocket:", error);
+    }
 });
 
 const idPartida = Number(sessionStorage.getItem("idPartida"));

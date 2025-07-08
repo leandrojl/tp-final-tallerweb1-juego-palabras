@@ -19,6 +19,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/wschat")
                 .addInterceptors(new HttpSessionInterceptor())
-                .setHandshakeHandler(new CustomHandshakeHandler());
+                .setHandshakeHandler(new CustomHandshakeHandler())
+                .setAllowedOrigins("*");
     }
 }

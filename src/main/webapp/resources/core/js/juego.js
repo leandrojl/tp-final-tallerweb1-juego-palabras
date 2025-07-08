@@ -19,8 +19,8 @@ let indexLetra = 0;
 // === WEBSOCKET ===
 function conectarWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const host = window.location.host; // ej: localhost:8080 o eric-chatapp.trycloudflare.com
-    const brokerURL = `${protocol}://${host}/spring/wschat`;
+    const host = window.location.host; // ej: localhost:8080 o scary-propecia-reno-chest.trycloudflare.com
+    const brokerURL = `${protocol}://${host}/spring/wschat`; // <-- corregido
 
     stompClient = new StompJs.Client({
         brokerURL: brokerURL,
