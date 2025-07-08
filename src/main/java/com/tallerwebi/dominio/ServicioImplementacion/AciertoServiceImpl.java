@@ -58,7 +58,7 @@ public class AciertoServiceImpl implements AciertoService {
         }
 
         Ronda ronda = rondaRepository.buscarPorId(rondaId);
-        if (usuario==null){
+        if (ronda==null){
             throw new IllegalArgumentException("Ronda no encontrada con ID: " + rondaId);
         }
 
