@@ -58,7 +58,11 @@ public interface UsuarioPartidaRepository {
 
     void actualizarEstado(Long idPartida, Estado estado);
 
+
     List<Usuario> obtenerUsuariosListosDeUnaPartida(Long idPartida);
 
     Usuario obtenerUsuarioDeUnaPartidaPorSuNombreUsuario(String nombreUsuarioDelPrincipal, Long idPartida);
+
+    void cambiarEstado(Long idUsuarioAExpulsar, Long idPartida, Estado estado);
+
 }

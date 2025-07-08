@@ -17,6 +17,7 @@ import com.tallerwebi.dominio.model.Jugador;
 
 import com.tallerwebi.dominio.model.UsuarioPartida;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -93,8 +94,9 @@ public class SalaDeEsperaController {
 
     @GetMapping("/sala-de-espera/{idPartida}")
     public String salaDeEspera(@PathVariable Long idPartida, Model model, HttpSession session) {
-        Long usuarioId = (Long) session.getAttribute("idUsuario");
-        String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
+        Long idUsuario = (Long) session.getAttribute("idUsuario");
+        String nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
+        boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idUsuario, idPartida);
 
         model.addAttribute("usuario", nombreUsuario);
         model.addAttribute("idPartida", idPartida);
@@ -123,10 +125,13 @@ public class SalaDeEsperaController {
                 usuarioPartidaService.agregarUsuarioAPartida(idUsuario,idPartida,0,false,Estado.EN_ESPERA);
                 }
                 //}
+                boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idUsuario, idPartida);
+
                 String nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
                 model.addAttribute("idUsuario", idUsuario);
                 model.addAttribute("usuario", nombreUsuario);
                 model.addAttribute("idPartida", idPartida);
+                model.addAttribute("esCreador", esCreador);
 
                 return "sala-de-espera";
 
@@ -136,9 +141,39 @@ public class SalaDeEsperaController {
     }
 
 
-
-
     //WEBSOCKETS EN SALA DE ESPERA
+
+    @MessageMapping("/expulsarDeSala")
+    @SendTo("/topic/jugadorExpulsado") // Se notifica a todos en este tópico
+    public MensajeRecibidoDTO expulsarDeSala(MensajeDto mensajeDto, Principal principal) {
+
+        // Obtenemos el nombre del usuario que realiza la acción (el creador)
+        String nombreCreador = principal.getName();
+        Long idCreador = usuarioService.obtenerUsuarioPorNombre(nombreCreador).getId();
+
+        // Validamos si es el creador de la partida
+        boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idCreador, mensajeDto.getIdPartida());
+
+        if (esCreador) {
+            // Obtenemos el NOMBRE del usuario a expulsar del campo 'message' del DTO
+            String nombreUsuarioAExpulsar = mensajeDto.getNombreUsuario();
+
+            // Verificamos que el creador no se expulse a sí mismo
+            if (nombreCreador.equals(nombreUsuarioAExpulsar)) {
+                throw new RuntimeException("El creador no puede expulsarse a sí mismo.");
+            }
+
+            Long idUsuarioAExpulsar = usuarioService.obtenerUsuarioPorNombre(nombreUsuarioAExpulsar).getId();
+
+            // Cambiamos el estado del usuario en la tabla UsuarioPartida a CANCELADA
+            usuarioPartidaService.cambiarEstado(idUsuarioAExpulsar, mensajeDto.getIdPartida(), Estado.CANCELADA);
+
+            // Enviamos un mensaje a todos los clientes con el NOMBRE del usuario que fue expulsado
+            return new MensajeRecibidoDTO(nombreUsuarioAExpulsar);
+        }
+        // Si no es el creador, lanzamos una excepción
+        throw new RuntimeException("Acción no autorizada: solo el creador puede expulsar jugadores.");
+    }
 
     @MessageMapping("/salaDeEspera")
     public void actualizarEstadoUsuario(EstadoJugadorDTO estadoJugadorDTO, Principal principal) {

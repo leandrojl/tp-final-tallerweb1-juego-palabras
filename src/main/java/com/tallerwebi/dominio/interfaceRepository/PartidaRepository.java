@@ -23,4 +23,9 @@ public interface PartidaRepository {
     Estado verificarEstadoDeLaPartida(Long idPartida);
 
     Partida obtenerPartidaAleatoria();
+
+    Partida buscarPartidaPorId(Long idPartida);
+
+    void modificarEstadoPartida(Partida partida, Estado estado);
+
 }

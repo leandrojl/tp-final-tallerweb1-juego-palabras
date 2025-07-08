@@ -308,6 +308,23 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .setParameter("nombreUsuario", nombreUsuarioDelPrincipal)
                 .setParameter("idPartida", idPartida)
                 .uniqueResult();
+
     }
 
+    @Override
+    public void cambiarEstado(Long idUsuarioAExpulsar, Long idPartida, Estado estado) {
+        Session session = sessionFactory.getCurrentSession();
+        int updated = session.createQuery(
+                        "UPDATE UsuarioPartida up SET up.estado = :estado " +
+                                "WHERE up.usuario.id = :idUsuario AND up.partida.id = :idPartida")
+                .setParameter("estado", estado)
+                .setParameter("idUsuario", idUsuarioAExpulsar)
+                .setParameter("idPartida", idPartida)
+                .executeUpdate();
+
+        if (updated == 0) {
+            throw new IllegalArgumentException("No se encontró UsuarioPartida para el usuarioId " + idUsuarioAExpulsar + " y partidaId " + idPartida);
+        }
+
+    }
 }

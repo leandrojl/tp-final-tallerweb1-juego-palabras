@@ -48,5 +48,6 @@ public interface PartidaService {
 
     RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId);
 
+    void cancelarPartidaSiEsCreador(Long idUsuario, Long idPartida);
 }
 

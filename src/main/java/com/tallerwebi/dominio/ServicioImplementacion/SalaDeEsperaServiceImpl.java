@@ -10,7 +10,9 @@ import com.tallerwebi.dominio.excepcion.CantidadDeUsuariosListosInsuficientesExc
 import com.tallerwebi.dominio.excepcion.UsuarioInvalidoException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
+import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
+import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,8 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     private UsuarioPartidaRepository usuarioPartidaRepo;
     private PartidaRepository partidaRepo;
     private UsuarioRepository usuarioRepo;
+    private PartidaService partidaService;
+    private UsuarioPartidaService usuarioPartidaService;
 
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -36,12 +40,17 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
 
     @Autowired
     public SalaDeEsperaServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
-                                   UsuarioPartidaRepository usuarioPartidaRepo, PartidaRepository partida,
-                                   UsuarioRepository usuarioRepository) {
+                                   UsuarioPartidaRepository usuarioPartidaRepo,
+                                   PartidaRepository partida,
+                                   UsuarioRepository usuarioRepository,
+                                   PartidaService partidaService,
+                                   UsuarioPartidaService usuarioPartidaService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.usuarioPartidaRepo = usuarioPartidaRepo;
         this.partidaRepo = partida;
         this.usuarioRepo = usuarioRepository;
+        this.partidaService = partidaService;
+        this.usuarioPartidaService = usuarioPartidaService;
     }
 
 
@@ -135,7 +144,9 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
             Usuario usuario = this.usuarioRepo.obtenerUsuarioPorNombre(nombreUsuario);
             idUsuario = usuario.getId();
         }
+
         this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
+
         notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         return new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
     }

@@ -107,17 +107,6 @@ public class LobbyController {
 
         session.setAttribute("idPartida", idPartida);
 
-//        int puntaje = 0;
-//        boolean gano = false;
-//        Estado estado = Estado.EN_ESPERA;
-//
-//        usuarioPartidaService.agregarUsuarioAPartida(
-//                idUsuario,
-//                (Long) idPartida,
-//                puntaje,
-//                gano,
-//                estado);ACA GENERA DOBLE REGISTRO
-
         System.out.println("ID de la partida creada: " + idPartida);
         System.out.println("ID del usuario: " + idUsuario);
 

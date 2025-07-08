@@ -24,7 +24,6 @@ public class Partida {
 
     }
 
-
     public Partida(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int maximoJugadores, int minimoJugadores, Estado estado) {
         this.nombre = nombre;
         this.idioma = idioma;

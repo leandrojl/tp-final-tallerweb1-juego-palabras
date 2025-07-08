@@ -100,6 +100,11 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
     }
 
     @Override
+    public void cambiarEstado(Long idUsuarioAExpulsar, Long idPartida, Estado estado) {
+        usuarioPartidaRepository.cambiarEstado(idUsuarioAExpulsar, idPartida, estado);
+    }
+
+    @Override
     public void sumarPuntos(Long usuarioId, Long partidaId, int puntos) {
         usuarioPartidaRepository.sumarPuntaje(usuarioId, partidaId,puntos);
     }
