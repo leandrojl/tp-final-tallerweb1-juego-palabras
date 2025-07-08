@@ -124,7 +124,7 @@ public class SalaDeEsperaControllerE2ETest {
         Long idPartida = 1L;
         MensajeRecibidoDTO mensajeParaIniciarPartida = new MensajeRecibidoDTO("mensaje de inicio de partida",idPartida);
 
-        when(salaDeEsperaService.redireccionarUsuariosAPartida(mensajeParaIniciarPartida)).thenReturn(false);
+        //when(salaDeEsperaService.redireccionarUsuariosAPartida(mensajeParaIniciarPartida)).thenReturn(false);
 
         CompletableFuture<MensajeRecibidoDTO> elQueInicioLaPartida = givenUsuarioConectado("pepe","/topic/noSePuedeIrALaPartida"
                 ,false,mensajeParaIniciarPartida , MensajeRecibidoDTO.class);

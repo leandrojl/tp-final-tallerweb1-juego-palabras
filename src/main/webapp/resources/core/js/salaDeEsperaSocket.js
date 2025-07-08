@@ -1,5 +1,5 @@
 const stompClient = new StompJs.Client({
-    brokerURL: 'ws://localhost:8080/spring/wschat'
+    brokerURL: 'wss://jr-offerings-oman-fleet.trycloudflare.com/spring/wschat'
 });
 
 const idPartida = Number(sessionStorage.getItem("idPartida"));

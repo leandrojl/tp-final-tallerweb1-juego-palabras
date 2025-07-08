@@ -19,7 +19,7 @@ let indexLetra = 0;
 // === WEBSOCKET ===
 function conectarWebSocket() {
     stompClient = new StompJs.Client({
-            brokerURL: 'ws://localhost:8080/spring/wschat', // o sin "/spring" si no tenés ese context-path
+            brokerURL: 'wss://jr-offerings-oman-fleet.trycloudflare.com/spring/wschat', // o sin "/spring" si no tenés ese context-path
             reconnectDelay: 5000, // reconexión automática
             onConnect: () => {
                 console.log("✅ Conectado al WebSocket");
