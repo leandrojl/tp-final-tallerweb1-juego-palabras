@@ -97,8 +97,8 @@ public class PartidaServiceImpl implements PartidaService {
         //   ---- si acerto verificar si acertaron todos y finalizar ronda timer -----  //
         //System.out.println("procesar intento aqui estoy "+nombre);
 
-        Long partidaId = intento.getIdPartida();
-        //System.out.println("partida: "+partidaId);
+        Long idPartida = intento.getIdPartida();
+        //System.out.println("partida: "+idPartida);
 
         Long idUsuario = intento.getIdUsuario();
         //System.out.println("usuarioId "+idUsuario);
@@ -109,15 +109,15 @@ public class PartidaServiceImpl implements PartidaService {
         // === Obtener Partida
         //System.out.println("procesar intento aqui estoy3 ");
 
-        Partida partida = partidaRepository.buscarPorId(partidaId);
+        Partida partida = partidaRepository.buscarPorId(idPartida);
         //System.out.println("PARTIDA NULA ");
 
         if (partida == null) {
-            throw new IllegalArgumentException("Partida no encontrada con ID: " + partidaId);
+            throw new IllegalArgumentException("Partida no encontrada con ID: " + idPartida);
         }
 
         // === Obtener Ronda actual
-        Ronda ronda = rondaService.obtenerUltimaRondaDePartida(partidaId);
+        Ronda ronda = rondaService.obtenerUltimaRondaDePartida(idPartida);
         Long rondaId = ronda.getId();
         if (ronda == null) {
             System.out.println("Ronda NULA ");
@@ -151,7 +151,7 @@ public class PartidaServiceImpl implements PartidaService {
                 int puntos = aciertoService.registrarAcierto(idUsuario, rondaId);
 
                 // Sumar puntos en UsuarioPartida ===
-                 usuarioPartidaService.sumarPuntos(idUsuario, partidaId, puntos);
+                 usuarioPartidaService.sumarPuntos(idUsuario, idPartida, puntos);
 
                 // Al jugador que acertó
 //                resultadoPrivado.setPalabraCorrecta(intentoTexto);
@@ -163,18 +163,18 @@ public class PartidaServiceImpl implements PartidaService {
                 resultadoPublico.setCorrecto(true);
                 resultadoPublico.setMensaje(nombre + " acertó la palabra");
                 simpMessagingTemplate.convertAndSend(
-                        "/topic/mostrarIntento/" + partidaId,
+                        "/topic/mostrarIntento/" + idPartida,
                         resultadoPublico
                 );
 
                 // Enviar ranking actualizado a todos los jugadores
-                List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(partidaId);
+                List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(idPartida);
                 List<JugadorPuntajeDto> jugadoresDto = jugadores.stream()
                         .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
                         .collect(Collectors.toList());
 
                 simpMessagingTemplate.convertAndSend(
-                        "/topic/verRanking/" + partidaId,
+                        "/topic/verRanking/" + idPartida,
                         new MensajeTipoRanking("actualizar-puntajes", jugadoresDto)
                 );
 
@@ -189,7 +189,7 @@ public class PartidaServiceImpl implements PartidaService {
             resultadoPublico.setMensaje(null);
             System.out.println("Jugador seteado en resultadoPublico: " + resultadoPublico.getJugador());
             simpMessagingTemplate.convertAndSend(
-                    "/topic/mostrarIntento/" + partidaId,
+                    "/topic/mostrarIntento/" + idPartida,
                     resultadoPublico
             );
         }
