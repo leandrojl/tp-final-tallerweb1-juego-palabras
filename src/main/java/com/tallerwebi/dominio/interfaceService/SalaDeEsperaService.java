@@ -22,4 +22,6 @@ public interface SalaDeEsperaService {
     void actualizarElEstadoDeUnUsuario(EstadoJugadorDTO estadoJugadorDTO, String nombreUsuarioDelPrincipal);
 
     MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuarioDelPrincipal);
+
+    void expulsarJugador(MensajeDto mensajeDto, String nombreUsuarioDelPrincipal);
 }

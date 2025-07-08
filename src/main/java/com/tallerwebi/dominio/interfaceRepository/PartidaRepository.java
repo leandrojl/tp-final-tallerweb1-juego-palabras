@@ -28,4 +28,5 @@ public interface PartidaRepository {
 
     void modificarEstadoPartida(Partida partida, Estado estado);
 
+    String obtenerNombrePartidaPorId(Long idPartida);
 }

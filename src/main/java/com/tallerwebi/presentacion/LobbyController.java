@@ -130,9 +130,9 @@ public class LobbyController {
 
     @RequestMapping("/lobby")
     public ModelAndView Lobby(HttpSession session, Model model) {
-        Long usuarioId = (Long) session.getAttribute("idUsuario");
-        if (usuarioId != null) {
-            Usuario usuario = usuarioService.buscarPorId(usuarioId); // Asegúrate de tener este servicio inyectado
+        Long idUsuario = (Long) session.getAttribute("idUsuario");
+        if (idUsuario != null) {
+            Usuario usuario = usuarioService.buscarPorId(idUsuario); // Asegúrate de tener este servicio inyectado
             if (usuario != null) {
                 model.addAttribute("usuarioNombre", usuario.getNombreUsuario());
 
@@ -146,6 +146,7 @@ public class LobbyController {
         } else {
             model.addAttribute("partidas", partidas);
         }
+
 
         return new ModelAndView("lobby");
     }

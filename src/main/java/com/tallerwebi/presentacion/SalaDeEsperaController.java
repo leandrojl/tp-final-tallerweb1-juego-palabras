@@ -123,15 +123,20 @@ public class SalaDeEsperaController {
                 idUsuario);
                 if(existeRegistro == null){// DONDE SE EVITA QUE SE DUPLIQUE USUARIOPARTIDA
                 usuarioPartidaService.agregarUsuarioAPartida(idUsuario,idPartida,0,false,Estado.EN_ESPERA);
+                } else if (existeRegistro.getEstado() == Estado.CANCELADA) {
+                    // (NUEVO) Si existe pero fue cancelado (expulsado), lo reactivamos
+                    usuarioPartidaService.cambiarEstado(idUsuario, idPartida, Estado.EN_ESPERA);
                 }
                 //}
                 boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idUsuario, idPartida);
 
                 String nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
+                String nombrePartida = partidaService.obtenerNombrePartidaPorId(idPartida);
                 model.addAttribute("idUsuario", idUsuario);
                 model.addAttribute("usuario", nombreUsuario);
                 model.addAttribute("idPartida", idPartida);
                 model.addAttribute("esCreador", esCreador);
+                model.addAttribute("nombrePartida", nombrePartida);
 
                 return "sala-de-espera";
 
@@ -144,35 +149,9 @@ public class SalaDeEsperaController {
     //WEBSOCKETS EN SALA DE ESPERA
 
     @MessageMapping("/expulsarDeSala")
-    @SendTo("/topic/jugadorExpulsado") // Se notifica a todos en este tópico
-    public MensajeRecibidoDTO expulsarDeSala(MensajeDto mensajeDto, Principal principal) {
-
-        // Obtenemos el nombre del usuario que realiza la acción (el creador)
-        String nombreCreador = principal.getName();
-        Long idCreador = usuarioService.obtenerUsuarioPorNombre(nombreCreador).getId();
-
-        // Validamos si es el creador de la partida
-        boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idCreador, mensajeDto.getIdPartida());
-
-        if (esCreador) {
-            // Obtenemos el NOMBRE del usuario a expulsar del campo 'message' del DTO
-            String nombreUsuarioAExpulsar = mensajeDto.getNombreUsuario();
-
-            // Verificamos que el creador no se expulse a sí mismo
-            if (nombreCreador.equals(nombreUsuarioAExpulsar)) {
-                throw new RuntimeException("El creador no puede expulsarse a sí mismo.");
-            }
-
-            Long idUsuarioAExpulsar = usuarioService.obtenerUsuarioPorNombre(nombreUsuarioAExpulsar).getId();
-
-            // Cambiamos el estado del usuario en la tabla UsuarioPartida a CANCELADA
-            usuarioPartidaService.cambiarEstado(idUsuarioAExpulsar, mensajeDto.getIdPartida(), Estado.CANCELADA);
-
-            // Enviamos un mensaje a todos los clientes con el NOMBRE del usuario que fue expulsado
-            return new MensajeRecibidoDTO(nombreUsuarioAExpulsar);
-        }
-        // Si no es el creador, lanzamos una excepción
-        throw new RuntimeException("Acción no autorizada: solo el creador puede expulsar jugadores.");
+    public void expulsarDeSala(MensajeDto mensajeDto, Principal principal) {
+        String nombreUsuarioDelPrincipal = principal.getName();
+        this.salaDeEsperaService.expulsarJugador(mensajeDto, nombreUsuarioDelPrincipal);
     }
 
     @MessageMapping("/salaDeEspera")

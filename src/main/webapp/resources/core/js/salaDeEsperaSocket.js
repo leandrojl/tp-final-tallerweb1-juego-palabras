@@ -7,12 +7,7 @@ const usuario = sessionStorage.getItem("usuario");
 const idUsuario = Number(sessionStorage.getItem("idUsuario"));
 const esCreador = sessionStorage.getItem("esCreador");
 
-console.log("--- Verificando valores de sesión ---");
-console.log("ID de Partida:", sessionStorage.getItem("idPartida"));
-console.log("Usuario:", sessionStorage.getItem("usuario"));
-console.log("ID de Usuario:", sessionStorage.getItem("idUsuario"));
-console.log("Es Creador:", sessionStorage.getItem("esCreador"));
-console.log("------------------------------------");
+
 
 
 stompClient.debug = function(str) {
@@ -23,6 +18,22 @@ stompClient.onConnect = (frame) => {
 
     console.log('Connected: ' + frame);
 
+    stompClient.subscribe('/user/queue/fuisteExpulsado', (m) => {
+        const data = JSON.parse(m.body);
+        console.log("--- Verificando valores de sesión CUANDO SOY EXPULSADO ---");
+        console.log("ID de Partida:", sessionStorage.getItem("idPartida"));
+        console.log("Usuario:", sessionStorage.getItem("usuario"));
+        console.log("ID de Usuario:", sessionStorage.getItem("idUsuario"));
+        console.log("Es Creador:", sessionStorage.getItem("esCreador"));
+        console.log("------------------------------------");
+        // (NUEVO) Limpiamos las variables de sesión de la partida
+        sessionStorage.removeItem("idPartida");
+        sessionStorage.removeItem("esCreador");
+
+        alert("Has sido expulsado de la partida por el creador.");
+        window.location.href = data.message; // Redirige al lobby
+    });
+
     stompClient.subscribe('/topic/jugadorExpulsado/' + idPartida, (m) => {
         const data = JSON.parse(m.body);
         const nombreUsuarioExpulsado = data.message;
@@ -31,7 +42,6 @@ stompClient.onConnect = (frame) => {
             jugadorDiv.remove();
         }
     });
-
 
     stompClient.subscribe('/topic/salaDeEspera/' + idPartida, (m) => {
 
@@ -197,7 +207,7 @@ function agregarJugador(usuarioQueLlegaDePrincipal) {
     wrapperDiv.appendChild(botonEstado);
 
     // Si el usuario es creador y no es él mismo, se añade el botón de expulsar
-    if (esCreador) {
+    if (esCreador === 'true' && usuarioQueLlegaDePrincipal !== usuario) {
         const botonExpulsar = document.createElement("button");
         botonExpulsar.textContent = "✖";
         botonExpulsar.className = "btn btn-outline-danger btn-sm ms-2";

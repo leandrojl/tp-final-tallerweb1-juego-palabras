@@ -88,6 +88,47 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     //EN WEBSOCKETS
 
     @Override
+    public void expulsarJugador(MensajeDto mensajeDto, String nombreUsuarioDelPrincipal) {
+        Long idPartida = mensajeDto.getIdPartida();
+        Usuario creador = usuarioRepo.obtenerUsuarioPorNombre(nombreUsuarioDelPrincipal);
+        Long idCreador = creador.getId();
+
+        // 1. Validamos si es el creador de la partida
+        boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idCreador, idPartida);
+
+        if (!esCreador) {
+            // Si no es el creador, lanzamos una excepción
+            throw new RuntimeException("Acción no autorizada: solo el creador puede expulsar jugadores.");
+        }
+
+        // 2. Obtenemos el NOMBRE del usuario a expulsar
+        String nombreUsuarioAExpulsar = mensajeDto.getNombreUsuario();
+
+        // 3. Verificamos que el creador no se expulse a sí mismo
+        if (nombreUsuarioDelPrincipal.equals(nombreUsuarioAExpulsar)) {
+            throw new RuntimeException("El creador no puede expulsarse a sí mismo.");
+        }
+
+        Usuario usuarioAExpulsar = usuarioRepo.obtenerUsuarioPorNombre(nombreUsuarioAExpulsar);
+        Long idUsuarioAExpulsar = usuarioAExpulsar.getId();
+
+        // 4. Cambiamos el estado del usuario en la tabla UsuarioPartida a CANCELADA
+        usuarioPartidaService.cambiarEstado(idUsuarioAExpulsar, idPartida, Estado.CANCELADA);
+
+        // 5. Enviamos un mensaje al tópico específico de la partida
+        String destination = "/topic/jugadorExpulsado/" + idPartida;
+        MensajeRecibidoDTO mensajeDeExpulsion = new MensajeRecibidoDTO(nombreUsuarioAExpulsar);
+
+        this.simpMessagingTemplate.convertAndSend(destination, mensajeDeExpulsion);
+
+        this.simpMessagingTemplate.convertAndSendToUser(
+                nombreUsuarioAExpulsar,
+                "/queue/fuisteExpulsado",
+                new MensajeRecibidoDTO("http://localhost:8080/spring/lobby")
+        );
+    }
+
+    @Override
     public void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala, Long idPartida) {
         notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         this.simpMessagingTemplate.convertAndSend(

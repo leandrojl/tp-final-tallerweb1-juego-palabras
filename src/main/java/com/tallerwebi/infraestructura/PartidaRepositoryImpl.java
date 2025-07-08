@@ -106,4 +106,12 @@ public class PartidaRepositoryImpl implements PartidaRepository {
         sessionFactory.getCurrentSession().update(partida);
     }
 
+    @Override
+    public String obtenerNombrePartidaPorId(Long idPartida) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("SELECT p.nombre FROM Partida p WHERE p.id = :idPartida", String.class)
+                .setParameter("idPartida", idPartida)
+                .uniqueResult();
+    }
+
 }

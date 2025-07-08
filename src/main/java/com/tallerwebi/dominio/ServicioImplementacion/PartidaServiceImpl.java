@@ -405,5 +405,10 @@ public class PartidaServiceImpl implements PartidaService {
         }
     }
 
+    @Override
+    public String obtenerNombrePartidaPorId(Long idPartida) {
+        return partidaRepository.obtenerNombrePartidaPorId(idPartida);
+    }
+
 
 }
