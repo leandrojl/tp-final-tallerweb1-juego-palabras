@@ -58,4 +58,5 @@ public interface UsuarioPartidaRepository {
 
     void actualizarEstado(Long idPartida, Estado estado);
 
+    void cambiarEstado(Long idUsuarioAExpulsar, Long idPartida, Estado estado);
 }

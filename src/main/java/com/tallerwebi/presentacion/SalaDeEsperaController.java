@@ -93,8 +93,9 @@ public class SalaDeEsperaController {
 
     @GetMapping("/sala-de-espera/{idPartida}")
     public String salaDeEspera(@PathVariable Long idPartida, Model model, HttpSession session) {
-        Long usuarioId = (Long) session.getAttribute("idUsuario");
-        String nombreUsuario = usuarioService.obtenerNombrePorId(usuarioId);
+        Long idUsuario = (Long) session.getAttribute("idUsuario");
+        String nombreUsuario = usuarioService.obtenerNombrePorId(idUsuario);
+        boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idUsuario, idPartida);
 
         model.addAttribute("usuario", nombreUsuario);
         model.addAttribute("idPartida", idPartida);
@@ -138,34 +139,39 @@ public class SalaDeEsperaController {
             return "redirect:/lobby"; // Redirigir a la página de juego si la partida ya está en curso
     }
 
-    @PostMapping("/partida/cancelar-por-cierre")
-    @ResponseStatus(HttpStatus.NO_CONTENT) // Responde 204 No Content, ya que no se devuelve cuerpo.
-    public void cancelarPartidaPorCierre(HttpSession session) {
-        Long idUsuario = (Long) session.getAttribute("idUsuario");
-        Long idPartida = (Long) session.getAttribute("idPartida");
-
-        if (idUsuario != null && idPartida != null) {
-            // Se delega toda la lógica de negocio al servicio.
-            partidaService.cancelarPartidaSiEsCreador(idUsuario, idPartida);
-        }
-    }
-
-
-
 
     //WEBSOCKETS EN SALA DE ESPERA
 
     @MessageMapping("/expulsarDeSala")
-    @SendTo("/topic/expulsados")
+    @SendTo("/topic/jugadorExpulsado") // Se notifica a todos en este tópico
     public MensajeRecibidoDTO expulsarDeSala(MensajeDto mensajeDto, Principal principal) {
-        // Validar si quien expulsa es el creador de la partida
-        boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idUsuarioDe(principal), mensajeDto.getIdPartida());
+
+        // Obtenemos el nombre del usuario que realiza la acción (el creador)
+        String nombreCreador = principal.getName();
+        Long idCreador = usuarioService.obtenerUsuarioPorNombre(nombreCreador).getId();
+
+        // Validamos si es el creador de la partida
+        boolean esCreador = partidaService.verificarSiEsElCreadorDePartida(idCreador, mensajeDto.getIdPartida());
+
         if (esCreador) {
-            // Actualizar usuarioPartida a CANCELADA
-            usuarioPartidaService.cambiarEstado(mensajeDto.getIdUsuario(), mensajeDto.getIdPartida(), Estado.CANCELADA);
-            return new MensajeRecibidoDTO(mensajeDto.getIdUsuario().toString()); // Notificar expulsión
+            // Obtenemos el NOMBRE del usuario a expulsar del campo 'message' del DTO
+            String nombreUsuarioAExpulsar = mensajeDto.getNombreUsuario();
+
+            // Verificamos que el creador no se expulse a sí mismo
+            if (nombreCreador.equals(nombreUsuarioAExpulsar)) {
+                throw new RuntimeException("El creador no puede expulsarse a sí mismo.");
+            }
+
+            Long idUsuarioAExpulsar = usuarioService.obtenerUsuarioPorNombre(nombreUsuarioAExpulsar).getId();
+
+            // Cambiamos el estado del usuario en la tabla UsuarioPartida a CANCELADA
+            usuarioPartidaService.cambiarEstado(idUsuarioAExpulsar, mensajeDto.getIdPartida(), Estado.CANCELADA);
+
+            // Enviamos un mensaje a todos los clientes con el NOMBRE del usuario que fue expulsado
+            return new MensajeRecibidoDTO(nombreUsuarioAExpulsar);
         }
-        throw new RuntimeException("No autorizado");
+        // Si no es el creador, lanzamos una excepción
+        throw new RuntimeException("Acción no autorizada: solo el creador puede expulsar jugadores.");
     }
 
     @MessageMapping("/salaDeEspera")

@@ -5,9 +5,14 @@ const stompClient = new StompJs.Client({
 const idPartida = Number(sessionStorage.getItem("idPartida"));
 const usuario = sessionStorage.getItem("usuario");
 const idUsuario = Number(sessionStorage.getItem("idUsuario"));
-console.log("GUARDADO EN SESION EL USUARIO ID: " + idUsuario);
-console.log("GUARDADO EN SESION EL USAURIO: " + usuario);
-console.log("GUARDADO EN SESION EL ID DE LA PARTIDA: " + idPartida);
+const esCreador = sessionStorage.getItem("esCreador");
+
+console.log("--- Verificando valores de sesión ---");
+console.log("ID de Partida:", sessionStorage.getItem("idPartida"));
+console.log("Usuario:", sessionStorage.getItem("usuario"));
+console.log("ID de Usuario:", sessionStorage.getItem("idUsuario"));
+console.log("Es Creador:", sessionStorage.getItem("esCreador"));
+console.log("------------------------------------");
 
 
 stompClient.debug = function(str) {
@@ -17,6 +22,15 @@ stompClient.debug = function(str) {
 stompClient.onConnect = (frame) => {
 
     console.log('Connected: ' + frame);
+
+    stompClient.subscribe('/topic/jugadorExpulsado/' + idPartida, (m) => {
+        const data = JSON.parse(m.body);
+        const nombreUsuarioExpulsado = data.message;
+        const jugadorDiv = document.getElementById("jugador-" + nombreUsuarioExpulsado);
+        if (jugadorDiv) {
+            jugadorDiv.remove();
+        }
+    });
 
 
     stompClient.subscribe('/topic/salaDeEspera/' + idPartida, (m) => {
@@ -76,8 +90,6 @@ stompClient.onConnect = (frame) => {
 
 
 
-
-
 function toggleReady(username, estaListo) {
     stompClient.publish({
         destination: '/app/salaDeEspera',
@@ -129,43 +141,76 @@ function modificarBotonDeEstadoJugador(estadoJugador) {
     }
 }
 
+function expulsarJugador(nombreUsuarioAExpulsar) {
+    if (confirm("¿Estás seguro de que quieres expulsar a este jugador?")) {
+        stompClient.publish({
+            destination: "/app/expulsarDeSala",
+            body: JSON.stringify({
+                nombreUsuario: nombreUsuarioAExpulsar,
+                idPartida: idPartida
+            })
+        });
+    }
+}
+
+
 
 function agregarJugador(usuarioQueLlegaDePrincipal) {
-    console.log("USUARIO DEL PRINCIPAL: " + usuarioQueLlegaDePrincipal);
     const contenedor = document.getElementById("jugadores-container");
 
+    // Contenedor principal para el jugador
     const jugadorDiv = document.createElement("div");
     jugadorDiv.id = `jugador-${usuarioQueLlegaDePrincipal}`;
     jugadorDiv.className = "d-flex justify-content-between align-items-center bg-light text-dark p-3 rounded-3 mb-3 shadow-sm";
 
+    // Nombre del jugador
     const nombreSpan = document.createElement("span");
     nombreSpan.className = "fw-bold fs-5";
     nombreSpan.textContent = usuarioQueLlegaDePrincipal;
 
-    const boton = document.createElement("div");
-    boton.id = `ready-button-${usuarioQueLlegaDePrincipal}`;
-    boton.className = "btn btn-danger";
-    boton.textContent = "NO ESTOY LISTO";
+    // Botón de estado (listo/no listo)
+    const botonEstado = document.createElement("div");
+    botonEstado.id = `ready-button-${usuarioQueLlegaDePrincipal}`;
+    botonEstado.className = "btn btn-danger";
+    botonEstado.textContent = "NO ESTOY LISTO";
 
+    // Si el jugador es el usuario actual, se le da funcionalidad al botón
     if (usuarioQueLlegaDePrincipal === usuario) {
         let estaListo = false;
-
-        boton.style.cursor = "pointer";
-        boton.addEventListener("click", () => {
+        botonEstado.style.cursor = "pointer";
+        botonEstado.addEventListener("click", () => {
             estaListo = !estaListo;
             toggleReady(usuario, estaListo);
         });
     } else {
-        boton.style.pointerEvents = "none";
-        boton.style.opacity = "0.6";
-        boton.style.cursor = "not-allowed";
+        // Si es otro jugador, el botón está deshabilitado
+        botonEstado.style.pointerEvents = "none";
+        botonEstado.style.opacity = "0.6";
+        botonEstado.style.cursor = "not-allowed";
     }
 
+    // Contenedor para los botones (estado y expulsar)
+    const wrapperDiv = document.createElement("div");
+    wrapperDiv.className = "d-flex align-items-center";
+
+    // Siempre se añade el botón de estado
+    wrapperDiv.appendChild(botonEstado);
+
+    // Si el usuario es creador y no es él mismo, se añade el botón de expulsar
+    if (esCreador) {
+        const botonExpulsar = document.createElement("button");
+        botonExpulsar.textContent = "✖";
+        botonExpulsar.className = "btn btn-outline-danger btn-sm ms-2";
+        botonExpulsar.title = "Expulsar jugador";
+        botonExpulsar.onclick = () => expulsarJugador(usuarioQueLlegaDePrincipal);
+        wrapperDiv.appendChild(botonExpulsar);
+    }
+
+    // Se ensambla la estructura final del DOM
     jugadorDiv.appendChild(nombreSpan);
-    jugadorDiv.appendChild(boton);
+    jugadorDiv.appendChild(wrapperDiv);
     contenedor.appendChild(jugadorDiv);
 }
-
 
 function mostrarError(message) {
     const errorDiv = document.createElement("div");

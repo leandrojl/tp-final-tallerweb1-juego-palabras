@@ -3,6 +3,7 @@ package com.tallerwebi.dominio.DTO;
 public class MensajeDto {
     private Long idUsuario;
     private Long idPartida;
+    private String nombreUsuario;
     private String texto;
 
     public MensajeDto() {
@@ -14,7 +15,12 @@ public class MensajeDto {
         this.idPartida = idPartida;
         this.texto = texto;
     }
-
+    public String getNombreUsuario() {
+        return nombreUsuario;
+    }
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
+    }
     public Long getIdUsuario() {
         return idUsuario;
     }
