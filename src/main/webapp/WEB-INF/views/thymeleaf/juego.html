@@ -222,16 +222,18 @@
         .mensaje-correcto {
            background-color: #d4edda;
            color: black;
-           align-self: flex-end;
+           align-self: flex-start;
+           border: 2px solid green;
         }
 
         .mensaje-incorrecto {
             background-color: #f8d7da;
             color: black;
             align-self: flex-start;
+            border: 2px solid red;
         }
         .message-bubble {
-         border: 2px solid red;
+
         }
     </style>
 </head>
@@ -277,7 +279,7 @@
             <div id="palabras-mencionadas" class="chat-container"></div>
             <input type="text" id="input-intento" placeholder="Escribí la palabra..."
                    class="form-control form-control-lg mt-3"/>
-            <input type="hidden" id="usuarioId" th:value="${usuarioId}"/>
+            <input type="hidden" id="idUsuario" th:value="${idUsuario}"/>
             <input type="hidden" id="idPartida" th:value="${idPartida}"/>
         </div>
     </div>
@@ -321,11 +323,11 @@
 </script>
 <script>
     function abandonarYSalir() {
-        const usuarioId = document.getElementById("usuarioId").value;
+        const idUsuario = document.getElementById("idUsuario").value;
         const partidaId = document.getElementById("idPartida").value;
 
         navigator.sendBeacon(contextPath + "/abandonarPartida", new URLSearchParams({
-            usuarioId: usuarioId,
+            idUsuario: idUsuario,
             idPartida: idPartida
         }));
 

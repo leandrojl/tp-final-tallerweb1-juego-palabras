@@ -5,9 +5,12 @@ let intervaloTemporizador;
 let intervaloLetras;
 let finRondaEjecutada = false;
 
+const idUsuario = sessionStorage.getItem('idUsuario');
+const idPartida = sessionStorage.getItem('idPartida');
 
-const usuarioId = Number(document.getElementById("usuarioId").value);
-const idPartida = Number(document.getElementById("idPartida").value);
+
+//const idUsuario = Number(document.getElementById("usuarioId").value);
+//const idPartida = Number(document.getElementById("idPartida").value);
 
 const palabra = document.getElementById("palabraOculta").value;
 const letras = palabra.split("");
@@ -17,9 +20,6 @@ let indexLetra = 0;
 function conectarWebSocket() {
     stompClient = new StompJs.Client({
             brokerURL: 'ws://localhost:8080/spring/wschat', // o sin "/spring" si no tenés ese context-path
-            debug: function(str) {
-                console.log(str); // útil para ver qué pasa con el socket
-            },
             reconnectDelay: 5000, // reconexión automática
             onConnect: () => {
                 console.log("✅ Conectado al WebSocket");
@@ -28,15 +28,10 @@ function conectarWebSocket() {
                 stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
                 stompClient.subscribe(`/topic/mostrarIntento/${idPartida}`, mostrarResultadoIntentoIncorrecto);
 
+
+                stompClient.subscribe(`/topic/verRanking/${idPartida}`,actualizarRanking);
                 //iniciarRonda();
             },
-            onStompError: (frame) => {
-                console.error('❌ Error STOMP: ', frame.headers['message']);
-                console.error('Detalles: ', frame.body);
-            },
-            onWebSocketError: (error) => {
-                console.error('❌ Error WebSocket:', error);
-            }
         });
 
         stompClient.activate();
@@ -56,7 +51,7 @@ function enviarIntento(palabra) {
       destination: "/app/juego/intento",
       body: JSON.stringify({
         intentoPalabra: palabra,
-        usuarioId,
+        idUsuario,
         idPartida,
         tiempoRestante
       })
@@ -72,16 +67,12 @@ function enviarIntento(palabra) {
 // === RECIBE MENSAJE DEL SERVIDOR ===
 function manejarMensajeServidor(mensaje) {
     const data = JSON.parse(mensaje.body);
-
-    if (data.tipo === "actualizar-puntajes" || data.tipo === "inicio-ronda") {
-        actualizarRanking(data.jugadores);
         if (data.tipo === "inicio-ronda") {
             document.getElementById("palabraOculta").value = data.palabra;
             document.getElementById("definicionActual").textContent = data.definicion;
-        }
-    } else if (data.tipo === "fin-ronda") {
+        } else if (data.tipo === "fin-ronda") {
         detenerTimers();
-        window.location.href = `/juego?ronda=${data.siguienteRonda}&usuarioId=${usuarioId}`;
+        window.location.href = `/juego?ronda=${data.siguienteRonda}&idUsuario=${idUsuario}`;
     }
 }
 
@@ -90,22 +81,25 @@ function mostrarResultadoIntento(mensaje) {
     const data = JSON.parse(mensaje.body);
     mostrarMensajeChat(data.palabraCorrecta, data.esCorrecto); // palabra en verde
 }
-// console.log("MENSAJE CRUDO:", mensaje); // Esto te da el objeto recibido
-//    console.log("BODY CRUDO:", mensaje.body)
 
 // === RESULTADO DEL INTENTO INCORRECTO (Público) ===
 function mostrarResultadoIntentoIncorrecto(mensaje) {
     const data = JSON.parse(mensaje.body);
 
-    if (data.mensaje) {
-        mostrarMensajeChat(data.mensaje, data.esCorrecto); // Ej: "✅ Pepito acertó"
+    let textoIncorrecto = `<strong>${data.jugador}</strong>: ${data.palabraIncorrecta}`;
+    let textoCorrecto = `<strong>${data.jugador}</strong> ha acertado la palabra`
+    if (data.esCorrecto) {
+        mostrarMensajeChat(textoCorrecto, data.esCorrecto); // Ej: "Pepito acerto"
     } else {
-        mostrarMensajeChat(data.palabraIncorrecta, data.esCorrecto); // palabra en rojo
+        mostrarMensajeChat(textoIncorrecto, data.esCorrecto); // palabra en rojo
     }
 }
 
 // === RANKING ACTUALIZADO ===
-function actualizarRanking(jugadores) {
+function actualizarRanking(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    console.log("Ranking recibido:", data);
+    const jugadores = data.jugadores;
     const contenedor = document.querySelector(".ranking-horizontal");
     contenedor.innerHTML = "";
 
@@ -182,6 +176,11 @@ function detenerTimers() {
     finRondaEjecutada = true;
     clearInterval(intervaloTemporizador);
     clearInterval(intervaloLetras);
+     // Desactivar el input
+        const input = document.getElementById("input-intento");
+        input.disabled = true;
+        input.placeholder = "Tiempo agotado";
+        input.classList.add("input-desactivado");
 }
 
 // === CHAT LOCAL (Palabras Mencionadas) ===
@@ -190,13 +189,15 @@ function mostrarMensajeChat(texto, esCorrecto) {
     console.log("Intento:", texto, "¿Es correcto?", esCorrecto);
     div.className = "message-bubble " + (esCorrecto ? "mensaje-correcto" : "mensaje-incorrecto");
     div.innerHTML = `<p class="message-text">${texto}</p>`;
-    document.getElementById("palabras-mencionadas").appendChild(div);
+    const contenedorChat =  document.getElementById("palabras-mencionadas");
+    contenedorChat.appendChild(div);
+    contenedorChat.scrollTop = contenedorChat.scrollHeight; // scroll automático
 }
 
 // === ABANDONAR PARTIDA ===
 function abandonarPartida() {
     const params = new URLSearchParams({
-        usuarioId: jugadorId,
+        idUsuario: jugadorId,
         idPartida: idPartida
     });
     navigator.sendBeacon("/spring/abandonarPartida?" + params.toString());

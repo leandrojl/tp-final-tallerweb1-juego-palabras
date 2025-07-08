@@ -24,6 +24,8 @@ import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class SalaDeEsperaControllerE2ETest {
 
@@ -114,11 +116,21 @@ public class SalaDeEsperaControllerE2ETest {
         MensajeRecibidoDTO mensaje = elQueInicioLaPartida.get(2, TimeUnit.SECONDS);
         thenIniciarLaPartida(mensaje,"http://localhost:8080/spring/lobby");
     }
+    //PARA EL SPRINT 4
 
 
+    @Test
+    public void siAlTratarDeIniciarLaPartidaNoSeCumpleConElRequisitoDeUsuariosMinimosQueSeLesEnvieUnMensajeDeDenegacion() throws Exception {
+        Long idPartida = 1L;
+        MensajeRecibidoDTO mensajeParaIniciarPartida = new MensajeRecibidoDTO("mensaje de inicio de partida",idPartida);
 
+        when(salaDeEsperaService.redireccionarUsuariosAPartida(mensajeParaIniciarPartida)).thenReturn(false);
 
-
+        CompletableFuture<MensajeRecibidoDTO> elQueInicioLaPartida = givenUsuarioConectado("pepe","/topic/noSePuedeIrALaPartida"
+                ,false,mensajeParaIniciarPartida , MensajeRecibidoDTO.class);
+        MensajeRecibidoDTO mensaje = elQueInicioLaPartida.get(2, TimeUnit.SECONDS);
+        thenIniciarLaPartida(mensaje,    "Cantidad insuficiente de usuarios para iniciar partida");
+    }
 
 
 

@@ -3,13 +3,13 @@ package com.tallerwebi.dominio.DTO;
 public class DtoIntento {
     // lo que escribió el jugador
     private String intentoPalabra;
-    private Long usuarioId;
+    private Long idUsuario;
     private Long idPartida;
     private int tiempoRestante;
 
     public DtoIntento(String intentoPalabra, Long usuarioId, Long partidaId, int tiempoRestante) {
         this.intentoPalabra = intentoPalabra;
-        this.usuarioId = usuarioId;
+        this.idUsuario = usuarioId;
         this.idPartida = partidaId;
         this.tiempoRestante = tiempoRestante;
     }
@@ -26,12 +26,12 @@ public class DtoIntento {
         this.intentoPalabra = intentoPalabra;
     }
 
-    public Long getUsuarioId() {
-        return usuarioId;
+    public Long getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setUsuarioId(Long usuarioId) {
-        this.usuarioId = usuarioId;
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public Long getIdPartida() {

@@ -44,7 +44,6 @@ public class PartidaServiceImpl implements PartidaService {
     SimpMessagingTemplate simpMessagingTemplate;
 
     private final ScheduledExecutorService timerRonda;
-
     private ScheduledFuture<?> finalizarRondaPorTimer;
 
     @Autowired
@@ -96,22 +95,22 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public void procesarIntento(DtoIntento intento, String nombre) {
         //   ---- si acerto verificar si acertaron todos y finalizar ronda timer -----  //
-        System.out.println("procesar intento aqui estoy ");
+        //System.out.println("procesar intento aqui estoy "+nombre);
 
         Long partidaId = intento.getIdPartida();
-        System.out.println("partida: "+partidaId);
+        //System.out.println("partida: "+partidaId);
 
-        Long usuarioId = intento.getUsuarioId();
-        System.out.println("usuarioId "+usuarioId);
+        Long idUsuario = intento.getIdUsuario();
+        //System.out.println("usuarioId "+idUsuario);
 
         String intentoTexto = intento.getIntentoPalabra();
-        System.out.println("intentoTexto "+intentoTexto);
+        //System.out.println("intentoTexto "+intentoTexto);
 
         // === Obtener Partida
-        System.out.println("procesar intento aqui estoy3 ");
+        //System.out.println("procesar intento aqui estoy3 ");
 
         Partida partida = partidaRepository.buscarPorId(partidaId);
-        System.out.println("PARTIDA NULA ");
+        //System.out.println("PARTIDA NULA ");
 
         if (partida == null) {
             throw new IllegalArgumentException("Partida no encontrada con ID: " + partidaId);
@@ -126,7 +125,7 @@ public class PartidaServiceImpl implements PartidaService {
         } else if (ronda.getEstado().equals(Estado.FINALIZADA)) {
             throw new IllegalStateException("Ronda finalizada.");
         }
-        System.out.println("Ronda== " + rondaId);
+        //System.out.println("Ronda== " + rondaId);
 
         // === Comparar intento con palabra correcta
         String palabraCorrecta = ronda.getPalabra().getDescripcion();
@@ -146,26 +145,37 @@ public class PartidaServiceImpl implements PartidaService {
 
         if (esCorrecto) {
             // Verificar si ya había acertado ===
-            boolean yaAcerto = aciertoService.jugadorYaAcerto(usuarioId, rondaId);
+            boolean yaAcerto = aciertoService.jugadorYaAcerto(idUsuario, rondaId);
             if (!yaAcerto) {
                 // Registrar acierto y calcular puntos ===
-                int puntos = aciertoService.registrarAcierto(usuarioId, rondaId);
+                int puntos = aciertoService.registrarAcierto(idUsuario, rondaId);
 
                 // Sumar puntos en UsuarioPartida ===
-                // usuarioPartidaService.sumarPuntos(idUsuario, partidaId, puntos);
+                 usuarioPartidaService.sumarPuntos(idUsuario, partidaId, puntos);
 
                 // Al jugador que acertó
-                resultadoPrivado.setPalabraCorrecta(intentoTexto);
-                resultadoPrivado.setCorrecto(true);
-                resultadoPrivado.setPalabraIncorrecta("");
-                simpMessagingTemplate.convertAndSendToUser(nombre, "/queue/resultado", resultadoPrivado);
+//                resultadoPrivado.setPalabraCorrecta(intentoTexto);
+//                resultadoPrivado.setCorrecto(true);
+//                resultadoPrivado.setPalabraIncorrecta("");
+//                simpMessagingTemplate.convertAndSendToUser(nombre, "/queue/resultado", resultadoPrivado);
 
                 // Al resto: mensaje "pepito acertó"
                 resultadoPublico.setCorrecto(true);
-                resultadoPublico.setMensaje("✅ " + nombre + " acertó la palabra");
+                resultadoPublico.setMensaje(nombre + " acertó la palabra");
                 simpMessagingTemplate.convertAndSend(
                         "/topic/mostrarIntento/" + partidaId,
                         resultadoPublico
+                );
+
+                // Enviar ranking actualizado a todos los jugadores
+                List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(partidaId);
+                List<JugadorPuntajeDto> jugadoresDto = jugadores.stream()
+                        .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
+                        .collect(Collectors.toList());
+
+                simpMessagingTemplate.convertAndSend(
+                        "/topic/verRanking/" + partidaId,
+                        new MensajeTipoRanking("actualizar-puntajes", jugadoresDto)
                 );
 
             }
@@ -175,6 +185,9 @@ public class PartidaServiceImpl implements PartidaService {
             // A todos (incluido el que lo envió), la palabra en rojo
             resultadoPublico.setCorrecto(false);
             resultadoPublico.setPalabraIncorrecta(intentoTexto);
+            resultadoPublico.setJugador(nombre);
+            resultadoPublico.setMensaje(null);
+            System.out.println("Jugador seteado en resultadoPublico: " + resultadoPublico.getJugador());
             simpMessagingTemplate.convertAndSend(
                     "/topic/mostrarIntento/" + partidaId,
                     resultadoPublico
@@ -340,7 +353,7 @@ public class PartidaServiceImpl implements PartidaService {
 
 
     public RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId) {
-
+        System.out.println("construirDtoDesdeRondaExistente");
         System.out.println(ronda);
         Palabra palabra = ronda.getPalabra();
         String definicionTexto;
@@ -365,7 +378,7 @@ public class PartidaServiceImpl implements PartidaService {
         dto.setJugadores(jugadoresDto);
 
         simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dto);
-        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId,
+        simpMessagingTemplate.convertAndSend("/topic/verRanking/" + partidaId,
                 new MensajeTipoRanking("actualizar-puntajes", jugadoresDto));
 
         return dto;
