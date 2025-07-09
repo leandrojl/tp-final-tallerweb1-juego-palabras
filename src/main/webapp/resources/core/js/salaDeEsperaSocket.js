@@ -29,7 +29,7 @@ stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
 
     stompClient.subscribe('/user/queue/fuisteExpulsado', (m) => {
-        const data = JSON.parse(m.body);
+
         console.log("--- Verificando valores de sesión CUANDO SOY EXPULSADO ---");
         console.log("ID de Partida:", sessionStorage.getItem("idPartida"));
         console.log("Usuario:", sessionStorage.getItem("usuario"));
@@ -41,7 +41,14 @@ stompClient.onConnect = (frame) => {
         sessionStorage.removeItem("esCreador");
 
         alert("Has sido expulsado de la partida por el creador.");
-        window.location.href = data.message; // Redirige al lobby
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const data = JSON.parse(m.body); // Ahora data.message será "/spring/juego"
+
+        // Esto construirá la URL correcta dinámicamente
+        // Local: "http://localhost:8080" + "/spring/juego"
+        // Cloudflare: "https://<tu-dominio>.com" + "/spring/juego"
+        window.location.href = `${protocol}//${host}` + data.message; // Redirige al lobby
     });
 
     stompClient.subscribe('/topic/jugadorExpulsado/' + idPartida, (m) => {
@@ -85,13 +92,25 @@ stompClient.onConnect = (frame) => {
     });
 
     stompClient.subscribe('/user/queue/irAPartida', (m) => {
-        const data = JSON.parse(m.body);
-        window.location.href = data.message;
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const data = JSON.parse(m.body); // Ahora data.message será "/spring/juego"
+
+        // Esto construirá la URL correcta dinámicamente
+        // Local: "http://localhost:8080" + "/spring/juego"
+        // Cloudflare: "https://<tu-dominio>.com" + "/spring/juego"
+        window.location.href = `${protocol}//${host}` + data.message;
     });
 
     stompClient.subscribe('/user/queue/alAbandonarSala', (m) => {
-        const data = JSON.parse(m.body);
-        window.location.href = data.message;
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const data = JSON.parse(m.body); // Ahora data.message será "/spring/juego"
+
+        // Esto construirá la URL correcta dinámicamente
+        // Local: "http://localhost:8080" + "/spring/juego"
+        // Cloudflare: "https://<tu-dominio>.com" + "/spring/juego"
+        window.location.href = `${protocol}//${host}` + data.message;
     });
 
     stompClient.subscribe('/topic/noSePuedeIrALaPartida', (m) => {

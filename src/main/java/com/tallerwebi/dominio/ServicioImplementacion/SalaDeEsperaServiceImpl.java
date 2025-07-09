@@ -127,7 +127,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         this.simpMessagingTemplate.convertAndSendToUser(
                 nombreUsuarioAExpulsar,
                 "/queue/fuisteExpulsado",
-                new MensajeRecibidoDTO("http://localhost:8080/spring/lobby")
+                new MensajeRecibidoDTO("/spring/lobby")
         );
     }
 
@@ -174,7 +174,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
             for (Usuario usuario : usuariosEnSala) {
                 simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
                         new MensajeRecibidoDTO(
-                        "http://localhost:8080/spring/juego"));
+                        "/spring/juego"));
                 usuarioRepo.actualizarEstado(usuario.getId(),false); //AGREGAR A LOS TESTS DE SERVICIO COMO MOCK
             }
     }
@@ -201,7 +201,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida, idUsuario);
         notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         return new MensajeRecibidoDTO(
-                "http://localhost:8080/spring/lobby");
+                "/spring/lobby");
     }
 
 
@@ -213,7 +213,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
             this.simpMessagingTemplate.convertAndSendToUser(
                     usuario.getNombreUsuario(),
                     "/queue/alAbandonarSala",
-                    new MensajeRecibidoDTO("http://localhost:8080/spring/lobby")
+                    new MensajeRecibidoDTO("/spring/lobby")
             );
         }
     }
