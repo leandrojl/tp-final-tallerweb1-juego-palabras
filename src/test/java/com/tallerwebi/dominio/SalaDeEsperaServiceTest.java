@@ -211,7 +211,7 @@ public class SalaDeEsperaServiceTest {
         String nombreUsuario = "pepe";
         MensajeDto mensaje = new MensajeDto(idUsuario, idPartida, "abandona sala");
 
-        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario);
+        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario, 8L);
 
         whenSeAbandonaLaSalaDeEspera(mensaje, nombreUsuario);
 
@@ -225,7 +225,7 @@ public class SalaDeEsperaServiceTest {
         String nombreUsuario = "pepe";
         MensajeDto mensaje = new MensajeDto(idUsuario, idPartida, "abandona sala");
 
-        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario);
+        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario, 8L);
         doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(), any());
 
         MensajeRecibidoDTO mensajeDelServidor = whenSeAbandonaLaSalaDeEspera(mensaje, nombreUsuario);
@@ -240,7 +240,7 @@ public class SalaDeEsperaServiceTest {
         String nombreUsuario = "lucas";
         MensajeDto mensaje = new MensajeDto(idUsuario, idPartida, "abandona sala");
 
-        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario);
+        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario, 8L);
         doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(), any());
 
         whenSeAbandonaLaSalaDeEspera(mensaje, nombreUsuario);
@@ -255,7 +255,7 @@ public class SalaDeEsperaServiceTest {
         String nombreUsuario = "lucas";
         MensajeDto mensajeDto = new MensajeDto(idUsuario, idPartida, "");
 
-        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario);
+        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario, 8L);
 
         servicioSalaDeEspera.abandonarSala(mensajeDto, nombreUsuario);
 
@@ -289,9 +289,20 @@ public class SalaDeEsperaServiceTest {
 
 
     @Test
-    public void siSeAbandonaLaSalaQueSeReinicieElEstadoDelUsuario(){
+    public void siSeAbandonaLaSalaQueSeReinicieElEstadoDelUsuario() {
+        Long idPartida = 1L;
+        Long idUsuario = 2L;
+        String nombreUsuario = "pepe";
+        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario, 8L);
 
+        MensajeDto mensaje = new MensajeDto(idUsuario, idPartida, "abandona sala");
+
+        servicioSalaDeEspera.abandonarSala(mensaje, nombreUsuario);
+
+        verify(usuarioRepository).actualizarEstado(idUsuario, false);
     }
+
+
 
     @Test
     public void siSeExpulsaAUnUsuarioQueSeReinicieElEstadoDelUsuario(){
@@ -305,7 +316,7 @@ public class SalaDeEsperaServiceTest {
 
     @Test
     public void siElCreadorDeLaPartidaAbandonaLaSalaYEnConsecuenciaLosDemasTambienQueSeLesReinicieElEstadoDelUsuario(){
-        -
+
     }
 
 
@@ -336,11 +347,11 @@ public class SalaDeEsperaServiceTest {
         when(usuarioPartidaRepo.obtenerUsuariosListosDeUnaPartida(idPartida)).thenReturn(usuariosListos);
     }
 
-    private void givenUsuarioEnPartida(Long idPartida, Long idUsuario, String nombreUsuario) {
+    private void givenUsuarioEnPartida(Long idPartida, Long idUsuario, String nombreUsuario, Long creadorId) {
         Usuario usuario = new Usuario(nombreUsuario);
         usuario.setId(idUsuario);
 
-        Partida partida = new Partida("a", "español", false, 5, 5, 1, Estado.EN_ESPERA, 8L);
+        Partida partida = new Partida("a", "español", false, 5, 5, 1, Estado.EN_ESPERA, creadorId);
         partida.setId(idPartida);
 
         UsuarioPartida usuarioPartida = new UsuarioPartida(usuario, partida, 0, false, Estado.EN_ESPERA);
