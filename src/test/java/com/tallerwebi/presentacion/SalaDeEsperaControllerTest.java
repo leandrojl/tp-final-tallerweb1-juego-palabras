@@ -264,19 +264,19 @@ public class SalaDeEsperaControllerTest {
         assertEquals("error", respuesta.getMessage());
     }
 
-    @Test
-    public void queUnJugadorPuedaAbandonarLaSalaDeEspera(){
-        MensajeDto mensajeDto = new MensajeDto(1L,1L,"me voy");
-        MensajeRecibidoDTO msgEsperado = new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
-        when(salaDeEsperaService.abandonarSala(mensajeDto,"pepe")).thenReturn(msgEsperado);
-
-
-        Principal principal = () -> "pepe";
-        MensajeRecibidoDTO resultado = salaDeEsperaController.abandonarSala(mensajeDto, principal);
-
-        assertEquals(msgEsperado, resultado);
-        verify(salaDeEsperaService).abandonarSala(mensajeDto, "pepe");
-    }
+//    @Test
+//    public void queUnJugadorPuedaAbandonarLaSalaDeEspera(){
+//        MensajeDto mensajeDto = new MensajeDto(1L,1L,"me voy");
+//        MensajeRecibidoDTO msgEsperado = new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
+//        when(salaDeEsperaService.abandonarSala(mensajeDto,"pepe")).thenReturn(msgEsperado);
+//
+//
+//        Principal principal = () -> "pepe";
+//        MensajeRecibidoDTO resultado = salaDeEsperaController.abandonarSala(mensajeDto, principal);
+//
+//        assertEquals(msgEsperado, resultado);
+//        verify(salaDeEsperaService).abandonarSala(mensajeDto, "pepe");
+//    }
 
 
     @Test

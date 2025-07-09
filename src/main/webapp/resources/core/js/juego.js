@@ -18,14 +18,20 @@ let indexLetra = 0;
 
 // === WEBSOCKET ===
 function conectarWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const host = window.location.host; // ej: localhost:8080 o scary-propecia-reno-chest.trycloudflare.com
+    const brokerURL = `${protocol}://${host}/spring/wschat`; // <-- corregido
+
     stompClient = new StompJs.Client({
-            brokerURL: 'ws://localhost:8080/spring/wschat', // o sin "/spring" si no tenés ese context-path
-            reconnectDelay: 5000, // reconexión automática
-            onConnect: () => {
-                console.log("✅ Conectado al WebSocket");
+        brokerURL: brokerURL,
+        reconnectDelay: 5000,
+        onConnect: () => {
+            console.log(`✅ Conectado al WebSocket en: ${brokerURL}`);
+
 
                 stompClient.subscribe(`/topic/juego/${idPartida}`, manejarMensajeServidor);
                 stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
+                stompClient.subscribe(`/topic/verRanking/${idPartida}`, actualizarRanking);
                 stompClient.subscribe(`/topic/mostrarIntento/${idPartida}`, mostrarResultadoIntentoIncorrecto);
                 stompClient.subscribe("/topic/redirigir", function(message) {
                     const url = message.body;
@@ -36,13 +42,19 @@ function conectarWebSocket() {
                 stompClient.subscribe(`/topic/timerInicioRonda/${idPartida}`, mensajeDelServidorAlChat);
 
 
-                stompClient.subscribe(`/topic/verRanking/${idPartida}`,actualizarRanking);
-                //iniciarRonda();
-            },
-        });
+            iniciarRonda();
+        },
+        onStompError: (frame) => {
+            console.error('❌ Error STOMP:', frame);
+        },
+        onWebSocketError: (event) => {
+            console.error('❌ Error WebSocket:', event);
+        }
+    });
 
-        stompClient.activate();
+    stompClient.activate();
 }
+
 
 function mensajeDelServidorAlChat(mensaje){
     humano=false;

@@ -112,6 +112,9 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         Usuario usuarioAExpulsar = usuarioRepo.obtenerUsuarioPorNombre(nombreUsuarioAExpulsar);
         Long idUsuarioAExpulsar = usuarioAExpulsar.getId();
 
+
+        this.usuarioRepo.actualizarEstado(idUsuarioAExpulsar,false);
+
         // 4. Cambiamos el estado del usuario en la tabla UsuarioPartida a CANCELADA
         usuarioPartidaService.cambiarEstado(idUsuarioAExpulsar, idPartida, Estado.CANCELADA);
 
@@ -124,7 +127,7 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         this.simpMessagingTemplate.convertAndSendToUser(
                 nombreUsuarioAExpulsar,
                 "/queue/fuisteExpulsado",
-                new MensajeRecibidoDTO("http://localhost:8080/spring/lobby")
+                new MensajeRecibidoDTO("/spring/lobby")
         );
     }
 
@@ -171,26 +174,50 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
             for (Usuario usuario : usuariosEnSala) {
                 simpMessagingTemplate.convertAndSendToUser(usuario.getNombreUsuario(), "/queue/irAPartida",
                         new MensajeRecibidoDTO(
-                        "http://localhost:8080/spring/juego"));
+                        "/spring/juego"));
                 usuarioRepo.actualizarEstado(usuario.getId(),false); //AGREGAR A LOS TESTS DE SERVICIO COMO MOCK
             }
     }
 
 
     @Override
-    public MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuario) {
+    public MensajeRecibidoDTO abandonarSala(MensajeDto mensaje, String nombreUsuario) {
         Long idPartida = mensaje.getIdPartida();
         Long idUsuario = mensaje.getIdUsuario();
-        if(idUsuario == null || idUsuario == 0){
+
+        if (idUsuario == null || idUsuario == 0) {
             Usuario usuario = this.usuarioRepo.obtenerUsuarioPorNombre(nombreUsuario);
             idUsuario = usuario.getId();
         }
 
-        this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
+        UsuarioPartida usuarioPartida = this.usuarioPartidaRepo.obtenerUsuarioPartida(idUsuario, idPartida);
 
+        if (usuarioPartida.getPartida().getCreadorId().equals(idUsuario)) {
+           expulsarATodosLosUsuariosDeLaSala(idPartida);
+           return null;
+        }
+
+        this.usuarioRepo.actualizarEstado(idUsuario,false);
+        this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida, idUsuario);
         notificarAUsuariosLosQueEstanEnLaSala(idPartida);
-        return new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
+        return new MensajeRecibidoDTO(
+                "/spring/lobby");
     }
+
+
+    private void expulsarATodosLosUsuariosDeLaSala(Long idPartida) {
+        List<Usuario> usuariosEnSala = usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida);
+        for (Usuario usuario : usuariosEnSala) {
+            this.usuarioRepo.actualizarEstado(usuario.getId(),false);
+            this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida,usuario.getId());
+            this.simpMessagingTemplate.convertAndSendToUser(
+                    usuario.getNombreUsuario(),
+                    "/queue/alAbandonarSala",
+                    new MensajeRecibidoDTO("/spring/lobby")
+            );
+        }
+    }
+
     private List<Usuario> validarRedireccionamiento(Long idPartida) {
         Partida partida = usuarioPartidaRepo.obtenerPartida(idPartida);
         List<Usuario> usuariosEnSala = usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida);

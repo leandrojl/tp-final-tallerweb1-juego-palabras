@@ -127,139 +127,241 @@ public class SalaDeEsperaServiceTest {
     @Test
     public void queSePuedanRedireccionarAUsuariosAUnaPartida() {
         Long idPartida = 1L;
-        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
+        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida", idPartida);
 
-        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
-        Partida partida = new Partida("partida","español",true,5,5,2,Estado.EN_ESPERA);
-
+        givenPartidaEnEsperaConUsuariosListos(idPartida);
         doNothing().when(partidaRepo).actualizarEstado(idPartida, Estado.EN_CURSO);
-        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
-        when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
-        when(usuarioPartidaRepo.obtenerUsuariosListosDeUnaPartida(idPartida)).thenReturn(usuarios);
 
         whenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
 
-        thenRedireccionExitosa(usuarios);
+        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
+        thenRedireccionExitosa(usuarios, "http://localhost:8080/spring/juego", "/queue/irAPartida");
     }
 
     @Test
     public void siSeRedireccionaALosUsuariosAUnaPartidaQueSeActualiceElEstadoDeLaPartidaAEnCurso() {
         Long idPartida = 1L;
-        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
-        Partida partida = new Partida("partida","español",true,5,5,2,Estado.EN_ESPERA);
+        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida", idPartida);
 
+        givenPartidaEnEsperaConUsuariosListos(idPartida);
+
+        whenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
+
+        verify(partidaRepo).actualizarEstado(any(Long.class), any(Estado.class));
+    }
+
+    @Test
+    public void SiNoSeCumpleConElMinimoDeUsuariosEstablecidoNoSePuedeRedireccionarAUnaPartida() {
+        Long idPartida = 1L;
+        givenPartidaConMinimoUsuariosNoCumplido(idPartida, 3);
+
+        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida", idPartida);
+
+        assertThrows(CantidadDeUsuariosInsuficientesException.class,
+                () -> servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje));
+    }
+
+
+
+
+
+
+    //ACA PARA SPRINT 4
+    //#################################################################################
+
+
+
+
+
+
+
+
+    @Test
+    public void siUnUsuarioSeleccionaEstoyListoQueSeLlameAlRepositorioParaActualizarSuEstado() {
+        Long idPartida = 1L;
+        String nombreUsuario = "pepe";
+
+        EstadoJugadorDTO estadoJugadorDTO = new EstadoJugadorDTO(idPartida, nombreUsuario, true);
+        Usuario usuario = new Usuario(nombreUsuario);
+        usuario.setEstaListo(true);
+
+        when(usuarioPartidaRepo.obtenerUsuarioDeUnaPartidaPorSuNombreUsuario(nombreUsuario, idPartida))
+                .thenReturn(usuario);
+
+        servicioSalaDeEspera.actualizarElEstadoDeUnUsuario(estadoJugadorDTO, nombreUsuario);
+
+        verify(usuarioRepository).actualizarEstado(usuario.getId(), estadoJugadorDTO.isEstaListo());
+    }
+
+    @Test
+    public void siNoHaySuficientesUsuariosListosNoSePuedeRedireccionarAUnaPartida() {
+        Long idPartida = 1L;
+        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida", idPartida);
+
+        givenPartidaEnEsperaSinUsuariosListos(idPartida);
+
+        assertThrows(CantidadDeUsuariosListosInsuficientesException.class,
+                () -> servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje));
+    }
+
+    @Test
+    public void siAlguienAbandonaLaSalaDeEsperaQueSeLeCanceleLaPartidaAsociada() {
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "pepe";
+        MensajeDto mensaje = new MensajeDto(idUsuario, idPartida, "abandona sala");
+
+        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario, 8L);
+
+        whenSeAbandonaLaSalaDeEspera(mensaje, nombreUsuario);
+
+        verify(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(Long.class), any(Long.class));
+    }
+
+    @Test
+    public void siAlguienAbandonaLaSalaDeEsperaQueSeLeEnvieUnMensajeDeIrAlLobby() {
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "pepe";
+        MensajeDto mensaje = new MensajeDto(idUsuario, idPartida, "abandona sala");
+
+        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario, 8L);
+        doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(), any());
+
+        MensajeRecibidoDTO mensajeDelServidor = whenSeAbandonaLaSalaDeEspera(mensaje, nombreUsuario);
+
+        thenAbandonoLaSala(mensajeDelServidor);
+    }
+
+    @Test
+    public void siAlguienAbandonaLaSalaSeLeNotificaALosDemas() {
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "lucas";
+        MensajeDto mensaje = new MensajeDto(idUsuario, idPartida, "abandona sala");
+
+        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario, 8L);
+        doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(), any());
+
+        whenSeAbandonaLaSalaDeEspera(mensaje, nombreUsuario);
+
+        thenNotificaALosOtrosUsuariosQueAbandonaLaSala(List.of(new Usuario("pepe"), new Usuario("Jose")));
+    }
+
+    @Test
+    public void siAlIntentarAbandonarLaSalaDeEsperaElIdDelUsuarioEsCeroQueSeObtengaElIdAlmacenadoEnRepositorio() {
+        Long idPartida = 1L;
+        Long idUsuario = 0L;
+        String nombreUsuario = "lucas";
+        MensajeDto mensajeDto = new MensajeDto(idUsuario, idPartida, "");
+
+        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario, 8L);
+
+        servicioSalaDeEspera.abandonarSala(mensajeDto, nombreUsuario);
+
+        verify(usuarioRepository).obtenerUsuarioPorNombre(nombreUsuario);
+    }
+
+    @Test
+    public void siElCreadorAbandonaLaSalaQueSeExpulseALosDemas() {
+        Long idPartida = 1L;
+        Long idUsuario = 1L;
+        String nombreUsuario = "admin";
+
+        Usuario usuario = new Usuario(nombreUsuario);
+        usuario.setId(idUsuario);
+        Partida partida = new Partida("a", "español", false, 5, 5, 1, Estado.EN_ESPERA, idUsuario);
+        MensajeDto mensaje = new MensajeDto(idUsuario, idPartida, "abandona sala");
+        List<Usuario> usuarios = List.of(usuario, new Usuario("Pepe"), new Usuario("Jose"), new Usuario("Lucas"));
+        UsuarioPartida usuarioPartida = new UsuarioPartida(usuario, partida, 0, false, Estado.EN_ESPERA);
+
+        when(usuarioRepository.obtenerUsuarioPorNombre(nombreUsuario)).thenReturn(usuario);
+        usuarios.forEach(u ->
+                doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(idPartida, u.getId()));
+        when(usuarioPartidaRepo.obtenerUsuarioPartida(idUsuario, idPartida)).thenReturn(usuarioPartida);
+        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
+
+        servicioSalaDeEspera.abandonarSala(mensaje, nombreUsuario);
+
+        thenRedireccionExitosa(usuarios, "http://localhost:8080/spring/lobby", "/queue/alAbandonarSala");
+    }
+
+
+
+    @Test
+    public void siSeAbandonaLaSalaQueSeReinicieElEstadoDelUsuario() {
+        Long idPartida = 1L;
+        Long idUsuario = 2L;
+        String nombreUsuario = "pepe";
+        givenUsuarioEnPartida(idPartida, idUsuario, nombreUsuario, 8L);
+
+        MensajeDto mensaje = new MensajeDto(idUsuario, idPartida, "abandona sala");
+
+        servicioSalaDeEspera.abandonarSala(mensaje, nombreUsuario);
+
+        verify(usuarioRepository).actualizarEstado(idUsuario, false);
+    }
+
+
+
+    @Test
+    public void siSeExpulsaAUnUsuarioQueSeReinicieElEstadoDelUsuario(){
+
+    }
+
+    @Test
+    public void siSeIniciaLaPartidaQueSeReinicieElEstadoDelUsuario(){
+
+    }
+
+    @Test
+    public void siElCreadorDeLaPartidaAbandonaLaSalaYEnConsecuenciaLosDemasTambienQueSeLesReinicieElEstadoDelUsuario(){
+
+    }
+
+
+    private void givenPartidaEnEsperaConUsuariosListos(Long idPartida) {
+        Partida partida = new Partida("partida", "español", true, 5, 5, 2, Estado.EN_ESPERA);
         List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
+
         when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
         when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
         when(usuarioPartidaRepo.obtenerUsuariosListosDeUnaPartida(idPartida)).thenReturn(usuarios);
-
-        whenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
-        verify(partidaRepo).actualizarEstado(any(Long.class), any(Estado.class));
     }
-    //ESTOS SON LOS MIOS PARA EL SPRINT 4
-    //############################################################################################
 
-    @Test
-    public void SiNoSeCumpleConElMinimoDeUsuariosEstablecidoNoSePuedeRedireccionarAUnaPartida(){
-        Long idPartida = 1L;
-        Partida partida = new Partida("partida","español",true,5,5,3,Estado.EN_ESPERA);
-        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
+    private void givenPartidaConMinimoUsuariosNoCumplido(Long idPartida, int minimoUsuarios) {
+        Partida partida = new Partida("partida", "español", true, 5, 5, minimoUsuarios, Estado.EN_ESPERA);
         List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
 
         when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
         when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
-
-        assertThrows(CantidadDeUsuariosInsuficientesException.class, () -> servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje));
-    }
-    @Test
-    public void siUnUsuarioSeleccionaEstoyListoQueSeLlameAlRepositorioParaActualizarSuEstado(){
-        Long idPartida = 1L;
-        String nombreUsuario = "pepe";
-        EstadoJugadorDTO estadoJugadorDTO = new EstadoJugadorDTO(idPartida,nombreUsuario,true);
-        Usuario usuario = new Usuario("pepe");
-        usuario.setEstaListo(true);
-        when(usuarioPartidaRepo.obtenerUsuarioDeUnaPartidaPorSuNombreUsuario(nombreUsuario,idPartida)).thenReturn(usuario);
-
-        servicioSalaDeEspera.actualizarElEstadoDeUnUsuario(estadoJugadorDTO,nombreUsuario);
-        verify(usuarioRepository).actualizarEstado(usuario.getId(),estadoJugadorDTO.isEstaListo());
     }
 
-    @Test
-    public void siNoHaySuficientesUsuariosListosNoSePuedeRedireccionarAUnaPartida(){
-        Long idPartida = 1L;
-        Partida partida = new Partida("partida","español",true,5,5,2,Estado.EN_ESPERA);
-        MensajeRecibidoDTO mensaje = new MensajeRecibidoDTO("iniciar partida",idPartida);
+    private void givenPartidaEnEsperaSinUsuariosListos(Long idPartida) {
+        Partida partida = new Partida("partida", "español", true, 5, 5, 2, Estado.EN_ESPERA);
         List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
         List<Usuario> usuariosListos = List.of();
 
         when(usuarioPartidaRepo.obtenerPartida(idPartida)).thenReturn(partida);
         when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
         when(usuarioPartidaRepo.obtenerUsuariosListosDeUnaPartida(idPartida)).thenReturn(usuariosListos);
-
-
-        assertThrows(CantidadDeUsuariosListosInsuficientesException.class, () -> servicioSalaDeEspera.redireccionarUsuariosAPartida(mensaje));
     }
 
-
-    @Test
-    public void siAlguienAbandonaLaSalaDeEsperaQueSeLeCanceleLaPartidaAsociada(){
-        Long idPartida = 1L;
-        Long idUsuario = 1L;
-        String nombreUsuario = "pepe";
-        MensajeDto mensaje = new MensajeDto(idUsuario,idPartida,"abandona sala");
-
-        whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
-
-        verify(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(Long.class),any(Long.class));
-    }
-
-    @Test
-    public void siAlguienAbandonaLaSalaDeEsperaQueSeLeEnvieUnMensajeDeIrAlLobby(){
-        Long idPartida = 1L;
-        Long idUsuario = 1L;
-        String nombreUsuario = "pepe";
-        MensajeDto mensaje = new MensajeDto(idUsuario,idPartida,"abandona sala");
-        doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(any(Long.class),any(Long.class));
-
-        MensajeRecibidoDTO mensajeDelServidor = whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
-
-        thenAbandonoLaSala(mensajeDelServidor);
-    }
-
-    @Test
-    public void siAlguienAbandonaLaSalaSeLeNotificaALosDemas(){
-        Long idPartida = 1L;
-        Long idUsuario = 1L;
-        String nombreUsuario = "lucas";
-        MensajeDto mensaje = new MensajeDto(idUsuario,idPartida,"abandona sala");
-        List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
-        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(usuarios);
-        doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
-
-        whenSeAbandonaLaSalaDeEspera(mensaje,nombreUsuario);
-
-        thenNotificaALosOtrosUsuariosQueAbandonaLaSala(usuarios);
-    }
-
-    @Test
-    public void siAlIntentarAbandonarLaSalaDeEsperaElIdDelUsuarioEsCeroQueSeObtengaElIdAlmacenadoEnRepositorio(){
-        Long idPartida = 1L;
-        Long idUsuario = 0L;
-        String nombreUsuario = "lucas";
+    private void givenUsuarioEnPartida(Long idPartida, Long idUsuario, String nombreUsuario, Long creadorId) {
         Usuario usuario = new Usuario(nombreUsuario);
-        MensajeDto mensajeDto = new MensajeDto(idUsuario,idPartida,"");
+        usuario.setId(idUsuario);
 
-        when(this.usuarioRepository.obtenerUsuarioPorNombre(nombreUsuario)).thenReturn(usuario);
-        doNothing().when(usuarioPartidaRepo).borrarUsuarioPartidaAsociadaAlUsuario(idPartida,idUsuario);
+        Partida partida = new Partida("a", "español", false, 5, 5, 1, Estado.EN_ESPERA, creadorId);
+        partida.setId(idPartida);
 
-        servicioSalaDeEspera.abandonarSala(mensajeDto,nombreUsuario);
+        UsuarioPartida usuarioPartida = new UsuarioPartida(usuario, partida, 0, false, Estado.EN_ESPERA);
 
-        verify(usuarioRepository).obtenerUsuarioPorNombre(nombreUsuario);
+        when(usuarioRepository.obtenerUsuarioPorNombre(nombreUsuario)).thenReturn(usuario);
+        when(usuarioPartidaRepo.obtenerUsuarioPartida(idUsuario, idPartida)).thenReturn(usuarioPartida);
+        when(usuarioPartidaRepo.obtenerUsuariosDeUnaPartida(idPartida)).thenReturn(
+                List.of(new Usuario("pepe"), new Usuario("Jose"))
+        );
     }
-
-
-
-
 
 
 
@@ -296,13 +398,13 @@ public class SalaDeEsperaServiceTest {
         assertEquals("http://localhost:8080/spring/lobby",mensaje.getMessage());
     }
 
-    private void thenRedireccionExitosa(List<Usuario> usuarios) {
+    private void thenRedireccionExitosa(List<Usuario> usuarios, String urlDestino,String canalPrivadoPorDondeRecibenMensaje) {
         for (Usuario usuario : usuarios) {
             verify(simpMessagingTemplate).convertAndSendToUser(
                     eq(usuario.getNombreUsuario()),
-                    eq("/queue/irAPartida"),
+                    eq(canalPrivadoPorDondeRecibenMensaje),
                     argThat(dto -> dto instanceof MensajeRecibidoDTO &&
-                            ((MensajeRecibidoDTO) dto).getMessage().equals("http://localhost:8080/spring/juego"))
+                            ((MensajeRecibidoDTO) dto).getMessage().equals(urlDestino))
             );
         }
     }
