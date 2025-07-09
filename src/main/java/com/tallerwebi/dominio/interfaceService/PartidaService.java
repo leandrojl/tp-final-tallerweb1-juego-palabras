@@ -7,6 +7,7 @@ import com.tallerwebi.dominio.DTO.MensajeAvanzarRondaDTO;
 import com.tallerwebi.dominio.DTO.RankingDTO;
 import com.tallerwebi.dominio.DTO.RondaDto;
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.PartidaInexistenteException;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Ronda;
 
@@ -20,7 +21,7 @@ public interface PartidaService {
 
     void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje);
 
-    void procesarIntento(DtoIntento intento, String nombre);
+    void procesarIntento(DtoIntento intento, String nombre) throws PartidaInexistenteException;
 
     DefinicionDto avanzarRonda(MensajeAvanzarRondaDTO dto);
 

@@ -1,7 +1,10 @@
 package com.tallerwebi.dominio;
+import com.tallerwebi.dominio.DTO.DtoIntento;
 import com.tallerwebi.dominio.DTO.JugadorPuntajeDto;
 import com.tallerwebi.dominio.DTO.RondaDto;
 import com.tallerwebi.dominio.ServicioImplementacion.PartidaServiceImpl;
+import com.tallerwebi.dominio.excepcion.PartidaInexistenteException;
+import com.tallerwebi.dominio.excepcion.RondaInexistenteException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.AciertoService;
 import com.tallerwebi.dominio.model.*;
@@ -206,6 +209,41 @@ import static org.mockito.Mockito.*;
 //        assertEquals("Estrella del sistema solar", resultado.getDefinicionTexto());
 //        assertEquals(2, resultado.getNumeroDeRonda());
 //    }
+
+     // -----------------------------------------------
+     // ======== MÉTODOS DE PROCESAR INTENTO ============
+     //------------------------------------------------
+
+@Test
+public void dadoPartidaInexistenteLanzaPartidaInexistenteException(){
+    DtoIntento intento = new DtoIntento();
+    intento.setIdPartida(232L);
+
+    when(partidaRepository.buscarPorId(232L)).thenReturn(null);
+
+    assertThrows(PartidaInexistenteException.class, ()->{
+        partidaService.procesarIntento(intento, "pepito");
+    });
+}
+
+     @Test
+     public void dadoRondaInexistenteLanzaRondaInexistenteException(){
+         DtoIntento intento = new DtoIntento();
+         intento.setIdPartida(232L);
+         intento.setIdUsuario(32L);
+         intento.setIntentoPalabra("ninik");
+         Partida partida = crearPartidaMock("castellano");
+
+         when(partidaRepository.buscarPorId(232L)).thenReturn(partida);
+         // Simulamos que la ronda es null
+         when(rondaService.obtenerUltimaRondaDePartida(232L)).thenReturn(null);
+
+         // Act & Assert
+         assertThrows(RondaInexistenteException.class, () -> {
+             partidaService.procesarIntento(intento, "pepito");
+         });
+     }
+
 
 
     // ──────────────────────

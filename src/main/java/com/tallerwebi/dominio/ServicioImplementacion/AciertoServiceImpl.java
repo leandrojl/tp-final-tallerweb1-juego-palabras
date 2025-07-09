@@ -73,9 +73,10 @@ public class AciertoServiceImpl implements AciertoService {
 
         int puntos;
         switch (acierto.getOrdenDeAcierto()) {
-            case 1: puntos = 10; break;
-            case 2: puntos = 7; break;
-            case 3: puntos = 5; break;
+            case 1: puntos = 15; break;
+            case 2: puntos = 10; break;
+            case 3: puntos = 7; break;
+            case 4: puntos = 5; break;
             default: puntos = 3; break;
         }
 

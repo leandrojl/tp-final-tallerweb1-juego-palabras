@@ -2,6 +2,9 @@ package com.tallerwebi.dominio.ServicioImplementacion;
 
 import com.tallerwebi.dominio.DTO.*;
 import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.excepcion.PartidaInexistenteException;
+import com.tallerwebi.dominio.excepcion.RondaFinalizadaException;
+import com.tallerwebi.dominio.excepcion.RondaInexistenteException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.AciertoService;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
@@ -93,7 +96,7 @@ public class PartidaServiceImpl implements PartidaService {
     }
 
     @Override
-    public void procesarIntento(DtoIntento intento, String nombre) {
+    public void procesarIntento(DtoIntento intento, String nombre) throws RuntimeException {
         //   ---- si acerto verificar si acertaron todos y finalizar ronda timer -----  //
         //System.out.println("procesar intento aqui estoy "+nombre);
 
@@ -113,18 +116,18 @@ public class PartidaServiceImpl implements PartidaService {
         //System.out.println("PARTIDA NULA ");
 
         if (partida == null) {
-            throw new IllegalArgumentException("Partida no encontrada con ID: " + idPartida);
+            throw new PartidaInexistenteException("Partida no encontrada con ID: " + idPartida);
         }
 
         // === Obtener Ronda actual
         Ronda ronda = rondaService.obtenerUltimaRondaDePartida(idPartida);
-        Long rondaId = ronda.getId();
         if (ronda == null) {
             System.out.println("Ronda NULA ");
-            throw new IllegalStateException("No hay una ronda activa.");
+            throw new RondaInexistenteException("No hay una ronda activa.");
         } else if (ronda.getEstado().equals(Estado.FINALIZADA)) {
-            throw new IllegalStateException("Ronda finalizada.");
+            throw new RondaFinalizadaException("Ronda finalizada.");
         }
+        Long rondaId = ronda.getId();
         //System.out.println("Ronda== " + rondaId);
 
         // === Comparar intento con palabra correcta
@@ -133,10 +136,8 @@ public class PartidaServiceImpl implements PartidaService {
         boolean esCorrecto = intentoTexto.equalsIgnoreCase(palabraCorrecta);
 
         // Armamos el ResultadoDto
-        //Usuario usuario = usuarioPartidaService.obtenerUsuarioPorUsuarioIdYPartidaId(idUsuario, partidaId);
-        //System.out.println("Usuario encontrado: " + usuario + " nombreUsuario=" + (usuario != null ? usuario.getNombreUsuario() : "null"));
-        ResultadoIntentoDto resultadoPrivado = new ResultadoIntentoDto();
-        resultadoPrivado.setJugador(nombre);
+//        ResultadoIntentoDto resultadoPrivado = new ResultadoIntentoDto();
+//        resultadoPrivado.setJugador(nombre);
 
         System.out.println("ES CORRECTO = " + esCorrecto + " " + palabraCorrecta + " " + palabraCorrecta);
 
@@ -146,7 +147,7 @@ public class PartidaServiceImpl implements PartidaService {
         if (esCorrecto) {
             // Verificar si ya había acertado ===
             boolean yaAcerto = aciertoService.jugadorYaAcerto(idUsuario, rondaId);
-            if (!yaAcerto) {
+            if (!yaAcerto && ronda.getEstado().equals(Estado.EN_CURSO)) {
                 // Registrar acierto y calcular puntos ===
                 int puntos = aciertoService.registrarAcierto(idUsuario, rondaId);
 
@@ -161,7 +162,6 @@ public class PartidaServiceImpl implements PartidaService {
 
                 // Al resto: mensaje "pepito acertó"
                 resultadoPublico.setCorrecto(true);
-                resultadoPublico.setMensaje(nombre + " acertó la palabra");
                 simpMessagingTemplate.convertAndSend(
                         "/topic/mostrarIntento/" + idPartida,
                         resultadoPublico
@@ -186,7 +186,6 @@ public class PartidaServiceImpl implements PartidaService {
             resultadoPublico.setCorrecto(false);
             resultadoPublico.setPalabraIncorrecta(intentoTexto);
             resultadoPublico.setJugador(nombre);
-            resultadoPublico.setMensaje(null);
             System.out.println("Jugador seteado en resultadoPublico: " + resultadoPublico.getJugador());
             simpMessagingTemplate.convertAndSend(
                     "/topic/mostrarIntento/" + idPartida,
