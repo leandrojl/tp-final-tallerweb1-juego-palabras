@@ -18,6 +18,8 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private Tipo_Usuario rol;
 
+
+
     public Usuario() {
 
     }

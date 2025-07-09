@@ -5,10 +5,8 @@ let intervaloTemporizador;
 let intervaloLetras;
 let finRondaEjecutada = false;
 
-
 const usuarioId = Number(document.getElementById("usuarioId").value);
 const idPartida = Number(document.getElementById("idPartida").value);
-
 const palabra = document.getElementById("palabraOculta").value;
 const letras = palabra.split("");
 let indexLetra = 0;
@@ -16,52 +14,35 @@ let indexLetra = 0;
 // === WEBSOCKET ===
 function conectarWebSocket() {
     stompClient = new StompJs.Client({
-            brokerURL: 'ws://localhost:8080/spring/wschat', // o sin "/spring" si no tenés ese context-path
-            reconnectDelay: 5000, // reconexión automática
-            onConnect: () => {
-                console.log("✅ Conectado al WebSocket");
+        brokerURL: 'ws://localhost:8080/spring/wschat',
+        reconnectDelay: 5000,
+        onConnect: () => {
+            console.log("✅ Conectado al WebSocket");
 
-                stompClient.subscribe(`/topic/juego/${idPartida}`, manejarMensajeServidor);
-                stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
-                stompClient.subscribe(`/topic/mostrarIntento/${idPartida}`, mostrarResultadoIntentoIncorrecto);
-                stompClient.subscribe("/user/queue/comodin", manejarLetraComodin);
+            stompClient.subscribe(`/topic/juego/${idPartida}`, manejarMensajeServidor);
+            stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
+            stompClient.subscribe(`/topic/mostrarIntento/${idPartida}`, mostrarResultadoIntentoIncorrecto);
+            stompClient.subscribe(`/user/queue/comodin`, manejarLetraComodin);
+            stompClient.subscribe(`/user/queue/listaUsuarios`, mostrarListaJugadoresModal); // 👈 nuevo
+            stompClient.subscribe("/user/queue/bloqueo", manejarBloqueo);
+            stompClient.subscribe("/user/queue/desbloqueo", manejarDesbloqueo);
 
 
-                //iniciarRonda();
-            },
-        });
-
-        stompClient.activate();
-}
-
-// === INICIA LA RONDA EN EL SERVIDOR ===
-function iniciarRonda() {
-    stompClient.publish({
-        destination: "/app/juego/iniciar",
-        body: JSON.stringify({ idPartida })
+        },
     });
+
+    stompClient.activate();
 }
 
 // === ENVÍA INTENTO ===
 function enviarIntento(palabra) {
     stompClient.publish({
-      destination: "/app/juego/intento",
-      body: JSON.stringify({
-        intentoPalabra: palabra,
-        usuarioId,
-        idPartida,
-        tiempoRestante
-      })
+        destination: "/app/juego/intento",
+        body: JSON.stringify({ intentoPalabra: palabra, usuarioId, idPartida, tiempoRestante })
     });
-
-//    stompClient.send("/app/juego/verificarAvanceDeRonda", {}, JSON.stringify({
-//        idUsuario,
-//        partidaId,
-//        tiempoRestante
-//    }));
 }
 
-// === RECIBE MENSAJE DEL SERVIDOR ===
+// === RECIBE MENSAJES DE EVENTOS GENERALES ===
 function manejarMensajeServidor(mensaje) {
     const data = JSON.parse(mensaje.body);
 
@@ -77,47 +58,113 @@ function manejarMensajeServidor(mensaje) {
     }
 }
 
-// === RESULTADO DEL INTENTO (Privado) ===
+// === RESULTADO DE INTENTO CORRECTO (privado) ===
 function mostrarResultadoIntento(mensaje) {
     const data = JSON.parse(mensaje.body);
-    mostrarMensajeChat(data.palabraCorrecta, data.esCorrecto); // palabra en verde
+    mostrarMensajeChat(data.palabraCorrecta, data.esCorrecto);
 }
 
-// === RESULTADO DEL INTENTO INCORRECTO (Público) ===
+// === RESULTADO DE INTENTO INCORRECTO (público) ===
 function mostrarResultadoIntentoIncorrecto(mensaje) {
     const data = JSON.parse(mensaje.body);
 
-    let textoIncorrecto = `<strong>${data.jugador}</strong>: ${data.palabraIncorrecta}`;
-    let textoCorrecto = `<strong>${data.jugador}</strong> ha acertado la palabra`
-    if (data.esCorrecto) {
-        mostrarMensajeChat(textoCorrecto, data.esCorrecto); // Ej: "Pepito acerto"
-    } else {
-        mostrarMensajeChat(textoIncorrecto, data.esCorrecto); // palabra en rojo
-    }
+    let texto = data.esCorrecto
+        ? `<strong>${data.jugador}</strong> ha acertado la palabra`
+        : `<strong>${data.jugador}</strong>: ${data.palabraIncorrecta}`;
+
+    mostrarMensajeChat(texto, data.esCorrecto);
 }
 
-// == MANEJO DE COMODIN (MOSTRAR LETRA)
+// === COMODÍN: REVELAR LETRA ===
 function manejarLetraComodin(mensaje) {
     const data = JSON.parse(mensaje.body);
-    const indice = data.indice;
-    const letra = data.letra;
-
-    console.log("Letra recibida por comodín:", letra, "en índice", indice);
-
-    const letraSpan = document.getElementById(`letra-${indice}`);
+    const letraSpan = document.getElementById(`letra-${data.indice}`);
     if (letraSpan) {
-        letraSpan.textContent = letra;
+        letraSpan.textContent = data.letra;
         letraSpan.classList.remove("oculto");
-        letraSpan.classList.add("comodin-letra"); // opcional, para estilo visual
+        letraSpan.classList.add("comodin-letra");
     }
 }
 
-// === RANKING ACTUALIZADO ===
+// === COMODÍN: MOSTRAR MODAL CON JUGADORES PARA BLOQUEAR ===
+function mostrarListaJugadoresModal(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    const lista = document.getElementById("listaJugadores");
+    lista.innerHTML = "";
+
+    data.usuarios.forEach(nombre => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.textContent = nombre;
+
+        const boton = document.createElement("button");
+        boton.className = "btn btn-sm btn-outline-danger";
+        boton.textContent = "Bloquear";
+        boton.onclick = () => {
+            bloquearUsuarioDesdeModal(nombre);
+            boton.disabled = true;
+        };
+
+        li.appendChild(boton);
+        lista.appendChild(li);
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById("modalBloqueo"));
+    modal.show();
+}
+
+// === ENVIAR BLOQUEO AL SERVIDOR ===
+function bloquearUsuarioDesdeModal(usuarioABloquear) {
+    stompClient.publish({
+        destination: "/app/juego/bloquearUsuario",
+        body: JSON.stringify({
+            idPartida,
+            idUsuario: usuarioId,
+            usuarioABloquear
+        })
+    });
+    // Deshabilitar el botón de bloquear para evitar múltiples usos
+    document.getElementById("btn-bloquear-usuario").disabled = true;
+
+    // Cerrar el modal
+    bootstrap.Modal.getInstance(document.getElementById('modalJugadores')).hide();
+
+}
+
+function manejarBloqueo(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    console.log("🚫 Bloqueado por:", data.mensaje);
+
+    const input = document.getElementById("input-intento");
+    input.disabled = true;
+    input.placeholder = "Estás bloqueado por 10 segundos...";
+
+    const btnComodin = document.getElementById("btn-comodin");
+    btnComodin.disabled = true;
+
+    mostrarMensajeChat("🔒 " + data.mensaje, false);
+}
+
+function manejarDesbloqueo(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    console.log("✅ Desbloqueado:", data.mensaje);
+
+    const input = document.getElementById("input-intento");
+    input.disabled = false;
+    input.placeholder = "Escribí la palabra...";
+
+    const btnComodin = document.getElementById("btn-comodin");
+    btnComodin.disabled = false;
+
+    mostrarMensajeChat("🔓 " + data.mensaje, true);
+}
+
+
+// === ACTUALIZAR RANKING ===
 function actualizarRanking(jugadores) {
     const contenedor = document.querySelector(".ranking-horizontal");
     contenedor.innerHTML = "";
 
-    const nombreActual = document.getElementById("usuarioNombre").value;
     const colores = ["#ec4899", "#22c55e", "#3b82f6", "#a855f7", "#6b7280"];
 
     jugadores.forEach((j, index) => {
@@ -142,7 +189,6 @@ function actualizarRanking(jugadores) {
         jugadorDiv.appendChild(avatar);
         jugadorDiv.appendChild(nombreSpan);
         jugadorDiv.appendChild(puntajeSpan);
-
         contenedor.appendChild(jugadorDiv);
     });
 }
@@ -156,10 +202,10 @@ function iniciarTemporizador() {
     intervaloTemporizador = setInterval(() => {
         if (tiempoRestante <= 0) {
             detenerTimers();
-           stompClient.publish({
-             destination: "/app/juego/fin-ronda",
-             body: JSON.stringify({ idPartida })
-           });
+            stompClient.publish({
+                destination: "/app/juego/fin-ronda",
+                body: JSON.stringify({ idPartida })
+            });
         } else {
             text.textContent = tiempoRestante;
             progress.style.strokeDashoffset = circ - (tiempoRestante / 60) * circ;
@@ -168,7 +214,7 @@ function iniciarTemporizador() {
     }, 1000);
 }
 
-// === MOSTRAR LETRAS ===
+// === MOSTRAR LETRAS AUTOMÁTICO ===
 function mostrarLetras() {
     intervaloLetras = setInterval(() => {
         if (indexLetra < letras.length) {
@@ -192,23 +238,19 @@ function detenerTimers() {
     clearInterval(intervaloLetras);
 }
 
-// === CHAT LOCAL (Palabras Mencionadas) ===
+// === CHAT (palabras mencionadas) ===
 function mostrarMensajeChat(texto, esCorrecto) {
     const div = document.createElement("div");
-    console.log("Intento:", texto, "¿Es correcto?", esCorrecto);
     div.className = "message-bubble " + (esCorrecto ? "mensaje-correcto" : "mensaje-incorrecto");
     div.innerHTML = `<p class="message-text">${texto}</p>`;
-    const contenedorChat =  document.getElementById("palabras-mencionadas");
+    const contenedorChat = document.getElementById("palabras-mencionadas");
     contenedorChat.appendChild(div);
-    contenedorChat.scrollTop = contenedorChat.scrollHeight; // scroll automático
+    contenedorChat.scrollTop = contenedorChat.scrollHeight;
 }
 
-// === ABANDONAR PARTIDA ===
+// === ABANDONAR ===
 function abandonarPartida() {
-    const params = new URLSearchParams({
-        usuarioId: jugadorId,
-        idPartida: idPartida
-    });
+    const params = new URLSearchParams({ usuarioId, idPartida });
     navigator.sendBeacon("/spring/abandonarPartida?" + params.toString());
 }
 
@@ -218,14 +260,13 @@ document.addEventListener("DOMContentLoaded", () => {
     iniciarTemporizador();
     mostrarLetras();
 
-    const input = document.getElementById("input-intento");
-    input.addEventListener("keydown", function (e) {
+    document.getElementById("input-intento").addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
             e.preventDefault();
-            const palabra = input.value.trim();
+            const palabra = this.value.trim();
             if (palabra !== "") {
                 enviarIntento(palabra);
-                input.value = "";
+                this.value = "";
             }
         }
     });
@@ -233,20 +274,19 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-comodin").addEventListener("click", () => {
         stompClient.publish({
             destination: "/app/juego/activarComodin",
-            body: JSON.stringify({
-                idPartida,
-                idUsuario: usuarioId
-            })
+            body: JSON.stringify({ idPartida, idUsuario: usuarioId })
         });
-
         document.getElementById("btn-comodin").disabled = true;
     });
 
-
-
-    // Detectar cuando el usuario cierra la pestaña o se va
-    window.addEventListener("beforeunload", function () {
-        abandonarPartida();
+    document.getElementById("btn-bloquear-usuario").addEventListener("click", () => {
+        stompClient.publish({
+            destination: "/app/juego/obtenerUsuarios",
+            body: JSON.stringify({ idPartida })
+        });
     });
+
+    window.addEventListener("beforeunload", abandonarPartida);
 });
+
 

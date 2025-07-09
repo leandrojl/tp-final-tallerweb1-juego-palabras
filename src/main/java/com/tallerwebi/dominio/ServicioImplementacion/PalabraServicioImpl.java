@@ -56,6 +56,9 @@ public class PalabraServicioImpl implements PalabraServicio {
     private Palabra obtenerAleatoria(List<Palabra> lista) {
         return lista.get(new Random().nextInt(lista.size()));
     }
+
+
+
 }
 
 

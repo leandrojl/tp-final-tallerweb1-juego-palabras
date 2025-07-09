@@ -125,6 +125,17 @@ public class WebSocketController {
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
         this.partidaService.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
     }
+    @MessageMapping("/juego/obtenerUsuarios")
+    public void obtenerUsuariosParaBloquear(DtoComodin dto, Principal principal) {
+        String nombreUsuario = principal.getName();
+        partidaService.obtenerUsuariosParaBloquear(dto.getIdPartida(), nombreUsuario);
+    }
 
+    @MessageMapping("/juego/bloquearUsuario")
+    public void bloquearUsuario(DtoComodinBloqueo dto, Principal principal) {
+        String nombreUsuario = principal.getName();
+        partidaService.bloquearUsuario(dto.getIdPartida(), dto.getIdUsuario(),
+                nombreUsuario, dto.getUsuarioABloquear());
+    }
 
 }
