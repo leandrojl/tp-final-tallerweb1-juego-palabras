@@ -27,6 +27,13 @@ function conectarWebSocket() {
                 stompClient.subscribe(`/topic/juego/${idPartida}`, manejarMensajeServidor);
                 stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
                 stompClient.subscribe(`/topic/mostrarIntento/${idPartida}`, mostrarResultadoIntentoIncorrecto);
+                stompClient.subscribe("/topic/redirigir", function(message) {
+                    const url = message.body;
+                    window.location.href = url;
+
+                });
+
+                stompClient.subscribe(`/topic/timerInicioRonda/${idPartida}`, mensajeDelServidorAlChat);
 
 
                 stompClient.subscribe(`/topic/verRanking/${idPartida}`,actualizarRanking);
@@ -35,6 +42,11 @@ function conectarWebSocket() {
         });
 
         stompClient.activate();
+}
+
+function mensajeDelServidorAlChat(mensaje){
+    humano=false;
+    mostrarMensajeChat(mensaje.body, true, false);
 }
 
 // === INICIA LA RONDA EN EL SERVIDOR ===
@@ -64,8 +76,8 @@ function enviarIntento(palabra) {
 //    }));
 }
 
-// === RECIBE MENSAJE DEL SERVIDOR ===
-function manejarMensajeServidor(mensaje) {
+// === RECIBE MENSAJE DEL SERVIDOR ===/*
+/*function manejarMensajeServidor(mensaje) {
     const data = JSON.parse(mensaje.body);
         if (data.tipo === "inicio-ronda") {
             document.getElementById("palabraOculta").value = data.palabra;
@@ -74,24 +86,61 @@ function manejarMensajeServidor(mensaje) {
         detenerTimers();
         window.location.href = `/juego?ronda=${data.siguienteRonda}&idUsuario=${idUsuario}`;
     }
+}*/
+
+function manejarMensajeServidor(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    reconstruirPalabra(data.palabra);
+        document.getElementById("definicionActual").textContent = data.definicionTexto;
+        document.getElementById("rondaActual").textContent = data.numeroDeRonda;
+        tiempoRestante      = 60;
+        finRondaEjecutada   = false;
+        indexLetra          = 0;
+
+        letras.length = 0;
+        data.palabra.split("").forEach(l => letras.push(l));
+        const input = document.getElementById("input-intento");
+        input.disabled    = false;
+        input.placeholder = "";
+        input.classList.remove("input-desactivado");
+        mostrarLetras();
+
+
+}
+function reconstruirPalabra(palabra) {
+    document.getElementById("palabraOculta").value = palabra;
+    const contenedor = document.getElementById("contenedor-palabra");
+    contenedor.innerHTML = '';
+    const inputHidden = document.createElement("input");
+    inputHidden.type = "hidden";
+    inputHidden.id = "palabraOculta";
+    inputHidden.value = palabra;
+    contenedor.appendChild(inputHidden);
+    for (let i = 0; i < palabra.length; i++) {
+        const span = document.createElement("span");
+        span.className = "bloque-letra oculto";
+        span.id = "letra-" + i;
+        contenedor.appendChild(span);
+    }
 }
 
 // === RESULTADO DEL INTENTO (Privado) ===
 function mostrarResultadoIntento(mensaje) {
     const data = JSON.parse(mensaje.body);
-    mostrarMensajeChat(data.palabraCorrecta, data.esCorrecto); // palabra en verde
+    humano=true;
+    mostrarMensajeChat(data.palabraCorrecta, data.esCorrecto, humano); // palabra en verde
 }
 
 // === RESULTADO DEL INTENTO INCORRECTO (Público) ===
 function mostrarResultadoIntentoIncorrecto(mensaje) {
     const data = JSON.parse(mensaje.body);
-
+    humano=true;
     let textoIncorrecto = `<strong>${data.jugador}</strong>: ${data.palabraIncorrecta}`;
     let textoCorrecto = `<strong>${data.jugador}</strong> ha acertado la palabra`
     if (data.esCorrecto) {
-        mostrarMensajeChat(textoCorrecto, data.esCorrecto); // Ej: "Pepito acerto"
+        mostrarMensajeChat(textoCorrecto, data.esCorrecto, humano); // Ej: "Pepito acerto"
     } else {
-        mostrarMensajeChat(textoIncorrecto, data.esCorrecto); // palabra en rojo
+        mostrarMensajeChat(textoIncorrecto, data.esCorrecto, humano); // palabra en rojo
     }
 }
 
@@ -184,10 +233,11 @@ function detenerTimers() {
 }
 
 // === CHAT LOCAL (Palabras Mencionadas) ===
-function mostrarMensajeChat(texto, esCorrecto) {
+function mostrarMensajeChat(texto, esCorrecto, humano) {
     const div = document.createElement("div");
     console.log("Intento:", texto, "¿Es correcto?", esCorrecto);
-    div.className = "message-bubble " + (esCorrecto ? "mensaje-correcto" : "mensaje-incorrecto");
+    if(humano) {div.className = "message-bubble " + (esCorrecto ? "mensaje-correcto" : "mensaje-incorrecto");}
+    else {div.className = "message-bubble " + "mensaje-servidor";}
     div.innerHTML = `<p class="message-text">${texto}</p>`;
     const contenedorChat =  document.getElementById("palabras-mencionadas");
     contenedorChat.appendChild(div);

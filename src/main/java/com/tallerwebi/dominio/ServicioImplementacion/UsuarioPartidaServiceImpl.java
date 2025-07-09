@@ -105,6 +105,16 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
     }
 
     @Override
+    public int cantidadDeJugadoresActivosEnPartida(Long partidaId) {
+        return usuarioPartidaRepository.cantidadDeJugadoresActivosEnPartida(partidaId);
+    }
+
+    @Override
+    public void finalizarPartida(Long partidaId, Estado estado) {
+        usuarioPartidaRepository.finalizarPartidaParaTodos(partidaId, estado);
+    }
+
+    @Override
     public void sumarPuntos(Long usuarioId, Long partidaId, int puntos) {
         usuarioPartidaRepository.sumarPuntaje(usuarioId, partidaId,puntos);
     }

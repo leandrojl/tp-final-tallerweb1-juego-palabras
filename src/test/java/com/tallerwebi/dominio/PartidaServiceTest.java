@@ -38,7 +38,7 @@ import static org.mockito.Mockito.*;
     private UsuarioPartidaRepository usuarioPartidaRepository;
      private AciertoService aciertoService;
      private UsuarioPartidaService usuarioPartidaService;
-
+     private RondaTimerManager rondaTimerManager;
     @BeforeEach
     void setUp() throws IllegalAccessException, NoSuchFieldException {
         // Mocks
@@ -52,7 +52,7 @@ import static org.mockito.Mockito.*;
         partidaService = mock(PartidaServiceImpl.class);
 
         timerRonda = mock(ScheduledExecutorService.class);
-
+        rondaTimerManager = mock(RondaTimerManager.class);
         // Service as spy to verify finalizeRonda
         service = spy(new PartidaServiceImpl(
                 simpMessagingTemplate,
@@ -61,7 +61,8 @@ import static org.mockito.Mockito.*;
                 rondaRepository,
                 usuarioPartidaRepository,
                 aciertoService,
-                usuarioPartidaService
+                usuarioPartidaService,
+                rondaTimerManager
         ));
 
         partidaService = new PartidaServiceImpl(
@@ -71,7 +72,8 @@ import static org.mockito.Mockito.*;
                 rondaRepository,
                 usuarioPartidaRepository,
                 aciertoService,
-                usuarioPartidaService
+                usuarioPartidaService,
+                rondaTimerManager
         );
 
 

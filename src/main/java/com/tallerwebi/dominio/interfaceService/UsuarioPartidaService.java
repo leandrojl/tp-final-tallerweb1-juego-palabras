@@ -32,4 +32,8 @@ public interface UsuarioPartidaService {
     void cancelarPartidaDeUsuario(Long idUsuario, Long idPartida);
 
     void cambiarEstado(Long idUsuarioAExpulsar, Long idPartida, Estado estado);
+
+    int cantidadDeJugadoresActivosEnPartida(Long partidaId);
+
+    void finalizarPartida(Long partidaId, Estado estado);
 }

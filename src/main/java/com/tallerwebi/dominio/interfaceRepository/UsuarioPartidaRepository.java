@@ -65,4 +65,7 @@ public interface UsuarioPartidaRepository {
 
     void cambiarEstado(Long idUsuarioAExpulsar, Long idPartida, Estado estado);
 
+    int cantidadDeJugadoresActivosEnPartida(Long partidaId);
+
+    void finalizarPartidaParaTodos(Long partidaId, Estado estado);
 }

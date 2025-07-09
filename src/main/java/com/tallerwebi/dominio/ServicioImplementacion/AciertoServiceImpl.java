@@ -82,5 +82,10 @@ public class AciertoServiceImpl implements AciertoService {
         return puntos;
     }
 
+    @Override
+    public int cantidadDeAciertosEnLaRonda(Long rondaId) {
+        return aciertoRepository.contarAciertosPorRondaId(rondaId);
+    }
+
 
 }

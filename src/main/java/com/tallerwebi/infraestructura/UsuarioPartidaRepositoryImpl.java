@@ -81,10 +81,10 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
 
     @Override
     public List<UsuarioPartida> buscarPorPartida(Long idPartida) {
+        Session session = sessionFactory.getCurrentSession();
+        session.flush();  // <-- acá sí funciona
         String hql = "FROM UsuarioPartida up JOIN FETCH up.usuario WHERE up.partida.id = :idPartida";
-
-        return sessionFactory.getCurrentSession()
-                .createQuery(hql, UsuarioPartida.class)
+        return session.createQuery(hql, UsuarioPartida.class)
                 .setParameter("idPartida", idPartida)
                 .getResultList();
     }
@@ -326,5 +326,28 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
             throw new IllegalArgumentException("No se encontró UsuarioPartida para el usuarioId " + idUsuarioAExpulsar + " y partidaId " + idPartida);
         }
 
+    }
+
+    @Override
+    public int cantidadDeJugadoresActivosEnPartida(Long partidaId) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery(
+                        "SELECT COUNT(u) " +
+                                "FROM UsuarioPartida u " +
+                                "WHERE u.estado = :estado " +
+                                "AND u.partida.id = :partidaId", Long.class)
+                .setParameter("estado", Estado.EN_CURSO)
+                .setParameter("partidaId", partidaId)
+                .uniqueResult()
+                .intValue();
+    }
+
+    @Override
+    public void finalizarPartidaParaTodos(Long partidaId, Estado estado) {
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery("UPDATE UsuarioPartida up SET up.estado = :estado WHERE up.partida.id = :partidaId")
+                .setParameter("estado", estado)
+                .setParameter("partidaId", partidaId)
+                .executeUpdate();
     }
 }

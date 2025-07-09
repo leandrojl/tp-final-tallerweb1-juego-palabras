@@ -1,6 +1,7 @@
 
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.RondaTimerManager;
 import com.tallerwebi.dominio.DTO.*;
 import com.tallerwebi.dominio.ServicioImplementacion.PartidaServiceImpl;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
@@ -45,6 +46,7 @@ public class WebSocketControllerTest {
     private WebSocketController webSocketController;
     private WebSocketStompClient stompClient;
     private UsuarioPartidaService usuarioPartidaService;
+    private RondaTimerManager rondaTimerManager;
 
     @BeforeEach
     public void setUp() {
@@ -58,6 +60,7 @@ public class WebSocketControllerTest {
         partidaRepository = mock(PartidaRepository.class);
         usuarioPartidaRepository = mock(UsuarioPartidaRepository.class);
         ScheduledExecutorService timerRonda = mock(ScheduledExecutorService.class);
+        rondaTimerManager = mock(RondaTimerManager.class);
         partidaService = new PartidaServiceImpl(
                 messagingTemplate,
                 partidaRepository,
@@ -65,7 +68,8 @@ public class WebSocketControllerTest {
                 rondaRepository,
                 usuarioPartidaRepository,
                 aciertoService,
-                usuarioPartidaService
+                usuarioPartidaService,
+                rondaTimerManager
         );
         ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);

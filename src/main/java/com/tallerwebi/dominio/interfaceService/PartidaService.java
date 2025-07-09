@@ -51,5 +51,6 @@ public interface PartidaService {
     void cancelarPartidaSiEsCreador(Long idUsuario, Long idPartida);
 
     String obtenerNombrePartidaPorId(Long idPartida);
+
 }
 

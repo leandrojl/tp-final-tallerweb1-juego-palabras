@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio.ServicioImplementacion;
 
+import com.tallerwebi.dominio.RondaTimerManager;
 import com.tallerwebi.dominio.DTO.*;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
@@ -19,17 +20,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 
 import java.util.Comparator;
 import java.util.List;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 
 
 import java.util.HashMap;
@@ -58,9 +55,13 @@ public class PartidaServiceImpl implements PartidaService {
     private final UsuarioPartidaRepository usuarioPartidaRepository;
     @Autowired
     private final RondaRepository rondaRepositorio;
+    @Autowired
+    private RondaTimerManager rondaTimerManager;
 
     private final Map<Long, RondaDto> definicionesPorPartida = new HashMap<>();
     private final ConcurrentHashMap<Long, Object> locks = new ConcurrentHashMap<>();
+    private final Map<Long, ScheduledFuture<?>> tareasPorPartida = new ConcurrentHashMap<>();
+
     @Autowired
     public PartidaServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
                               PartidaRepository partidaRepository,
@@ -68,7 +69,8 @@ public class PartidaServiceImpl implements PartidaService {
                               RondaRepository rondaRepositorio,
                               UsuarioPartidaRepository usuarioPartidaRepository,
                               AciertoService aciertoService,
-                              UsuarioPartidaService usuarioPartidaService
+                              UsuarioPartidaService usuarioPartidaService,
+                              RondaTimerManager rondaTimerManager
     ) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.partidaRepository = partidaRepository;
@@ -77,8 +79,15 @@ public class PartidaServiceImpl implements PartidaService {
         this.usuarioPartidaService = usuarioPartidaService;
         this.usuarioPartidaRepository = usuarioPartidaRepository;
         this.rondaRepositorio = rondaRepositorio;
-        this.timerRonda = Executors.newSingleThreadScheduledExecutor();
+        this.rondaTimerManager=rondaTimerManager;
 
+        //this.timerRonda = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 10);
+        // el newSingle crea un solo hilo de tarea, que retrasaria si hay multiples partidas, en cambio el newSchedule genera
+        //un pool de hilos reutilizables de manera que funciona si se juega mas de una partida en simultaneo(el numero
+        //multiplicador genera mas hilos, pero tambien consume mas recursos,
+
+      //
+          this.timerRonda = Executors.newSingleThreadScheduledExecutor();
     }
 
     @Override
@@ -94,29 +103,16 @@ public class PartidaServiceImpl implements PartidaService {
 
     @Override
     public void procesarIntento(DtoIntento intento, String nombre) {
-        //   ---- si acerto verificar si acertaron todos y finalizar ronda timer -----  //
-        //System.out.println("procesar intento aqui estoy "+nombre);
 
         Long partidaId = intento.getIdPartida();
-        //System.out.println("partida: "+partidaId);
-
         Long idUsuario = intento.getIdUsuario();
-        //System.out.println("usuarioId "+idUsuario);
-
         String intentoTexto = intento.getIntentoPalabra();
-        //System.out.println("intentoTexto "+intentoTexto);
-
-        // === Obtener Partida
-        //System.out.println("procesar intento aqui estoy3 ");
-
         Partida partida = partidaRepository.buscarPorId(partidaId);
-        //System.out.println("PARTIDA NULA ");
 
         if (partida == null) {
             throw new IllegalArgumentException("Partida no encontrada con ID: " + partidaId);
         }
 
-        // === Obtener Ronda actual
         Ronda ronda = rondaService.obtenerUltimaRondaDePartida(partidaId);
         Long rondaId = ronda.getId();
         if (ronda == null) {
@@ -125,49 +121,27 @@ public class PartidaServiceImpl implements PartidaService {
         } else if (ronda.getEstado().equals(Estado.FINALIZADA)) {
             throw new IllegalStateException("Ronda finalizada.");
         }
-        //System.out.println("Ronda== " + rondaId);
 
-        // === Comparar intento con palabra correcta
         String palabraCorrecta = ronda.getPalabra().getDescripcion();
-
         boolean esCorrecto = intentoTexto.equalsIgnoreCase(palabraCorrecta);
-
-        // Armamos el ResultadoDto
-        //Usuario usuario = usuarioPartidaService.obtenerUsuarioPorUsuarioIdYPartidaId(idUsuario, partidaId);
-        //System.out.println("Usuario encontrado: " + usuario + " nombreUsuario=" + (usuario != null ? usuario.getNombreUsuario() : "null"));
         ResultadoIntentoDto resultadoPrivado = new ResultadoIntentoDto();
         resultadoPrivado.setJugador(nombre);
-
-        System.out.println("ES CORRECTO = " + esCorrecto + " " + palabraCorrecta + " " + palabraCorrecta);
-
         ResultadoIntentoDto resultadoPublico = new ResultadoIntentoDto();
         resultadoPublico.setJugador(nombre);
 
         if (esCorrecto) {
-            // Verificar si ya había acertado ===
             boolean yaAcerto = aciertoService.jugadorYaAcerto(idUsuario, rondaId);
             if (!yaAcerto) {
-                // Registrar acierto y calcular puntos ===
-                int puntos = aciertoService.registrarAcierto(idUsuario, rondaId);
-
-                // Sumar puntos en UsuarioPartida ===
+                 int puntos = aciertoService.registrarAcierto(idUsuario, rondaId);
                  usuarioPartidaService.sumarPuntos(idUsuario, partidaId, puntos);
-
-                // Al jugador que acertó
-//                resultadoPrivado.setPalabraCorrecta(intentoTexto);
-//                resultadoPrivado.setCorrecto(true);
-//                resultadoPrivado.setPalabraIncorrecta("");
-//                simpMessagingTemplate.convertAndSendToUser(nombre, "/queue/resultado", resultadoPrivado);
-
-                // Al resto: mensaje "pepito acertó"
-                resultadoPublico.setCorrecto(true);
-                resultadoPublico.setMensaje(nombre + " acertó la palabra");
-                simpMessagingTemplate.convertAndSend(
+                 resultadoPublico.setCorrecto(true);
+                 resultadoPublico.setMensaje(nombre + " acertó la palabra");
+                 simpMessagingTemplate.convertAndSend(
                         "/topic/mostrarIntento/" + partidaId,
                         resultadoPublico
+
                 );
 
-                // Enviar ranking actualizado a todos los jugadores
                 List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(partidaId);
                 List<JugadorPuntajeDto> jugadoresDto = jugadores.stream()
                         .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
@@ -177,17 +151,15 @@ public class PartidaServiceImpl implements PartidaService {
                         "/topic/verRanking/" + partidaId,
                         new MensajeTipoRanking("actualizar-puntajes", jugadoresDto)
                 );
-
+            finalizarRondaEnCasoDeQueTodosAcertaron(partidaId,rondaId);
             }
 
         } else {
-            System.out.println("PROCESAR INTENTO LLEGO HASTA AQUI4= " + intento.getIntentoPalabra());
-            // A todos (incluido el que lo envió), la palabra en rojo
+
             resultadoPublico.setCorrecto(false);
             resultadoPublico.setPalabraIncorrecta(intentoTexto);
             resultadoPublico.setJugador(nombre);
             resultadoPublico.setMensaje(null);
-            System.out.println("Jugador seteado en resultadoPublico: " + resultadoPublico.getJugador());
             simpMessagingTemplate.convertAndSend(
                     "/topic/mostrarIntento/" + partidaId,
                     resultadoPublico
@@ -195,27 +167,8 @@ public class PartidaServiceImpl implements PartidaService {
         }
     }
 
-    @Override
-    public void procesarIntento1(DtoIntento intento) {
-        ResultadoIntentoDto resultado = new ResultadoIntentoDto();
-        //=================== HARCODEADO =============================== //
-        Boolean correcta = false;
-        if (correcta) {
-            resultado.setPalabraCorrecta(intento.getIntentoPalabra());
-            resultado.setPalabraIncorrecta("");
-            resultado.setJugador("pepito");
-            resultado.setCorrecto(true);
-            simpMessagingTemplate.convertAndSendToUser("hla", "/queue/resultado", resultado);
-        } else {
-            resultado.setPalabraCorrecta("");
-            resultado.setPalabraIncorrecta(intento.getIntentoPalabra());
-            resultado.setJugador("pepito");
-            resultado.setCorrecto(false);
-            simpMessagingTemplate.convertAndSend(
-                    "/topic/mostrarIntento/" + intento.getIdPartida(),
-                    resultado);
-        }
-    }
+
+
 
     @Transactional
     @Override
@@ -228,18 +181,16 @@ public class PartidaServiceImpl implements PartidaService {
             throw new IllegalArgumentException("No existe la partida con ID: " + partidaId);
         }
 
-        // Validación para no crear dos rondas activas
         Ronda ultima = rondaService.obtenerUltimaRondaDePartida(partidaId);
 
         if (ultima != null ) {
             if (ultima.getEstado() == Estado.EN_CURSO) {
-                System.out.println("Ya hay una ronda activa...");
                 return construirDtoDesdeRondaExistente(ultima, partidaId);
             }
         }
             String idioma = partida.getIdioma();
             Ronda nueva = rondaService.crearRonda(partidaId, idioma);
-
+            rondaTimerManager.agendarFinalizacionRonda(partidaId, 15);
             return construirDtoDesdeRondaExistente(nueva, partidaId);
         }
 
@@ -247,42 +198,36 @@ public class PartidaServiceImpl implements PartidaService {
 
     }
 
+
+    @Transactional
     @Override
     public DefinicionDto avanzarRonda(MensajeAvanzarRondaDTO dto) {
         Long partidaId = dto.getIdPartida();
+        if(!dto.isTiempoAgotado()) rondaTimerManager.cancelarTarea(partidaId);
         Long rondaId = dto.getIdRonda();
 
         Partida partida = partidaRepository.buscarPorId(partidaId);
         Ronda rondaActual = rondaRepositorio.obtenerUltimaRondaDePartida(partidaId);
-
-        // Marcar ronda anterior como terminada
         rondaActual.setEstado(Estado.FINALIZADA);
         rondaRepositorio.actualizar(rondaActual);
 
-        // ¿Terminó la partida?
+
         if (esUltimaRonda(partidaId)) {
             partida.setEstado(Estado.FINALIZADA);
             partidaRepository.actualizarEstado(partidaId, Estado.FINALIZADA);
-            return null;
+            usuarioPartidaService.finalizarPartida(partidaId, Estado.FINALIZADA);
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/redirigir",
+                    "/spring/juego/vistaFinalJuego?partidaId=" + partidaId
+            );
+        return null;
         }
-
-        // Crear nueva ronda
-        Ronda nuevaRonda = rondaService.crearRonda(partidaId, partida.getIdioma());
-        Palabra palabra = nuevaRonda.getPalabra();
-
-        String definicionTexto = palabra.getDefiniciones().stream()
-                .findFirst()
-                .map(Definicion::getDefinicion)
-                .orElse("Definición no disponible");
-
-        DefinicionDto dtoRespuesta = new DefinicionDto();
-        dtoRespuesta.setPalabra(palabra.getDescripcion());
-        dtoRespuesta.setDefinicionTexto(definicionTexto);
-        dtoRespuesta.setNumeroDeRonda(nuevaRonda.getNumeroDeRonda());
-
-        simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dtoRespuesta);
-        return dtoRespuesta;
+        enviarMensajeTimerInicioNuevaRonda(partidaId);
+                iniciarNuevaRonda(partidaId);
+        return null;
     }
+
+
 
     @Override
     public boolean esUltimaRonda(Long idPartida) {
@@ -304,7 +249,7 @@ public class PartidaServiceImpl implements PartidaService {
 
         simpMessagingTemplate.convertAndSend("/topic/vistaFinal", ranking);
     }
-
+    @Transactional
     @Override
     public List<RankingDTO> obtenerRanking(Long partidaId) {
         List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(partidaId);
@@ -353,8 +298,6 @@ public class PartidaServiceImpl implements PartidaService {
 
 
     public RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId) {
-        System.out.println("construirDtoDesdeRondaExistente");
-        System.out.println(ronda);
         Palabra palabra = ronda.getPalabra();
         String definicionTexto;
         Hibernate.initialize(palabra.getDefiniciones());
@@ -384,22 +327,15 @@ public class PartidaServiceImpl implements PartidaService {
         return dto;
     }
 
-    // En la clase PartidaServiceImpl.java
+
 
     @Override
     @Transactional // La operación debe ser atómica.
     public void cancelarPartidaSiEsCreador(Long idUsuario, Long idPartida) {
-        // 1. Se verifica que el usuario sea el creador.
-        if (verificarSiEsElCreadorDePartida(idUsuario, idPartida)) {
+       if (verificarSiEsElCreadorDePartida(idUsuario, idPartida)) {
             Partida partida = partidaRepository.buscarPartidaPorId(idPartida);
-
-            // 2. Se cambia el estado de la Partida a CANCELADA.
             if (partida != null && partida.getEstado() == Estado.EN_ESPERA) {
-
                 partidaRepository.modificarEstadoPartida(partida, Estado.CANCELADA);
-
-                // 3. Se actualiza el estado en UsuarioPartida para el creador.
-                // (Asumiendo que tienes un método para esto en usuarioPartidaService)
                 usuarioPartidaService.cancelarPartidaDeUsuario(idUsuario, idPartida);
             }
         }
@@ -409,6 +345,54 @@ public class PartidaServiceImpl implements PartidaService {
     public String obtenerNombrePartidaPorId(Long idPartida) {
         return partidaRepository.obtenerNombrePartidaPorId(idPartida);
     }
+    @Override
+    public void procesarIntento1(DtoIntento intento) {
+        ResultadoIntentoDto resultado = new ResultadoIntentoDto();
+        //=================== HARCODEADO =============================== //
+        Boolean correcta = false;
+        if (correcta) {
+            resultado.setPalabraCorrecta(intento.getIntentoPalabra());
+            resultado.setPalabraIncorrecta("");
+            resultado.setJugador("pepito");
+            resultado.setCorrecto(true);
+            simpMessagingTemplate.convertAndSendToUser("hla", "/queue/resultado", resultado);
+        } else {
+            resultado.setPalabraCorrecta("");
+            resultado.setPalabraIncorrecta(intento.getIntentoPalabra());
+            resultado.setJugador("pepito");
+            resultado.setCorrecto(false);
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/mostrarIntento/" + intento.getIdPartida(),
+                    resultado);
+        }
+    }
 
+    private void enviarMensajeTimerInicioNuevaRonda(Long partidaId) {
+        try {
+            simpMessagingTemplate.convertAndSend("/topic/timerInicioRonda/" + partidaId, "La próxima ronda iniciará en:");
+            Thread.sleep(1000); // Espera 1 segundo antes de empezar la cuenta
+            for (int i = 5; i > 0; i--) {
+                simpMessagingTemplate.convertAndSend("/topic/timerInicioRonda/" + partidaId, String.valueOf(i));
+                Thread.sleep(1000); // Espera 1 segundo entre cada número
+            }
+            simpMessagingTemplate.convertAndSend("/topic/timerInicioRonda/" + partidaId, "¡Comienza!");
+
+
+
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
+        }
+    }
+
+    private void finalizarRondaEnCasoDeQueTodosAcertaron(Long partidaId, Long rondaId) {
+        int cantAciertos = aciertoService.cantidadDeAciertosEnLaRonda(rondaId);
+        int cantJugadores = usuarioPartidaService.cantidadDeJugadoresActivosEnPartida(partidaId);
+        if(cantAciertos==cantJugadores){
+            MensajeAvanzarRondaDTO dto= new MensajeAvanzarRondaDTO(partidaId,rondaId, false);
+            avanzarRonda(dto);
+        }
+    }
 
 }
