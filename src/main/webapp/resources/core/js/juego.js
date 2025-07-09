@@ -32,6 +32,8 @@ function conectarWebSocket() {
             stompClient.subscribe(`/user/queue/resultado`, mostrarResultadoIntento);
             stompClient.subscribe(`/topic/mostrarIntento/${idPartida}`, mostrarResultadoIntentoIncorrecto);
             stompClient.subscribe(`/topic/verRanking/${idPartida}`, actualizarRanking);
+
+            iniciarRonda();
         },
         onStompError: (frame) => {
             console.error('❌ Error STOMP:', frame);

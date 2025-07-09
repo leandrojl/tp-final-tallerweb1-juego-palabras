@@ -257,8 +257,20 @@ public class SalaDeEsperaServiceTest {
         verify(usuarioRepository).obtenerUsuarioPorNombre(nombreUsuario);
     }
 
+    @Test
+    public void siSeAbandonaLaPartidaQueSeReinicieElEstadoDelUsuario(){
 
+    }
 
+    @Test
+    public void siSeExpulsaAUnUsuarioQueSeReinicieElEstadoDelUsuario(){
+
+    }
+
+    @Test
+    public void siSeIniciaLaPartidaQueSeReinicieElEstadoDelUsuario(){
+
+    }
 
 
 
