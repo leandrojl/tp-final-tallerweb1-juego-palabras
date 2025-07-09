@@ -190,10 +190,9 @@ public class PartidaServiceImpl implements PartidaService {
         }
             String idioma = partida.getIdioma();
             Ronda nueva = rondaService.crearRonda(partidaId, idioma);
-            rondaTimerManager.agendarFinalizacionRonda(partidaId, 15);
+            rondaTimerManager.agendarFinalizacionRonda(partidaId, 60);
             return construirDtoDesdeRondaExistente(nueva, partidaId);
         }
-
 
 
     }
