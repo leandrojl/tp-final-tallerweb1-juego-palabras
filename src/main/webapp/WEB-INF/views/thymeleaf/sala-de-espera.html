@@ -28,76 +28,50 @@
 <body>
 <header class="bg-dark text-white py-3 shadow-sm">
     <div class="container d-flex justify-content-between align-items-center">
-        <h1 class="h2 mb-0">Learnglish</h1>
+        <h1 class="h2 mb-0">Definila</h1>
 
-        <a th:href="@{/lobby}" class="btn btn-danger" >Ir al Lobby</a>
+<!--        <a th:href="@{/cerrarSalaDeEspera}" class="btn btn-danger">Cerrar Sala</a>-->
+
+        <a onclick="abandonarSala()" class="btn btn-danger">Abandonar sala</a>
+
     </div>
 </header>
 
 <div class="container text-center">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
 
-    </div>
-
-    <!-- Esperando a otros jugadores -->
-
-    <form th:action="@{/iniciarPartida}" method="post">
-        <div class="card card-custom p-3 mb-4">
-            <div class="section-title mb-2"><h2 class="h2 mb-0">Sala de espera</h2></div>
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>ID</th>
-                    <th>Listo?</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="usuario : ${usuarios}">
-                    <td th:text="${usuario.getNombre()}"></td>
-                    <td th:text="${usuario.getId()}"></td>
-                    <td>
-                        <select class="form-select"
-                                th:name="'jugador_' + ${usuario.getId()}">
-                            <option value="false" selected>no</option>
-                            <option value="true">si</option>
-                        </select>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <div class="mb-4 text-center">
-                <button type="submit" class="btn btn-warning btn-lg w-50 rounded-4 shadow">
-                    Iniciar Partida
-                </button>
-            </div>
+    <div class="card card-custom p-3 mb-4">
+        <div class="section-title mb-3 text-center">
+            <h2 class="h5 text-muted fw-light">Sala de espera de la partida</h2>
+            <h1 class="display-5 fw-bold text-primary" th:text="${nombrePartida}">Nombre de la Partida</h1>
         </div>
 
-    </form>
+        <div id="jugadores-container"></div>
 
+        <div class="mb-4 text-center">
+            <button onclick="iniciarPartida()" type="button" class="btn btn-warning btn-lg w-50 rounded-4 shadow">
+                Iniciar Partida
+            </button>
+        </div>
+    </div>
+    <div id="alerta-insuficiente-usuarios"></div>
 
-        <div th:if="${error}" class="alert alert-danger" role="alert">
-            <div class="card card-custom p-4 mb-4">
+    <div th:if="${error}" class="alert alert-danger" role="alert">
+        <div class="card card-custom p-4 mb-4">
             <p th:text="${error}"></p>
-            </div>
         </div>
-
-
-
-
-    <!-- Timer
-
-    <div class="card card-custom p-4">
-        <div class="section-title">Timer para iniciar la partida</div>
-        <p class="mb-0 text-muted">La partida comenzara en 5 segundos... (MENSAJE DINAMICO)</p>
     </div>
-    -->
-
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
-<script th:src="@{/js/script.js}"></script>
+<script th:inline="javascript">
+    sessionStorage.setItem("usuario", /*[[${usuario}]]*/ "anonimo");
+    sessionStorage.setItem("idPartida", /*[[${idPartida}]]*/ 0);
+    sessionStorage.setItem("idUsuario", /*[[${idUsuario}]]*/ 0);
+    sessionStorage.setItem("esCreador", /*[[${esCreador}]]*/ null);
+</script>
+
+
+<script th:src="@{/js/salaDeEsperaSocket.js}"></script>
 </body>
 </html>

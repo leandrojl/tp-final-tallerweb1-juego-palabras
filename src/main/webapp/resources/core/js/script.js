@@ -1,40 +1,36 @@
 const stompClient = new StompJs.Client({
-    brokerURL: 'ws://localhost:8080/spring/wschat'
+    // En lugar de brokerURL, usamos webSocketFactory para SockJS
+    webSocketFactory: () => new SockJS("/spring/wschat"),
+
+    debug: (str) => {
+        console.log(str);
+    },
+
+    onConnect: (frame) => {
+        console.log('Connected: ', frame);
+        stompClient.subscribe('/topic/messages', (m) => {
+            console.log("Mensaje del subscribe:", JSON.parse(m.body));
+            const data = JSON.parse(m.body);
+            console.log(data.content);
+
+            const messagesContainer = document.getElementById("palabras-mencionadas");
+            const newMessage = document.createElement("p");
+            newMessage.textContent = data.username + ": " + data.content;
+            messagesContainer.appendChild(newMessage);
+        });
+    },
+
+    onWebSocketError: (error) => {
+        console.error('Error with websocket', error);
+    },
+
+    onStompError: (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
+    }
 });
 
-stompClient.debug = function(str) {
-    console.log(str)
- };
-
-stompClient.onConnect = (frame) => {
-    console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/messages', (m) => {
-        console.log(JSON.parse(m.body).content);
-        const messagesContainer = document.getElementById("chat-messages");
-        const newMessage = document.createElement("p")
-        newMessage.textContent = JSON.parse(m.body).content;
-        messagesContainer.appendChild(newMessage);
-    });
-};
-
-stompClient.onConnect = (frame) => {
-    console.log('Connected: ' + frame);
-
-    // Suscribirse al canal de la sala de espera
-    stompClient.subscribe('/topic/salaDeEspera', (m) => {
-        const data = JSON.parse(m.body);
-        const button = document.getElementById(`ready-button-${data.jugadorId}`);
-        if (data.estaListo) {
-            button.classList.remove('btn-danger');
-            button.classList.add('btn-success');
-            button.textContent = 'SI';
-        } else {
-            button.classList.remove('btn-success');
-            button.classList.add('btn-danger');
-            button.textContent = 'NO';
-        }
-    });
-};
+stompClient.activate();
 
 function toggleReady(jugadorId, estaListo) {
     stompClient.publish({
@@ -43,26 +39,12 @@ function toggleReady(jugadorId, estaListo) {
     });
 }
 
-stompClient.onWebSocketError = (error) => {
-    console.error('Error with websocket', error);
-};
-
-stompClient.onStompError = (frame) => {
-    console.error('Broker reported error: ' + frame.headers['message']);
-    console.error('Additional details: ' + frame.body);
-};
-
-stompClient.activate();
-
-// Take the value in the ‘message-input’ text field and send it to the server with empty headers.
-function sendMessage(){
-
-    let input = document.getElementById("message");
+function sendMessage() {
+    let input = document.getElementById("input-intento");
     let message = input.value;
 
     stompClient.publish({
         destination: "/app/chat",
-        body: JSON.stringify({message: message})
+        body: JSON.stringify({ message: message })
     });
 }
-

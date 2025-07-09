@@ -5,7 +5,6 @@
     <title>Lobby</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
     <style>
         body {
             background: radial-gradient(circle at top left, #1f005c, #5f0a87, #a4508b);
@@ -16,30 +15,15 @@
             flex-direction: column;
             min-height: 100vh;
         }
-
         .btn-orange {
             background-color: #ff6347;
             color: white;
         }
-
         .btn-outline {
             border: 2px solid black;
             background-color: white;
             color: black;
         }
-
-        .btn-large {
-            width: 500px;
-            height: 100px;
-            font-size: 1.5rem;
-        }
-
-        .btn-start {
-            width: 200px;
-            height: 80px;
-            font-size: 1.2rem;
-        }
-
         .circle-btn {
             width: 60px;
             height: 60px;
@@ -50,20 +34,298 @@
             align-items: center;
             justify-content: center;
         }
-
         .perfil-container {
             position: absolute;
             top: 20px;
             right: 40px;
         }
+        /*BANNER DE BIENVENIDA*/
+        .wordgame-banner {
+            background: linear-gradient(90deg, #5f0a87 0%, #a4508b 60%, #ffb86c 100%);
+            color: #fff;
+            border-radius: 2.5rem;
+            box-shadow: 0 4px 24px 0 rgba(95,10,135,0.18);
+            padding: 2.2rem 2.5rem 2.2rem 2rem;
+            font-size: 2rem;
+            font-family: 'Segoe UI', 'Comic Sans MS', cursive, sans-serif;
+            position: relative;
+            overflow: hidden;
+            min-height: 90px;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 12px #1f005c44;
+            border: 2.5px solid #ffb86c44;
+        }
+        .wordgame-banner .banner-icon {
+            font-size: 2.7rem;
+            color: #ffb86c;
+            filter: drop-shadow(0 2px 8px #a4508b88);
+            animation: banner-bounce 1.2s infinite alternate;
+        }
+        @keyframes banner-bounce {
+            0% { transform: translateY(0) scale(1);}
+            100% { transform: translateY(-7px) scale(1.08);}
+        }
+        .wordgame-banner .banner-subtitle {
+            font-size: 1.1rem;
+            color: #fff9;
+            margin-top: 0.2em;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+        /*HASTA ACA BANNER DE BIVENIDA*/
+
+        /*BOTON CREAR SALA*/
+        .btn-crear-sala {
+            background: linear-gradient(90deg, #ffb86c 0%, #ff6347 100%);
+            color: #fff;
+            border: none;
+            border-radius: 2.5rem;
+            box-shadow: 0 6px 32px 0 rgba(255,184,108,0.25), 0 1.5px 0 #fff4 inset;
+            font-size: 1.7rem;
+            font-family: 'Segoe UI', 'Comic Sans MS', cursive, sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.3s;
+            position: relative;
+            overflow: hidden;
+            min-width: 270px;
+            min-height: 70px;
+            animation: crearSalaPulse 1.7s infinite alternate;
+        }
+        .btn-crear-sala:hover, .btn-crear-sala:focus {
+            background: linear-gradient(90deg, #ffb86c 10%, #ff6347 90%);
+            color: #fff;
+            transform: scale(1.04);
+            box-shadow: 0 10px 40px 0 rgba(255,184,108,0.25), 0 2px 0 #fff6 inset;
+            text-shadow: 0 2px 12px #ffb86c44;
+        }
+        @keyframes crearSalaPulse {
+            0% { box-shadow: 0 6px 32px 0 rgba(164,80,139,0.25);}
+            100% { box-shadow: 0 12px 48px 0 rgba(255,184,108,0.32);}
+        }
+        .crear-sala-icon {
+            font-size: 2.5rem;
+            color: #fff;
+            filter: drop-shadow(0 2px 8px #ffb86c88);
+            animation: iconBounce 1.2s infinite alternate;
+        }
+        @keyframes iconBounce {
+            0% { transform: translateY(0);}
+            100% { transform: translateY(-6px);}
+        }
+        /*HASTA ACA BOTON DE CREAR SALA EN EL LOBBY*/
+
+
+        /*ESTILOS DE LA TABLA DE PARTIDAS*/
+        .partidas-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 2rem; /* Bordes más redondeados */
+            box-shadow: 0 8px 40px rgba(31, 0, 92, 0.25);
+            border: none;
+            overflow: hidden; /* Asegura que el contenido respete los bordes redondeados */
+            color: #333;
+        }
+
+        .partidas-card .card-header-custom {
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
+        }
+
+        .partidas-card .card-header-custom h3 {
+            color: #5f0a87; /* Color del título a juego con la paleta */
+            font-weight: 700;
+        }
+
+        .partidas-card .btn-actualizar {
+            background: linear-gradient(145deg, #5f0a87, #a4508b);
+            color: #fff;
+            border: none;
+            border-radius: 1.5rem;
+            font-weight: 600;
+            padding: 0.5rem 1.2rem;
+            box-shadow: 0 4px 15px rgba(95, 10, 135, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .partidas-card .btn-actualizar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(95, 10, 135, 0.3);
+        }
+
+        .partidas-card .table {
+            border-radius: 1.5rem;
+            box-shadow: none; /* Se quita la sombra de la tabla para que la tenga la tarjeta */
+        }
+
+        .partidas-card .buscador-input {
+            border-radius: 1.5rem;
+            border: 2px solid #ddd;
+            background: #fff;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .partidas-card .buscador-btn {
+            border-radius: 1.5rem;
+            background: #ff6347;
+            font-weight: 600;
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 99, 71, 0.25);
+        }
+        /*HASTA ACA ESTILOS DE LA TABLA DE PARTIDAS*/
+
+        /*TABLA DE PARTIDAS EN ESPERAS*/
+
+        .btn-actualizar {
+            background: linear-gradient(90deg, #222 0%, #555 100%);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            border-radius: 2rem;
+            box-shadow: 0 2px 12px #2222;
+            padding: 0.7rem 2.1rem;
+            font-size: 1.1rem;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .btn-actualizar:hover, .btn-actualizar:focus {
+            background: linear-gradient(90deg, #555 0%, #222 100%);
+            color: #fff;
+            transform: scale(1.04);
+        }
+        .buscador-input {
+            min-width: 220px;
+            max-width: 350px;
+            border-radius: 1.5rem;
+            border: 1.5px solid #222;
+            font-size: 1.05rem;
+            padding: 0.7rem 1.2rem;
+            color: #222;
+            background: #fafafa;
+        }
+        .buscador-btn {
+            border-radius: 1.5rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            padding: 0.7rem 2.1rem;
+            background: linear-gradient(90deg, #222 0%, #555 100%);
+            color: #fff;
+            box-shadow: 0 2px 12px #2222;
+            border: none;
+        }
+        #resultadoBusqueda {
+            background: #f5f5f5;
+            border-radius: 1rem;
+            min-height: 40px;
+            color: #222;
+            font-size: 1.05rem;
+            box-shadow: 0 2px 8px #2221;
+        }
+        @media (max-width: 768px) {
+            .partidas-table thead th, .partidas-table tbody td {
+                font-size: 0.95rem;
+                padding: 0.4rem 0.3rem;
+            }
+            .buscador-input {
+                min-width: 120px;
+                width: 100%;
+            }
+        }
+        /*HASTA ACA TABLA DE PARTIDAS EN ESPERA*/
+
+
+        /*BOTON PARTIDA ALEATORIA*/
+        .btn-partida-aleatoria {
+            background: linear-gradient(90deg, #00bfff 0%, #ff6347 100%);
+            color: #fff;
+            border: none;
+            border-radius: 2.5rem;
+            box-shadow: 0 6px 32px 0 rgba(0,191,255,0.25), 0 1.5px 0 #fff4 inset;
+            font-size: 1.7rem;
+            font-family: 'Segoe UI', 'Comic Sans MS', cursive, sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.3s;
+            position: relative;
+            min-width: 270px;
+            min-height: 70px;
+            animation: partidaAleatoriaPulse 1.7s infinite alternate;
+        }
+
+        .btn-partida-aleatoria:hover, .btn-partida-aleatoria:focus {
+            background: linear-gradient(90deg, #00bfff 10%, #ff6347 90%);
+            transform: scale(1.04);
+            box-shadow: 0 10px 40px 0 rgba(0,191,255,0.25), 0 2px 0 #fff6 inset;
+            text-shadow: 0 2px 12px #ffb86c44;
+        }
+
+        @keyframes partidaAleatoriaPulse {
+            0% { box-shadow: 0 6px 32px 0 rgba(0,191,255,0.25);}
+            100% { box-shadow: 0 12px 48px 0 rgba(0,191,255,0.32);}
+        }
+
+        .partida-aleatoria-icon {
+            font-size: 2.5rem;
+            color: #fff;
+            filter: drop-shadow(0 2px 8px #00bfff88);
+            animation: iconBounce 1.2s infinite alternate;
+        }
+
+        @keyframes iconBounce {
+            0% { transform: translateY(0);}
+            100% { transform: translateY(-6px);}
+        }
+
+        /*BOTON DE PERFIL*/
+        .circle-btn {
+            width: 70px; /* Aumentado de 60px */
+            height: 70px; /* Aumentado de 60px */
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ffffff, #f5e9ff);
+            color: #5f0a87;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem; /* Aumentado de 1.9rem */
+            border: 3px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 6px 20px rgba(31, 0, 92, 0.22);
+            transition: all 0.2s ease-in-out;
+        }
+        .circle-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(31, 0, 92, 0.28);
+            color: #a4508b;
+            background: #fff;
+        }
+        /*HASTA ACA BOTON DE PERFIL*/
+        /*BOTON DE RANKING Y RECOMPENSA*/
+        .btn-outline {
+            background: rgba(255, 184, 108, 0.15); /* Tinte naranja/amarillo */
+            border: 2px solid rgba(255, 184, 108, 0.5); /* Borde más visible */
+            color: #fff;
+            border-radius: 2rem;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+            transition: all 0.2s ease-in-out;
+            backdrop-filter: blur(5px);
+            font-size: 1.1rem;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 184, 108, 0.25); /* Más opaco al pasar el cursor */
+            border-color: rgba(255, 184, 108, 0.8);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        /**/
+
     </style>
 </head>
 <body>
 
 <header class="bg-dark text-white py-3 shadow-sm">
     <div class="container d-flex justify-content-between align-items-center">
-        <h1 class="h2 mb-0">Learnglish</h1>
-        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalAbandonar">Abandonar</button>
+        <h1 class="h2 mb-0">Definila</h1>
     </div>
 </header>
 
@@ -79,38 +341,240 @@
     <div class="container-fluid">
         <div class="row mt-3">
             <!-- Botones Recompensas y Rankings -->
-            <div class="col-3 d-flex flex-column align-items-start gap-3 ps-5">
+            <div class="col-12 col-md-3 d-flex flex-column align-items-start gap-3 ps-5 mb-3 mb-md-0">
                 <a class="btn btn-outline w-75"><i class="bi bi-star me-2"></i>Recompensas</a>
                 <a class="btn btn-outline w-75"><i class="bi bi-trophy me-2"></i>Rankings</a>
             </div>
-
             <!-- Mensaje de bienvenida -->
-            <div class="col-6 d-flex justify-content-center align-items-start">
-                <div class="btn btn-orange btn-large d-flex align-items-center justify-content-center">
-                    <span th:text="${jugador.nombre}"></span>
+            <div class="col-12 col-md-6 d-flex justify-content-center align-items-start">
+                <div class="wordgame-banner w-100 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-lightbulb-fill me-3 banner-icon"></i>
+                    <div>
+                        <span th:if="${usuarioNombre != null}">
+                            <span class="fw-bold">Bienvenido, <span th:text="${usuarioNombre}"></span>!</span>
+                            <div class="banner-subtitle">Listo para desafiar tu vocabulario</div>
+                        </span>
+                        <span th:if="${usuarioNombre == null}">
+                            <span class="fw-bold">Bienvenido al lobby!</span>
+                            <div class="banner-subtitle">Crea a una partida y juga con las palabras</div>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <!-- Botones centrales: Sala de Espera y Iniciar Partida -->
-        <div class="row mt-5 justify-content-center gap-4">
+        <!-- Botón central: Crear Sala -->
+        <div class="row mt-5 justify-content-center">
             <div class="col-auto">
-                <a th:href="@{/salaDeEspera}" class="btn btn-orange btn-start">
-                    <i class="bi bi-door-open me-2"></i>Sala de Espera
+                <a th:href="@{/crear-sala}" class="btn btn-crear-sala d-flex align-items-center px-5 py-3">
+                    <i class="bi bi-play-circle-fill me-3 crear-sala-icon"></i>
+                    <span class="fw-bold fs-4">Crear Sala</span>
                 </a>
             </div>
+        </div>
+        <div class="row mt-5 justify-content-center">
             <div class="col-auto">
-                <a th:href="@{/juego(jugadorId=1)}" class="btn btn-orange btn-start">
-                    <i class="bi bi-controller me-2"></i>Iniciar Partida
+                <a th:href="@{/partidaAleatoria}" class="btn btn-partida-aleatoria d-flex align-items-center px-5 py-3">
+                    <i class="bi bi-dice-5-fill me-3 partida-aleatoria-icon"></i>
+                    <span class="fw-bold fs-4">Partida Aleatoria</span>
                 </a>
+            </div>
+        </div>
+        <div th:if="${partidaAleatoriaNoDisponible}"
+             id="mensaje-error"
+             class="alert alert-warning text-center mx-auto"
+             style="width: fit-content; max-width: 90%; padding: 0.5rem 1rem; margin-top: 1rem; border-radius: 0.5rem;">
+            <p th:text="${partidaAleatoriaNoDisponible}" style="margin: 0;"></p>
+        </div>
+        <!-- Tabla de partidas y búsqueda -->
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8">
+                    <div class="card partidas-card">
+                        <!-- Cabecera con Título y Botón Actualizar -->
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 card-header-custom">
+                            <h3 class="mb-0">Partidas Disponibles</h3>
+                            <button id="actualizarPartidasBtn" class="btn btn-actualizar">
+                                <i class="bi bi-arrow-clockwise"></i> Actualizar
+                            </button>
+                        </div>
+
+                        <!-- Tabla de Partidas -->
+                        <div class="card-body pt-0 px-2 px-md-3">
+                            <div class="table-responsive">
+                                <table class="table text-center mb-0">
+                                    <thead style="background: linear-gradient(90deg, #ffb86c 0%, #a4508b 100%); color: #fff; font-size: 1.1rem;">
+                                    <tr>
+                                        <th><i class="bi bi-hash"></i></th>
+                                        <th><i class="bi bi-card-text"></i> Nombre</th>
+                                        <th><i class="bi bi-translate"></i> Idioma</th>
+                                        <th><i class="bi bi-stars"></i> Comodín</th>
+                                        <th><i class="bi bi-arrow-repeat"></i> Rondas</th>
+                                        <th><i class="bi bi-people-fill"></i> Max</th>
+                                        <th><i class="bi bi-person"></i> Min</th>
+                                        <th><i class="bi bi-activity"></i> Estado</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="partida, iterStat : ${partidas}" style="transition: background 0.2s;" onmouseover="this.style.background='#ffb86c22';" onmouseout="this.style.background='transparent';">
+                                        <td th:text="${iterStat.index + 1}" class="fw-bold"></td>
+                                        <td th:text="${partida.nombre}" class="fw-semibold"></td>
+                                        <td th:text="${partida.idioma}"></td>
+                                        <td>
+                                            <span th:if="${partida.permiteComodin}" class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> Sí</span>
+                                            <span th:if="${!partida.permiteComodin}" class="badge bg-secondary">No</span>
+                                        </td>
+                                        <td th:text="${partida.rondasTotales}"></td>
+                                        <td th:text="${partida.maximoJugadores}"></td>
+                                        <td th:text="${partida.minimoJugadores}"></td>
+                                        <td>
+                                            <span th:if="${partida.estado == 'ABIERTA'}" class="badge bg-success">Abierta</span>
+                                            <span th:if="${partida.estado != 'ABIERTA'}" class="badge bg-danger" th:text="${partida.estado}"></span>
+                                        </td>
+                                        <td>
+                                            <form th:action="@{/sala-de-espera}" method="post" class="d-inline">
+                                                <input type="hidden" name="idPartida" th:value="${partida.id}" />
+                                                <button type="submit" class="btn btn-sm btn-orange rounded-pill px-3 shadow-sm">
+                                                    <i class="bi bi-door-open-fill me-1"></i> Unirse
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(partidas)}" class="text-center px-4" style="margin-top:-0.5rem;">
+                            <p class="text-dark font-weight-bold">No hay partidas disponibles.</p>
+
+                        </div>
+
+
+                        <!-- Sección de Búsqueda -->
+                        <div class="px-4 pb-4">
+                            <!-- Título -->
+                            <div class="text-center border-top pt-4 pb-2 mb-3">
+                                <h4 class="mb-0" style="color: #5f0a87;">Buscar Partidas</h4>
+                            </div>
+                            <!-- Controles de Búsqueda -->
+                            <div class="d-flex justify-content-center align-items-center flex-wrap gap-2">
+                                <input id="nombrePartida" class="form-control buscador-input mb-2 mb-md-0" placeholder="Ingrese el nombre de la partida" />
+                                <button id="buscarPartidaBtn" class="btn buscador-btn">Buscar</button>
+                            </div>
+                        </div>
+                        <div id="resultadoBusqueda" class="px-3 pb-3"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </main>
 
 <footer class="bg-dark text-center py-3 shadow-sm mt-auto">
-    <small>&copy; 2025 Taller Web 1 - Learnglish</small>
+    <small>&copy; 2025 Taller Web 1 - Definila</small>
 </footer>
-
+<script>
+    document.getElementById('actualizarPartidasBtn').addEventListener('click', function() {
+        location.reload();
+    });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const URL_BUSCAR = /*[[@{/buscar}]]*/ '/buscar';
+    /*]]>*/
+</script>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const mensaje = document.getElementById('mensaje-error');
+        if (mensaje) {
+            setTimeout(() => {
+                mensaje.style.transition = 'opacity 0.5s ease-out';
+                mensaje.style.opacity = '0';
+                setTimeout(() => mensaje.remove(), 500);
+            }, 5000);
+        }});
+</script>
+<script>
+    // buscarPartidas.js
+    console.log('Endpoint de búsqueda:', URL_BUSCAR);
+
+    const btn = document.getElementById("buscarPartidaBtn");
+    btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        const nombre = document.getElementById("nombrePartida").value;
+
+        const fetchUrl = `${URL_BUSCAR}?nombre=${encodeURIComponent(nombre)}`;
+        console.log('Haciendo fetch a:', fetchUrl);
+
+        fetch(fetchUrl)
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                console.log('Datos recibidos:', data);
+                const resultadoDiv = document.getElementById("resultadoBusqueda");
+                if (!data || data.length === 0) {
+                    resultadoDiv.innerHTML = '<p class="text-dark fw-semibold p-3">No se encontraron partidas con ese nombre.</p>';
+                    return;
+                }
+
+                let tabla = `
+<div class="table-responsive">
+  <table class="table text-center mb-0 shadow-lg rounded-4 overflow-hidden" style="background: linear-gradient(120deg, #fff 0%, #ffe0d2 100%); border: 2.5px solid #ffb86c44;">
+    <thead style="background: linear-gradient(90deg, #ffb86c 0%, #a4508b 100%); color: #fff; font-size: 1.1rem;">
+      <tr>
+        <th><i class="bi bi-hash"></i></th>
+        <th><i class="bi bi-card-text"></i> Nombre</th>
+        <th><i class="bi bi-translate"></i> Idioma</th>
+        <th><i class="bi bi-stars"></i> Comodín</th>
+        <th><i class="bi bi-arrow-repeat"></i> Rondas</th>
+        <th><i class="bi bi-people-fill"></i> Max</th>
+        <th><i class="bi bi-person"></i> Min</th>
+        <th><i class="bi bi-activity"></i> Estado</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>`;
+                data.forEach((p, i) => {
+                    tabla += `
+    <tr style="transition: background 0.2s;"
+        onmouseover="this.style.background='#ffb86c22';"
+        onmouseout="this.style.background='rgba(255,255,255,0.95)';">
+      <td class="fw-bold">${i+1}</td>
+      <td class="fw-semibold">${p.nombre}</td>
+      <td>${p.idioma}</td>
+      <td>
+        ${p.permiteComodin
+                        ? '<span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> Sí</span>'
+                        : '<span class="badge bg-secondary">No</span>'}
+      </td>
+      <td>${p.rondasTotales}</td>
+      <td>${p.maximoJugadores}</td>
+      <td>${p.minimoJugadores}</td>
+      <td>
+        ${p.estado === 'ABIERTA'
+                        ? '<span class="badge bg-success">Abierta</span>'
+                        : `<span class="badge bg-danger">${p.estado}</span>`}
+      </td>
+      <td>
+        <form action="/spring/sala-de-espera" method="post" class="d-inline">
+            <input type="hidden" name="idPartida" value="${p.id}" />
+            <button type="submit" class="btn btn-sm btn-orange rounded-pill px-3 shadow-sm">
+                <i class="bi bi-door-open-fill me-1"></i> Unirse
+            </button>
+        </form>
+      </td>
+    </tr>`;
+                });
+                tabla += `</tbody></table></div>`;
+                resultadoDiv.innerHTML = tabla;
+            })
+            .catch(err => console.error('Fetch error:', err));
+    });
+</script>
 </body>
 </html>

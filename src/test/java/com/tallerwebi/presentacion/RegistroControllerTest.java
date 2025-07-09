@@ -1,14 +1,20 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.RegistroService;
+import com.tallerwebi.dominio.excepcion.PasswordMenorAOchoCaracteresException;
+import com.tallerwebi.dominio.interfaceService.RegistroService;
 import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
+import com.tallerwebi.dominio.model.Usuario;
+import org.dom4j.rule.Mode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,14 +22,14 @@ import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+@Transactional
+@Rollback
 public class RegistroControllerTest {
 
     private RegistroController registroController;
     private ModelAndView mav;
-    private String usuario;
-    private String password;
-    private String email;
+    private String nombreUsuario = "pepe123";
+    private String password = "abcdefgh123546";
     private MockMvc mockMvc;
     private RegistroService registroService;
 
@@ -31,9 +37,6 @@ public class RegistroControllerTest {
     public void init(){
         this.registroService = Mockito.mock(RegistroService.class);
         this.registroController = new RegistroController(registroService);
-        this.usuario = "pepe123";
-        this.password = "abc123";
-        this.email = "pepe123@gmail.com";
         this.mockMvc = MockMvcBuilders.standaloneSetup(registroController).build();
     }
 
@@ -51,7 +54,6 @@ public class RegistroControllerTest {
     }
 
 
-
     @Test
     public void queAlSeleccionarVolverAlLoginSePuedaRedireccionarADichaVista(){
 
@@ -61,52 +63,48 @@ public class RegistroControllerTest {
     }
 
     @Test
-    public void queSePuedaRegistrarUnUsuario() throws Exception {
-        givenUsuarioNoExiste();
-
-        MvcResult mvcResult = whenRegistroUsuario("pepe1243",password);
-
-        thenRegistroExitoso(mvcResult,"login");
+    public void queSePuedaRegistrarUnUsuario() {
+        Usuario usuario = givenUsuarioExiste();
+        ModelAndView mav = registroController.registrar(usuario);
+        thenRegistroExitoso(mav,"login");
     }
 
 
     @Test
     public void siNoHayNombreDeUsuarioElRegistroFalla() throws Exception {
+        Usuario usuario = new Usuario("",password);
+        ModelAndView mav = registroController.registrar(usuario);
 
-        MvcResult mvcResult = whenRegistroUsuario("",password);
-
-        thenRegistroFallido(mvcResult,"El usuario no puede estar vacio");
+        thenRegistroFallido(mav,"El usuario no puede estar vacio");
     }
 
 
     @Test
     public void siNoHayPasswordElRegistroFalla() throws Exception {
+        Usuario usuario = new Usuario(nombreUsuario,"");
+        ModelAndView mav = registroController.registrar(usuario);
 
-        MvcResult mvcResult= whenRegistroUsuario(usuario,"");
-
-        thenRegistroFallido(mvcResult,"La contrasenia no puede estar vacia");
+        thenRegistroFallido(mav,"La contrasenia no puede estar vacia");
     }
 
    @Test
-    public void queAlExistirElNombreDeUsuarioIndicadoSeGenereUnError() throws Exception {
+    public void queAlExistirElNombreDeUsuarioIndicadoSeMuestreMensajeDeError(){
+       Usuario usuario = new Usuario(nombreUsuario,password);
+        when(registroService.registrar(nombreUsuario,password)).thenThrow(UsuarioExistenteException.class);
+        ModelAndView mav = registroController.registrar(usuario);
 
-        when(registroService.registrar("lucas","password123")).thenThrow(new UsuarioExistenteException());
-       //MvcResult mvcResult = whenRegistroUsuario("pepe1235421",password);
-       //thenUsuarioExiste(mvcResult, "El usuario ya existe");
+        assertThat(mav.getModel().get("error").toString(),equalToIgnoringCase("El usuario ya existe"));
+        assertThat(mav.getViewName(),equalToIgnoringCase("registro"));
     }
-
 
     @Test
-    public void queAlVerificarLosDatosExitosamenteRedireccioneAVistaLogin() throws Exception {
-        MvcResult mvcResult = whenRegistroUsuario("pepe1234",password);
-        thenRedireccionaAVistaIndicada(mvcResult,"login");
-    }
+    public void siLaContraseñaNoCumpleConLosRequisitosDeLongitudQueSeMuestreMensajeDeError(){
+        Usuario usuario = new Usuario(nombreUsuario,"abdsc");
+        when(registroService.registrar(nombreUsuario,"abdsc")).thenThrow(PasswordMenorAOchoCaracteresException.class);
+        ModelAndView mav = registroController.registrar(usuario);
 
-
-
-    private void thenUsuarioExiste(MvcResult mvcResult, String mensaje) {
-        ModelAndView mav = mvcResult.getModelAndView();
-        assertThat(mav.getModel().get("error").toString(),equalToIgnoringCase(mensaje));
+        assertThat(mav.getModel().get("error").toString(),equalToIgnoringCase("La contraseña debe contener al menos ocho caracteres"));
+        assertThat(mav.getViewName(),equalToIgnoringCase("registro"));
     }
 
     private ModelAndView whenRedireccionarAVistaLogin() {
@@ -118,33 +116,20 @@ public class RegistroControllerTest {
     }
 
 
-    private void givenUsuarioNoExiste() {
+    private Usuario givenUsuarioExiste() {
+        Usuario usuario = new Usuario(nombreUsuario,password);
+        when(registroService.registrar(nombreUsuario,password)).thenReturn(usuario);
+        return usuario;
     }
 
-    private void thenRegistroExitoso(MvcResult mvcResult, String vista) {
-        ModelAndView mav = mvcResult.getModelAndView();
+    private void thenRegistroExitoso(ModelAndView mav, String vista) {
         assertThat(mav.getViewName(),equalToIgnoringCase(vista));
     }
-
-    private MvcResult whenRegistroUsuario(String nombre, String password) throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/procesarRegistro").
-                param("nombre",nombre).
-                param("password",password)).andExpect(status().isOk()).andReturn();
-        return mvcResult;
-    }
-
-    private void thenRegistroFallido(MvcResult mvcResult, String mensajeError) {
-        ModelAndView mav = mvcResult.getModelAndView();
+    private void thenRegistroFallido(ModelAndView mav, String mensajeError) {
         assertThat(mav.getModel().get("error").toString(),equalToIgnoringCase(mensajeError));
     }
 
     private ModelAndView whenMostrarVistaRegistro() {
         return this.registroController.mostrarRegistro();
-    }
-
-
-    private void thenRedireccionaAVistaIndicada(MvcResult mvcResult, String login) {
-        ModelAndView mav = mvcResult.getModelAndView();
-        assertThat(mav.getViewName(),equalToIgnoringCase(login));
     }
 }

@@ -1,8 +1,8 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.excepcion.PasswordMenorAOchoCaracteresException;
-import com.tallerwebi.dominio.Usuario;
-import com.tallerwebi.dominio.RegistroService;
+import com.tallerwebi.dominio.model.Usuario;
+import com.tallerwebi.dominio.interfaceService.RegistroService;
 import com.tallerwebi.dominio.excepcion.UsuarioExistenteException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -38,7 +38,7 @@ public class RegistroController {
     public ModelAndView registrar(@ModelAttribute Usuario usuario) {
         ModelMap model = new ModelMap();
         //Crear clase validadora de campos para no tener ifs aca
-        if(usuario.getNombre().isEmpty()){
+        if(usuario.getNombreUsuario().isEmpty()){
             model.addAttribute("error", "El usuario no puede estar vacio");
             return new ModelAndView("registro", model);
         }
@@ -47,7 +47,8 @@ public class RegistroController {
             return new ModelAndView("registro", model);
         }
         try{
-            this.registroService.registrar(usuario.getNombre(), usuario.getPassword());
+            this.registroService.registrar(usuario.getNombreUsuario(), usuario.getPassword());
+            model.addAttribute("mensaje", "Usuario registrado correctamente");
             return new ModelAndView("login", model);
         }catch(UsuarioExistenteException u){
             model.addAttribute("error", "El usuario ya existe");

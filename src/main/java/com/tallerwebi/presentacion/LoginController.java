@@ -1,8 +1,8 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.excepcion.DatosLoginIncorrectosException;
-import com.tallerwebi.dominio.Usuario;
-import com.tallerwebi.dominio.LoginService;
+import com.tallerwebi.dominio.model.Usuario;
+import com.tallerwebi.dominio.interfaceService.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpSession;
 
 @Controller
 public class LoginController {
@@ -35,9 +37,9 @@ public class LoginController {
     }
 
     @PostMapping("/procesarLogin")
-    public ModelAndView login(@ModelAttribute Usuario usuario) {
+    public ModelAndView login(@ModelAttribute Usuario usuario, HttpSession session) {
         ModelMap modelMap = new ModelMap();
-        if(usuario.getNombre().isEmpty()){
+        if(usuario.getNombreUsuario().isEmpty()){
             modelMap.addAttribute("error","El campo de usuario no puede estar vacio");
             return new ModelAndView("login", modelMap);
         }
@@ -46,11 +48,13 @@ public class LoginController {
             return new ModelAndView("login", modelMap);
         }
         try{
-            Usuario usuarioLogueado = this.loginService.login(usuario.getNombre(), usuario.getPassword());
+            Usuario usuarioLogueado = this.loginService.login(usuario.getNombreUsuario(), usuario.getPassword());
             modelMap.addAttribute("Usuario", usuarioLogueado);
-            return new ModelAndView("lobby",modelMap);
+            session.setAttribute("usuario",usuarioLogueado.getNombreUsuario());
+            session.setAttribute("idUsuario", usuarioLogueado.getId());
+            return new ModelAndView("redirect:/lobby");
         }catch(DatosLoginIncorrectosException datosLoginIncorrectos){
-            modelMap.addAttribute("error","Datos incorrectos");
+            modelMap.addAttribute("error",datosLoginIncorrectos.getMessage());
             return new ModelAndView("login", modelMap);
         }
     }
