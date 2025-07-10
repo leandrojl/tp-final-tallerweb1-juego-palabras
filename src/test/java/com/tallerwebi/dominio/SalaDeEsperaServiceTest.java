@@ -135,7 +135,7 @@ public class SalaDeEsperaServiceTest {
         whenSeRedireccionaALosUsuariosAUnaPartida(mensaje);
 
         List<Usuario> usuarios = List.of(new Usuario("pepe"), new Usuario("Jose"));
-        thenRedireccionExitosa(usuarios, "http://localhost:8080/spring/juego", "/queue/irAPartida");
+        thenRedireccionExitosa(usuarios, "/spring/juego", "/queue/irAPartida");
     }
 
     @Test
@@ -283,7 +283,7 @@ public class SalaDeEsperaServiceTest {
 
         servicioSalaDeEspera.abandonarSala(mensaje, nombreUsuario);
 
-        thenRedireccionExitosa(usuarios, "http://localhost:8080/spring/lobby", "/queue/alAbandonarSala");
+        thenRedireccionExitosa(usuarios, "/spring/lobby", "/queue/alAbandonarSala");
     }
 
 
@@ -395,7 +395,7 @@ public class SalaDeEsperaServiceTest {
 
 
     private void thenAbandonoLaSala(MensajeRecibidoDTO mensaje) {
-        assertEquals("http://localhost:8080/spring/lobby",mensaje.getMessage());
+        assertEquals("/spring/lobby",mensaje.getMessage());
     }
 
     private void thenRedireccionExitosa(List<Usuario> usuarios, String urlDestino,String canalPrivadoPorDondeRecibenMensaje) {

@@ -80,18 +80,17 @@ public class PartidaRepositoryImpl implements PartidaRepository {
     @Override
     public Partida obtenerPartidaAleatoria() {
         Session session = sessionFactory.getCurrentSession();
+        Estado estado = Estado.EN_CURSO;
 
         return session.createQuery(
                         "SELECT p FROM Partida p " +
-                                "WHERE p.id IN (" +
-                                "   SELECT up.partida.id FROM UsuarioPartida up " +
-                                "   GROUP BY up.partida.id " +
-                                "   HAVING COUNT(up.id) < (" +
-                                "       SELECT p2.maximoJugadores FROM Partida p2 WHERE p2.id = up.partida.id" +
-                                "   )" +
-                                ")",
+                                "JOIN UsuarioPartida up ON up.partida.id = p.id " +
+                                "WHERE p.estado = :estado " +
+                                "GROUP BY p.id, p.maximoJugadores " +
+                                "HAVING COUNT(up.id) < p.maximoJugadores",
                         Partida.class
                 )
+                .setParameter("estado", estado)
                 .setMaxResults(1)
                 .uniqueResult();
     }
