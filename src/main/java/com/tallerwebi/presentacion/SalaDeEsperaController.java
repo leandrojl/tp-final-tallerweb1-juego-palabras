@@ -207,4 +207,30 @@ public class SalaDeEsperaController {
     public void paraExcepciones(Exception ex) {
         ex.printStackTrace();
     }
+
+
+    @RequestMapping(value = "/unirseAPartidaAleatoria", method = {RequestMethod.GET, RequestMethod.POST})
+    public ModelAndView unirseAPartidaAleatoria(HttpSession session) {
+        Long idPartida = (Long) session.getAttribute("idPartida");
+        Long idUsuario = (Long) session.getAttribute("idUsuario");
+
+        if (idPartida == null || idUsuario == null) {
+            return new ModelAndView("redirect:/lobby");
+        }
+
+            UsuarioPartida usuarioPartida = usuarioPartidaService.buscarUsuarioPartida(idPartida, idUsuario);
+            if (usuarioPartida == null) {
+                usuarioPartidaService.agregarUsuarioAPartida(idUsuario, idPartida, 0, false, Estado.EN_CURSO);
+            } else {
+                usuarioPartidaService.cambiarEstado(idUsuario, idPartida, Estado.EN_CURSO);
+            }
+
+            // Retornamos la vista que setea sessionStorage y redirige
+            ModelAndView model = new ModelAndView("preparar-juego");
+            model.addObject("idUsuario", idUsuario);
+            model.addObject("idPartida", idPartida);
+            return model;
+    }
+
+
 }
