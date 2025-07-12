@@ -250,19 +250,19 @@ public class SalaDeEsperaControllerTest {
     //ESTOS SON LOS MIOS PARA EL SPRINT 4
     //############################################################################################
 
-//    @Test
-//    public void siNoSePudoIniciarLaPartidaQueDeError() {
-//        MensajeRecibidoDTO dto = new MensajeRecibidoDTO("mensaje", 1L);
-//
-//        doThrow(CantidadDeUsuariosInsuficientesException.class).when(salaDeEsperaService).redireccionarUsuariosAPartida(dto);
-//        assertThrows(CantidadDeUsuariosInsuficientesException.class, () -> {
-//            salaDeEsperaController.enviarUsuariosALaPartida(dto);
-//        });
-//
-//        CantidadDeUsuariosInsuficientesException ex = new CantidadDeUsuariosInsuficientesException("error");
-//        MensajeRecibidoDTO respuesta = salaDeEsperaController.enviarMensajeDeDenegacionDeAvanceAPartida(ex);
-//        assertEquals("error", respuesta.getMessage());
-//    }
+    @Test
+    public void siNoSePudoIniciarLaPartidaQueDeError() {
+        MensajeRecibidoDTO dto = new MensajeRecibidoDTO("mensaje", 1L);
+
+        doThrow(CantidadDeUsuariosInsuficientesException.class).when(salaDeEsperaService).redireccionarUsuariosAPartida(dto);
+        assertThrows(CantidadDeUsuariosInsuficientesException.class, () -> {
+            salaDeEsperaController.enviarUsuariosALaPartida(dto);
+        });
+
+        CantidadDeUsuariosInsuficientesException ex = new CantidadDeUsuariosInsuficientesException("error");
+        MensajeRecibidoDTO respuesta = salaDeEsperaController.enviarMensajeDeDenegacionDeAvanceAPartida(ex);
+        assertEquals("error", respuesta.getMessage());
+    }
 
     @Test
     public void queUnJugadorPuedaAbandonarLaSalaDeEspera(){

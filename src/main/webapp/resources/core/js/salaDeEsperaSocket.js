@@ -123,7 +123,7 @@ stompClient.onConnect = (frame) => {
         window.location.href = `${protocol}//${host}` + data.message;
     });
 
-    stompClient.subscribe('/topic/noSePuedeIrALaPartida/' + idPartida, (m) => {
+    stompClient.subscribe('/user/queue/noSePuedeIrALaPartida', (m) => {
         const data = JSON.parse(m.body);
         const message = data.message;
         cantidadInsuficienteDeUsuariosParaIniciarPartida(message);
