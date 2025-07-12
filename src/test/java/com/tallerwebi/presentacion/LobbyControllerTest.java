@@ -304,7 +304,7 @@ public class LobbyControllerTest {
 
         String aDondeRetorna = lobbyController.partidaAleatoria(sessionMock,redirectAttributes);
 
-        assertEquals("redirect:/sala-de-espera",aDondeRetorna);
+        assertEquals("redirect:/unirseAPartidaAleatoria",aDondeRetorna);
     }
 
     @Test
