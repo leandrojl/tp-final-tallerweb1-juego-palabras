@@ -180,21 +180,21 @@ public class SalaDeEsperaController {
 
     //PARA SPRINT 4
 
-    @MessageExceptionHandler({CantidadDeUsuariosInsuficientesException.class, CantidadDeUsuariosListosInsuficientesException.class})
-    @SendTo("/topic/noSePuedeIrALaPartida")
-    public MensajeRecibidoDTO enviarMensajeDeDenegacionDeAvanceAPartida(RuntimeException ex) {
-        String mensaje;
-
-        if (ex instanceof CantidadDeUsuariosInsuficientesException) {
-            mensaje = ex.getMessage();
-        } else if (ex instanceof CantidadDeUsuariosListosInsuficientesException) {
-            mensaje = ex.getMessage();
-        } else {
-            mensaje = "error inesperado";
-        }
-
-        return new MensajeRecibidoDTO(mensaje);
-    }
+//    @MessageExceptionHandler({CantidadDeUsuariosInsuficientesException.class, CantidadDeUsuariosListosInsuficientesException.class})
+//    @SendTo("/topic/noSePuedeIrALaPartida")
+//    public MensajeRecibidoDTO enviarMensajeDeDenegacionDeAvanceAPartida(RuntimeException ex) {
+//        String mensaje;
+//
+//        if (ex instanceof CantidadDeUsuariosInsuficientesException) {
+//            mensaje = ex.getMessage();
+//        } else if (ex instanceof CantidadDeUsuariosListosInsuficientesException) {
+//            mensaje = ex.getMessage();
+//        } else {
+//            mensaje = "error inesperado";
+//        }
+//
+//        return new MensajeRecibidoDTO(mensaje);
+//    }
 
 
     @MessageMapping("/abandonarSala")

@@ -60,6 +60,16 @@ stompClient.onConnect = (frame) => {
         }
     });
 
+    // NUEVO: Suscripción para cuando un jugador abandona la sala
+    stompClient.subscribe('/topic/jugadorAbandonoSala/' + idPartida, (m) => {
+        const data = JSON.parse(m.body);
+        const nombreUsuarioAbandona = data.message;
+        const jugadorDiv = document.getElementById("jugador-" + nombreUsuarioAbandona);
+        if (jugadorDiv) {
+            jugadorDiv.remove();
+        }
+    });
+
     stompClient.subscribe('/topic/salaDeEspera/' + idPartida, (m) => {
 
         const estadoJugador = JSON.parse(m.body);
@@ -113,7 +123,7 @@ stompClient.onConnect = (frame) => {
         window.location.href = `${protocol}//${host}` + data.message;
     });
 
-    stompClient.subscribe('/topic/noSePuedeIrALaPartida', (m) => {
+    stompClient.subscribe('/topic/noSePuedeIrALaPartida/' + idPartida, (m) => {
         const data = JSON.parse(m.body);
         const message = data.message;
         cantidadInsuficienteDeUsuariosParaIniciarPartida(message);
