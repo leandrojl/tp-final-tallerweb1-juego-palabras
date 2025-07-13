@@ -3,65 +3,145 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <title>Definila</title>
+    <title>Definila - Iniciar Sesión</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}"/>
 
-    <!-- Custom styles -->
-    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <!-- Google Fonts para un estilo más moderno -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        body {
-            background-color: #f8f9fa;
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
         }
 
-        .login-container {
-            margin-top: 100px;
+        .main-container {
+            display: flex;
+            min-height: 100vh;
         }
 
-        .login-card {
+        .welcome-section {
+            background: linear-gradient(135deg, #5f0a87 0%, #1f005c 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
             padding: 2rem;
+        }
+
+        .welcome-section h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .welcome-section p {
+            font-size: 1.2rem;
+            font-weight: 300;
+            max-width: 80%;
+        }
+
+        .login-section {
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .login-form-container {
+            width: 100%;
+            /* Tamaño ajustado para coincidir con el registro */
+            max-width: 550px;
+            background: #ffffff;
+            /* Padding ajustado para coincidir con el registro */
+            padding: 3.5rem;
             border-radius: 1rem;
-            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
-            background-color: #ffffff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
         .form-signin-heading {
-            margin-bottom: 1rem;
             font-weight: 600;
             text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
         }
 
-        .btn-block {
+        .form-control {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+        }
+
+        .form-control:focus {
+            border-color: #5f0a87;
+            box-shadow: 0 0 0 0.25rem rgba(95, 10, 135, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #5f0a87;
+            border-color: #5f0a87;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
             width: 100%;
+            transition: background-color 0.2s;
         }
 
-        .colorgraph {
-            height: 5px;
-            border-top: 0;
-            background: #c4c4c4;
-            margin-bottom: 1rem;
+        .btn-primary:hover {
+            background-color: #4a086a;
+            border-color: #4a086a;
         }
 
         .register-link {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             display: block;
             text-align: center;
+            color: #5f0a87;
+            text-decoration: none;
+            font-weight: 400;
+        }
+
+        .register-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive: en pantallas pequeñas, la sección de bienvenida se oculta */
+        @media (max-width: 768px) {
+            .welcome-section {
+                display: none;
+            }
+            .login-section {
+                padding: 1rem;
+            }
+            .login-form-container {
+                padding: 2rem;
+            }
         }
     </style>
 </head>
-
 <body>
 
-<main role="main" class="container login-container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="login-card">
+<div class="container-fluid p-0 main-container">
+    <div class="row g-0 w-100">
+        <!-- Columna Izquierda: Bienvenida y Degradado -->
+        <div class="col-md-6 welcome-section">
+            <h1>Bienvenido a Definila</h1>
+            <p>Tu plataforma para competir y demostrar quién sabe más.</p>
+        </div>
+
+        <!-- Columna Derecha: Formulario de Login -->
+        <div class="col-md-6 login-section">
+            <div class="login-form-container">
                 <form th:action="@{/procesarLogin}" method="POST" th:object="${usuario}">
-                    <h3 class="form-signin-heading">Iniciar sesion</h3>
-                    <hr class="colorgraph"/>
+                    <h3 class="form-signin-heading h2">Iniciar Sesión</h3>
 
                     <div class="mb-3">
                         <label for="usuario" class="form-label">Usuario</label>
@@ -73,7 +153,7 @@
                         <input th:field="*{password}" type="password" id="password" class="form-control" required/>
                     </div>
 
-                    <button id="btn-login" class="btn btn-primary btn-block" type="submit">Login</button>
+                    <button id="btn-login" class="btn btn-primary" type="submit">Entrar</button>
 
                     <p th:if="${error != null}" class="alert alert-danger mt-3" th:text="'Error: ' + ${error}"></p>
                 </form>
@@ -82,11 +162,9 @@
             </div>
         </div>
     </div>
-</main>
+</div>
 
 <!-- Bootstrap core JS -->
-<script type="text/javascript" th:src="@{/webjars/bootstrap/5.2.0/js/bootstrap.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/main.js}"></script>
-
+<script type="text/javascript" th:src="@{/webjars/bootstrap/5.2.0/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
