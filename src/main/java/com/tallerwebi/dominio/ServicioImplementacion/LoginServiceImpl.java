@@ -36,4 +36,9 @@ public class LoginServiceImpl implements LoginService {
     public Usuario buscarUsuario(String nombreUsuario) {
         return this.repositorioUsuario.buscar(nombreUsuario);
     }
+
+    @Override
+    public void registrar(Usuario usuario) {
+        this.repositorioUsuario.guardar(usuario);
+    }
 }

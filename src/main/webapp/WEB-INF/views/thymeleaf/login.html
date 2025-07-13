@@ -58,10 +58,8 @@
 
         .login-form-container {
             width: 100%;
-            /* Tamaño ajustado para coincidir con el registro */
             max-width: 550px;
             background: #ffffff;
-            /* Padding ajustado para coincidir con el registro */
             padding: 3.5rem;
             border-radius: 1rem;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -113,7 +111,13 @@
             text-decoration: underline;
         }
 
-        /* Responsive: en pantallas pequeñas, la sección de bienvenida se oculta */
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #888;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .welcome-section {
                 display: none;
@@ -131,15 +135,16 @@
 
 <div class="container-fluid p-0 main-container">
     <div class="row g-0 w-100">
-        <!-- Columna Izquierda: Bienvenida y Degradado -->
+        <!-- Columna Izquierda: Bienvenida -->
         <div class="col-md-6 welcome-section">
             <h1>Bienvenido a Definila</h1>
             <p>Tu plataforma para competir y demostrar quién sabe más.</p>
         </div>
 
-        <!-- Columna Derecha: Formulario de Login -->
+        <!-- Columna Derecha: Formularios -->
         <div class="col-md-6 login-section">
             <div class="login-form-container">
+                <!-- FORMULARIO DE LOGIN PRINCIPAL -->
                 <form th:action="@{/procesarLogin}" method="POST" th:object="${usuario}">
                     <h3 class="form-signin-heading h2">Iniciar Sesión</h3>
 
@@ -157,8 +162,21 @@
 
                     <p th:if="${error != null}" class="alert alert-danger mt-3" th:text="'Error: ' + ${error}"></p>
                 </form>
-
                 <a class="register-link" th:href="@{/registro}">¿No tenés cuenta? Registrate</a>
+
+                <!-- DIVISOR -->
+                <div class="divider">o</div>
+
+                <!-- FORMULARIO DE JUEGO RÁPIDO -->
+                <form th:action="@{/jugar-rapido}" method="POST" th:object="${usuario}">
+                    <h3 class="form-signin-heading h4">Jugar como Invitado</h3>
+                    <div class="mb-3">
+                        <label for="nombreUsuarioRapido" class="form-label">Elige un nombre</label>
+                        <input th:field="*{nombreUsuario}" id="nombreUsuarioRapido" type="text" class="form-control" placeholder="Tu nombre de invitado" required/>
+                    </div>
+                    <button class="btn btn-secondary w-100" type="submit">Jugar Rápido</button>
+                    <p th:if="${error_rapido != null}" class="alert alert-danger mt-3" th:text="'Error: ' + ${error_rapido}"></p>
+                </form>
             </div>
         </div>
     </div>

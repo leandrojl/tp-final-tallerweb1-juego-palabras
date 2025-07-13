@@ -31,6 +31,48 @@ public class LoginController {
         return new ModelAndView("login",model);
     }
 
+    // src/main/java/com/tallerwebi/presentacion/LoginController.java
+
+    @PostMapping("/jugar-rapido")
+    public ModelAndView jugarRapido(@ModelAttribute Usuario usuario, HttpSession session) {
+        ModelMap modelMap = new ModelMap();
+        String nombreUsuario = usuario.getNombreUsuario();
+
+        if (nombreUsuario == null || nombreUsuario.trim().isEmpty()) {
+            modelMap.addAttribute("error_rapido", "El nombre de usuario no puede estar vacío.");
+            modelMap.addAttribute("usuario", new Usuario());
+            return new ModelAndView("login", modelMap);
+        }
+
+        if (loginService.buscarUsuario(nombreUsuario) != null) {
+            modelMap.addAttribute("error_rapido", "El nombre de usuario ya está en uso. Elige otro.");
+            modelMap.addAttribute("usuario", new Usuario());
+            return new ModelAndView("login", modelMap);
+        }
+
+        try {
+            // Crear y guardar el nuevo usuario para juego rápido
+            Usuario nuevoUsuario = new Usuario();
+            nuevoUsuario.setNombreUsuario(nombreUsuario);
+            // Se asigna una contraseña por defecto.
+            nuevoUsuario.setPassword(nombreUsuario);
+
+            // 1. Guardar el nuevo usuario en la base de datos usando el método simple del LoginService
+            loginService.registrar(nuevoUsuario);
+
+            // 2. Iniciar sesión directamente
+            session.setAttribute("usuario", nuevoUsuario.getNombreUsuario());
+            session.setAttribute("idUsuario", nuevoUsuario.getId());
+
+            return new ModelAndView("redirect:/lobby");
+        } catch (Exception e) {
+            // Captura cualquier otro error que pueda ocurrir al guardar en la BD
+            modelMap.addAttribute("error_rapido", "Ocurrió un error inesperado al crear el usuario.");
+            modelMap.addAttribute("usuario", new Usuario());
+            return new ModelAndView("login", modelMap);
+        }
+    }
+
 
     public ModelAndView redireccionarAVistaRegistro() {
         return new ModelAndView("registro");
