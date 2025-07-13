@@ -56,18 +56,19 @@ function conectarWebSocket() {
 }
 
 
-function mensajeDelServidorAlChat(mensaje){
-    humano=false;
-    mostrarMensajeChat(mensaje.body, true, false);
+function mensajeDelServidorAlChat(mensaje) {
+    const valor = mensaje.body.trim();
+
+    // Si es un número del 1 al 5 → parte de cuenta regresiva
+    if (!isNaN(valor) && Number(valor) >= 1 && Number(valor) <= 5) {
+        iniciarCuentaRegresivaDesde(Number(valor));
+    }
+    // Si no es un número → lo mostramos como mensaje final centrado
+    else {
+        mostrarMensajeCentrado(valor);
+    }
 }
 
-// === INICIA LA RONDA EN EL SERVIDOR ===
-function iniciarRonda() {
-    stompClient.publish({
-        destination: "/app/juego/iniciar",
-        body: JSON.stringify({ idPartida })
-    });
-}
 
 // === ENVÍA INTENTO ===
 function enviarIntento(palabra) {
@@ -288,4 +289,98 @@ document.addEventListener("DOMContentLoaded", () => {
         abandonarPartida();
     });
 });
+
+function iniciarCuentaRegresivaDesde(valorInicial) {
+    let contenedor = document.getElementById("cuenta-regresiva");
+    if (!contenedor) {
+        contenedor = document.createElement("div");
+        contenedor.id = "cuenta-regresiva";
+        document.body.appendChild(contenedor);
+    }
+
+    Object.assign(contenedor.style, {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: "9999",
+        fontSize: "8rem",
+        fontWeight: "bold",
+        color: "#ffffff",
+        textShadow: "0 0 25px rgba(255,255,255,0.7)",
+        pointerEvents: "none",
+        opacity: "0",
+        transition: "opacity 0.4s ease, transform 0.4s ease"
+    });
+
+    let valor = valorInicial;
+
+    const intervalo = setInterval(() => {
+        if (valor <= 0) {
+            contenedor.remove();
+            clearInterval(intervalo);
+            return;
+        }
+
+        contenedor.textContent = valor;
+
+        contenedor.style.opacity = "0";
+        contenedor.style.transform = "translate(-50%, -50%) scale(0.6)";
+        void contenedor.offsetWidth;
+
+        contenedor.style.opacity = "1";
+        contenedor.style.transform = "translate(-50%, -50%) scale(1.2)";
+
+        setTimeout(() => {
+            contenedor.style.opacity = "0";
+            contenedor.style.transform = "translate(-50%, -50%) scale(0.9)";
+        }, 600);
+
+        valor--;
+    }, 1000);
+}
+
+
+function mostrarMensajeCentrado(texto) {
+    const div = document.createElement("div");
+    div.textContent = texto;
+
+    Object.assign(div.style, {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%) scale(0.8)",
+        zIndex: "9999",
+        background: "linear-gradient(135deg, #00c853, #38a6c7)",
+        color: "#fff",
+        padding: "20px 50px",
+        fontSize: "2.5rem",
+        fontWeight: "bold",
+        borderRadius: "25px",
+        textAlign: "center",
+        boxShadow: "0 0 40px rgba(0,0,0,0.8)",
+        opacity: "0",
+        transition: "opacity 0.5s ease, transform 0.5s ease",
+        pointerEvents: "none"
+    });
+
+    document.body.appendChild(div);
+
+    // Fade in + zoom
+    setTimeout(() => {
+        div.style.opacity = "1";
+        div.style.transform = "translate(-50%, -50%) scale(1.1)";
+    }, 10);
+
+    // Fade out + shrink
+    setTimeout(() => {
+        div.style.opacity = "0";
+        div.style.transform = "translate(-50%, -50%) scale(0.7)";
+    }, 2500);
+
+    // Cleanup
+    setTimeout(() => {
+        div.remove();
+    }, 3200);
+}
 
