@@ -85,14 +85,49 @@
             font-size: 1.1rem;
             transition: all 0.2s;
         }
+
+        /* ESTILOS DEL HEADER DEL LOBBY */
+        .lobby-header {
+            background: linear-gradient(90deg, #1c1c1c 0%, #3c3c3c 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            padding-left: 2rem;
+            padding-right: 2rem;
+            position: relative; /* Necesario para el posicionamiento absoluto del hijo */
+        }
+
+        .header-logo {
+            font-size: 2.8rem;
+            /* Efecto de degradado para el logo */
+            background: linear-gradient(45deg, #ffb86c, #ff6347);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            filter: drop-shadow(0 2px 8px rgba(255,184,108,0.3));
+        }
+
+        .game-title {
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            font-weight: 700; /* Aumenta el grosor de la fuente */
+            font-size: 2.8rem; /* Aumenta el tamaño para más impacto */
+            color: #f8f9fa; /* Un blanco más brillante */
+            text-shadow: 0 4px 18px rgba(0,0,0,0.6); /* Sombra más pronunciada para dar profundidad */
+            letter-spacing: 1.5px; /* Espaciado para un look moderno */
+            text-transform: uppercase; /* Transforma el texto a mayúsculas */
+            margin-bottom: 0;
+        }
+        /* FIN ESTILOS HEADER */
     </style>
 </head>
 <body>
 
-<header class="bg-dark text-white py-3 shadow-sm">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h1 class="h2 mb-0">Definila</h1>
+<header class="lobby-header py-3 position-relative">
+    <div class="container-fluid d-flex justify-content-center align-items-center">
+        <i class="bi bi-puzzle-fill header-logo me-3"></i>
+        <h1 class="game-title mb-0">Definila</h1>
     </div>
+
 </header>
 
 <main class="container my-auto py-5">

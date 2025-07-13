@@ -179,6 +179,8 @@ function enviarMensajeDeChat() {
     }
 }
 
+
+
 // Función para mostrar un mensaje recibido en la UI
 function mostrarMensajeEnChat(nombreUsuario, texto) {
     const chatArea = document.getElementById('chat-area');
