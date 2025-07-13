@@ -28,6 +28,11 @@ stompClient.onConnect = (frame) => {
 
     console.log('Connected: ' + frame);
 
+    stompClient.subscribe('/topic/chat/' + idPartida, (m) => {
+        const mensaje = JSON.parse(m.body);
+        mostrarMensajeEnChat(mensaje.nombreUsuario, mensaje.texto);
+    });
+
     stompClient.subscribe('/user/queue/fuisteExpulsado', (m) => {
 
         console.log("--- Verificando valores de sesión CUANDO SOY EXPULSADO ---");
@@ -146,6 +151,64 @@ stompClient.onStompError = (frame) => {
 };
 
 stompClient.activate();
+
+// --- LÓGICA DEL CHAT ---
+
+// Función para enviar un mensaje
+
+// --- LÓGICA DEL CHAT ---
+
+// Función para enviar un mensaje
+function enviarMensajeDeChat() {
+    const inputMensaje = document.getElementById('chat-message');
+    const textoMensaje = inputMensaje.value.trim();
+
+    if (textoMensaje && stompClient.connected) {
+        const mensajeDto = {
+            texto: textoMensaje,
+            idPartida: idPartida
+            // El nombreUsuario y el idUsuario se asignarán en el backend
+        };
+
+        stompClient.publish({
+            destination: "/app/chat.enviarMensaje",
+            body: JSON.stringify(mensajeDto)
+        });
+
+        inputMensaje.value = ''; // Limpiar el input
+    }
+}
+
+// Función para mostrar un mensaje recibido en la UI
+function mostrarMensajeEnChat(nombreUsuario, texto) {
+    const chatArea = document.getElementById('chat-area');
+    const mensajeElemento = document.createElement('div');
+    mensajeElemento.classList.add('mb-2');
+
+    // Distinguir si el mensaje es del usuario actual o de otro
+    const esMiMensaje = (nombreUsuario === usuario);
+
+    mensajeElemento.innerHTML = `
+        <strong style="color: ${esMiMensaje ? '#0d6efd' : '#198754'};">
+            ${esMiMensaje ? 'Tú' : nombreUsuario}:
+        </strong>
+        <span>${texto}</span>
+    `;
+
+    chatArea.appendChild(mensajeElemento);
+    chatArea.scrollTop = chatArea.scrollHeight; // Scroll hacia abajo
+}
+
+// Añadir el event listener al formulario del chat cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    const chatForm = document.getElementById('chat-form');
+    if(chatForm) {
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Evitar que la página se recargue
+            enviarMensajeDeChat();
+        });
+    }
+});
 
 function iniciarPartida(){
     stompClient.publish({

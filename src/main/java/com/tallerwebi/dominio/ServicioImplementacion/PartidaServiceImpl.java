@@ -169,7 +169,6 @@ public class PartidaServiceImpl implements PartidaService {
 
 
 
-
     @Transactional
     @Override
     public RondaDto iniciarNuevaRonda(Long partidaId) {

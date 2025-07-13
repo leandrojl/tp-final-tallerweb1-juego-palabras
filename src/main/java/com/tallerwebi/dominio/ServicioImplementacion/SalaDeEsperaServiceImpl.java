@@ -132,6 +132,18 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
     }
 
     @Override
+    public void enviarMensajeDeChat(MensajeDto mensajeDto, String nombreUsuario) {
+        // Asignamos el nombre del usuario que envía el mensaje
+        mensajeDto.setNombreUsuario(nombreUsuario);
+
+        // Creamos el destino dinámico basado en el idPartida
+        String destination = "/topic/chat/" + mensajeDto.getIdPartida();
+
+        // Enviamos el mensaje a todos los suscritos a ese tópico de partida
+        simpMessagingTemplate.convertAndSend(destination, mensajeDto);
+    }
+
+    @Override
     public void mostrarAUnUsuarioLosUsuariosExistentesEnSala(String nombreUsuarioQueAcabaDeUnirseALaSala, Long idPartida) {
         notificarAUsuariosLosQueEstanEnLaSala(idPartida);
         this.simpMessagingTemplate.convertAndSend(

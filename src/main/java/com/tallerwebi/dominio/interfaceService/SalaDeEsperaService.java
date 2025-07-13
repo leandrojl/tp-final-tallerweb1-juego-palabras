@@ -24,4 +24,6 @@ public interface SalaDeEsperaService {
     MensajeRecibidoDTO abandonarSala(MensajeDto mensaje,String nombreUsuarioDelPrincipal);
 
     void expulsarJugador(MensajeDto mensajeDto, String nombreUsuarioDelPrincipal);
+
+    void enviarMensajeDeChat(MensajeDto mensajeDto, String nombreUsuario);
 }

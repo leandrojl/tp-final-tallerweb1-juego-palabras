@@ -148,6 +148,11 @@ public class SalaDeEsperaController {
 
     //WEBSOCKETS EN SALA DE ESPERA
 
+    @MessageMapping("/chat.enviarMensaje")
+    public void enviarMensaje(MensajeDto mensajeDto, Principal principal) {
+        salaDeEsperaService.enviarMensajeDeChat(mensajeDto, principal.getName());
+    }
+
     @MessageMapping("/expulsarDeSala")
     public void expulsarDeSala(MensajeDto mensajeDto, Principal principal) {
         String nombreUsuarioDelPrincipal = principal.getName();
