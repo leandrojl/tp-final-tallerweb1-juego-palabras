@@ -352,6 +352,15 @@
         }
         /* FIN ESTILOS HEADER */
 
+        .perfil-container {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            display: flex; /* Alinea los botones horizontalmente */
+            align-items: center; /* Centra los botones verticalmente */
+            gap: 1rem; /* Añade un espacio entre los dos botones */
+        }
+
     </style>
 </head>
 <body>
@@ -370,6 +379,9 @@
     <div class="perfil-container">
         <a th:href="@{/perfil}" class="circle-btn">
             <i class="bi bi-person-fill"></i>
+        </a>
+        <a th:href="@{/cerrar-sesion}" class="btn btn-outline" title="Cerrar Sesión">
+            <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesion
         </a>
     </div>
 

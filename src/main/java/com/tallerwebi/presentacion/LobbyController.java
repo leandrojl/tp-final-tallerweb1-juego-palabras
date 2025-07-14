@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.List;
@@ -37,6 +38,16 @@ public class LobbyController {
         this.lobbyService = lobbyService;
         this.usuarioService = usuarioService;
         this.usuarioPartidaService = usuarioPartidaService;
+    }
+
+
+    @GetMapping("/cerrar-sesion")
+    public ModelAndView cerrarSesion(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return new ModelAndView("redirect:/login");
     }
 
 
