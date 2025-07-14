@@ -1,11 +1,7 @@
 package com.tallerwebi.dominio.interfaceService;
 
 
-import com.tallerwebi.dominio.DTO.DefinicionDto;
-import com.tallerwebi.dominio.DTO.DtoIntento;
-import com.tallerwebi.dominio.DTO.MensajeAvanzarRondaDTO;
-import com.tallerwebi.dominio.DTO.RankingDTO;
-import com.tallerwebi.dominio.DTO.RondaDto;
+import com.tallerwebi.dominio.DTO.*;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Ronda;
@@ -27,6 +23,8 @@ public interface PartidaService {
     boolean esUltimaRonda(Long idPartida);
 
     Serializable crearPartida (Partida nuevaPartida);
+
+    Serializable crearPartida(CrearPartidaDTO partidaDTO, Long creadorId);
 
     void enviarRankingFinal(Long idPartida);
 

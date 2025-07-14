@@ -263,7 +263,20 @@ public class PartidaServiceImpl implements PartidaService {
         return partidaRepository.crearPartida(nuevaPartida);
     }
 
-
+    @Override
+    public Serializable crearPartida(CrearPartidaDTO partidaDTO, Long creadorId) {
+        Partida nuevaPartida = new Partida(
+                partidaDTO.getNombre(),
+                partidaDTO.getIdioma(),
+                partidaDTO.isPermiteComodin(),
+                partidaDTO.getRondasTotales(),
+                partidaDTO.getMaximoJugadores(),
+                partidaDTO.getMinimoJugadores(),
+                Estado.EN_ESPERA,
+                creadorId
+        );
+        return partidaRepository.crearPartida(nuevaPartida);
+    }
 
     public ScheduledFuture<?> getFinalizarRondaPorTimer() {
         return finalizarRondaPorTimer;

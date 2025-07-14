@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 
+import com.tallerwebi.dominio.DTO.CrearPartidaDTO;
 import com.tallerwebi.dominio.Enum.Estado;
 
 import com.tallerwebi.dominio.excepcion.PartidaAleatoriaNoDisponibleException;
@@ -90,40 +91,53 @@ public class LobbyController {
     }
 
     @PostMapping("/crear-sala")
-    public String crearSala(
-            @RequestParam String nombre,
-            @RequestParam String idioma,
-            @RequestParam(required = false) boolean permiteComodin,
-            @RequestParam int rondasTotales,
-            @RequestParam int maximoJugadores,
-            @RequestParam int minimoJugadores,
-            HttpSession session
-    ) {
-
+    public String crearSala(@ModelAttribute CrearPartidaDTO partidaDTO, HttpSession session) {
         Long idUsuario = (Long) session.getAttribute("idUsuario");
+        if (idUsuario == null) {
+            return "redirect:/login"; // O manejar el error como prefieras
+        }
 
-        Long creadorDePartida = idUsuario;
-
-        Partida nuevaPartida = new Partida(
-                nombre,
-                idioma,
-                permiteComodin,
-                rondasTotales,
-                maximoJugadores,
-                minimoJugadores,
-                Estado.EN_ESPERA,
-                creadorDePartida);
-
-        Serializable idPartida = partidaService.crearPartida(nuevaPartida);
-
+        Serializable idPartida = partidaService.crearPartida(partidaDTO, idUsuario);
         session.setAttribute("idPartida", idPartida);
 
-        System.out.println("ID de la partida creada: " + idPartida);
-        System.out.println("ID del usuario: " + idUsuario);
-
-
-        return "redirect:/sala-de-espera"; //peticion http a @RequestMapping("/sala-de-espera") que redirige a la sala de espera
+        return "redirect:/sala-de-espera";
     }
+
+//    @PostMapping("/crear-sala")
+//    public String crearSala(
+//            @RequestParam String nombre,
+//            @RequestParam String idioma,
+//            @RequestParam(required = false) boolean permiteComodin,
+//            @RequestParam int rondasTotales,
+//            @RequestParam int maximoJugadores,
+//            @RequestParam int minimoJugadores,
+//            HttpSession session
+//    ) {
+//
+//        Long idUsuario = (Long) session.getAttribute("idUsuario");
+//
+//        Long creadorDePartida = idUsuario;
+//
+//        Partida nuevaPartida = new Partida(
+//                nombre,
+//                idioma,
+//                permiteComodin,
+//                rondasTotales,
+//                maximoJugadores,
+//                minimoJugadores,
+//                Estado.EN_ESPERA,
+//                creadorDePartida);
+//
+//        Serializable idPartida = partidaService.crearPartida(nuevaPartida);
+//
+//        session.setAttribute("idPartida", idPartida);
+//
+//        System.out.println("ID de la partida creada: " + idPartida);
+//        System.out.println("ID del usuario: " + idUsuario);
+//
+//
+//        return "redirect:/sala-de-espera"; //peticion http a @RequestMapping("/sala-de-espera") que redirige a la sala de espera
+//    }
 
     @RequestMapping("/partidaAleatoria")
     public String partidaAleatoria(HttpSession session, RedirectAttributes redirectAttributes) {
