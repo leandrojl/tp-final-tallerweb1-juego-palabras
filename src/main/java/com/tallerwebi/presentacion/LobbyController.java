@@ -138,29 +138,51 @@ public class LobbyController {
         return "redirect:/lobby";
     }
 
-
     @RequestMapping("/lobby")
     public ModelAndView Lobby(HttpSession session, Model model) {
+        prepararDatosDeUsuario(session, model);
+        prepararPartidasEnEspera(model);
+        return new ModelAndView("lobby");
+    }
+
+    private void prepararDatosDeUsuario(HttpSession session, Model model) {
         Long idUsuario = (Long) session.getAttribute("idUsuario");
         if (idUsuario != null) {
-            Usuario usuario = usuarioService.buscarPorId(idUsuario); // Asegúrate de tener este servicio inyectado
+            Usuario usuario = usuarioService.buscarPorId(idUsuario);
             if (usuario != null) {
                 model.addAttribute("usuarioNombre", usuario.getNombreUsuario());
-
             }
         }
+    }
 
-        // obtengo las partidas en espera
+    private void prepararPartidasEnEspera(Model model) {
         List<Partida> partidas = lobbyService.obtenerPartidasEnEspera();
         if (partidas.isEmpty()) {
             model.addAttribute("mensaje", "No hay partidas disponibles en curso.");
         } else {
             model.addAttribute("partidas", partidas);
         }
-
-
-        return new ModelAndView("lobby");
     }
+
+//    @RequestMapping("/lobby")
+//    public ModelAndView Lobby(HttpSession session, Model model) {
+//        Long idUsuario = (Long) session.getAttribute("idUsuario");
+//        if (idUsuario != null) {
+//            Usuario usuario = usuarioService.buscarPorId(idUsuario); // Asegúrate de tener este servicio inyectado
+//            if (usuario != null) {
+//                model.addAttribute("usuarioNombre", usuario.getNombreUsuario());
+//
+//            }
+//        }
+//        // obtengo las partidas en espera
+//        List<Partida> partidas = lobbyService.obtenerPartidasEnEspera();
+//        if (partidas.isEmpty()) {
+//            model.addAttribute("mensaje", "No hay partidas disponibles en curso.");
+//        } else {
+//            model.addAttribute("partidas", partidas);
+//        }
+//        return new ModelAndView("lobby");
+//    }
 
 
     @RequestMapping("/Ranking")
