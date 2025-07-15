@@ -129,6 +129,21 @@
                 padding: 2rem;
             }
         }
+
+        .welcome-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0; /* Elimina cualquier padding interno */
+            overflow: hidden; /* Oculta cualquier parte de la imagen que se desborde */
+
+        }
+
+        .welcome-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Hace que la imagen cubra el contenedor sin deformarse */
+        }
     </style>
 </head>
 <body>
@@ -139,6 +154,9 @@
         <div class="col-md-6 welcome-section">
             <h1>Bienvenido a Definila</h1>
             <p>Tu plataforma para competir y demostrar quién sabe más.</p>
+            <div class="col-md-6 welcome-section rounded-5">
+                <img src="https://i.imgur.com/hTvDmzt.jpeg" class="img-fluid welcome-image rounded-5" alt="Imagen de bienvenida de Definila">
+            </div>
         </div>
 
         <!-- Columna Derecha: Formularios -->
