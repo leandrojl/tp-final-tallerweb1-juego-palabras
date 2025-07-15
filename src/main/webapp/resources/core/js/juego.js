@@ -115,7 +115,7 @@ function manejarMensajeServidor(mensaje) {
         input.disabled    = false;
         input.placeholder = "";
         input.classList.remove("input-desactivado");
-        mostrarLetras();
+       // mostrarLetras();
 
 
 }
@@ -202,7 +202,7 @@ function iniciarTemporizador() {
 
     intervaloTemporizador = setInterval(() => {
         if (tiempoRestante <= 0) {
-            detenerTimers();
+           // detenerTimers();
            stompClient.publish({
              destination: "/app/juego/fin-ronda",
              body: JSON.stringify({ idPartida })
@@ -231,7 +231,7 @@ function mostrarLetras() {
     }, 15000);
 }
 
-// === DETENER TIMERS ===
+// === DETENER TIMERS ===>
 function detenerTimers() {
     if (finRondaEjecutada) return;
     finRondaEjecutada = true;
@@ -269,7 +269,7 @@ function abandonarPartida() {
 document.addEventListener("DOMContentLoaded", () => {
     conectarWebSocket();
     iniciarTemporizador();
-    mostrarLetras();
+    //mostrarLetras();
 
     const input = document.getElementById("input-intento");
     input.addEventListener("keydown", function (e) {

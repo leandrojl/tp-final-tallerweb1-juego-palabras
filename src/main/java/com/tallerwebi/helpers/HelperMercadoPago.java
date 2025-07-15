@@ -36,62 +36,12 @@ public class HelperMercadoPago {
         if ("payment".equalsIgnoreCase(tipo) && datos != null) {
             String paymentId = datos.get("id").toString();
             System.out.println("💰 ID del pago recibido: " + paymentId);
-
-            // TODO: Consultar estado del pago en Mercado Pago
-            // TODO: Extraer external_reference (id del usuario)
-            // TODO: Validar estado aprobado
-            // TODO: Otorgar monedas al usuario correspondiente
         }
 
         return ResponseEntity.ok("Webhook procesado");
     }
 
 
-   /* public static JSONObject pagarSandbox(int monto, String emailComprador, String cardToken, long idUsuario) throws Exception {
-
-        URL url = new URL("https://api.mercadopago.com/v1/payments");
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Authorization", "Bearer " + ACCESS_TOKEN);
-        con.setRequestProperty("Content-Type", "application/json");
-
-        // Generar un valor único para esta transacción
-        String idemKey = UUID.randomUUID().toString();
-        con.setRequestProperty("X-Idempotency-Key", idemKey);
-
-        con.setDoOutput(true);
-
-        // Construir el JSON del payload
-        JSONObject payload = new JSONObject();
-        payload.put("transaction_amount", monto);
-        payload.put("token", cardToken);
-        payload.put("description", "Compra de monedas");
-        payload.put("installments", 1);
-        payload.put("payment_method_id", "visa");  // Fijás "visa" para tarjetas de prueba
-        payload.put("payer", new JSONObject().put("email", emailComprador));
-        JSONObject metadata = new JSONObject();
-        metadata.put("userId", idUsuario);
-        metadata.put("monedas", monto);
-        payload.put("metadata", metadata);
-        try (OutputStream os = con.getOutputStream()) {
-            os.write(payload.toString().getBytes());
-        }
-
-        int status = con.getResponseCode();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(
-                status == 201 ? con.getInputStream() : con.getErrorStream()
-        ));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) sb.append(line);
-        reader.close();
-
-        if (status != 201) {
-            throw new RuntimeException("Pago fallido (" + status + "): " + sb);
-        }
-
-        return new JSONObject(sb.toString());
-    }*/
     public static JSONObject pagarSandbox(int monto, String emailComprador, String cardToken, long idUsuario) throws Exception {
         URL url = new URL("https://api.mercadopago.com/v1/payments");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
