@@ -33,6 +33,7 @@ public class DatabaseInitializationConfig {
             registroService.registrar("pepe","12345678");
             registroService.registrar("jose","12345678");
             registroService.registrar("lucas","12345678");
+            registroService.registrar("bot","12345678");
         }
     }
 }

@@ -4,10 +4,7 @@ import com.tallerwebi.dominio.RondaTimerManager;
 import com.tallerwebi.dominio.DTO.*;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
-import com.tallerwebi.dominio.interfaceService.AciertoService;
-import com.tallerwebi.dominio.interfaceService.PartidaService;
-import com.tallerwebi.dominio.interfaceService.RondaService;
-import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
+import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.*;
 
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
@@ -57,6 +54,8 @@ public class PartidaServiceImpl implements PartidaService {
     private final RondaRepository rondaRepositorio;
     @Autowired
     private RondaTimerManager rondaTimerManager;
+    @Autowired
+    private GeminiBotService botService;
 
     private final Map<Long, RondaDto> definicionesPorPartida = new HashMap<>();
     private final ConcurrentHashMap<Long, Object> locks = new ConcurrentHashMap<>();
@@ -70,7 +69,8 @@ public class PartidaServiceImpl implements PartidaService {
                               UsuarioPartidaRepository usuarioPartidaRepository,
                               AciertoService aciertoService,
                               UsuarioPartidaService usuarioPartidaService,
-                              RondaTimerManager rondaTimerManager
+                              RondaTimerManager rondaTimerManager,
+                              GeminiBotService botService
     ) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.partidaRepository = partidaRepository;
@@ -80,7 +80,7 @@ public class PartidaServiceImpl implements PartidaService {
         this.usuarioPartidaRepository = usuarioPartidaRepository;
         this.rondaRepositorio = rondaRepositorio;
         this.rondaTimerManager=rondaTimerManager;
-
+        this.botService=botService;
         //this.timerRonda = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() * 10);
         // el newSingle crea un solo hilo de tarea, que retrasaria si hay multiples partidas, en cambio el newSchedule genera
         //un pool de hilos reutilizables de manera que funciona si se juega mas de una partida en simultaneo(el numero
@@ -176,25 +176,28 @@ public class PartidaServiceImpl implements PartidaService {
         Object lock = locks.computeIfAbsent(partidaId, id -> new Object());
         synchronized (lock) {
 
-        Partida partida = partidaRepository.buscarPorId(partidaId);
-        if (partida == null) {
-            throw new IllegalArgumentException("No existe la partida con ID: " + partidaId);
-        }
-
-        Ronda ultima = rondaService.obtenerUltimaRondaDePartida(partidaId);
-
-        if (ultima != null ) {
-            if (ultima.getEstado() == Estado.EN_CURSO) {
-                return construirDtoDesdeRondaExistente(ultima, partidaId);
+            Partida partida = partidaRepository.buscarPorId(partidaId);
+            if (partida == null) {
+                throw new IllegalArgumentException("No existe la partida con ID: " + partidaId);
             }
-        }
+
+            Ronda ultima = rondaService.obtenerUltimaRondaDePartida(partidaId);
+
+            if (ultima != null ) {
+                if (ultima.getEstado() == Estado.EN_CURSO) {
+                    return construirDtoDesdeRondaExistente(ultima, partidaId);
+                }
+            }
             String idioma = partida.getIdioma();
             Ronda nueva = rondaService.crearRonda(partidaId, idioma);
             rondaTimerManager.agendarFinalizacionRonda(partidaId, 60);
-            return construirDtoDesdeRondaExistente(nueva, partidaId);
+
+            RondaDto dtoRonda = construirDtoDesdeRondaExistente(nueva, partidaId);
+
+            botService.generateAndSubmitGuess(dtoRonda.getDefinicionTexto(), partidaId);
+
+            return dtoRonda;
         }
-
-
     }
 
 

@@ -5,10 +5,7 @@ import com.tallerwebi.dominio.RondaTimerManager;
 import com.tallerwebi.dominio.DTO.*;
 import com.tallerwebi.dominio.ServicioImplementacion.PartidaServiceImpl;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
-import com.tallerwebi.dominio.interfaceService.AciertoService;
-import com.tallerwebi.dominio.interfaceService.RondaService;
-import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
-import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
+import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import com.tallerwebi.dominio.interfaceRepository.RondaRepository;
@@ -47,6 +44,7 @@ public class WebSocketControllerTest {
     private WebSocketStompClient stompClient;
     private UsuarioPartidaService usuarioPartidaService;
     private RondaTimerManager rondaTimerManager;
+    private GeminiBotService botService;
 
     @BeforeEach
     public void setUp() {
@@ -61,16 +59,18 @@ public class WebSocketControllerTest {
         usuarioPartidaRepository = mock(UsuarioPartidaRepository.class);
         ScheduledExecutorService timerRonda = mock(ScheduledExecutorService.class);
         rondaTimerManager = mock(RondaTimerManager.class);
-        partidaService = new PartidaServiceImpl(
-                messagingTemplate,
-                partidaRepository,
-                rondaService,
-                rondaRepository,
-                usuarioPartidaRepository,
-                aciertoService,
-                usuarioPartidaService,
-                rondaTimerManager
-        );
+        this.botService = mock(GeminiBotService.class);
+//        partidaService = new PartidaServiceImpl(
+//                messagingTemplate,
+//                partidaRepository,
+//                rondaService,
+//                rondaRepository,
+//                usuarioPartidaRepository,
+//                aciertoService,
+//                usuarioPartidaService,
+//                rondaTimerManager,
+//                botService
+//        );
         ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         webSocketController = new WebSocketController(partidaService,salaDeEsperaService, aciertoService);
