@@ -60,17 +60,17 @@ public class WebSocketControllerTest {
         ScheduledExecutorService timerRonda = mock(ScheduledExecutorService.class);
         rondaTimerManager = mock(RondaTimerManager.class);
         this.botService = mock(GeminiBotService.class);
-//        partidaService = new PartidaServiceImpl(
-//                messagingTemplate,
-//                partidaRepository,
-//                rondaService,
-//                rondaRepository,
-//                usuarioPartidaRepository,
-//                aciertoService,
-//                usuarioPartidaService,
-//                rondaTimerManager,
-//                botService
-//        );
+        partidaService = new PartidaServiceImpl(
+                messagingTemplate,
+                partidaRepository,
+                rondaService,
+                rondaRepository,
+                usuarioPartidaRepository,
+                aciertoService,
+                usuarioPartidaService,
+                rondaTimerManager,
+                botService
+        );
         ReflectionTestUtils.setField(partidaService, "simpMessagingTemplate", messagingTemplate);
         salaDeEsperaService = Mockito.mock(SalaDeEsperaService.class);
         webSocketController = new WebSocketController(partidaService,salaDeEsperaService, aciertoService);

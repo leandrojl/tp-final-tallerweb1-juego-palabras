@@ -57,29 +57,29 @@ import static org.mockito.Mockito.*;
         rondaTimerManager = mock(RondaTimerManager.class);
         this.botService = mock(GeminiBotService.class);
         // Service as spy to verify finalizeRonda
-//        service = spy(new PartidaServiceImpl(
-//                simpMessagingTemplate,
-//                partidaRepository,
-//                rondaService,
-//                rondaRepository,
-//                usuarioPartidaRepository,
-//                aciertoService,
-//                usuarioPartidaService,
-//                rondaTimerManager,
-//                botService
-//        ));
-//
-//        partidaService = new PartidaServiceImpl(
-//                simpMessagingTemplate,
-//                partidaRepository,
-//                rondaService,
-//                rondaRepository,
-//                usuarioPartidaRepository,
-//                aciertoService,
-//                usuarioPartidaService,
-//                rondaTimerManager,
-//                botService
-//        );
+        service = spy(new PartidaServiceImpl(
+                simpMessagingTemplate,
+                partidaRepository,
+                rondaService,
+                rondaRepository,
+                usuarioPartidaRepository,
+                aciertoService,
+                usuarioPartidaService,
+                rondaTimerManager,
+                botService
+        ));
+
+        partidaService = new PartidaServiceImpl(
+                simpMessagingTemplate,
+                partidaRepository,
+                rondaService,
+                rondaRepository,
+                usuarioPartidaRepository,
+                aciertoService,
+                usuarioPartidaService,
+                rondaTimerManager,
+                botService
+        );
 
 
         Field usuarioPartidaRepoField = PartidaServiceImpl.class.getDeclaredField("usuarioPartidaRepository");

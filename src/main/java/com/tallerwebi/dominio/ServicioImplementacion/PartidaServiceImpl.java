@@ -174,31 +174,34 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public RondaDto iniciarNuevaRonda(Long partidaId) {
         Object lock = locks.computeIfAbsent(partidaId, id -> new Object());
-        synchronized (lock) {
+        RondaDto dtoRonda;
 
+        synchronized (lock) {
             Partida partida = partidaRepository.buscarPorId(partidaId);
             if (partida == null) {
                 throw new IllegalArgumentException("No existe la partida con ID: " + partidaId);
             }
 
             Ronda ultima = rondaService.obtenerUltimaRondaDePartida(partidaId);
-
-            if (ultima != null ) {
-                if (ultima.getEstado() == Estado.EN_CURSO) {
-                    return construirDtoDesdeRondaExistente(ultima, partidaId);
-                }
+            if (ultima != null && ultima.getEstado() == Estado.EN_CURSO) {
+                return construirDtoDesdeRondaExistente(ultima, partidaId);
             }
+
             String idioma = partida.getIdioma();
             Ronda nueva = rondaService.crearRonda(partidaId, idioma);
             rondaTimerManager.agendarFinalizacionRonda(partidaId, 60);
 
-            RondaDto dtoRonda = construirDtoDesdeRondaExistente(nueva, partidaId);
-
-            botService.generateAndSubmitGuess(dtoRonda.getDefinicionTexto(), partidaId);
-
-            return dtoRonda;
+            dtoRonda = construirDtoDesdeRondaExistente(nueva, partidaId);
         }
+
+        String definicion = dtoRonda.getDefinicionTexto();
+        CompletableFuture.runAsync(() ->
+                botService.generateAndSubmitGuess(definicion, partidaId)
+        );
+
+        return dtoRonda;
     }
+
 
 
     @Transactional
