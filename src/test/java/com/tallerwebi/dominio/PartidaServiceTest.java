@@ -4,6 +4,7 @@ import com.tallerwebi.dominio.DTO.RondaDto;
 import com.tallerwebi.dominio.ServicioImplementacion.PartidaServiceImpl;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.AciertoService;
+import com.tallerwebi.dominio.interfaceService.GeminiBotService;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import com.tallerwebi.dominio.interfaceRepository.RondaRepository;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.*;
      private AciertoService aciertoService;
      private UsuarioPartidaService usuarioPartidaService;
      private RondaTimerManager rondaTimerManager;
+     private GeminiBotService botService;
     @BeforeEach
     void setUp() throws IllegalAccessException, NoSuchFieldException {
         // Mocks
@@ -53,6 +55,7 @@ import static org.mockito.Mockito.*;
 
         timerRonda = mock(ScheduledExecutorService.class);
         rondaTimerManager = mock(RondaTimerManager.class);
+        this.botService = mock(GeminiBotService.class);
         // Service as spy to verify finalizeRonda
         service = spy(new PartidaServiceImpl(
                 simpMessagingTemplate,
@@ -62,7 +65,8 @@ import static org.mockito.Mockito.*;
                 usuarioPartidaRepository,
                 aciertoService,
                 usuarioPartidaService,
-                rondaTimerManager
+                rondaTimerManager,
+                botService
         ));
 
         partidaService = new PartidaServiceImpl(
@@ -73,7 +77,8 @@ import static org.mockito.Mockito.*;
                 usuarioPartidaRepository,
                 aciertoService,
                 usuarioPartidaService,
-                rondaTimerManager
+                rondaTimerManager,
+                botService
         );
 
 

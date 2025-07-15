@@ -205,13 +205,20 @@ public class SalaDeEsperaServiceImpl implements SalaDeEsperaService {
         UsuarioPartida usuarioPartida = this.usuarioPartidaRepo.obtenerUsuarioPartida(idUsuario, idPartida);
 
         if (usuarioPartida.getPartida().getCreadorId().equals(idUsuario)) {
-           expulsarATodosLosUsuariosDeLaSala(idPartida);
-           return null;
+            expulsarATodosLosUsuariosDeLaSala(idPartida);
+            return null;
         }
 
         this.usuarioRepo.actualizarEstado(idUsuario,false);
         this.usuarioPartidaRepo.borrarUsuarioPartidaAsociadaAlUsuario(idPartida, idUsuario);
-        notificarAUsuariosLosQueEstanEnLaSala(idPartida);
+
+        // NUEVO: Notificar a todos en la sala que este usuario abandonó
+        this.simpMessagingTemplate.convertAndSend(
+                "/topic/jugadorAbandonoSala/" + idPartida, // Nuevo topic
+                new MensajeRecibidoDTO(nombreUsuario) // Envía el nombre del usuario que abandonó
+        );
+
+
         return new MensajeRecibidoDTO(
                 "/spring/lobby");
     }

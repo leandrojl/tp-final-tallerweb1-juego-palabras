@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Preparando partida...</title>
+</head>
+<body>
+<script>
+  sessionStorage.setItem('idUsuario', [[${idUsuario}]]);
+  sessionStorage.setItem('idPartida', [[${idPartida}]]);
+  window.location.href = '/spring/juego';
+</script>
+</body>
+</html>

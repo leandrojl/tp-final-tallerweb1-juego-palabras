@@ -144,7 +144,7 @@ public class LobbyController {
         try{
             Long idPartida = lobbyService.obtenerUnaPartidaAleatoria();
             session.setAttribute("idPartida", idPartida);
-            return "redirect:/sala-de-espera";
+            return "redirect:/unirseAPartidaAleatoria";
         }catch(PartidaAleatoriaNoDisponibleException ex){
             redirectAttributes.addFlashAttribute("partidaAleatoriaNoDisponible", ex.getMessage());
         }

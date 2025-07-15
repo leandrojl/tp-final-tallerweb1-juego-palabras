@@ -93,7 +93,7 @@ public class LobbyServiceTest {
     }
 
     private Long givenExistePartidaAleatoria() {
-        Partida partida = new Partida("partida1","Español", true, 5, 5, 2, Estado.EN_ESPERA);
+        Partida partida = new Partida("partida1","Español", true, 5, 5, 2, Estado.EN_CURSO);
         when(partidaRepo.obtenerPartidaAleatoria()).thenReturn(partida);
         return partida.getId();
     }

@@ -264,19 +264,19 @@ public class SalaDeEsperaControllerTest {
         assertEquals("error", respuesta.getMessage());
     }
 
-//    @Test
-//    public void queUnJugadorPuedaAbandonarLaSalaDeEspera(){
-//        MensajeDto mensajeDto = new MensajeDto(1L,1L,"me voy");
-//        MensajeRecibidoDTO msgEsperado = new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
-//        when(salaDeEsperaService.abandonarSala(mensajeDto,"pepe")).thenReturn(msgEsperado);
-//
-//
-//        Principal principal = () -> "pepe";
-//        MensajeRecibidoDTO resultado = salaDeEsperaController.abandonarSala(mensajeDto, principal);
-//
-//        assertEquals(msgEsperado, resultado);
-//        verify(salaDeEsperaService).abandonarSala(mensajeDto, "pepe");
-//    }
+    @Test
+    public void queUnJugadorPuedaAbandonarLaSalaDeEspera(){
+        MensajeDto mensajeDto = new MensajeDto(1L,1L,"me voy");
+        MensajeRecibidoDTO msgEsperado = new MensajeRecibidoDTO("http://localhost:8080/spring/lobby");
+        when(salaDeEsperaService.abandonarSala(mensajeDto,"pepe")).thenReturn(msgEsperado);
+
+
+        Principal principal = () -> "pepe";
+        MensajeRecibidoDTO resultado = salaDeEsperaController.abandonarSala(mensajeDto, principal);
+
+        assertEquals(msgEsperado, resultado);
+        verify(salaDeEsperaService).abandonarSala(mensajeDto, "pepe");
+    }
 
 
     @Test
@@ -301,6 +301,23 @@ public class SalaDeEsperaControllerTest {
 
         verify(usuarioPartidaService, never()).agregarUsuarioAPartida(any(), any(), anyInt(), anyBoolean(), any());
     }
+
+
+    @Test
+    public void queUnUsuarioSeUnaAUnaPartidaAleatoria(){
+        Long idPartida = 1L;
+        Long idUsuario = 2L;
+        HttpSession session = mock(HttpSession.class);
+        when(session.getAttribute("idUsuario")).thenReturn(idUsuario);
+        when(session.getAttribute("idPartida")).thenReturn(idPartida);
+        when(usuarioPartidaService.buscarUsuarioPartida(idPartida, idUsuario)).thenReturn(null);
+        doNothing().when(usuarioPartidaService).agregarUsuarioAPartida(idUsuario,idPartida,0,false,Estado.EN_CURSO);
+
+        ModelAndView mav = salaDeEsperaController.unirseAPartidaAleatoria(session);
+
+        assertThat(mav.getViewName(),equalToIgnoringCase("preparar-juego"));
+    }
+
 
 
 
