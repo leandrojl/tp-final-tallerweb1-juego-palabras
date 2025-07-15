@@ -7,8 +7,40 @@ let finRondaEjecutada = false;
 
 const idUsuario = sessionStorage.getItem('idUsuario');
 const idPartida = sessionStorage.getItem('idPartida');
+// === COLORES POR JUGADOR ===
+const coloresJugadores = new Map();
+// Lista sin ningún verde
+const listaColores = [
+    "#ec4899", // rosa
+    "#3b82f6", // azul claro
+    "#a855f7", // violeta
+    "#f97316", // naranja
+    "#14b8a6", // cian fuerte (si lo querés evitar, cámbialo)
+    "#eab308", // amarillo
+    "#8b5cf6", // violeta claro
+    "#ff6f61", // coral
+    "#ff8c00", // naranja oscuro
+    "#ff1493", // rosa fuerte
+];
+let colorIndex = 0;
 
+function obtenerColorJugador(nombreJugador) {
+    if (!coloresJugadores.has(nombreJugador)) {
+        const colorPropuesto = nombreJugador === document.getElementById("usuarioNombre").value
+            ? "#0084ff" // Azul fijo solo para el jugador actual
+            : listaColores[colorIndex % listaColores.length];
 
+        // Evita verde y azul del sistema
+        if (colorPropuesto === "#4caf50" || colorPropuesto === "#29b6f6") {
+            colorIndex++;
+        }
+
+        const colorFinal = listaColores[colorIndex % listaColores.length];
+        coloresJugadores.set(nombreJugador, colorFinal);
+        colorIndex++;
+    }
+    return coloresJugadores.get(nombreJugador);
+}
 //const idUsuario = Number(document.getElementById("usuarioId").value);
 //const idPartida = Number(document.getElementById("idPartida").value);
 
@@ -147,14 +179,15 @@ function mostrarResultadoIntento(mensaje) {
 // === RESULTADO DEL INTENTO INCORRECTO (Público) ===
 function mostrarResultadoIntentoIncorrecto(mensaje) {
     const data = JSON.parse(mensaje.body);
-    humano=true;
-    let textoIncorrecto = `<strong>${data.jugador}</strong>: ${data.palabraIncorrecta}`;
-    let textoCorrecto = `<strong>${data.jugador}</strong> ha acertado la palabra`
-    if (data.esCorrecto) {
-        mostrarMensajeChat(textoCorrecto, data.esCorrecto, humano); // Ej: "Pepito acerto"
-    } else {
-        mostrarMensajeChat(textoIncorrecto, data.esCorrecto, humano); // palabra en rojo
-    }
+    humano = true;
+
+    const colorJugador = obtenerColorJugador(data.jugador);
+
+    let texto = data.esCorrecto
+        ? `<strong>${data.jugador}</strong> ha acertado la palabra`
+        : `<strong>${data.jugador}</strong>: ${data.palabraIncorrecta}`;
+
+    mostrarMensajeChat(texto, data.esCorrecto, humano, colorJugador);
 }
 
 // === RANKING ACTUALIZADO ===
@@ -166,12 +199,13 @@ function actualizarRanking(mensaje) {
     contenedor.innerHTML = "";
 
     const nombreActual = document.getElementById("usuarioNombre").value;
-    const colores = ["#ec4899", "#22c55e", "#3b82f6", "#a855f7", "#6b7280"];
 
     jugadores.forEach((j, index) => {
+        const colorJugador = obtenerColorJugador(j.nombre);
+
         const jugadorDiv = document.createElement("div");
         jugadorDiv.classList.add("jugador", "d-flex", "align-items-center", "gap-2", "px-3", "py-2", "rounded", "shadow-sm");
-        jugadorDiv.style.backgroundColor = colores[index % colores.length];
+        jugadorDiv.style.backgroundColor = colorJugador;
         jugadorDiv.style.color = "#fff";
 
         const avatar = document.createElement("div");
@@ -193,6 +227,7 @@ function actualizarRanking(mensaje) {
 
         contenedor.appendChild(jugadorDiv);
     });
+
 }
 
 // === TEMPORIZADOR ===
@@ -246,16 +281,30 @@ function detenerTimers() {
 }
 
 // === CHAT LOCAL (Palabras Mencionadas) ===
-function mostrarMensajeChat(texto, esCorrecto, humano) {
+function mostrarMensajeChat(texto, esCorrecto, humano, colorPersonalizado = null) {
     const div = document.createElement("div");
-    console.log("Intento:", texto, "¿Es correcto?", esCorrecto);
-    if(humano) {div.className = "message-bubble " + (esCorrecto ? "mensaje-correcto" : "mensaje-incorrecto");}
-    else {div.className = "message-bubble " + "mensaje-servidor";}
-    div.innerHTML = `<p class="message-text">${texto}</p>`;
-    const contenedorChat =  document.getElementById("palabras-mencionadas");
+    div.className = "message-bubble";
+
+    if (!humano) {
+        div.classList.add("mensaje-servidor");
+    } else if (esCorrecto) {
+        div.classList.add("mensaje-correcto");
+    } else if (!colorPersonalizado) {
+        div.classList.add("mensaje-incorrecto"); // solo si no hay color personalizado
+    }
+
+    // Si tiene color personalizado (jugador), aplicalo
+    if (humano && colorPersonalizado) {
+        div.style.backgroundColor = colorPersonalizado;
+        div.style.color = "white";
+    }
+
+    div.innerHTML = `<p class="message-text mb-0">${texto}</p>`;
+    const contenedorChat = document.getElementById("palabras-mencionadas");
     contenedorChat.appendChild(div);
-    contenedorChat.scrollTop = contenedorChat.scrollHeight; // scroll automático
+    contenedorChat.scrollTop = contenedorChat.scrollHeight;
 }
+
 
 // === ABANDONAR PARTIDA ===
 function abandonarPartida() {
