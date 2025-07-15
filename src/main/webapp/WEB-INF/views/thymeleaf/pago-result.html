@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultado del Pago</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .box {
+      max-width: 600px;
+      margin: 30px auto;
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .success {
+      color: #28a745;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .error {
+      color: #dc3545;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .info {
+      font-size: 1rem;
+      color: #666;
+      margin-top: 1rem;
+    }
+
+    .info p {
+      margin: 0.5rem 0;
+    }
+
+    .info strong {
+      font-weight: 600;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    .back-link:hover {
+      background-color: #0056b3;
+    }
+
+    .error .info, .success .info {
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Resultado del pago</h2>
+
+  <!-- Si hubo error en el controlador o no hay respuesta -->
+  <div th:if="${pagoResponse == null}">
+    <p class="error" th:text="${error}">No se pudo procesar el pago.</p>
+  </div>
+
+  <!-- Si el pago fue exitoso -->
+  <div th:if="${pagoResponse != null and pagoResponse['status'] == 'approved'}">
+    <p class="success">✅ ¡Tu pago fue aprobado con éxito!</p>
+    <p>Ahora dispones de:<strong><span th:text="${monedas}"></span></strong></p>
+    <div class="info">
+      <p><strong>ID de pago:</strong> <span th:text="${pagoResponse['id']}"></span></p>
+      <p><strong>Estado:</strong> <span th:text="${pagoResponse['status']}"></span></p>
+      <p><strong>Fecha de aprobación:</strong> <span th:text="${pagoResponse['date_approved']}"></span></p>
+      <p><strong>Descripción del pago: <span th:text="${pagoResponse['description']}"></span></p>
+
+    </div>
+  </div>
+
+  <!-- Si el pago fue rechazado u otro estado -->
+  <div th:if="${pagoResponse != null and pagoResponse['status'] != 'approved'}">
+    <p class="error">❌ El pago fue rechazado o está pendiente.</p>
+    <div class="info">
+      <p><strong>ID de pago:</strong> <span th:text="${pagoResponse['id']}"></span></p>
+      <p><strong>Estado:</strong> <span th:text="${pagoResponse['status']}"></span></p>
+      <p><strong>Detalle del rechazo:</strong> <span th:text="${pagoResponse['estadoTraducido']}"></span></p> <!-- Muestra la traducción del status_detail -->
+    </div>
+  </div>
+
+  <a th:href="@{/lobby}" class="back-link">Volver al inicio</a>
+</div>
+
+</body>
+</html>

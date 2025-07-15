@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Nuevos estilos adaptados del lobby */
+    body {
+      background: radial-gradient(circle at top left, #1f005c, #5f0a87, #a4508b);
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 2rem;
+      box-shadow: 0 8px 40px rgba(31, 0, 92, 0.25);
+      padding: 2rem;
+      max-width: 75%;
+      color: #333;
+      margin-top: 200px;
+    }
+
+    .form-checkout {
+      display: flex;
+      flex-direction: column;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-checkout__cardNumber,
+    .form-checkout__expirationDate,
+    .form-checkout__securityCode,
+    .form-checkout__cardholderName,
+    .form-checkout__issuer,
+    .form-checkout__installments,
+    .form-checkout__identificationType,
+    .form-checkout__identificationNumber,
+    .form-checkout__cardholderEmail {
+      margin-bottom: 1rem;
+      height: 20px;
+      padding: 0.8rem;
+      border-radius: 1.5rem;
+      border: 2px solid #ddd;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    #form-checkout__submit {
+      background: linear-gradient(90deg, #ff6347, #ffb86c);
+      color: white;
+      border: none;
+      border-radius: 2.5rem;
+      font-size: 1.5rem;
+      padding: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #form-checkout__submit:hover {
+      background: linear-gradient(90deg, #ffb86c, #ff6347);
+    }
+
+    progress {
+      width: 100%;
+      height: 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .progress-bar {
+      background: #ff6347;
+      border-radius: 10px;
+    }
+
+    .noVisibles {
+      display: none;
+    }
+
+    .container2 {
+      height: 18px;
+      display: inline-block;
+      border: 1px solid rgb(118, 118, 118);
+      border-radius: 2px;
+      padding: 1px 2px;
+    }
+
+    /* Estilos específicos para el título */
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      max-width: 400px; /* o el ancho deseado */
+      height: 50px;
+      border-radius: 20px;
+      padding: 10px;
+      box-sizing: border-box;
+      font-size: 16px;
+      display: block;
+      margin: 10px auto;
+    }
+  </style>
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Vas a pagar: $<span th:text="${monto}"></span></h2>
+
+  <form id="form-checkout" class="form-checkout" method="post" th:action="@{/pagar}">
+    <!-- Campo para el número de tarjeta -->
+    <div id="form-checkout__cardNumber" class="form-checkout__cardholderEmail"></div>
+
+    <!-- Campo para la fecha de expiración -->
+    <div id="form-checkout__expirationDate" class="form-checkout__expirationDate" ></div>
+
+    <!-- Campo para el código de seguridad -->
+    <div id="form-checkout__securityCode" class="form-checkout__securityCode" ></div>
+
+    <!-- Campo para el titular de la tarjeta -->
+    <input type="text" id="form-checkout__cardholderName" class="form-checkout__cardholderName" placeholder="Titular de la tarjeta" />
+
+    <!-- Campos ocultos de selección (Issuer, Cuotas, etc.) -->
+    <select id="form-checkout__issuer" class="noVisibles"></select>
+    <select id="form-checkout__installments" class="noVisibles"></select>
+    <select id="form-checkout__identificationType" class="noVisibles"></select>
+
+    <!-- Campo para el número de documento -->
+    <input type="text" id="form-checkout__identificationNumber" class="form-checkout__identificationNumber" placeholder="Número del documento" />
+
+    <!-- Campo para el email del titular -->
+    <input type="email" id="form-checkout__cardholderEmail" class="form-checkout__cardholderEmail" placeholder="E-mail" />
+
+    <!-- Campos ocultos con los valores del formulario -->
+    <input type="hidden" id="cardToken" name="cardToken" />
+    <input type="hidden" id="monto" name="monto" th:value="${monto}" />
+
+    <!-- Botón de pago -->
+    <button type="submit" id="form-checkout__submit">Pagar</button>
+
+    <!-- Barra de progreso -->
+    <progress value="0" class="progress-bar">Cargando...</progress>
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const monto = document.getElementById('monto').value;
+    // Inicializar SDK de MercadoPago
+    const mp = new MercadoPago('TEST-128f5fde-2738-42c9-b160-d4967a051fba', { locale: 'es-AR' });
+
+    const cardForm = mp.cardForm({
+      amount: monto,
+      iframe: true,
+      form: {
+        id: "form-checkout",
+        cardNumber: {
+          id: "form-checkout__cardNumber",
+          placeholder: "Numero de tarjeta",
+        },
+        expirationDate: {
+          id: "form-checkout__expirationDate",
+          placeholder: "MM/YY",
+        },
+        securityCode: {
+          id: "form-checkout__securityCode",
+          placeholder: "Código de seguridad",
+        },
+        cardholderName: {
+          id: "form-checkout__cardholderName",
+          placeholder: "Titular de la tarjeta",
+        },
+        issuer: {
+          id: "form-checkout__issuer",
+          placeholder: "Banco emisor",
+        },
+        installments: {
+          id: "form-checkout__installments",
+          placeholder: "Cuotas",
+        },
+        identificationType: {
+          id: "form-checkout__identificationType",
+          placeholder: "Tipo de documento",
+        },
+        identificationNumber: {
+          id: "form-checkout__identificationNumber",
+          placeholder: "Número del documento",
+        },
+        cardholderEmail: {
+          id: "form-checkout__cardholderEmail",
+          placeholder: "E-mail",
+        },
+      },
+      callbacks: {
+        onFormMounted: error => {
+          if (error){    alert("No se puede generar la compra ya que hay datos incorrectos!");
+            return console.warn("Form Mounted handling error: ", error);}
+
+        },
+        onSubmit: event => {
+          event.preventDefault();
+
+          const {
+            token,
+            amount,
+          } = cardForm.getCardFormData();
+
+          // Insertar los valores en el form
+          document.getElementById("cardToken").value = token;
+          document.getElementById("monto").value = amount;
+
+          // Enviar formulario tradicional
+          document.getElementById("form-checkout").submit();
+        },
+        onFetching: (resource) => {
+          console.log("Fetching resource: ", resource);
+
+          // Animar la barra de progreso
+          const progressBar = document.querySelector(".progress-bar");
+          progressBar.removeAttribute("value");
+
+          return () => {
+            progressBar.setAttribute("value", "0");
+          };
+        }
+      },
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio.interfaceRepository;
 
 import com.tallerwebi.dominio.model.Usuario;
+import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.List;
@@ -24,4 +25,8 @@ public interface UsuarioRepository {
     Usuario obtenerUsuarioPorNombre(String name);
 
     void actualizarEstado(Long idUsuario, boolean estado);
+
+    String obtenerEmailPorId(long idUsuario);
+
+    void agregarMonedasAlUsuario(JSONObject respuesta);
 }

@@ -5,6 +5,7 @@ import com.tallerwebi.dominio.model.Usuario;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,5 +92,28 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
                 .executeUpdate();
         session.flush();
     }
+
+    @Override
+    public String obtenerEmailPorId(long idUsuario) {
+        Session session = sessionFactory.getCurrentSession();
+
+        return (String) session.createQuery("SELECT u.email FROM Usuario u WHERE u.id = :idUsuario")
+                .setParameter("idUsuario", idUsuario)
+                .uniqueResult();
+    }
+
+    @Override
+    public void agregarMonedasAlUsuario(JSONObject respuesta) {
+        Session session = sessionFactory.getCurrentSession();
+
+        JSONObject metadata = respuesta.getJSONObject("metadata");
+        int monedasCompradas = metadata.getInt("monedas");
+        long usuarioId = metadata.getLong("user_id");
+        session.createQuery("UPDATE Usuario SET moneda = moneda + :monedasCompradas WHERE id = :usuarioId")
+                .setParameter("monedasCompradas", monedasCompradas)
+                .setParameter("usuarioId", usuarioId)
+                .executeUpdate();
+    }
+
 
 }

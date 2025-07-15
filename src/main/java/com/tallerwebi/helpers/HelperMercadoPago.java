@@ -7,16 +7,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
 @RestController
 public class HelperMercadoPago {
 
-    private static final String ACCESS_TOKEN = "TU_ACCESS_TOKEN"; // Reemplazá por tu token real
+    private static final String ACCESS_TOKEN = "TEST-438418116415624-071115-01937db3e4a01d517251dd5a56e9cdbc-437743476";
 
     // 📨 Webhook que recibe notificaciones de pago desde Mercado Pago
     @RequestMapping(value = "/webhook", method = RequestMethod.POST)
@@ -43,103 +46,146 @@ public class HelperMercadoPago {
         return ResponseEntity.ok("Webhook procesado");
     }
 
-    // 🔐 Flujo alternativo (con token de tarjeta) — Checkout API
-    public JSONObject crearPagoConTarjeta(double monto, String emailUsuario, long idUsuario,
-                                          String tokenTarjeta, String metodoPago) throws Exception {
+
+   /* public static JSONObject pagarSandbox(int monto, String emailComprador, String cardToken, long idUsuario) throws Exception {
+
         URL url = new URL("https://api.mercadopago.com/v1/payments");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Authorization", "Bearer " + ACCESS_TOKEN);
         con.setRequestProperty("Content-Type", "application/json");
+
+        // Generar un valor único para esta transacción
+        String idemKey = UUID.randomUUID().toString();
+        con.setRequestProperty("X-Idempotency-Key", idemKey);
+
         con.setDoOutput(true);
 
-        JSONObject jsonPago = new JSONObject();
-        jsonPago.put("transaction_amount", monto);
-        jsonPago.put("installments", 1);
-        jsonPago.put("payment_method_id", metodoPago);
-        jsonPago.put("token", tokenTarjeta);
-        jsonPago.put("description", "Compra de monedas");
-        jsonPago.put("external_reference", "usuario_" + idUsuario);
-
-        JSONObject payer = new JSONObject();
-        payer.put("email", emailUsuario);
-        jsonPago.put("payer", payer);
-
-        OutputStream os = con.getOutputStream();
-        os.write(jsonPago.toString().getBytes());
-        os.flush();
-        os.close();
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        StringBuilder response = new StringBuilder();
-        String inputLine;
-        while ((inputLine = in.readLine()) != null)
-            response.append(inputLine);
-        in.close();
-
-        return new JSONObject(response.toString());
-    }
-
-    // 🌐 Endpoint público para que el frontend solicite preferencia de pago (Checkout Pro)
-    @RequestMapping(value = "/crear-preferencia", method = RequestMethod.POST)
-    public ResponseEntity<Map<String, String>> crearPreferencia(@RequestBody Map<String, String> datos) {
-        String userId = datos.get("userId");
-        String paquete = datos.get("paquete"); // ej: "100 monedas"
-        String email = datos.get("email");
-
-        try {
-            String initPoint = generarPreferenciaCheckoutPro(userId, paquete, email);
-            Map<String, String> respuesta = new HashMap<>();
-            respuesta.put("init_point", initPoint);
-            return ResponseEntity.ok(respuesta);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("error", "No se pudo generar la preferencia"));
+        // Construir el JSON del payload
+        JSONObject payload = new JSONObject();
+        payload.put("transaction_amount", monto);
+        payload.put("token", cardToken);
+        payload.put("description", "Compra de monedas");
+        payload.put("installments", 1);
+        payload.put("payment_method_id", "visa");  // Fijás "visa" para tarjetas de prueba
+        payload.put("payer", new JSONObject().put("email", emailComprador));
+        JSONObject metadata = new JSONObject();
+        metadata.put("userId", idUsuario);
+        metadata.put("monedas", monto);
+        payload.put("metadata", metadata);
+        try (OutputStream os = con.getOutputStream()) {
+            os.write(payload.toString().getBytes());
         }
-    }
 
-    // 🧠 Método interno para crear la preferencia y obtener el init_point
-    private String generarPreferenciaCheckoutPro(String externalRef, String titulo, String emailUsuario) throws Exception {
-        URL url = new URL("https://api.mercadopago.com/checkout/preferences");
+        int status = con.getResponseCode();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                status == 201 ? con.getInputStream() : con.getErrorStream()
+        ));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) sb.append(line);
+        reader.close();
+
+        if (status != 201) {
+            throw new RuntimeException("Pago fallido (" + status + "): " + sb);
+        }
+
+        return new JSONObject(sb.toString());
+    }*/
+    public static JSONObject pagarSandbox(int monto, String emailComprador, String cardToken, long idUsuario) throws Exception {
+        URL url = new URL("https://api.mercadopago.com/v1/payments");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Authorization", "Bearer " + ACCESS_TOKEN);
         con.setRequestProperty("Content-Type", "application/json");
+
+        // Generar un valor único para esta transacción
+        String idemKey = UUID.randomUUID().toString();
+        con.setRequestProperty("X-Idempotency-Key", idemKey);
         con.setDoOutput(true);
 
-        JSONObject preferencia = new JSONObject();
-        preferencia.put("external_reference", externalRef);
+        // Construir el JSON del payload
+        JSONObject payload = new JSONObject();
+        payload.put("transaction_amount", monto);
+        payload.put("token", cardToken);
+        payload.put("description", "Compra de monedas");
+        payload.put("installments", 1);
+        payload.put("payment_method_id", "visa");  //
+        payload.put("payer", new JSONObject().put("email", emailComprador));
+        JSONObject metadata = new JSONObject();
+        metadata.put("userId", idUsuario);
+        metadata.put("monedas", monto);
+        payload.put("metadata", metadata);
 
-        JSONArray items = new JSONArray();
-        JSONObject item = new JSONObject();
-        item.put("title", titulo);
-        item.put("quantity", 1);
-        item.put("unit_price", 50); // Podés ajustar el valor según el paquete
-        items.put(item);
-        preferencia.put("items", items);
-
-        if (emailUsuario != null && !emailUsuario.isEmpty()) {
-            JSONObject payer = new JSONObject();
-            payer.put("email", emailUsuario);
-            preferencia.put("payer", payer);
+        try (OutputStream os = con.getOutputStream()) {
+            os.write(payload.toString().getBytes());
         }
 
-        OutputStream os = con.getOutputStream();
-        os.write(preferencia.toString().getBytes());
-        os.flush();
-        os.close();
+        int status = con.getResponseCode();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                status == 201 ? con.getInputStream() : con.getErrorStream()
+        ));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) sb.append(line);
+        reader.close();
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        StringBuilder response = new StringBuilder();
-        String inputLine;
-        while ((inputLine = in.readLine()) != null)
-            response.append(inputLine);
-        in.close();
+        JSONObject response = new JSONObject(sb.toString());
+        String detalle = response.optString("status_detail", "unknown");
+        String traduccion = traducirStatusDetail(detalle);
+        response.put("estadoTraducido", traduccion);
 
-        JSONObject respuesta = new JSONObject(response.toString());
-        return respuesta.getString("init_point");
+        if (status != 201) {
+
+            throw new RuntimeException("Pago fallido: " + traduccion);
+        }
+
+        return response;
     }
+
+
+    private static String traducirStatusDetail(String detalle) {
+        switch (detalle) {
+            case "accredited":
+                return "¡Pago aprobado con éxito!";
+            case "cc_rejected_bad_filled_card_number":
+                return "Número de tarjeta inválido. Verifícalo e intenta nuevamente.";
+            case "cc_rejected_bad_filled_date":
+                return "Fecha de vencimiento incorrecta.";
+            case "cc_rejected_bad_filled_other":
+                return "Datos incompletos o inválidos.";
+            case "cc_rejected_bad_filled_security_code":
+                return "Código de seguridad inválido.";
+            case "cc_rejected_blacklist":
+                return "Tarjeta no autorizada. Usá otro medio.";
+            case "cc_rejected_call_for_authorize":
+                return "Debés autorizar este pago con tu banco.";
+            case "cc_rejected_card_disabled":
+                return "Tarjeta inactiva. Contactá a tu banco.";
+            case "cc_rejected_card_error":
+                return "No se pudo procesar la tarjeta.";
+            case "cc_rejected_duplicated_payment":
+                return "Este pago ya fue realizado.";
+            case "cc_rejected_high_risk":
+                return "Pago rechazado por seguridad. Usá otro método.";
+            case "cc_rejected_insufficient_amount":
+                return "Fondos insuficientes.";
+            case "cc_rejected_invalid_installments":
+                return "Cuotas no disponibles para tu tarjeta.";
+            case "cc_rejected_max_attempts":
+                return "Superaste el número de intentos. Probá más tarde.";
+            case "cc_rejected_other_reason":
+                return "Tu pago fue rechazado. Probá con otra tarjeta.";
+            default:
+                return "Hubo un error procesando el pago. Intentalo de nuevo.";
+        }
+
+
+
+
 }
+}
+
 
 
 

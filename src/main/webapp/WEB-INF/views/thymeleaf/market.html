@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Comprar Monedas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <style>
+    body {
+      background: radial-gradient(circle at top left, #1f005c, #5f0a87, #a4508b);
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .tarjeta-moneda {
+      background: rgba(255,255,255,0.95);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 30px rgba(31,0,92,0.2);
+      text-align: center;
+      color: #5f0a87;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .tarjeta-moneda:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(31,0,92,0.3);
+    }
+    .tarjeta-moneda h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #a4508b;
+    }
+    .tarjeta-moneda .precio {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      color: #444;
+    }
+
+
+  </style>
+
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Elige tu paquete</h1>
+  <a th:href="@{/pago(amount=${100})}" class="btn btn-outline w-75">100 Monedas</a>
+  <a th:href="@{/pago(amount=${300})}" class="btn btn-outline w-75">300 Monedas</a>
+  <a th:href="@{/pago(amount=${500})}" class="btn btn-outline w-75">500 Monedas</a>
+
+
+</div>
+
+
+</div>
+</body>
+
+</html>
