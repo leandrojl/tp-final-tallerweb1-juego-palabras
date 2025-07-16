@@ -38,7 +38,21 @@
             position: absolute;
             top: 20px;
             right: 40px;
+            display: flex;
+            flex-direction: column; /* Cambia la dirección para apilar verticalmente */
+            align-items: flex-end; /* Alinea a la derecha */
+            gap: 1rem; /* Mantiene el espacio entre los botones, ahora verticalmente */
         }
+
+        /* Invierte el orden para que el botón de cerrar sesión esté arriba */
+        .perfil-container a:first-child {
+            order: 2; /* El botón de perfil va después */
+        }
+
+        .perfil-container a:last-child {
+            order: 1; /* El botón de cerrar sesión va primero */
+        }
+
         /*BANNER DE BIENVENIDA*/
         .wordgame-banner {
             background: linear-gradient(90deg, #5f0a87 0%, #a4508b 60%, #ffb86c 100%);
@@ -356,9 +370,19 @@
             position: absolute;
             top: 20px;
             right: 40px;
-            display: flex; /* Alinea los botones horizontalmente */
-            align-items: center; /* Centra los botones verticalmente */
-            gap: 1rem; /* Añade un espacio entre los dos botones */
+            display: flex;
+            flex-direction: column; /* Cambia la dirección para apilar verticalmente */
+            align-items: flex-end; /* Alinea a la derecha */
+            gap: 1rem; /* Mantiene el espacio entre los botones, ahora verticalmente */
+        }
+
+        /* Invierte el orden para que el botón de cerrar sesión esté arriba */
+        .perfil-container a:first-child {
+            order: 2; /* El botón de perfil va después */
+        }
+
+        .perfil-container a:last-child {
+            order: 1; /* El botón de cerrar sesión va primero */
         }
 
     </style>
