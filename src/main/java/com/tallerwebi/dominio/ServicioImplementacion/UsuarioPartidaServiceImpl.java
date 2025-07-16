@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio.ServicioImplementacion;
 
+import com.tallerwebi.dominio.DTO.RankingJugadorDTO;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 
@@ -13,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -113,6 +117,27 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
     public void finalizarPartida(Long partidaId, Estado estado) {
         usuarioPartidaRepository.finalizarPartidaParaTodos(partidaId, estado);
     }
+
+    @Override
+    public List<RankingJugadorDTO> obtenerRankingGlobal() {
+        List<Object[]> resultados = usuarioPartidaRepository.obtenerRankingGlobal();
+
+        List<RankingJugadorDTO> ranking = new ArrayList<>();
+
+        for (Object[] fila : resultados) {
+            String nombreUsuario = (String) fila[0];
+            Usuario usuario = usuarioPartidaRepository.buscarPorNombre(nombreUsuario);
+
+            int jugadas = usuarioPartidaRepository.getCantidadDePartidasDeJugador(usuario);
+            int ganadas = usuarioPartidaRepository.getCantidadDePartidasGanadasDeJugador(usuario);
+            double winrate = usuarioPartidaRepository.getWinrate(usuario);
+
+            ranking.add(new RankingJugadorDTO(nombreUsuario, jugadas, ganadas, winrate));
+        }
+
+        return ranking;
+    }
+
 
     @Override
     public void sumarPuntos(Long usuarioId, Long partidaId, int puntos) {

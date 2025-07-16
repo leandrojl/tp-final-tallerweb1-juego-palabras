@@ -73,7 +73,9 @@ public class JuegoController {
         model.put("palabra", definicion.getPalabra());
         model.put("definicion", definicion.getDefinicionTexto());
         model.put("rondaActual", definicion.getNumeroDeRonda());
+        model.put("rondasTotales", definicion.getRondasTotales());
 
+        System.out.println(">> Rondas totales enviadas al modelo: " + definicion.getRondasTotales());
         int puntaje = definicion.getJugadores().stream()
                 .filter(j -> j.getNombre().equals(nombreUsuario))
                 .map(JugadorPuntajeDto::getPuntaje)

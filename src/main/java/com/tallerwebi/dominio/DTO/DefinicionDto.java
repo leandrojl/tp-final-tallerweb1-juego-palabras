@@ -2,22 +2,22 @@ package com.tallerwebi.dominio.DTO;
 
 public class DefinicionDto {
 
+    private int numeroDeRonda;
+    private String definicionTexto;
+    private String palabra;
+    private int tiempo;
 
-private int numeroDeRonda;
-private String definicionTexto;
-private String palabra;
-
-    public DefinicionDto(String palabra, String definicionTexto, int numeroDeRonda) {
+    public DefinicionDto(String palabra, String definicionTexto, int numeroDeRonda, int tiempo) {
         this.palabra = palabra;
         this.definicionTexto = definicionTexto;
         this.numeroDeRonda = numeroDeRonda;
+        this.tiempo = tiempo;
     }
 
-    public DefinicionDto(){
-
-
+    public DefinicionDto() {
     }
 
+    // Getters y setters
     public int getNumeroDeRonda() {
         return numeroDeRonda;
     }
@@ -30,6 +30,10 @@ private String palabra;
         return palabra;
     }
 
+    public int getTiempo() {
+        return tiempo;
+    }
+
     public void setNumeroDeRonda(int numeroDeRonda) {
         this.numeroDeRonda = numeroDeRonda;
     }
@@ -40,5 +44,9 @@ private String palabra;
 
     public void setPalabra(String palabra) {
         this.palabra = palabra;
+    }
+
+    public void setTiempo(int tiempo) {
+        this.tiempo = tiempo;
     }
 }

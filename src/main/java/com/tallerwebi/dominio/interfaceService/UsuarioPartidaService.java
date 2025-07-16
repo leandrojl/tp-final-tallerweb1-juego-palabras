@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio.interfaceService;
 
+import com.tallerwebi.dominio.DTO.RankingJugadorDTO;
 import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.model.Partida;
 import com.tallerwebi.dominio.model.Usuario;
@@ -36,4 +37,6 @@ public interface UsuarioPartidaService {
     int cantidadDeJugadoresActivosEnPartida(Long partidaId);
 
     void finalizarPartida(Long partidaId, Estado estado);
+
+    List<RankingJugadorDTO> obtenerRankingGlobal();
 }

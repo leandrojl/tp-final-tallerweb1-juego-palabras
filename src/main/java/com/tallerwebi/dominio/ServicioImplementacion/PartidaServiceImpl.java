@@ -215,6 +215,7 @@ public class PartidaServiceImpl implements PartidaService {
             partida.setEstado(Estado.FINALIZADA);
             partidaRepository.actualizarEstado(partidaId, Estado.FINALIZADA);
             usuarioPartidaService.finalizarPartida(partidaId, Estado.FINALIZADA);
+            enviarRankingFinal(partidaId);
             simpMessagingTemplate.convertAndSend(
                     "/topic/redirigir",
                     "/spring/juego/vistaFinalJuego?partidaId=" + partidaId
@@ -235,26 +236,48 @@ public class PartidaServiceImpl implements PartidaService {
         return ultimaRonda.getNumeroDeRonda() >= partida.getRondasTotales();
     }
 
+    @Transactional
     @Override
     public void enviarRankingFinal(Long idPartida) {
 
         List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(idPartida);
 
+        if (jugadores.isEmpty()) return;
+
+
+        UsuarioPartida ganador = jugadores.stream()
+                .max(Comparator.comparingInt(UsuarioPartida::getPuntaje))
+                .orElseThrow();
+
+        ganador.setGano(true);
+        System.out.println("🟢 [Service] Ganador: " + ganador.getUsuario().getNombreUsuario()
+                + " | Partida ID: " + ganador.getPartida().getId()
+                + " | gano: " + ganador.isGano());
+        usuarioPartidaRepository.actualizarGanador(ganador.getId());
+
+
+
         List<RankingDTO> ranking = jugadores.stream()
-                .map(up -> new RankingDTO(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
+                .map(up -> new RankingDTO(
+                        up.getUsuario().getNombreUsuario(),
+                        up.getPuntaje(),
+                        up.getId().equals(ganador.getId())
+                ))
                 .sorted(Comparator.comparingInt(RankingDTO::getPuntaje).reversed())
                 .collect(Collectors.toList());
 
-
+        // 5. Enviar el ranking al frontend
         simpMessagingTemplate.convertAndSend("/topic/vistaFinal", ranking);
     }
+
     @Transactional
     @Override
     public List<RankingDTO> obtenerRanking(Long partidaId) {
         List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(partidaId);
 
         return jugadores.stream()
-                .map(up -> new RankingDTO(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
+                .map(up -> new RankingDTO(up.getUsuario().getNombreUsuario(), up.getPuntaje(),
+                        up.isGano()))
                 .sorted(Comparator.comparingInt(RankingDTO::getPuntaje).reversed())
                 .collect(Collectors.toList());
     }
@@ -299,6 +322,7 @@ public class PartidaServiceImpl implements PartidaService {
     public RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId) {
         Palabra palabra = ronda.getPalabra();
         String definicionTexto;
+        Partida partida = partidaRepository.buscarPorId(partidaId);
         Hibernate.initialize(palabra.getDefiniciones());
 
             definicionTexto = palabra.getDefiniciones().stream()
@@ -318,6 +342,7 @@ public class PartidaServiceImpl implements PartidaService {
         dto.setDefinicionTexto(definicionTexto);
         dto.setNumeroDeRonda(ronda.getNumeroDeRonda());
         dto.setJugadores(jugadoresDto);
+        dto.setRondasTotales(partida.getRondasTotales());
 
         simpMessagingTemplate.convertAndSend("/topic/juego/" + partidaId, dto);
         simpMessagingTemplate.convertAndSend("/topic/verRanking/" + partidaId,

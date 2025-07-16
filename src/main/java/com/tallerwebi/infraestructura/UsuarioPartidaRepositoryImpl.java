@@ -56,7 +56,7 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
     }
 
     @Override
-    public List<Object[]> obtenerRanking() {
+    public List<Object[]> obtenerRankingGlobal() {
         Session session = sessionFactory.getCurrentSession();
         return session.createQuery(
                 "SELECT u.nombreUsuario, COUNT(p) " +
@@ -350,4 +350,29 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .setParameter("partidaId", partidaId)
                 .executeUpdate();
     }
+
+    @Override
+    public List<Usuario> obtenerTodosLosUsuariosConPartidas() {
+        return sessionFactory.getCurrentSession()
+                .createQuery("SELECT DISTINCT p.usuario FROM UsuarioPartida p", Usuario.class)
+                .getResultList();
+    }
+
+    @Override
+    public void actualizarGanador(Long id) {
+        sessionFactory.getCurrentSession()
+                .createQuery("UPDATE UsuarioPartida up SET up.gano = true WHERE up.id = :id")
+                .setParameter("id", id)
+                .executeUpdate();
+    }
+
+    public Usuario buscarPorNombre(String nombreUsuario) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("FROM Usuario WHERE nombreUsuario = :nombre", Usuario.class)
+                .setParameter("nombre", nombreUsuario)
+                .uniqueResult();
+    }
+
+
+
 }

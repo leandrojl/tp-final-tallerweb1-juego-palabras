@@ -105,6 +105,7 @@ function manejarMensajeServidor(mensaje) {
     reconstruirPalabra(data.palabra);
         document.getElementById("definicionActual").textContent = data.definicionTexto;
         document.getElementById("rondaActual").textContent = data.numeroDeRonda;
+        document.getElementById("rondasTotales").textContent = data.rondasTotales;
         tiempoRestante      = 60;
         finRondaEjecutada   = false;
         indexLetra          = 0;

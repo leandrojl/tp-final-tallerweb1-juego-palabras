@@ -8,6 +8,7 @@ public class RondaDto {
     private String definicionTexto;
     private int numeroDeRonda;
     private List<JugadorPuntajeDto> jugadores;
+    private int rondasTotales;
 
     // Getters y setters
 
@@ -49,5 +50,12 @@ public class RondaDto {
     }
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    public int getRondasTotales() {
+        return rondasTotales;
+    }
+    public void setRondasTotales(int rondasTotales) {
+        this.rondasTotales = rondasTotales;
     }
 }

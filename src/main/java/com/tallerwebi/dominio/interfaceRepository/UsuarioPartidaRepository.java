@@ -15,7 +15,7 @@ public interface UsuarioPartidaRepository {
 
     double getWinrate(Usuario usuario);
 
-    List<Object[]> obtenerRanking();
+    List<Object[]> obtenerRankingGlobal();
 
     int contarUsuariosEnPartida(Long idPartida);
 
@@ -68,4 +68,10 @@ public interface UsuarioPartidaRepository {
     int cantidadDeJugadoresActivosEnPartida(Long partidaId);
 
     void finalizarPartidaParaTodos(Long partidaId, Estado estado);
+
+    List<Usuario> obtenerTodosLosUsuariosConPartidas();
+
+    void actualizarGanador(Long id);
+
+    Usuario buscarPorNombre(String nombreUsuario);
 }
