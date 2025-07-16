@@ -300,20 +300,50 @@
         <!-- Columna derecha -->
         <div class="col-md-4 d-flex flex-column align-items-center">
             <div id="palabras-mencionadas" class="chat-container"></div>
+
             <input type="text" id="input-intento" placeholder="Escribí la palabra..."
                    class="form-control form-control-lg mt-3"/>
+
             <input type="hidden" id="idUsuario" th:value="${idUsuario}"/>
+
+            <button id="btn-comodin" class="btn btn-warning mt-2">Usar Comodín</button>
+
+            <button id="btn-bloquear-usuario" class="btn btn-danger mt-2" data-bs-toggle="modal"
+                    data-bs-target="#modalJugadores">
+                Bloquear input de jugador
+            </button>
+
+
             <input type="hidden" id="idPartida" th:value="${idPartida}"/>
+            <input type="hidden" id="usuarioNombre" th:value="${usuario}"/>
         </div>
     </div>
 </main>
 
-
-<!-- Ranking (ahora lo llenamos con JS) -->
+<!-- Ranking actualizado por JS -->
 <div class="ranking-horizontal d-flex justify-content-center gap-4 flex-wrap mt-4"></div>
-<input type="hidden" id="usuarioNombre" th:value="${usuario}"/>
 
-<!-- Modal abandonar -->
+<!-- Modal para elegir a quién bloquear -->
+<div class="modal fade" id="modalJugadores" tabindex="-1" aria-labelledby="modalJugadoresLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalJugadoresLabel">Elegí a quién bloquear</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="listaJugadores" class="list-group">
+                    <!-- Se llena dinámicamente desde juego.js -->
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para abandonar partida -->
 <div class="modal fade" id="modalAbandonar" tabindex="-1" aria-labelledby="modalAbandonarLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -328,10 +358,8 @@
                 <a href="#" class="btn btn-danger" onclick="return abandonarYSalir()">Sí, abandonar</a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             </div>
-
         </div>
     </div>
-</div>
 </div>
 
 <!-- Scripts -->

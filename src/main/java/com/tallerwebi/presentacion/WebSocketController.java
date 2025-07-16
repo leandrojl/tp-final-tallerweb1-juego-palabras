@@ -1,15 +1,10 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.DTO.DefinicionDto;
-import com.tallerwebi.dominio.DTO.DtoIntento;
-import com.tallerwebi.dominio.DTO.MensajeAvanzarRondaDTO;
-import com.tallerwebi.dominio.DTO.RondaDto;
+import com.tallerwebi.dominio.DTO.*;
 import com.tallerwebi.dominio.interfaceService.AciertoService;
 import com.tallerwebi.dominio.interfaceService.PartidaService;
 import com.tallerwebi.dominio.interfaceService.SalaDeEsperaService;
 
-import com.tallerwebi.dominio.DTO.MensajeEnviadoDTO;
-import com.tallerwebi.dominio.DTO.MensajeRecibidoDTO;
 import com.tallerwebi.dominio.model.MensajeInicioRonda;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -62,9 +57,17 @@ public class WebSocketController {
 
     }
 
+
     @ExceptionHandler(Exception.class)
     public void handleException(Exception e) {
         e.printStackTrace();
+    }
+
+    @MessageMapping("/juego/activarComodin")
+    public void activarComodin(DtoComodin dto, Principal principal) {
+        String nombreUsuario = principal.getName();
+        partidaService.activarComodin(dto.getIdPartida(), dto.getIdUsuario(), nombreUsuario);
+
     }
 
 
@@ -130,6 +133,17 @@ public class WebSocketController {
     public void enviarMensajeAUsuarioEspecifico(String nombreUsuario, String mensaje) {
         this.partidaService.enviarMensajeAUsuarioEspecifico(nombreUsuario,mensaje);
     }
+    @MessageMapping("/juego/obtenerUsuarios")
+    public void obtenerUsuariosParaBloquear(DtoComodin dto, Principal principal) {
+        String nombreUsuario = principal.getName();
+        partidaService.obtenerUsuariosParaBloquear(dto.getIdPartida(), nombreUsuario);
+    }
 
+    @MessageMapping("/juego/bloquearUsuario")
+    public void bloquearUsuario(DtoComodinBloqueo dto, Principal principal) {
+        String nombreUsuario = principal.getName();
+        partidaService.bloquearUsuario(dto.getIdPartida(), dto.getIdUsuario(),
+                nombreUsuario, dto.getUsuarioABloquear());
+    }
 
 }

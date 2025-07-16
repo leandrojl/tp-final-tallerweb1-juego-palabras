@@ -19,15 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-
 import java.util.HashMap;
 import java.util.Map;
+
 
 
 @Service
@@ -56,6 +55,9 @@ public class PartidaServiceImpl implements PartidaService {
     private RondaTimerManager rondaTimerManager;
     @Autowired
     private GeminiBotService botService;
+
+
+    private final Map<String, ScheduledFuture<?>> usuariosBloqueados = new ConcurrentHashMap<>();
 
     private final Map<Long, RondaDto> definicionesPorPartida = new HashMap<>();
     private final ConcurrentHashMap<Long, Object> locks = new ConcurrentHashMap<>();
@@ -411,5 +413,92 @@ public class PartidaServiceImpl implements PartidaService {
             avanzarRonda(dto);
         }
     }
+
+    public void activarComodin(Long idPartida, Long idUsuario, String nombreUsuario) {
+        UsuarioPartida usuarioPartida = usuarioPartidaRepository.obtenerUsuarioPartida(idUsuario, idPartida);
+
+        if (usuarioPartida == null) return;
+        if (usuarioPartida.isComodinUsado()) return;
+
+        Ronda rondaActual = rondaRepositorio.obtenerUltimaRondaDePartida(idPartida);
+        if (rondaActual == null || rondaActual.getEstado() == Estado.FINALIZADA) return;
+
+        String palabra = rondaActual.getPalabra().getDescripcion();
+        Random random = new Random();
+        int indiceLetra = random.nextInt(palabra.length());
+        char letra = palabra.charAt(indiceLetra);
+
+        // Marcar comodín como usado
+        usuarioPartida.setComodinUsado(true);
+        usuarioPartidaRepository.actualizar(usuarioPartida);
+
+        // Enviar al jugador solo la letra descubierta
+        LetraComodinDto letraDto = new LetraComodinDto(indiceLetra, String.valueOf(letra));
+        simpMessagingTemplate.convertAndSendToUser(nombreUsuario, "/queue/comodin", letraDto);
+    }
+
+
+    @Override
+    public void obtenerUsuariosParaBloquear(Long idPartida, String nombreUsuario) {
+        List<UsuarioPartida> usuariosEnPartida = usuarioPartidaRepository.obtenerUsuarioPartidaPorPartida(idPartida);
+
+        List<String> nombresUsuarios = usuariosEnPartida.stream()
+                .map(up -> up.getUsuario().getNombreUsuario())
+                .filter(nombre -> !nombre.equals(nombreUsuario)) // Excluir al usuario actual
+                .collect(Collectors.toList());
+
+        ListaUsuariosDTO listaDto = new ListaUsuariosDTO(nombresUsuarios);
+        simpMessagingTemplate.convertAndSendToUser(nombreUsuario, "/queue/listaUsuarios", listaDto);
+    }
+
+    @Override
+    public void bloquearUsuario(Long idPartida, Long idUsuario, String nombreUsuario, String usuarioABloquear) {
+        UsuarioPartida usuarioPartida = usuarioPartidaRepository.obtenerUsuarioPartida(idUsuario, idPartida);
+
+        if (usuarioPartida == null) return;
+        if (usuarioPartida.isComodinBloqueoUsado()) return; // Añadir este campo a la entidad
+
+        Ronda rondaActual = rondaRepositorio.obtenerUltimaRondaDePartida(idPartida);
+        if (rondaActual == null || rondaActual.getEstado() == Estado.FINALIZADA) return;
+
+        // Marcar comodín como usado
+        usuarioPartida.setComodinBloqueoUsado(true);
+        usuarioPartidaRepository.actualizar(usuarioPartida);
+
+        // Crear clave única para el usuario bloqueado
+        String claveBloqueo = idPartida + "-" + usuarioABloquear;
+
+        // Cancelar bloqueo anterior si existe
+        ScheduledFuture<?> bloqueoAnterior = usuariosBloqueados.get(claveBloqueo);
+        if (bloqueoAnterior != null && !bloqueoAnterior.isDone()) {
+            bloqueoAnterior.cancel(false);
+        }
+
+        // Notificar al usuario bloqueado
+        BloqueoDto bloqueoDto = new BloqueoDto(usuarioABloquear, 10,
+                nombreUsuario + " te ha bloqueado por 10 segundos");
+        simpMessagingTemplate.convertAndSendToUser(usuarioABloquear, "/queue/bloqueo", bloqueoDto);
+
+        // Notificar al resto de usuarios
+        BloqueoDto notificacionPublica = new BloqueoDto(usuarioABloquear, 10,
+                nombreUsuario + " ha bloqueado a " + usuarioABloquear + " por 10 segundos");
+        simpMessagingTemplate.convertAndSend("/topic/notificacionBloqueo/" + idPartida, notificacionPublica);
+
+        // Programar desbloqueo automático
+        ScheduledFuture<?> tareaDesbloqueo = timerRonda.schedule(() -> {
+            BloqueoDto desbloqueoDto = new BloqueoDto(usuarioABloquear, 0, "Tu bloqueo ha terminado");
+            simpMessagingTemplate.convertAndSendToUser(usuarioABloquear, "/queue/desbloqueo", desbloqueoDto);
+
+            // Notificar al resto
+            BloqueoDto notificacionDesbloqueo = new BloqueoDto(usuarioABloquear, 0,
+                    usuarioABloquear + " ya puede escribir nuevamente");
+            simpMessagingTemplate.convertAndSend("/topic/notificacionBloqueo/" + idPartida, notificacionDesbloqueo);
+
+            usuariosBloqueados.remove(claveBloqueo);
+        }, 10, TimeUnit.SECONDS);
+
+        usuariosBloqueados.put(claveBloqueo, tareaDesbloqueo);
+    }
+
 
 }

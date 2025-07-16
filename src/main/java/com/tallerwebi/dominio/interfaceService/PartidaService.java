@@ -46,9 +46,17 @@ public interface PartidaService {
 
     RondaDto construirDtoDesdeRondaExistente(Ronda ronda, Long partidaId);
 
+
     void cancelarPartidaSiEsCreador(Long idUsuario, Long idPartida);
 
     String obtenerNombrePartidaPorId(Long idPartida);
+
+
+    void activarComodin(Long idPartida, Long idUsuario, String nombreUsuario);
+
+    void obtenerUsuariosParaBloquear(Long idPartida, String nombreUsuario);
+
+    void bloquearUsuario(Long idPartida, Long idUsuario, String nombreUsuario, String usuarioABloquear);
 
 }
 

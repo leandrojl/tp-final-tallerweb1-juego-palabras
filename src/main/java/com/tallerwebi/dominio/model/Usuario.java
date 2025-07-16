@@ -19,6 +19,8 @@ public class Usuario {
     private Tipo_Usuario rol;
     private Boolean estaListo;
 
+
+
     public Usuario() {
 
     }
