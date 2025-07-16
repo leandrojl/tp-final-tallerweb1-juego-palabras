@@ -80,7 +80,7 @@ function conectarWebSocket() {
                 stompClient.subscribe(`/topic/timerInicioRonda/${idPartida}`, mensajeDelServidorAlChat);
 
 
-            iniciarRonda();
+            //iniciarRonda();
         },
         onStompError: (frame) => {
             console.error('❌ Error STOMP:', frame);
@@ -260,7 +260,7 @@ function bloquearUsuarioDesdeModal(usuarioABloquear) {
         destination: "/app/juego/bloquearUsuario",
         body: JSON.stringify({
             idPartida,
-            idUsuario: usuarioId,
+            idUsuario: idUsuario,
             usuarioABloquear
         })
     });
@@ -451,7 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-comodin").addEventListener("click", () => {
         stompClient.publish({
             destination: "/app/juego/activarComodin",
-            body: JSON.stringify({ idPartida, idUsuario: usuarioId })
+            body: JSON.stringify({ idPartida, idUsuario: idUsuario })
         });
         document.getElementById("btn-comodin").disabled = true;
     });

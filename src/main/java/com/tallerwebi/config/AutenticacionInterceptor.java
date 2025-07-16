@@ -15,7 +15,7 @@ public class AutenticacionInterceptor implements HandlerInterceptor {
         String path = uri.substring(contextPath.length()); // por ej. "/registrar"
 
         // Excepciones: se permite sin login
-        if (path.equals("/jugar-rapido") || path.equals("/login") || path.equals("/procesarLogin") || path.equals("/registrar") ||
+        if (path.equals("/jugar-rapido") || path.equals("/login") || path.equals("/procesarLogin") || path.equals("/registro") || path.equals("/procesarRegistro") ||
                 path.startsWith("/css/") || path.startsWith("/js/") ||
                 path.startsWith("/webjars/") || path.startsWith("/resources/")) {
             return true;
