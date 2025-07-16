@@ -15,6 +15,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpSession;
@@ -132,5 +134,13 @@ public class WebSocketController {
         partidaService.bloquearUsuario(dto.getIdPartida(), dto.getIdUsuario(),
                 nombreUsuario, dto.getUsuarioABloquear());
     }
+
+    @PostMapping("/abandonar")
+    public void abandonar(@RequestParam Long idUsuario, @RequestParam Long idPartida, @RequestParam String nombreUsuario,HttpSession session) {
+        session.removeAttribute("idPartida");
+        session.removeAttribute("jugando");
+        partidaService.abandonarPartida(idUsuario,idPartida,nombreUsuario);
+    }
+
 
 }

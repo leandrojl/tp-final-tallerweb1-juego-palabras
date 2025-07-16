@@ -46,14 +46,11 @@ stompClient.onConnect = (frame) => {
         sessionStorage.removeItem("esCreador");
 
         alert("Has sido expulsado de la partida por el creador.");
-        const protocol = window.location.protocol;
-        const host = window.location.host;
         const data = JSON.parse(m.body); // Ahora data.message será "/spring/juego"
 
-        // Esto construirá la URL correcta dinámicamente
-        // Local: "http://localhost:8080" + "/spring/juego"
-        // Cloudflare: "https://<tu-dominio>.com" + "/spring/juego"
-        window.location.href = `${protocol}//${host}` + data.message; // Redirige al lobby
+        const destino = window.location.origin + data.message; // origen + /spring/lobby
+        console.log("🔁 Redirigiendo a:", destino);
+        window.location.href = destino;
     });
 
     stompClient.subscribe('/topic/jugadorExpulsado/' + idPartida, (m) => {
@@ -107,25 +104,19 @@ stompClient.onConnect = (frame) => {
     });
 
     stompClient.subscribe('/user/queue/irAPartida', (m) => {
-        const protocol = window.location.protocol;
-        const host = window.location.host;
         const data = JSON.parse(m.body); // Ahora data.message será "/spring/juego"
 
-        // Esto construirá la URL correcta dinámicamente
-        // Local: "http://localhost:8080" + "/spring/juego"
-        // Cloudflare: "https://<tu-dominio>.com" + "/spring/juego"
-        window.location.href = `${protocol}//${host}` + data.message;
+        const destino = window.location.origin + data.message; // origen + /spring/lobby
+        console.log("🔁 Redirigiendo a:", destino);
+        window.location.href = destino;
     });
 
     stompClient.subscribe('/user/queue/alAbandonarSala', (m) => {
-        const protocol = window.location.protocol;
-        const host = window.location.host;
         const data = JSON.parse(m.body); // Ahora data.message será "/spring/juego"
 
-        // Esto construirá la URL correcta dinámicamente
-        // Local: "http://localhost:8080" + "/spring/juego"
-        // Cloudflare: "https://<tu-dominio>.com" + "/spring/juego"
-        window.location.href = `${protocol}//${host}` + data.message;
+        const destino = window.location.origin + data.message; // origen + /spring/lobby
+        console.log("🔁 Redirigiendo a:", destino);
+        window.location.href = destino;
     });
 
     stompClient.subscribe('/user/queue/noSePuedeIrALaPartida', (m) => {

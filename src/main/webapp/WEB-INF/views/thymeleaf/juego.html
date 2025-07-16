@@ -363,20 +363,26 @@
 <div class="modal fade" id="modalAbandonar" tabindex="-1" aria-labelledby="modalAbandonarLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">¿Estás seguro?</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                ¿Querés abandonar la partida? Vas a perder tu progreso.
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn btn-danger" onclick="return abandonarYSalir()">Sí, abandonar</a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            </div>
+            <form th:action="@{/abandonar}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">¿Estás seguro?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Querés abandonar la partida? Vas a perder tu progreso.
+                    <input type="hidden" name="idUsuario" th:value="${idUsuario}" />
+                    <input type="hidden" name="idPartida" th:value="${idPartida}" />
+                    <input type="hidden" name="nombreUsuario" th:value="${usuario}" />
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Sí, abandonar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -388,20 +394,20 @@
     const contextPath = /*[[${#httpServletRequest.contextPath}]]*/ '';
     /*]]>*/
 </script>
-<script>
-    function abandonarYSalir() {
-        const idUsuario = document.getElementById("idUsuario").value;
-        const partidaId = document.getElementById("idPartida").value;
+<!--<script>-->
+<!--    function abandonarYSalir() {-->
+<!--        const idUsuario = document.getElementById("idUsuario").value;-->
+<!--        const partidaId = document.getElementById("idPartida").value;-->
 
-        navigator.sendBeacon(contextPath + "/abandonarPartida", new URLSearchParams({
-            idUsuario: idUsuario,
-            idPartida: idPartida
-        }));
+<!--        navigator.sendBeacon(contextPath + "/abandonarPartida", new URLSearchParams({-->
+<!--            idUsuario: idUsuario,-->
+<!--            idPartida: idPartida-->
+<!--        }));-->
 
-        window.location.href = contextPath + "/lobby";
-        return false;
-    }
-</script>
+<!--        window.location.href = contextPath + "/lobby";-->
+<!--        return false;-->
+<!--    }-->
+<!--</script>-->
 
 </body>
 

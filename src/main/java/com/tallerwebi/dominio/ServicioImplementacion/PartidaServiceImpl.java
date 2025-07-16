@@ -503,5 +503,12 @@ public class PartidaServiceImpl implements PartidaService {
         usuariosBloqueados.put(claveBloqueo, tareaDesbloqueo);
     }
 
+    @Override
+    public void abandonarPartida(Long idUsuario, Long idPartida, String nombreUsuario) {
+        usuarioPartidaService.marcarComoPerdedor(idUsuario, idPartida);
+        simpMessagingTemplate.convertAndSend("/topic/usuarioAbandonoPartida/"+idPartida, nombreUsuario);
+        simpMessagingTemplate.convertAndSendToUser(nombreUsuario,"/queue/abandonarPartida",new MensajeRecibidoDTO("/spring/lobby"));
+    }
+
 
 }

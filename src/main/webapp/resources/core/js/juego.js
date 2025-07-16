@@ -4,6 +4,8 @@
 //     // Esto evita que el usuario entre a una partida con el estado del script roto.
 //     window.location.href = "/spring/lobby";
 // }
+const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+const host = window.location.host; // ej: localhost:8080 o scary-propecia-reno-chest.trycloudflare.com
 let stompClient = null;
 let tiempoRestante = 60;
 let intervaloTemporizador;
@@ -57,8 +59,6 @@ let indexLetra = 0;
 
 // === WEBSOCKET ===
 function conectarWebSocket() {
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const host = window.location.host; // ej: localhost:8080 o scary-propecia-reno-chest.trycloudflare.com
     const brokerURL = `${protocol}://${host}/spring/wschat`; // <-- corregido
 
     stompClient = new StompJs.Client({
@@ -76,6 +76,8 @@ function conectarWebSocket() {
                 stompClient.subscribe(`/user/queue/listaUsuarios`, mostrarListaJugadoresModal); // 👈 nuevo
                 stompClient.subscribe("/user/queue/bloqueo", manejarBloqueo);
                 stompClient.subscribe("/user/queue/desbloqueo", manejarDesbloqueo);
+                stompClient.subscribe(`/topic/usuarioAbandonoPartida/${idPartida}`,eliminarDivDeUsuario)
+                stompClient.subscribe("/user/queue/abandonarPartida",redireccionarALobby)
 
                 stompClient.subscribe("/topic/redirigir", function(message) {
                     const url = message.body;
@@ -307,46 +309,7 @@ function manejarDesbloqueo(mensaje) {
 }
 
 
-// === ACTUALIZAR RANKING ===
-// === RANKING ACTUALIZADO ===
-function actualizarRanking(mensaje) {
-    const data = JSON.parse(mensaje.body);
-    console.log("Ranking recibido:", data);
-    const jugadores = data.jugadores;
-    const contenedor = document.querySelector(".ranking-horizontal");
-    contenedor.innerHTML = "";
 
-    const nombreActual = document.getElementById("usuarioNombre").value;
-
-    jugadores.forEach((j, index) => {
-        const colorJugador = obtenerColorJugador(j.nombre);
-
-        const jugadorDiv = document.createElement("div");
-        jugadorDiv.classList.add("jugador", "d-flex", "align-items-center", "gap-2", "px-3", "py-2", "rounded", "shadow-sm");
-        jugadorDiv.style.backgroundColor = colorJugador;
-        jugadorDiv.style.color = "#fff";
-
-        const avatar = document.createElement("div");
-        avatar.className = "avatar";
-        avatar.style.width = "12px";
-        avatar.style.height = "12px";
-        avatar.style.backgroundColor = "white";
-        avatar.style.borderRadius = "2px";
-
-        const nombreSpan = document.createElement("span");
-        nombreSpan.textContent = j.nombre;
-
-        const puntajeSpan = document.createElement("span");
-        puntajeSpan.innerHTML = `(<span class="badge bg-secondary">${j.puntaje}</span> pts)`;
-
-        jugadorDiv.appendChild(avatar);
-        jugadorDiv.appendChild(nombreSpan);
-        jugadorDiv.appendChild(puntajeSpan);
-
-        contenedor.appendChild(jugadorDiv);
-    });
-
-}
 
 // === TEMPORIZADOR ===
 function iniciarTemporizador() {
@@ -569,6 +532,65 @@ function mostrarMensajeCentrado(texto) {
     setTimeout(() => {
         div.remove();
     }, 3200);
+}
+
+
+// === ACTUALIZAR RANKING ===
+// === RANKING ACTUALIZADO ===
+function actualizarRanking(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    console.log("Ranking recibido:", data);
+    const jugadores = data.jugadores;
+    const contenedor = document.querySelector(".ranking-horizontal");
+    contenedor.innerHTML = "";
+
+    jugadores.forEach((j) => {
+        const colorJugador = obtenerColorJugador(j.nombre);
+
+        const jugadorDiv = document.createElement("div");
+        jugadorDiv.id = j.nombre; // Asignamos el nombre como ID
+        jugadorDiv.classList.add("jugador", "d-flex", "align-items-center", "gap-2", "px-3", "py-2", "rounded", "shadow-sm");
+        jugadorDiv.style.backgroundColor = colorJugador;
+        jugadorDiv.style.color = "#fff";
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.style.width = "12px";
+        avatar.style.height = "12px";
+        avatar.style.backgroundColor = "white";
+        avatar.style.borderRadius = "2px";
+
+        const nombreSpan = document.createElement("span");
+        nombreSpan.textContent = j.nombre;
+
+        const puntajeSpan = document.createElement("span");
+        puntajeSpan.innerHTML = `(<span class="badge bg-secondary">${j.puntaje}</span> pts)`;
+
+        jugadorDiv.appendChild(avatar);
+        jugadorDiv.appendChild(nombreSpan);
+        jugadorDiv.appendChild(puntajeSpan);
+
+        contenedor.appendChild(jugadorDiv);
+    });
+}
+
+
+function eliminarDivDeUsuario(mensaje) {
+    const nombre = mensaje.body; // Llega como string simple
+    const jugadorDiv = document.getElementById(nombre);
+    if (jugadorDiv) {
+        jugadorDiv.remove();
+        console.log(`Jugador eliminado: ${nombre}`);
+    } else {
+        console.warn(`No se encontró el div del jugador: ${nombre}`);
+    }
+}
+
+function redireccionarALobby(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    const destino = window.location.origin + data.message; // origen + /spring/lobby
+    console.log("🔁 Redirigiendo a:", destino);
+    window.location.href = destino;
 }
 
 
