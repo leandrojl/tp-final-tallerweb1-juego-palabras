@@ -1,7 +1,14 @@
 package com.tallerwebi.dominio;
+
+import com.tallerwebi.dominio.DTO.DtoIntento;
 import com.tallerwebi.dominio.DTO.JugadorPuntajeDto;
+import com.tallerwebi.dominio.DTO.ResultadoIntentoDto;
 import com.tallerwebi.dominio.DTO.RondaDto;
+import com.tallerwebi.dominio.Enum.Estado;
 import com.tallerwebi.dominio.ServicioImplementacion.PartidaServiceImpl;
+import com.tallerwebi.dominio.excepcion.PartidaInexistenteException;
+import com.tallerwebi.dominio.excepcion.RondaFinalizadaException;
+import com.tallerwebi.dominio.excepcion.RondaInexistenteException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
 import com.tallerwebi.dominio.interfaceService.AciertoService;
 import com.tallerwebi.dominio.interfaceService.GeminiBotService;
@@ -17,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,7 +36,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
- public class PartidaServiceTest {
+public class PartidaServiceTest {
     private SimpMessagingTemplate simpMessagingTemplate;
     private PartidaRepository partidaRepository;
     private RondaService rondaService;
@@ -37,10 +45,11 @@ import static org.mockito.Mockito.*;
     private PartidaServiceImpl service;
     private PartidaServiceImpl partidaService;
     private UsuarioPartidaRepository usuarioPartidaRepository;
-     private AciertoService aciertoService;
-     private UsuarioPartidaService usuarioPartidaService;
-     private RondaTimerManager rondaTimerManager;
-     private GeminiBotService botService;
+    private AciertoService aciertoService;
+    private UsuarioPartidaService usuarioPartidaService;
+    private RondaTimerManager rondaTimerManager;
+    private GeminiBotService botService;
+
     @BeforeEach
     void setUp() throws IllegalAccessException, NoSuchFieldException {
         // Mocks
@@ -49,7 +58,7 @@ import static org.mockito.Mockito.*;
         rondaService = mock(RondaService.class);
         rondaRepository = mock(RondaRepository.class);
         usuarioPartidaRepository = mock(UsuarioPartidaRepository.class);
-        aciertoService= mock(AciertoService.class);
+        aciertoService = mock(AciertoService.class);
         usuarioPartidaService = mock(UsuarioPartidaService.class);
         partidaService = mock(PartidaServiceImpl.class);
 
@@ -87,21 +96,23 @@ import static org.mockito.Mockito.*;
         usuarioPartidaRepoField.set(partidaService, usuarioPartidaRepository);
 
     }
-        @Test
-        void queLaRondaGenereUnDtoConDatos(){
-           Ronda ronda =whenTengoUnaPartidaRondaYPalabra(1L);
-           //ejecucion
-           RondaDto dto = service.iniciarNuevaRonda(1L);
-           //comprobacion
-            assertEquals("gato", dto.getPalabra());
-            assertEquals("Animal doméstico", dto.getDefinicionTexto());
-            assertEquals(1, dto.getNumeroDeRonda());
-        }
+
+    @Test
+    void queLaRondaGenereUnDtoConDatos() {
+        Ronda ronda = whenTengoUnaPartidaRondaYPalabra(1L);
+        //ejecucion
+        RondaDto dto = service.iniciarNuevaRonda(1L);
+        //comprobacion
+        assertEquals("gato", dto.getPalabra());
+        assertEquals("Animal doméstico", dto.getDefinicionTexto());
+        assertEquals(1, dto.getNumeroDeRonda());
+    }
+
     @Test
     void queSeEjecuteFinalizarRondaSiPasaElTiempoEstipulado() {
         //Preparacion
         Long partidaId = 1L;
-        Ronda ronda= whenTengoUnaPartidaRondaYPalabra(partidaId);
+        Ronda ronda = whenTengoUnaPartidaRondaYPalabra(partidaId);
 
 
         ScheduledFuture<?> futureMock = mock(ScheduledFuture.class);
@@ -120,19 +131,19 @@ import static org.mockito.Mockito.*;
         verify(service).finalizarRonda(ronda);
     }
 
-     private Ronda whenTengoUnaPartidaRondaYPalabra(Long partidaId) {
-         Partida partida = new Partida();
-         partida.setIdioma("es");
-         Palabra palabra = new Palabra();
-         palabra.setDescripcion("gato");
-         palabra.setDefiniciones(new ArrayList<>(Set.of(new Definicion("Animal doméstico"))));
-         Ronda ronda = new Ronda();
-         ronda.setNumeroDeRonda(1);
-         ronda.setPalabra(palabra);
-         when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
-         when(rondaService.crearRonda(partidaId, "es")).thenReturn(ronda);
-         return ronda;
-     }
+    private Ronda whenTengoUnaPartidaRondaYPalabra(Long partidaId) {
+        Partida partida = new Partida();
+        partida.setIdioma("es");
+        Palabra palabra = new Palabra();
+        palabra.setDescripcion("gato");
+        palabra.setDefiniciones(new ArrayList<>(Set.of(new Definicion("Animal doméstico"))));
+        Ronda ronda = new Ronda();
+        ronda.setNumeroDeRonda(1);
+        ronda.setPalabra(palabra);
+        when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
+        when(rondaService.crearRonda(partidaId, "es")).thenReturn(ronda);
+        return ronda;
+    }
 
 
     @Test
@@ -252,6 +263,130 @@ import static org.mockito.Mockito.*;
         up.setPuntaje(puntaje);
         return up;
     }
+
+    // === TESTS DE PROCESAR INTENTO === //
+
+
+    @Test
+    public void procesarIntento_LanzaException_SiPartidaNoExiste() {
+        Long idPartida = 999L;
+        DtoIntento dto = new DtoIntento("hola", 3L, idPartida, 3);
+        when(partidaRepository.buscarPorId(idPartida)).thenReturn(null);
+
+        PartidaInexistenteException ex = assertThrows(PartidaInexistenteException.class,
+                () -> partidaService.procesarIntento(dto, "pepito"));
+
+        assertEquals("Partida no encontrada con id: " + idPartida, ex.getMessage());
+    }
+
+    @Test
+    public void procesarIntento_LanzaException_SiRondaNoExiste() {
+        Long idPartida = 999L;
+        DtoIntento dto = new DtoIntento("hola", 3L, idPartida, 3);
+        Partida partida = crearPartidaMock("ingles");
+        when(partidaRepository.buscarPorId(idPartida)).thenReturn(partida);
+        when(rondaRepository.obtenerUltimaRondaDePartida(idPartida)).thenReturn(null);
+
+        RondaInexistenteException ex = assertThrows(RondaInexistenteException.class,
+                () -> partidaService.procesarIntento(dto, "pepito"));
+
+        assertEquals("Ronda no encontrada", ex.getMessage());
+    }
+
+    @Test
+    public void procesarIntento_LanzaException_SiRondaEstaFinalizada() {
+        Long idPartida = 999L;
+        DtoIntento dto = new DtoIntento("hola", 3L, idPartida, 3);
+        Partida partida = crearPartidaMock("ingles");
+        Palabra palabra = crearPalabraConDefinicion("hola", "holas");
+        Ronda ronda = crearRonda(palabra, 1);
+        ronda.setEstado(Estado.FINALIZADA);
+        when(partidaRepository.buscarPorId(idPartida)).thenReturn(partida);
+        when(rondaService.obtenerUltimaRondaDePartida(idPartida)).thenReturn(ronda);
+
+        RondaFinalizadaException ex = assertThrows(RondaFinalizadaException.class,
+                () -> partidaService.procesarIntento(dto, "pepito"));
+
+        assertEquals("Ronda finalizada", ex.getMessage());
+    }
+
+    @Test
+    void procesarIntento_DeberiaRegistrarAciertoYSumarPuntos_SiEsCorrectoYNoAcertoAntes() {
+        Long partidaId = 1L;
+        Long usuarioId = 2L;
+        Long rondaId = 10L;
+
+        DtoIntento intento = new DtoIntento("gato", usuarioId, partidaId, 1);
+        Palabra palabra = crearPalabraConDefinicion("gato", "animal");
+        Ronda ronda = crearRonda(palabra, 1);
+        ronda.setEstado(Estado.EN_CURSO);
+        ronda.setId(rondaId);
+        Partida partida = crearPartidaMock("es");
+
+        when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
+        when(rondaService.obtenerUltimaRondaDePartida(partidaId)).thenReturn(ronda);
+        when(aciertoService.jugadorYaAcerto(usuarioId, rondaId)).thenReturn(false);
+        when(aciertoService.registrarAcierto(usuarioId, rondaId)).thenReturn(100);
+
+        doNothing().when(service).finalizarRondaEnCasoDeQueTodosAcertaron(partidaId, rondaId);
+
+        service.procesarIntento(intento, "elias");
+
+        verify(aciertoService).registrarAcierto(usuarioId, rondaId);
+        verify(usuarioPartidaService).sumarPuntos(usuarioId, partidaId, 100);
+    }
+
+    @Test
+    void procesarIntento_NoDeberiaRegistrarAcierto_SiJugadorYaAcertoAntes() {
+        Long partidaId = 1L;
+        Long usuarioId = 2L;
+        DtoIntento dto = new DtoIntento("gato", usuarioId, partidaId, 1);
+        Partida partida = crearPartidaMock("es");
+        Palabra palabra = crearPalabraConDefinicion("gato", "animal");
+        Ronda ronda = crearRonda(palabra, 1);
+        ronda.setEstado(Estado.EN_CURSO);
+        ronda.setId(10L);
+
+        when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
+        when(rondaService.obtenerUltimaRondaDePartida(partidaId)).thenReturn(ronda);
+        when(aciertoService.jugadorYaAcerto(usuarioId, 10L)).thenReturn(true);
+
+        service.procesarIntento(dto, "elias");
+
+        verify(aciertoService, never()).registrarAcierto(any(), any());
+        verify(usuarioPartidaService, never()).sumarPuntos(any(), any(), anyInt());
+    }
+
+    @Test
+    void procesarIntento_DeberiaFinalizarRonda_SiTodosAcertaron() {
+        Long partidaId = 1L;
+        Long usuarioId = 2L;
+        DtoIntento dto = new DtoIntento("gato", usuarioId, partidaId, 1);
+        Partida partida = crearPartidaMock("es");
+        Palabra palabra = crearPalabraConDefinicion("gato", "animal");
+        Ronda ronda = crearRonda(palabra, 1);
+        ronda.setEstado(Estado.EN_CURSO);
+        ronda.setId(10L);
+
+        when(partidaRepository.buscarPorId(partidaId)).thenReturn(partida);
+        when(rondaService.obtenerUltimaRondaDePartida(partidaId)).thenReturn(ronda);
+        when(aciertoService.jugadorYaAcerto(usuarioId, 10L)).thenReturn(false);
+        when(aciertoService.registrarAcierto(usuarioId, 10L)).thenReturn(10);
+        when(usuarioPartidaRepository.buscarPorPartida(partidaId)).thenReturn(List.of());
+
+
+        doNothing().when(service).finalizarRondaEnCasoDeQueTodosAcertaron(partidaId, 10L);
+
+        service.procesarIntento(dto, "pepito");
+
+        verify(service).finalizarRondaEnCasoDeQueTodosAcertaron(partidaId, 10L);
+    }
+
+
+
+
 }
+
+
 
 
