@@ -4,6 +4,7 @@ package com.tallerwebi.dominio.ServicioImplementacion;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioRepository;
 import com.tallerwebi.dominio.interfaceService.UsuarioService;
 import com.tallerwebi.dominio.model.Usuario;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,4 +40,23 @@ public class UsuarioServiceImpl implements UsuarioService {
     public Usuario obtenerUsuarioPorNombre(String name) {
         return usuarioRepository.obtenerUsuarioPorNombre(name);
     }
+
+    @Transactional
+    @Override
+    public String obtenerEmailPorId(long idUsuario) {
+        return usuarioRepository.obtenerEmailPorId(idUsuario);
+    }
+    @Transactional
+    @Override
+    public void agregarMonedasAlUsuario(JSONObject respuesta) {
+        usuarioRepository.agregarMonedasAlUsuario(respuesta);
+    }
+    @Transactional
+    @Override
+    public int getMonedasPorIdUsuario(Long idUsuario) {
+        return usuarioRepository.buscarPorId(idUsuario).getMoneda();
+
+    }
+
+
 }
