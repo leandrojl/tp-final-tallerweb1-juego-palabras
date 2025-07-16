@@ -1,4 +1,9 @@
-
+// const [nav] = performance.getEntriesByType("navigation");
+// if (nav.type === "reload") {
+//     // Si el tipo es 'reload', redirigimos inmediatamente al lobby.
+//     // Esto evita que el usuario entre a una partida con el estado del script roto.
+//     window.location.href = "/spring/lobby";
+// }
 let stompClient = null;
 let tiempoRestante = 60;
 let intervaloTemporizador;
@@ -71,6 +76,7 @@ function conectarWebSocket() {
                 stompClient.subscribe(`/user/queue/listaUsuarios`, mostrarListaJugadoresModal); // 👈 nuevo
                 stompClient.subscribe("/user/queue/bloqueo", manejarBloqueo);
                 stompClient.subscribe("/user/queue/desbloqueo", manejarDesbloqueo);
+
                 stompClient.subscribe("/topic/redirigir", function(message) {
                     const url = message.body;
                     window.location.href = url;
@@ -302,12 +308,15 @@ function manejarDesbloqueo(mensaje) {
 
 
 // === ACTUALIZAR RANKING ===
-function actualizarRanking(jugadores) {
+// === RANKING ACTUALIZADO ===
+function actualizarRanking(mensaje) {
+    const data = JSON.parse(mensaje.body);
+    console.log("Ranking recibido:", data);
+    const jugadores = data.jugadores;
     const contenedor = document.querySelector(".ranking-horizontal");
     contenedor.innerHTML = "";
 
-    const colores = ["#ec4899", "#22c55e", "#3b82f6", "#a855f7", "#6b7280"];
-
+    const nombreActual = document.getElementById("usuarioNombre").value;
 
     jugadores.forEach((j, index) => {
         const colorJugador = obtenerColorJugador(j.nombre);
@@ -333,6 +342,7 @@ function actualizarRanking(jugadores) {
         jugadorDiv.appendChild(avatar);
         jugadorDiv.appendChild(nombreSpan);
         jugadorDiv.appendChild(puntajeSpan);
+
         contenedor.appendChild(jugadorDiv);
     });
 

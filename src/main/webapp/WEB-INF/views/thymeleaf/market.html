@@ -47,7 +47,155 @@
       color: #444;
     }
 
+    .shop-container {
+      max-width: 1000px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
 
+    .shop-title {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 15px rgba(164, 80, 139, 0.6);
+      font-size: 2.8rem;
+    }
+
+    .coin-card {
+      background: linear-gradient(145deg, #ffffff, #f0f0f0);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: none;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .coin-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(95, 10, 135, 0.3);
+    }
+
+    .coin-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transform: rotate(45deg);
+      transition: all 0.6s ease;
+      opacity: 0;
+    }
+
+    .coin-card:hover::before {
+      animation: shine 1.5s;
+    }
+
+    @keyframes shine {
+      0% {
+        opacity: 0;
+        left: -50%;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        left: 100%;
+      }
+    }
+
+    .coin-icon {
+      font-size: 3.5rem;
+      color: #ffd700;
+      margin-bottom: 1rem;
+      text-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .coin-amount {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #5f0a87;
+      margin-bottom: 0.5rem;
+    }
+
+    .coin-price {
+      font-size: 1.5rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+
+    .coin-best-value {
+      position: absolute;
+      top: 12px;
+      right: -35px;
+      background: #ff4081;
+      color: white;
+      padding: 5px 40px;
+      font-size: 0.8rem;
+      transform: rotate(45deg);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-buy {
+      background: linear-gradient(45deg, #5f0a87, #a4508b);
+      border: none;
+      padding: 12px 30px;
+      border-radius: 50px;
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 15px rgba(95, 10, 135, 0.3);
+      width: 80%;
+      position: relative;
+      z-index: 10;
+      cursor: pointer;
+    }
+
+    .btn-buy:hover {
+      background: linear-gradient(45deg, #7b0eb0, #c45dab);
+      box-shadow: 0 7px 20px rgba(95, 10, 135, 0.4);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin: 2rem auto;
+      padding: 0.8rem 1.5rem;
+      background-color: rgba(255, 255, 255, 0.15);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .back-link:hover {
+      background-color: rgba(255, 255, 255, 0.25);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .back-container {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
   </style>
 
   <script src="https://sdk.mercadopago.com/js/v2"></script>
@@ -55,18 +203,49 @@
 
 <body>
 
-<div class="container">
-  <h1>Elige tu paquete</h1>
-  <a th:href="@{/pago(amount=${100})}" class="btn btn-outline w-75">100 Monedas</a>
-  <a th:href="@{/pago(amount=${300})}" class="btn btn-outline w-75">300 Monedas</a>
-  <a th:href="@{/pago(amount=${500})}" class="btn btn-outline w-75">500 Monedas</a>
+<div class="shop-container">
+  <h1 class="shop-title"><i class="bi bi-coin me-2"></i>Tienda de Monedas</h1>
 
+  <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+    <!-- Paquete Básico -->
+    <div class="col">
+      <div class="coin-card">
+        <i class="bi bi-coin coin-icon"></i>
+        <h2 class="coin-amount">100 Monedas</h2>
+        <p class="coin-price">$100</p>
+        <p class="text-muted mb-4">Paquete inicial perfecto para empezar</p>
+        <a th:href="@{/pago(amount=100)}" class="btn btn-buy">Comprar Ahora</a>
+      </div>
+    </div>
 
+    <!-- Paquete Estándar -->
+    <div class="col">
+      <div class="coin-card">
+        <i class="bi bi-coin coin-icon"></i>
+        <h2 class="coin-amount">300 Monedas</h2>
+        <p class="coin-price">$250</p>
+        <p class="text-muted mb-4">Más monedas, más diversión</p>
+        <a th:href="@{/pago(amount=300)}" class="btn btn-buy">Comprar Ahora</a>
+      </div>
+    </div>
+
+    <!-- Paquete Premium -->
+    <div class="col">
+      <div class="coin-card">
+        <div class="coin-best-value">MEJOR VALOR</div>
+        <i class="bi bi-coin coin-icon"></i>
+        <h2 class="coin-amount">500 Monedas</h2>
+        <p class="coin-price">$400</p>
+        <p class="text-muted mb-4">¡La opción favorita de nuestros jugadores!</p>
+        <a th:href="@{/pago(amount=500)}" class="btn btn-buy">Comprar Ahora</a>
+      </div>
+    </div>
+  </div>
 </div>
 
-
+<div class="back-container">
+  <a th:href="@{/lobby}" class="back-link"><i class="bi bi-arrow-left me-2"></i>Volver al inicio</a>
 </div>
-<a th:href="@{/lobby}" class="back-link">Volver al inicio</a>
+
 </body>
-
 </html>

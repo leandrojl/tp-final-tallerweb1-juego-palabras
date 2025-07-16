@@ -37,23 +37,23 @@ public class AutenticacionInterceptor implements HandlerInterceptor {
 
         HttpSession session = request.getSession(false);
 
-        Boolean estaJugando = (Boolean) session.getAttribute("jugando");
+        // Verificar si la sesión existe antes de acceder a sus atributos
+        if (session != null) {
+            Boolean estaJugando = (Boolean) session.getAttribute("jugando");
 
-        if (Boolean.TRUE.equals(estaJugando) && path.equals("/juego")) {
-            session.removeAttribute("jugando");
+            if (Boolean.TRUE.equals(estaJugando) && path.equals("/juego")) {
+                session.removeAttribute("jugando");
+                usuarioPartidaService.marcarTodasLasPartidasComoFinalizadas((Long) session.getAttribute("idUsuario"), Estado.FINALIZADA);
+                response.sendRedirect(contextPath + "/lobby");
+                return false;
+            }
 
-            usuarioPartidaService.marcarTodasLasPartidasComoFinalizadas((Long) session.getAttribute("idUsuario"), Estado.FINALIZADA);
-            response.sendRedirect(contextPath + "/lobby");
-            return false;
+            if (session.getAttribute("usuario") != null) {
+                return true;
+            }
         }
 
-        if (session != null && session.getAttribute("usuario") != null) {
-
-            return true;
-
-        }
-
-
+        // Si no hay sesión o no hay usuario en la sesión, redirigir a login
         response.sendRedirect(contextPath + "/login");
         return false;
     }

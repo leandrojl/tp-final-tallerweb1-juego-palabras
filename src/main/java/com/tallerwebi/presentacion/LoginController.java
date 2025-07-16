@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
+import java.util.Random;
 
 @Controller
 public class LoginController {
@@ -54,8 +55,13 @@ public class LoginController {
             // Crear y guardar el nuevo usuario para juego rápido
             Usuario nuevoUsuario = new Usuario();
             nuevoUsuario.setNombreUsuario(nombreUsuario);
-            // Se asigna una contraseña por defecto.
-            nuevoUsuario.setPassword(nombreUsuario);
+
+            // Generar un número aleatorio entre 1000 y 9999
+            Random random = new Random();
+            int numeroAleatorio = 1000 + random.nextInt(9000);
+
+            // Se asigna una contraseña por defecto con número aleatorio
+            nuevoUsuario.setPassword(nombreUsuario + numeroAleatorio);
 
             // 1. Guardar el nuevo usuario en la base de datos usando el método simple del LoginService
             loginService.registrar(nuevoUsuario);
