@@ -1,5 +1,6 @@
 package com.tallerwebi.config;
 
+import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,8 @@ public class SpringWebConfig implements WebMvcConfigurer {
     // Spring + Thymeleaf need this
     @Autowired
     private ApplicationContext applicationContext;
-
+    @Autowired
+    private UsuarioPartidaService usuarioPartidaService;
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/css/**").addResourceLocations("/resources/core/css/");
@@ -33,7 +35,7 @@ public class SpringWebConfig implements WebMvcConfigurer {
     }
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AutenticacionInterceptor())
+        registry.addInterceptor(new AutenticacionInterceptor(usuarioPartidaService))
                 .addPathPatterns("/**");
     }
     // https://www.thymeleaf.org/doc/tutorials/3.0/thymeleafspring.html
@@ -79,5 +81,6 @@ public class SpringWebConfig implements WebMvcConfigurer {
         viewResolver.setCharacterEncoding("UTF-8"); // <-- AÑADIR ESTA LÍNEA
         return viewResolver;
     }
+
 
 }

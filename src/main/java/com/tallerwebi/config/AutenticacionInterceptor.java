@@ -4,9 +4,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.tallerwebi.dominio.Enum.Estado;
+import com.tallerwebi.dominio.ServicioImplementacion.UsuarioPartidaServiceImpl;
+import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+@Component
 public class AutenticacionInterceptor implements HandlerInterceptor {
+
+    UsuarioPartidaService usuarioPartidaService;
+  @Autowired
+    public AutenticacionInterceptor(UsuarioPartidaService usuarioPartidaService) {
+      this.usuarioPartidaService = usuarioPartidaService;
+
+
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -23,9 +37,22 @@ public class AutenticacionInterceptor implements HandlerInterceptor {
 
         HttpSession session = request.getSession(false);
 
-        if (session != null && session.getAttribute("usuario") != null) {
-            return true;
+        Boolean estaJugando = (Boolean) session.getAttribute("jugando");
+
+        if (Boolean.TRUE.equals(estaJugando) && path.equals("/juego")) {
+            session.removeAttribute("jugando");
+
+            usuarioPartidaService.marcarTodasLasPartidasComoFinalizadas((Long) session.getAttribute("idUsuario"), Estado.FINALIZADA);
+            response.sendRedirect(contextPath + "/lobby");
+            return false;
         }
+
+        if (session != null && session.getAttribute("usuario") != null) {
+
+            return true;
+
+        }
+
 
         response.sendRedirect(contextPath + "/login");
         return false;

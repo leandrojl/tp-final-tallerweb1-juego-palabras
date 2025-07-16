@@ -115,6 +115,11 @@ public class UsuarioPartidaServiceImpl implements UsuarioPartidaService {
     }
 
     @Override
+    public void marcarTodasLasPartidasComoFinalizadas(Long idUsuario, Estado estado) {
+        usuarioPartidaRepository.marcarTodasLasPartidasComoFinalizadas(idUsuario, estado);
+    }
+
+    @Override
     public void sumarPuntos(Long usuarioId, Long partidaId, int puntos) {
         usuarioPartidaRepository.sumarPuntaje(usuarioId, partidaId,puntos);
     }

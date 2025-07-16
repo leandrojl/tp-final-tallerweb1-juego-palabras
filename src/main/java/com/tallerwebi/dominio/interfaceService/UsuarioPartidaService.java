@@ -36,4 +36,6 @@ public interface UsuarioPartidaService {
     int cantidadDeJugadoresActivosEnPartida(Long partidaId);
 
     void finalizarPartida(Long partidaId, Estado estado);
+
+    void marcarTodasLasPartidasComoFinalizadas(Long idUsuario, Estado estado);
 }

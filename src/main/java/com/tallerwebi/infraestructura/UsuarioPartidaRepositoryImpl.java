@@ -350,4 +350,13 @@ public class UsuarioPartidaRepositoryImpl implements UsuarioPartidaRepository {
                 .setParameter("partidaId", partidaId)
                 .executeUpdate();
     }
+
+    @Override
+    public void marcarTodasLasPartidasComoFinalizadas(Long idUsuario, Estado estado) {
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery("UPDATE UsuarioPartida up SET up.estado = :estado WHERE up.usuario.id = :idUsuario AND up.estado = 'EN_CURSO'")
+                .setParameter("idUsuario", idUsuario)
+                .setParameter("estado", estado)
+                .executeUpdate();
+    }
 }

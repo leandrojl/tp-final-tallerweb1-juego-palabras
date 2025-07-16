@@ -68,4 +68,6 @@ public interface UsuarioPartidaRepository {
     int cantidadDeJugadoresActivosEnPartida(Long partidaId);
 
     void finalizarPartidaParaTodos(Long partidaId, Estado estado);
+
+    void marcarTodasLasPartidasComoFinalizadas(Long idUsuario, Estado estado);
 }

@@ -44,7 +44,7 @@ public class JuegoController {
 
         Long idUsuario = (Long) session.getAttribute("idUsuario");
         String nombreUsuario = (String) session.getAttribute("usuario");
-
+        session.setAttribute("jugando", true);
         Long idPartida = (Long) session.getAttribute("idPartida");
         System.out.println("Datos de sesión: idUsuario=" +
                 idUsuario + ", nombreUsuario=" + nombreUsuario + ", idPartida=" + idPartida);
