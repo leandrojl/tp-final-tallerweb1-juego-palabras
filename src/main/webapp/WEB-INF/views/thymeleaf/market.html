@@ -162,11 +162,14 @@
       position: relative;
       z-index: 10;
       cursor: pointer;
+      display: inline-block;
+      text-decoration: none;
     }
 
     .btn-buy:hover {
       background: linear-gradient(45deg, #7b0eb0, #c45dab);
       box-shadow: 0 7px 20px rgba(95, 10, 135, 0.4);
+      color: white;
     }
 
     .back-link {
@@ -213,7 +216,7 @@
         <i class="bi bi-coin coin-icon"></i>
         <h2 class="coin-amount">100 Monedas</h2>
         <p class="coin-price">$100</p>
-        <p class="text-muted mb-4">Paquete inicial perfecto para empezar</p>
+
         <a th:href="@{/pago(amount=100)}" class="btn btn-buy">Comprar Ahora</a>
       </div>
     </div>
@@ -224,7 +227,7 @@
         <i class="bi bi-coin coin-icon"></i>
         <h2 class="coin-amount">300 Monedas</h2>
         <p class="coin-price">$250</p>
-        <p class="text-muted mb-4">Más monedas, más diversión</p>
+
         <a th:href="@{/pago(amount=300)}" class="btn btn-buy">Comprar Ahora</a>
       </div>
     </div>
@@ -236,7 +239,7 @@
         <i class="bi bi-coin coin-icon"></i>
         <h2 class="coin-amount">500 Monedas</h2>
         <p class="coin-price">$400</p>
-        <p class="text-muted mb-4">¡La opción favorita de nuestros jugadores!</p>
+
         <a th:href="@{/pago(amount=500)}" class="btn btn-buy">Comprar Ahora</a>
       </div>
     </div>
