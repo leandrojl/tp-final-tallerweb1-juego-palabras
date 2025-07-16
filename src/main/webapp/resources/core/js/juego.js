@@ -440,7 +440,11 @@ function abandonarPartida() {
 
     navigator.sendBeacon("/spring/abandonarPartida?" + params.toString());
 }
-
+let monedas = 500;
+const monedasSpan = document.getElementById("monedas-usuario");
+function actualizarMonedasDisplay() {
+    monedasSpan.textContent = monedas;
+}
 // === INICIALIZACIÓN ===
 document.addEventListener("DOMContentLoaded", () => {
     conectarWebSocket();
@@ -458,20 +462,38 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    document.getElementById("btn-comodin").addEventListener("click", () => {
-        stompClient.publish({
-            destination: "/app/juego/activarComodin",
-            body: JSON.stringify({ idPartida, idUsuario: idUsuario })
-        });
-        document.getElementById("btn-comodin").disabled = true;
+    document.getElementById("btn-comodin").addEventListener("click", function () {
+        if (monedas >= 75) {
+            monedas -= 75;
+            actualizarMonedasDisplay();
+
+            stompClient.publish({
+                destination: "/app/juego/activarComodin",
+                body: JSON.stringify({ idPartida, idUsuario: idUsuario })
+            });
+
+            document.getElementById("btn-comodin").disabled = true;
+        } else {
+            alert("No tenés suficientes monedas para usar un comodín.");
+        }
     });
 
-    document.getElementById("btn-bloquear-usuario").addEventListener("click", () => {
-        stompClient.publish({
-            destination: "/app/juego/obtenerUsuarios",
-            body: JSON.stringify({ idPartida })
-        });
-    });
+    document.getElementById("btn-bloquear-usuario").addEventListener("click", function () {
+        if (monedas >= 100) {
+            monedas -= 100;
+            actualizarMonedasDisplay();
+
+            stompClient.publish({
+                destination: "/app/juego/obtenerUsuarios",
+                body: JSON.stringify({ idPartida })
+            });
+
+            // desactivás el botón temporalmente si querés:
+            // document.getElementById("btn-bloquear-usuario").disabled = true;
+        } else {
+            alert("No tenés suficientes monedas para bloquear.");
+        }
+    });actualizarMonedasDisplay(); // Al cargar
 
     window.addEventListener("beforeunload", abandonarPartida);
 });
