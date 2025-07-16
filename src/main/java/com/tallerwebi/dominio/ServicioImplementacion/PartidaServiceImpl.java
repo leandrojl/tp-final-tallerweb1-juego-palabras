@@ -175,10 +175,12 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public RondaDto iniciarNuevaRonda(Long partidaId) {
         Object lock = locks.computeIfAbsent(partidaId, id -> new Object());
+        boolean permiteBot = false;
         RondaDto dtoRonda;
 
         synchronized (lock) {
             Partida partida = partidaRepository.buscarPorId(partidaId);
+            permiteBot = partida.isPermiteBot();
             if (partida == null) {
                 throw new IllegalArgumentException("No existe la partida con ID: " + partidaId);
             }
@@ -196,7 +198,7 @@ public class PartidaServiceImpl implements PartidaService {
         }
 
         String definicion = dtoRonda.getDefinicionTexto();
-        CompletableFuture.runAsync(() ->
+        if(permiteBot) CompletableFuture.runAsync(() ->
                 botService.generateAndSubmitGuess(definicion, partidaId)
         );
 
@@ -281,7 +283,8 @@ public class PartidaServiceImpl implements PartidaService {
                 partidaDTO.getMaximoJugadores(),
                 partidaDTO.getMinimoJugadores(),
                 Estado.EN_ESPERA,
-                creadorId
+                creadorId,
+                partidaDTO.isPermiteBot()
         );
         return partidaRepository.crearPartida(nuevaPartida);
     }

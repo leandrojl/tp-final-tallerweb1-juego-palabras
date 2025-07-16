@@ -67,7 +67,8 @@ public class GeminiBotServiceImpl implements GeminiBotService {
                     String guessedWord = parts.get(0).get("text").toString().trim();
 
                     // 5. Enviar intento a la partida
-                    DtoIntento intento = new DtoIntento(guessedWord, 4L, idPartida, 50);
+                    int tiempoRestante = (int) ((60000 - delay) / 1000);
+                    DtoIntento intento = new DtoIntento(guessedWord, 4L, idPartida, tiempoRestante);
                     partidaService.procesarIntento(intento, "bot");
                 }
             }

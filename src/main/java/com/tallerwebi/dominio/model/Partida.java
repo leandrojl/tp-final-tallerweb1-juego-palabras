@@ -19,6 +19,7 @@ public class Partida {
     @Enumerated(EnumType.STRING)
     private Estado estado;
     private Long creadorId=null;
+    private boolean permiteBot;
 
     public Partida() {
 
@@ -43,7 +44,6 @@ public class Partida {
         this.minimoJugadores = minimoJugadores;
         this.creadorId = null;
     }
-
     public Partida(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int maximoJugadores, int minimoJugadores, Estado estado, Long creadorId) {
         this.nombre = nombre;
         this.idioma = idioma;
@@ -53,6 +53,18 @@ public class Partida {
         this.minimoJugadores = minimoJugadores;
         this.estado = estado;
         this.creadorId = creadorId;
+    }
+
+    public Partida(String nombre, String idioma, boolean permiteComodin, int rondasTotales, int maximoJugadores, int minimoJugadores, Estado estado, Long creadorId, boolean permiteBot) {
+        this.nombre = nombre;
+        this.idioma = idioma;
+        this.permiteComodin = permiteComodin;
+        this.rondasTotales = rondasTotales;
+        this.maximoJugadores = maximoJugadores;
+        this.minimoJugadores = minimoJugadores;
+        this.estado = estado;
+        this.creadorId = creadorId;
+        this.permiteBot = permiteBot;
     }
 
     public Long getId() {
@@ -145,5 +157,13 @@ public class Partida {
 
     public void setCreadorId(Long creadorId) {
         this.creadorId = creadorId;
+    }
+
+    public boolean isPermiteBot() {
+        return permiteBot;
+    }
+
+    public void setPermiteBot(boolean permiteBot) {
+        this.permiteBot = permiteBot;
     }
 }

@@ -8,6 +8,7 @@ public class CrearPartidaDTO {
     private int rondasTotales;
     private int maximoJugadores;
     private int minimoJugadores;
+    private boolean permiteBot;
 
     // Getters y Setters para todos los campos
     public String getNombre() { return nombre; }
@@ -22,4 +23,12 @@ public class CrearPartidaDTO {
     public void setMaximoJugadores(int maximoJugadores) { this.maximoJugadores = maximoJugadores; }
     public int getMinimoJugadores() { return minimoJugadores; }
     public void setMinimoJugadores(int minimoJugadores) { this.minimoJugadores = minimoJugadores; }
+
+    public boolean isPermiteBot() {
+        return permiteBot;
+    }
+
+    public void setPermiteBot(boolean permiteBot) {
+        this.permiteBot = permiteBot;
+    }
 }
