@@ -267,6 +267,11 @@
             line-height: 1.5;
             font-style: italic;
         }
+        #temporizadorText {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -292,13 +297,20 @@
                 <p class="lead mb-4">Ronda <span id="rondaActual" th:text="${rondaActual}">1</span> de 5</p>
 
                 <div class="temporizador mb-4 position-relative" style="width: 100px; height: 100px;">
+
                     <svg width="100" height="100">
-                        <circle cx="50" cy="50" r="45" stroke="#333" stroke-width="10" fill="none"/>
-                        <circle id="progressCircle" cx="50" cy="50" r="45" stroke="#00f" stroke-width="10"
+                        <defs>
+                            <linearGradient id="gradTiempo" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#EC4899; stop-opacity:1"/> <!-- Naranja -->
+                                <stop offset="100%" style="stop-color:#FFFF00; stop-opacity:1"/> <!-- Amarillo -->
+                            </linearGradient>
+                        </defs>
+                        <circle cx="50" cy="50" r="45" stroke="url(#gradTiempo)" stroke-width="10" fill="none"/>
+                        <circle id="progressCircle" cx="50" cy="50" r="45" stroke="url(#gradTiempo)" stroke-width="10"
                                 fill="none" stroke-dasharray="282.6" stroke-dashoffset="0"/>
                     </svg>
                     <div id="temporizadorText"
-                         class="position-absolute top-50 start-50 translate-middle fs-3 fw-bold text-primary">60
+                         class="texto-blanco position-absolute top-50 start-50 translate-middle fs-3 fw-bold">60
                     </div>
                 </div>
                 <div class="definicion-palabra p-4 mb-4 shadow-sm">
@@ -311,13 +323,15 @@
                           th:id="'letra-' + ${iterStat.index}"></span>
                 </div>
                 <div class="acciones-jugador d-flex justify-content-center gap-3 mt-3">
-                    <button id="btn-comodin" class="btn btn-warning d-flex align-items-center gap-2 px-4 py-2 shadow-sm">
-                        🧠 Usar Comodín
+                    <button id="btn-comodin"
+                            class="btn btn-warning d-flex align-items-center gap-2 px-4 py-2 shadow-sm">
+                        🧠 Revelar letra
                     </button>
 
-                    <button id="btn-bloquear-usuario" class="btn btn-danger d-flex align-items-center gap-2 px-4 py-2 shadow-sm"
+                    <button id="btn-bloquear-usuario"
+                            class="btn btn-danger d-flex align-items-center gap-2 px-4 py-2 shadow-sm"
                             data-bs-toggle="modal" data-bs-target="#modalJugadores">
-                        🚫 Bloquear input
+                        🚫 Bloquear jugador
                     </button>
                 </div>
             </section>

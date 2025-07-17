@@ -53,10 +53,6 @@ public class JuegoController {
             return new ModelAndView("redirect:/login");
         }
 
-        if (idPartida != null) {
-            Partida partida = partidaServicio.obtenerPartidaPorId(idPartida);
-        }
-
         ModelMap model = new ModelMap();
         model.put("idUsuario", idUsuario);
         model.put("usuario", nombreUsuario);
@@ -95,7 +91,7 @@ public class JuegoController {
         if (relacion != null) {
             usuarioPartidaService.marcarComoPerdedor(usuarioId, partidaId);
 
-            session.removeAttribute("partidaID");
+            session.removeAttribute("idPartida");
 
             return ResponseEntity.ok("OK");
         }
