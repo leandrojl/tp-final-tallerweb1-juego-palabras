@@ -142,5 +142,10 @@ public class WebSocketController {
         partidaService.abandonarPartida(idUsuario,idPartida,nombreUsuario);
     }
 
+    @MessageMapping("/pedirRanking")
+    public void pedirRanking(MensajeRecibidoDTO mensaje) {
+        partidaService.mostrarRanking(mensaje);
+    }
+
 
 }

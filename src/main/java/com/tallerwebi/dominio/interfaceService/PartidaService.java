@@ -59,5 +59,7 @@ public interface PartidaService {
     void bloquearUsuario(Long idPartida, Long idUsuario, String nombreUsuario, String usuarioABloquear);
 
     void abandonarPartida(Long idUsuario, Long idPartida, String nombreUsuario);
+
+    void mostrarRanking(MensajeRecibidoDTO mensaje);
 }
 

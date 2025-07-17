@@ -87,6 +87,14 @@ function conectarWebSocket() {
 
                 stompClient.subscribe(`/topic/timerInicioRonda/${idPartida}`, mensajeDelServidorAlChat);
 
+            stompClient.publish({
+                destination: "/app/pedirRanking",
+                body: JSON.stringify({
+                        message: "",
+                        number : idPartida,
+                })
+
+            });
 
             //iniciarRonda();
         },

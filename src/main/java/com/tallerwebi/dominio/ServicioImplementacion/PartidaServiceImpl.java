@@ -510,5 +510,17 @@ public class PartidaServiceImpl implements PartidaService {
         simpMessagingTemplate.convertAndSendToUser(nombreUsuario,"/queue/abandonarPartida",new MensajeRecibidoDTO("/spring/lobby"));
     }
 
+    @Override
+    public void mostrarRanking(MensajeRecibidoDTO mensaje) {
+        Long partidaId =  mensaje.getNumber();
+        List<UsuarioPartida> usuarios = usuarioPartidaRepository.obtenerUsuarioPartidaPorPartida(partidaId);
+        List<JugadorPuntajeDto> jugadoresDto = usuarios.stream()
+                .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
+                .collect(Collectors.toList());
+
+        simpMessagingTemplate.convertAndSend("/topic/verRanking/" + partidaId,
+                new MensajeTipoRanking("actualizar-puntajes", jugadoresDto));
+    }
+
 
 }

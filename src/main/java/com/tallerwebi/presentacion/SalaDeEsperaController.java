@@ -230,7 +230,6 @@ public class SalaDeEsperaController {
                 usuarioPartidaService.cambiarEstado(idUsuario, idPartida, Estado.EN_CURSO);
             }
 
-            // Retornamos la vista que setea sessionStorage y redirige
             ModelAndView model = new ModelAndView("preparar-juego");
             model.addObject("idUsuario", idUsuario);
             model.addObject("idPartida", idPartida);
