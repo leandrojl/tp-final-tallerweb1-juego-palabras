@@ -20,6 +20,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.lang.reflect.Type;
+import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -173,6 +174,26 @@ public class WebSocketControllerTest {
         MensajeRecibidoDTO mensajeRecibidoDTO = usuarioYaEnSalaDeEspera.get(5, TimeUnit.SECONDS);
         assertEquals(nombreUsuarioQueAcabaDeUnirseALaSala, mensajeRecibidoDTO.getMessage());
     }
+
+    // ---------- TEST PROCESAR INTENTO ------------- //
+
+    @Test
+    public void siLlegaElNameDelPrincipalLlamaAlServicio(){
+        DtoIntento dto = new DtoIntento("perroIntento", 2L, 2L, 5);
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn("pepito");
+        PartidaService ps = mock(PartidaService.class); // ✅ ahora es un mock, no ejecuta lógica
+        WebSocketController webSocketController2 = new WebSocketController(ps, salaDeEsperaService, aciertoService);
+
+        webSocketController2.procesarIntento(dto, principal);
+
+        verify(ps).procesarIntento(dto, "pepito");
+    }
+
+
+// -----------------------------------------------------  //
+
+
 
 
 

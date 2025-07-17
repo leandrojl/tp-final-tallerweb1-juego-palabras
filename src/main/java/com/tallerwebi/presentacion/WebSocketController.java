@@ -58,14 +58,7 @@ public class WebSocketController {
     @MessageMapping("/juego/iniciar")
     public void iniciarRonda(MensajeInicioRonda mensaje) {
         Long partidaId = mensaje.getIdPartida();
-
-
-
-
-
-
         RondaDto datosRonda = partidaService.iniciarNuevaRonda(partidaId);
-
     }
 
 
@@ -85,7 +78,6 @@ public class WebSocketController {
 
     @MessageMapping("/juego/intento")
     public void procesarIntento(DtoIntento intento, Principal principal){
-        System.out.println("INTENTO ====== " + intento.getIntentoPalabra());
 
         String nombre = principal.getName();
         if (principal == null) {
@@ -94,8 +86,7 @@ public class WebSocketController {
         } else {
             System.out.println("Principal name: " + principal.getName());
         }
-        System.out.println("Intento recibido: " + intento.getIntentoPalabra());
-        //partidaService.procesarIntento(intento, principal.getName());
+
         partidaService.procesarIntento(intento, nombre);
     }
 
