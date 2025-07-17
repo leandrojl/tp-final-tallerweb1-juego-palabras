@@ -40,7 +40,13 @@ public class AutenticacionInterceptor implements HandlerInterceptor {
         // Verificar si la sesión existe antes de acceder a sus atributos
         if (session != null) {
             Boolean estaJugando = (Boolean) session.getAttribute("jugando");
+            if(path.equals("/lobby")){
+                if(session.getAttribute("jugando") != null){
+                    session.removeAttribute("jugando");
+                }
+                usuarioPartidaService.marcarTodasLasPartidasComoFinalizadas((Long) session.getAttribute("idUsuario"), Estado.FINALIZADA);
 
+            }
             if (Boolean.TRUE.equals(estaJugando) && path.equals("/juego")) {
                 session.removeAttribute("jugando");
                 usuarioPartidaService.marcarTodasLasPartidasComoFinalizadas((Long) session.getAttribute("idUsuario"), Estado.FINALIZADA);

@@ -423,6 +423,7 @@
                     <div>
                         <span th:if="${usuarioNombre != null}">
                             <span class="fw-bold">Bienvenido, <span th:text="${usuarioNombre}"></span>!</span>
+                            <span class="fw-bold">MONEDAS: <span th:text="${monedas}"></span>!</span>
                             <div class="banner-subtitle">Listo para desafiar tu vocabulario</div>
                         </span>
                         <span th:if="${usuarioNombre == null}">

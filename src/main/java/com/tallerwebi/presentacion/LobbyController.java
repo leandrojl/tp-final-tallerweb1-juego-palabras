@@ -165,6 +165,7 @@ public class LobbyController {
             Usuario usuario = usuarioService.buscarPorId(idUsuario);
             if (usuario != null) {
                 model.addAttribute("usuarioNombre", usuario.getNombreUsuario());
+                model.addAttribute("monedas", usuario.getMoneda());
             }
         }
     }
