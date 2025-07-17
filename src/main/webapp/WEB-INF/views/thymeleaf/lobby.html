@@ -413,8 +413,14 @@
         <div class="row mt-3">
             <!-- Botones Recompensas y Rankings -->
             <div class="col-12 col-md-3 d-flex flex-column align-items-start gap-3 ps-5 mb-3 mb-md-0">
+
                 <a class="btn btn-outline w-75" th:href="@{/market}"><i class="bi bi-star me-2"></i>Mercado</a>
                 <a class="btn btn-outline w-75"><i class="bi bi-trophy me-2"></i>Rankings</a>
+
+                <a class="btn btn-outline w-75"><i class="bi bi-star me-2"></i>Recompensas</a>
+                <a th:href="@{/ranking-global}" class="btn btn-outline w-75">
+                    <i class="bi bi-trophy me-2"></i>Rankings</a>
+
             </div>
             <!-- Mensaje de bienvenida -->
             <div class="col-12 col-md-6 d-flex justify-content-center align-items-start">
@@ -423,9 +429,10 @@
                     <div>
                         <span th:if="${usuarioNombre != null}">
                             <span class="fw-bold">Bienvenido, <span th:text="${usuarioNombre}"></span>!</span>
-                            <span class="fw-bold">MONEDAS: <span th:text="${monedas}"></span>!</span>
+
                             <div class="banner-subtitle">Listo para desafiar tu vocabulario</div>
                         </span>
+                        <span class="fw-bold">MONEDAS: <span th:text="${monedas}">
                         <span th:if="${usuarioNombre == null}">
                             <span class="fw-bold">Bienvenido al lobby!</span>
                             <div class="banner-subtitle">Crea a una partida y juga con las palabras</div>

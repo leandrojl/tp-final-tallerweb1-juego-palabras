@@ -294,7 +294,12 @@
         <div class="col-md-8">
             <section class="juego-container text-start">
                 <h1 class="display-4 fw-bold mb-2">Adivina la palabra</h1>
-                <p class="lead mb-4">Ronda <span id="rondaActual" th:text="${rondaActual}">1</span> de 5</p>
+                <p class="lead mb-4">
+                    Ronda <span id="rondaActual" th:text="${rondaActual}">1</span>
+                    de <span id="rondasTotales" th:text="${rondasTotales}">?</span>
+                </p>
+
+
 
                 <div class="temporizador mb-4 position-relative" style="width: 100px; height: 100px;">
 

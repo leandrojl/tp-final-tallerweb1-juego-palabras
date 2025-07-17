@@ -27,6 +27,6 @@ public class VistaFinalController {
         model.addAttribute("ranking", ranking);
         model.addAttribute("ganador", ganador);
 
-        return "vistaFinalJuego"; // ← nombre del archivo HTML
+        return "vistaFinalJuego";
     }
 }
