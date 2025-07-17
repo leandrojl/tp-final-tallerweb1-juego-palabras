@@ -57,6 +57,11 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.buscarPorId(idUsuario).getMoneda();
 
     }
+    @Transactional
+    @Override
+    public void restarMonedas(int valorComodinLetra, Long idUsuario) {
+        usuarioRepository.restarMonedas(valorComodinLetra, idUsuario);
+    }
 
 
 }

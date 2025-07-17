@@ -74,8 +74,9 @@ public class WebSocketController {
 
     @MessageMapping("/juego/activarComodin")
     public void activarComodin(DtoComodin dto, Principal principal) {
+        boolean letraRepetida= dto.isLetraRepetida();
         String nombreUsuario = principal.getName();
-        partidaService.activarComodin(dto.getIdPartida(), dto.getIdUsuario(), nombreUsuario);
+        partidaService.activarComodin(dto.getIdPartida(), dto.getIdUsuario(), nombreUsuario, letraRepetida);
 
     }
 

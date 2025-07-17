@@ -20,4 +20,6 @@ public interface UsuarioService {
 
 
     int getMonedasPorIdUsuario(Long idUsuario);
+
+    void restarMonedas(int valorComodinLetra, Long idUsuario);
 }

@@ -8,7 +8,6 @@ import org.hibernate.criterion.Restrictions;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.List;
@@ -112,6 +111,15 @@ public class UsuarioRepositoryImpl implements UsuarioRepository{
         session.createQuery("UPDATE Usuario SET moneda = moneda + :monedasCompradas WHERE id = :usuarioId")
                 .setParameter("monedasCompradas", monedasCompradas)
                 .setParameter("usuarioId", usuarioId)
+                .executeUpdate();
+    }
+
+    @Override
+    public void restarMonedas(int valorComodinLetra, Long idUsuario) {
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery("UPDATE Usuario SET moneda = moneda - :monedasCompradas WHERE id = :usuarioId")
+                .setParameter("monedasCompradas", valorComodinLetra)
+                .setParameter("usuarioId", idUsuario)
                 .executeUpdate();
     }
 

@@ -10,15 +10,11 @@ import com.tallerwebi.dominio.excepcion.PartidaInexistenteException;
 import com.tallerwebi.dominio.excepcion.RondaFinalizadaException;
 import com.tallerwebi.dominio.excepcion.RondaInexistenteException;
 import com.tallerwebi.dominio.interfaceRepository.UsuarioPartidaRepository;
-import com.tallerwebi.dominio.interfaceService.AciertoService;
-import com.tallerwebi.dominio.interfaceService.GeminiBotService;
+import com.tallerwebi.dominio.interfaceService.*;
 import com.tallerwebi.dominio.model.*;
 import com.tallerwebi.dominio.interfaceRepository.PartidaRepository;
 import com.tallerwebi.dominio.interfaceRepository.RondaRepository;
-import com.tallerwebi.dominio.interfaceService.RondaService;
 
-
-import com.tallerwebi.dominio.interfaceService.UsuarioPartidaService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,10 +45,13 @@ public class PartidaServiceTest {
     private UsuarioPartidaService usuarioPartidaService;
     private RondaTimerManager rondaTimerManager;
     private GeminiBotService botService;
+    private UsuarioService usuarioService;
+
 
     @BeforeEach
     void setUp() throws IllegalAccessException, NoSuchFieldException {
         // Mocks
+        usuarioService = mock(UsuarioService.class);
         simpMessagingTemplate = mock(SimpMessagingTemplate.class);
         partidaRepository = mock(PartidaRepository.class);
         rondaService = mock(RondaService.class);
@@ -75,7 +74,8 @@ public class PartidaServiceTest {
                 aciertoService,
                 usuarioPartidaService,
                 rondaTimerManager,
-                botService
+                botService,
+                usuarioService
         ));
 
         partidaService = new PartidaServiceImpl(
@@ -87,7 +87,8 @@ public class PartidaServiceTest {
                 aciertoService,
                 usuarioPartidaService,
                 rondaTimerManager,
-                botService
+                botService,
+                usuarioService
         );
 
 

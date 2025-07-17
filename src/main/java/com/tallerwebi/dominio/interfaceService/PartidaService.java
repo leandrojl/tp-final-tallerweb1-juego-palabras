@@ -52,7 +52,7 @@ public interface PartidaService {
     String obtenerNombrePartidaPorId(Long idPartida);
 
 
-    void activarComodin(Long idPartida, Long idUsuario, String nombreUsuario);
+    void activarComodin(Long idPartida, Long idUsuario, String nombreUsuario, boolean letraRepetida);
 
     void obtenerUsuariosParaBloquear(Long idPartida, String nombreUsuario);
 

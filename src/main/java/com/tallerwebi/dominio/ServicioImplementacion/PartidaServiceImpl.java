@@ -57,6 +57,8 @@ public class PartidaServiceImpl implements PartidaService {
     private RondaTimerManager rondaTimerManager;
     @Autowired
     private GeminiBotService botService;
+    @Autowired
+    private UsuarioService usuarioService;
 
 
     private final Map<String, ScheduledFuture<?>> usuariosBloqueados = new ConcurrentHashMap<>();
@@ -74,8 +76,10 @@ public class PartidaServiceImpl implements PartidaService {
                               AciertoService aciertoService,
                               UsuarioPartidaService usuarioPartidaService,
                               RondaTimerManager rondaTimerManager,
-                              GeminiBotService botService
+                              GeminiBotService botService,
+                              UsuarioService usuarioService
     ) {
+        this.usuarioService=usuarioService;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.partidaRepository = partidaRepository;
         this.rondaService = rondaService;
@@ -412,11 +416,11 @@ public class PartidaServiceImpl implements PartidaService {
         }
     }
 
-    public void activarComodin(Long idPartida, Long idUsuario, String nombreUsuario) {
+    public void activarComodin(Long idPartida, Long idUsuario, String nombreUsuario, boolean letraRepetida) {
         UsuarioPartida usuarioPartida = usuarioPartidaRepository.obtenerUsuarioPartida(idUsuario, idPartida);
-
+        int valorComodinLetra=75;
         if (usuarioPartida == null) return;
-        if (usuarioPartida.isComodinUsado()) return;
+        //if (usuarioPartida.isComodinUsado()) return;
 
         Ronda rondaActual = rondaRepositorio.obtenerUltimaRondaDePartida(idPartida);
         if (rondaActual == null || rondaActual.getEstado() == Estado.FINALIZADA) return;
@@ -427,12 +431,19 @@ public class PartidaServiceImpl implements PartidaService {
         char letra = palabra.charAt(indiceLetra);
 
         // Marcar comodín como usado
-        usuarioPartida.setComodinUsado(true);
-        usuarioPartidaRepository.actualizar(usuarioPartida);
+        //usuarioPartida.setComodinUsado(true);
 
-        // Enviar al jugador solo la letra descubierta
-        LetraComodinDto letraDto = new LetraComodinDto(indiceLetra, String.valueOf(letra));
-        simpMessagingTemplate.convertAndSendToUser(nombreUsuario, "/queue/comodin", letraDto);
+        usuarioPartidaRepository.actualizar(usuarioPartida);
+        if(usuarioService.getMonedasPorIdUsuario(idUsuario)>=valorComodinLetra && !letraRepetida) {
+            usuarioService.restarMonedas(valorComodinLetra, idUsuario);
+            LetraComodinDto letraDto = new LetraComodinDto(indiceLetra, String.valueOf(letra));
+            simpMessagingTemplate.convertAndSendToUser(nombreUsuario, "/queue/comodin", letraDto);
+
+        }else if (letraRepetida){
+            LetraComodinDto letraDto = new LetraComodinDto(indiceLetra, String.valueOf(letra));
+            simpMessagingTemplate.convertAndSendToUser(nombreUsuario, "/queue/comodin", letraDto);
+        }
+
     }
 
 
@@ -452,51 +463,52 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public void bloquearUsuario(Long idPartida, Long idUsuario, String nombreUsuario, String usuarioABloquear) {
         UsuarioPartida usuarioPartida = usuarioPartidaRepository.obtenerUsuarioPartida(idUsuario, idPartida);
-
+        int valorComodinbloquear = 100;
         if (usuarioPartida == null) return;
-        if (usuarioPartida.isComodinBloqueoUsado()) return; // Añadir este campo a la entidad
+        //if (usuarioPartida.isComodinBloqueoUsado()) return; // Añadir este campo a la entidad
 
         Ronda rondaActual = rondaRepositorio.obtenerUltimaRondaDePartida(idPartida);
         if (rondaActual == null || rondaActual.getEstado() == Estado.FINALIZADA) return;
 
         // Marcar comodín como usado
-        usuarioPartida.setComodinBloqueoUsado(true);
+        //usuarioPartida.setComodinBloqueoUsado(true);
         usuarioPartidaRepository.actualizar(usuarioPartida);
+        if (usuarioService.getMonedasPorIdUsuario(idUsuario) >= valorComodinbloquear) {
+            usuarioService.restarMonedas(valorComodinbloquear, idUsuario);
+            // Crear clave única para el usuario bloqueado
+            String claveBloqueo = idPartida + "-" + usuarioABloquear;
 
-        // Crear clave única para el usuario bloqueado
-        String claveBloqueo = idPartida + "-" + usuarioABloquear;
+            // Cancelar bloqueo anterior si existe
+            ScheduledFuture<?> bloqueoAnterior = usuariosBloqueados.get(claveBloqueo);
+            if (bloqueoAnterior != null && !bloqueoAnterior.isDone()) {
+                bloqueoAnterior.cancel(false);
+            }
 
-        // Cancelar bloqueo anterior si existe
-        ScheduledFuture<?> bloqueoAnterior = usuariosBloqueados.get(claveBloqueo);
-        if (bloqueoAnterior != null && !bloqueoAnterior.isDone()) {
-            bloqueoAnterior.cancel(false);
+            // Notificar al usuario bloqueado
+            BloqueoDto bloqueoDto = new BloqueoDto(usuarioABloquear, 10,
+                    nombreUsuario + " te ha bloqueado por 10 segundos");
+            simpMessagingTemplate.convertAndSendToUser(usuarioABloquear, "/queue/bloqueo", bloqueoDto);
+
+            // Notificar al resto de usuarios
+            BloqueoDto notificacionPublica = new BloqueoDto(usuarioABloquear, 10,
+                    nombreUsuario + " ha bloqueado a " + usuarioABloquear + " por 10 segundos");
+            simpMessagingTemplate.convertAndSend("/topic/notificacionBloqueo/" + idPartida, notificacionPublica);
+
+            // Programar desbloqueo automático
+            ScheduledFuture<?> tareaDesbloqueo = timerRonda.schedule(() -> {
+                BloqueoDto desbloqueoDto = new BloqueoDto(usuarioABloquear, 0, "Tu bloqueo ha terminado");
+                simpMessagingTemplate.convertAndSendToUser(usuarioABloquear, "/queue/desbloqueo", desbloqueoDto);
+
+                // Notificar al resto
+                BloqueoDto notificacionDesbloqueo = new BloqueoDto(usuarioABloquear, 0,
+                        usuarioABloquear + " ya puede escribir nuevamente");
+                simpMessagingTemplate.convertAndSend("/topic/notificacionBloqueo/" + idPartida, notificacionDesbloqueo);
+
+                usuariosBloqueados.remove(claveBloqueo);
+            }, 10, TimeUnit.SECONDS);
+
+            usuariosBloqueados.put(claveBloqueo, tareaDesbloqueo);
         }
 
-        // Notificar al usuario bloqueado
-        BloqueoDto bloqueoDto = new BloqueoDto(usuarioABloquear, 10,
-                nombreUsuario + " te ha bloqueado por 10 segundos");
-        simpMessagingTemplate.convertAndSendToUser(usuarioABloquear, "/queue/bloqueo", bloqueoDto);
-
-        // Notificar al resto de usuarios
-        BloqueoDto notificacionPublica = new BloqueoDto(usuarioABloquear, 10,
-                nombreUsuario + " ha bloqueado a " + usuarioABloquear + " por 10 segundos");
-        simpMessagingTemplate.convertAndSend("/topic/notificacionBloqueo/" + idPartida, notificacionPublica);
-
-        // Programar desbloqueo automático
-        ScheduledFuture<?> tareaDesbloqueo = timerRonda.schedule(() -> {
-            BloqueoDto desbloqueoDto = new BloqueoDto(usuarioABloquear, 0, "Tu bloqueo ha terminado");
-            simpMessagingTemplate.convertAndSendToUser(usuarioABloquear, "/queue/desbloqueo", desbloqueoDto);
-
-            // Notificar al resto
-            BloqueoDto notificacionDesbloqueo = new BloqueoDto(usuarioABloquear, 0,
-                    usuarioABloquear + " ya puede escribir nuevamente");
-            simpMessagingTemplate.convertAndSend("/topic/notificacionBloqueo/" + idPartida, notificacionDesbloqueo);
-
-            usuariosBloqueados.remove(claveBloqueo);
-        }, 10, TimeUnit.SECONDS);
-
-        usuariosBloqueados.put(claveBloqueo, tareaDesbloqueo);
     }
-
-
 }
