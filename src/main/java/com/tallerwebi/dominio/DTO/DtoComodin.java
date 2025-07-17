@@ -4,7 +4,7 @@ public class DtoComodin {
 
     private Long idPartida;
     private Long idUsuario;
-
+    private boolean letraRepetida;
     public DtoComodin() {
     }
 
@@ -24,4 +24,11 @@ public class DtoComodin {
         this.idUsuario = idUsuario;
     }
 
+    public boolean isLetraRepetida() {
+        return letraRepetida;
+    }
+
+    public void setLetraRepetida(boolean letraRepetida) {
+        this.letraRepetida = letraRepetida;
+    }
 }

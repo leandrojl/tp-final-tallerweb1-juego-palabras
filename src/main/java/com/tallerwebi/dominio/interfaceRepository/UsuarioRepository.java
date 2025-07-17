@@ -29,4 +29,6 @@ public interface UsuarioRepository {
     String obtenerEmailPorId(long idUsuario);
 
     void agregarMonedasAlUsuario(JSONObject respuesta);
+
+    void restarMonedas(int valorComodinLetra, Long idUsuario);
 }

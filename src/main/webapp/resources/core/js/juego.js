@@ -11,7 +11,8 @@ let tiempoRestante = 60;
 let intervaloTemporizador;
 let intervaloLetras;
 let finRondaEjecutada = false;
-
+let monedas = document.getElementById("monedas-usuario").textContent;
+const monedasSpan = document.getElementById("monedas-usuario");
 
 const idUsuario = sessionStorage.getItem('idUsuario');
 const idPartida = sessionStorage.getItem('idPartida');
@@ -49,8 +50,6 @@ function obtenerColorJugador(nombreJugador) {
     }
     return coloresJugadores.get(nombreJugador);
 }
-//const idUsuario = Number(document.getElementById("usuarioId").value);
-//const idPartida = Number(document.getElementById("idPartida").value);
 
 
 const palabra = document.getElementById("palabraOculta").value;
@@ -140,23 +139,6 @@ function enviarIntento(palabra) {
     });
 }
 
-
-// === RECIBE MENSAJE DEL SERVIDOR ===/*
-/*function manejarMensajeServidor(mensaje) {
-
-// === RECIBE MENSAJES DE EVENTOS GENERALES ===
-function manejarMensajeServidor(mensaje) {
-
-    const data = JSON.parse(mensaje.body);
-        if (data.tipo === "inicio-ronda") {
-            document.getElementById("palabraOculta").value = data.palabra;
-            document.getElementById("definicionActual").textContent = data.definicion;
-        } else if (data.tipo === "fin-ronda") {
-        detenerTimers();
-        window.location.href = `/juego?ronda=${data.siguienteRonda}&idUsuario=${idUsuario}`;
-    }
-}*/
-
 function manejarMensajeServidor(mensaje) {
     const data = JSON.parse(mensaje.body);
     reconstruirPalabra(data.palabra);
@@ -172,8 +154,6 @@ function manejarMensajeServidor(mensaje) {
         input.disabled    = false;
         input.placeholder = "";
         input.classList.remove("input-desactivado");
-
-        //mostrarLetras();
 
 
 }
@@ -219,30 +199,31 @@ function mostrarResultadoIntentoIncorrecto(mensaje) {
     mostrarMensajeChat(texto, data.esCorrecto, humano, colorJugador);
 }
 
-// === RANKING ACTUALIZADO ===
-// function actualizarRanking(mensaje) {
-//     const data = JSON.parse(mensaje.body);
-//     console.log("Ranking recibido:", data);
-//     const jugadores = data.jugadores;
-//     const contenedor = document.querySelector(".ranking-horizontal");
-//     contenedor.innerHTML = "";
-//
-//     const nombreActual = document.getElementById("usuarioNombre").value;
-//
-//     mostrarMensajeChat(texto, data.esCorrecto);
-// }
-
 // === COMODÍN: REVELAR LETRA ===
 function manejarLetraComodin(mensaje) {
     const data = JSON.parse(mensaje.body);
     const letraSpan = document.getElementById(`letra-${data.indice}`);
-    if (letraSpan) {
+
+    if (letraSpan && letraSpan.classList.contains("oculto")) {
         letraSpan.textContent = data.letra;
         letraSpan.classList.remove("oculto");
         letraSpan.classList.add("comodin-letra");
-    }
-}
+    }else{
 
+
+        if(!consultarEstadoPalabra()) {
+            let letraRepetida = true;
+            activarComodinLetra(letraRepetida);
+        }
+    }
+
+
+}
+function consultarEstadoPalabra(){
+    const spans = document.querySelectorAll('[id^="letra-"]'); // todos los que empiezan con "letra-"
+
+    return Array.from(spans).every(span => !span.classList.contains("oculto"));
+}
 // === COMODÍN: MOSTRAR MODAL CON JUGADORES PARA BLOQUEAR ===
 function mostrarListaJugadoresModal(mensaje) {
     const data = JSON.parse(mensaje.body);
@@ -272,6 +253,8 @@ function mostrarListaJugadoresModal(mensaje) {
 
 // === ENVIAR BLOQUEO AL SERVIDOR ===
 function bloquearUsuarioDesdeModal(usuarioABloquear) {
+
+
     stompClient.publish({
         destination: "/app/juego/bloquearUsuario",
         body: JSON.stringify({
@@ -281,7 +264,7 @@ function bloquearUsuarioDesdeModal(usuarioABloquear) {
         })
     });
     // Deshabilitar el botón de bloquear para evitar múltiples usos
-    document.getElementById("btn-bloquear-usuario").disabled = true;
+  //  document.getElementById("btn-bloquear-usuario").disabled = true;
 
     // Cerrar el modal
     bootstrap.Modal.getInstance(document.getElementById('modalJugadores')).hide();
@@ -346,34 +329,8 @@ function iniciarTemporizador() {
 }
 
 // === MOSTRAR LETRAS AUTOMÁTICO ===
-function mostrarLetras() {
-    intervaloLetras = setInterval(() => {
-        if (indexLetra < letras.length) {
-            const letraSpan = document.getElementById(`letra-${indexLetra}`);
-            if (letraSpan) {
-                letraSpan.textContent = letras[indexLetra];
-                letraSpan.classList.remove("oculto");
-            }
-            indexLetra++;
-        } else {
-            clearInterval(intervaloLetras);
-        }
-    }, 15000);
-}
 
 // === DETENER TIMERS ===>
-function detenerTimers() {
-    if (finRondaEjecutada) return;
-    finRondaEjecutada = true;
-    clearInterval(intervaloTemporizador);
-    clearInterval(intervaloLetras);
-     // Desactivar el input
-        const input = document.getElementById("input-intento");
-        input.disabled = true;
-        input.placeholder = "Tiempo agotado";
-        input.classList.add("input-desactivado");
-}
-
 
 // === CHAT LOCAL (Palabras Mencionadas) ===
 function mostrarMensajeChat(texto, esCorrecto, humano, colorPersonalizado = null) {
@@ -412,6 +369,17 @@ function abandonarPartida() {
     navigator.sendBeacon("/spring/abandonarPartida?" + params.toString());
 }
 
+function actualizarMonedasDisplay() {
+    monedasSpan.textContent = monedas;
+}
+
+function activarComodinLetra(letraRepetida) {
+    stompClient.publish({
+        destination: "/app/juego/activarComodin",
+        body: JSON.stringify({ idPartida, idUsuario: idUsuario, letraRepetida })
+    });
+}
+
 // === INICIALIZACIÓN ===
 document.addEventListener("DOMContentLoaded", () => {
     conectarWebSocket();
@@ -429,20 +397,40 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    document.getElementById("btn-comodin").addEventListener("click", () => {
-        stompClient.publish({
-            destination: "/app/juego/activarComodin",
-            body: JSON.stringify({ idPartida, idUsuario: idUsuario })
-        });
-        document.getElementById("btn-comodin").disabled = true;
+    document.getElementById("btn-comodin").addEventListener("click", function () {
+
+        let letraRepetida;
+        if(!consultarEstadoPalabra()){
+        if (monedas >= 75) {
+            monedas -= 75;
+            actualizarMonedasDisplay();
+            letraRepetida = false;
+            activarComodinLetra(letraRepetida);
+
+
+            //   document.getElementById("btn-comodin").disabled = true;
+        } else {
+            alert("No tenés suficientes monedas para usar un comodín.");
+        }
+        } else   alert("Ya no hay letras para revelar");
     });
 
-    document.getElementById("btn-bloquear-usuario").addEventListener("click", () => {
-        stompClient.publish({
-            destination: "/app/juego/obtenerUsuarios",
-            body: JSON.stringify({ idPartida })
-        });
-    });
+    document.getElementById("btn-bloquear-usuario").addEventListener("click", function () {
+        if (monedas >= 100) {
+            monedas -= 100;
+            actualizarMonedasDisplay();
+
+            stompClient.publish({
+                destination: "/app/juego/obtenerUsuarios",
+                body: JSON.stringify({ idPartida })
+            });
+
+            // desactivás el botón temporalmente si querés:
+            // document.getElementById("btn-bloquear-usuario").disabled = true;
+        } else {
+            alert("No tenés suficientes monedas para bloquear.");
+        }
+    });actualizarMonedasDisplay(); // Al cargar
 
     window.addEventListener("beforeunload", abandonarPartida);
 });

@@ -48,7 +48,6 @@ public class JuegoController {
         Long idPartida = (Long) session.getAttribute("idPartida");
         System.out.println("Datos de sesión: idUsuario=" +
                 idUsuario + ", nombreUsuario=" + nombreUsuario + ", idPartida=" + idPartida);
-
         if (idUsuario == null || nombreUsuario == null || idPartida == null) {
             return new ModelAndView("redirect:/login");
         }
@@ -73,7 +72,7 @@ public class JuegoController {
         model.put("palabra", definicion.getPalabra());
         model.put("definicion", definicion.getDefinicionTexto());
         model.put("rondaActual", definicion.getNumeroDeRonda());
-
+        model.put("monedas", usuarioService.getMonedasPorIdUsuario(idUsuario));
         int puntaje = definicion.getJugadores().stream()
                 .filter(j -> j.getNombre().equals(nombreUsuario))
                 .map(JugadorPuntajeDto::getPuntaje)
