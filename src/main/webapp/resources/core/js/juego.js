@@ -361,14 +361,14 @@ function mostrarMensajeChat(texto, esCorrecto, humano, colorPersonalizado = null
 
 
 // === ABANDONAR PARTIDA ===
-function abandonarPartida() {
-    const params = new URLSearchParams({
-        idUsuario: idUsuario,
-        idPartida: idPartida
-    });
-
-    navigator.sendBeacon("/spring/abandonarPartida?" + params.toString());
-}
+// function abandonarPartida() {
+//     const params = new URLSearchParams({
+//         idUsuario: idUsuario,
+//         idPartida: idPartida
+//     });
+//
+//     navigator.sendBeacon("/spring/abandonarPartida?" + params.toString());
+// }
 
 function actualizarMonedasDisplay() {
     monedasSpan.textContent = monedas;
@@ -433,7 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });actualizarMonedasDisplay(); // Al cargar
 
-    window.addEventListener("beforeunload", abandonarPartida);
+    //window.addEventListener("beforeunload", abandonarPartida);
 });
 
 
