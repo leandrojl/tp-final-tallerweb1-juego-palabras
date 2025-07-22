@@ -81,12 +81,12 @@ public class WebSocketController {
     public void procesarIntento(DtoIntento intento, Principal principal){
 
         String nombre = principal.getName();
-        if (principal == null) {
-            System.out.println("Principal es NULL");
-            nombre = "Anónimo";
-        } else {
-            System.out.println("Principal name: " + principal.getName());
-        }
+//        if (principal == null) {
+//            System.out.println("Principal es NULL");
+//            nombre = "Anónimo";
+//        } else {
+//            System.out.println("Principal name: " + principal.getName());
+//        }
 
         partidaService.procesarIntento(intento, nombre);
     }

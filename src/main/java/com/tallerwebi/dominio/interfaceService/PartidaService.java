@@ -30,8 +30,6 @@ public interface PartidaService {
 
     List<RankingDTO> obtenerRanking(Long partidaId);
 
-    void procesarIntento1(DtoIntento intento);
-
     RondaDto iniciarNuevaRonda(Long partidaId);
 
     RondaDto  obtenerPalabraYDefinicionDeRondaActual(Long partidaId);

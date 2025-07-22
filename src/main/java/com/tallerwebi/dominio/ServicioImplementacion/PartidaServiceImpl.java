@@ -147,14 +147,11 @@ public class PartidaServiceImpl implements PartidaService {
                 simpMessagingTemplate.convertAndSend(
                         "/topic/mostrarIntento/" + partidaId,
                         resultadoPublico
-
                 );
-
                 List<UsuarioPartida> jugadores = usuarioPartidaRepository.buscarPorPartida(partidaId);
                 List<JugadorPuntajeDto> jugadoresDto = jugadores.stream()
                         .map(up -> new JugadorPuntajeDto(up.getUsuario().getNombreUsuario(), up.getPuntaje()))
                         .collect(Collectors.toList());
-
                 simpMessagingTemplate.convertAndSend(
                         "/topic/verRanking/" + partidaId,
                         new MensajeTipoRanking("actualizar-puntajes", jugadoresDto)
@@ -163,7 +160,6 @@ public class PartidaServiceImpl implements PartidaService {
             }
 
         } else {
-
             resultadoPublico.setCorrecto(false);
             resultadoPublico.setPalabraIncorrecta(intentoTexto);
             resultadoPublico.setJugador(nombre);
@@ -393,28 +389,6 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public String obtenerNombrePartidaPorId(Long idPartida) {
         return partidaRepository.obtenerNombrePartidaPorId(idPartida);
-    }
-
-    @Override
-    public void procesarIntento1(DtoIntento intento) {
-        ResultadoIntentoDto resultado = new ResultadoIntentoDto();
-        //=================== HARCODEADO =============================== //
-        Boolean correcta = false;
-        if (correcta) {
-            resultado.setPalabraCorrecta(intento.getIntentoPalabra());
-            resultado.setPalabraIncorrecta("");
-            resultado.setJugador("pepito");
-            resultado.setCorrecto(true);
-            simpMessagingTemplate.convertAndSendToUser("hla", "/queue/resultado", resultado);
-        } else {
-            resultado.setPalabraCorrecta("");
-            resultado.setPalabraIncorrecta(intento.getIntentoPalabra());
-            resultado.setJugador("pepito");
-            resultado.setCorrecto(false);
-            simpMessagingTemplate.convertAndSend(
-                    "/topic/mostrarIntento/" + intento.getIdPartida(),
-                    resultado);
-        }
     }
 
     private void enviarMensajeTimerInicioNuevaRonda(Long partidaId) {
